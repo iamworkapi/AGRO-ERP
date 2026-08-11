@@ -149,7 +149,7 @@ export default function DataTable({
               field={col.key}
               header={col.label}
               sortable={col.sortable !== false}
-              body={col.render ? (row) => col.render(row) : undefined}
+              body={col.render ? (row, options) => col.render(row, options) : undefined}
               bodyStyle={{
                 ...(col.emphasize ? { color: "var(--ink)", fontWeight: 600 } : {}),
                 ...(col.style || {}),

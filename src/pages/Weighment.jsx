@@ -316,17 +316,70 @@ export default function Weighment() {
             {
               key: "srNo",
               label: "Sr.",
-              render: (_, index) => <span style={{ color: "var(--muted)", fontWeight: 600 }}>{index + 1}</span>,
+              render: (_, options) => <span style={{ color: "var(--muted)", fontWeight: 600 }}>{(options?.rowIndex !== undefined ? options.rowIndex + 1 : 1)}</span>,
             },
             {
               key: "slipNo",
               label: "R.S.T No.",
               emphasize: true,
               render: (r) => (
-                <span style={{ fontWeight: 700, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-hashtag" style={{ fontSize: 10 }} />
-                  {r.slipNo}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedSlipForPrint(r)}
+                  title="Click to View & Print Receipt Slip PDF"
+                  style={{
+                    border: "1px solid #10B981",
+                    background: "#E5F8F0",
+                    color: "#009657",
+                    padding: "4px 10px",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                    transition: "all 0.15s ease",
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = "#059669";
+                    e.currentTarget.style.color = "#ffffff";
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = "#E5F8F0";
+                    e.currentTarget.style.color = "#009657";
+                  }}
+                >
+                  <i className="fa-solid fa-print" style={{ fontSize: 11 }} />
+                  #{r.slipNo}
+                </button>
+              ),
+            },
+            {
+              key: "quickPrint",
+              label: "Print Slip",
+              render: (r) => (
+                <button
+                  type="button"
+                  onClick={() => setSelectedSlipForPrint(r)}
+                  style={{
+                    padding: "4px 9px",
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    borderRadius: 6,
+                    border: "1px solid #059669",
+                    background: "#f0fdf4",
+                    color: "#059669",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    whiteSpace: "nowrap"
+                  }}
+                >
+                  <i className="fa-solid fa-file-pdf" /> Print / View PDF
+                </button>
               ),
             },
             {
@@ -468,10 +521,27 @@ export default function Weighment() {
               label: "Slip No.",
               emphasize: true,
               render: (r) => (
-                <span style={{ fontWeight: 700, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-hashtag" style={{ fontSize: 10 }} />
-                  {r.slipNo}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedSlipForPrint(r)}
+                  title="Click to View & Print Receipt Slip PDF"
+                  style={{
+                    border: "1px solid #10B981",
+                    background: "#E5F8F0",
+                    color: "#009657",
+                    padding: "4px 10px",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                  }}
+                >
+                  <i className="fa-solid fa-print" style={{ fontSize: 11 }} />
+                  #{r.slipNo}
+                </button>
               ),
             },
             {
