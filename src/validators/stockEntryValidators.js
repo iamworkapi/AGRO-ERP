@@ -13,6 +13,9 @@ export const createStockEntrySchema = z
     grossWeightKg: z.coerce.number().min(0, "Gross weight is required."),
     tareWeightKg: z.coerce.number().min(0, "Tare weight is required."),
     moisturePct: z.coerce.number().min(0).max(100).optional(),
+    allowedMoisturePct: z.coerce.number().min(0).max(100).optional(),
+    deductionPct: z.coerce.number().min(0).max(100).optional(),
+    ratePerMt: z.coerce.number().min(0).optional(),
   })
   .refine((data) => data.grossWeightKg >= data.tareWeightKg, {
     message: "Gross weight must be greater than or equal to tare weight.",

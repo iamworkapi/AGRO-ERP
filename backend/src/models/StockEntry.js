@@ -19,6 +19,11 @@ const stockEntrySchema = new mongoose.Schema(
     tareWeightKg: { type: Number, required: true, min: 0 },
     netWeightKg: { type: Number },
     moisturePct: { type: Number, min: 0, max: 100 },
+    allowedMoisturePct: { type: Number, min: 0, max: 100, default: 20 },
+    deductionPct: { type: Number, min: 0, max: 100, default: 0 },
+    ratePerMt: { type: Number, min: 0, default: 1900 },
+    actualWeightKg: { type: Number },
+    totalAmountRs: { type: Number },
     status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
     recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -35,6 +40,14 @@ stockEntrySchema.pre("validate", function assertGrossNotBelowTare(next) {
     next(new Error("Gross weight must be greater than or equal to tare weight."));
   } else {
     this.netWeightKg = this.grossWeightKg - this.tareWeightKg;
+    const allowed = this.allowedMoisturePct || 20;
+    const moisture = this.moisturePct || 0;
+    const diffPct = Math.max(0, moisture - allowed);
+    this.deductionPct = diffPct;
+    const deductionKg = (this.netWeightKg * diffPct) / 100;
+    this.actualWeightKg = Math.max(0, this.netWeightKg - deductionKg);
+    const rate = this.ratePerMt || 1900;
+    this.totalAmountRs = Math.round((this.actualWeightKg / 1000) * rate * 100) / 100;
     next();
   }
 });

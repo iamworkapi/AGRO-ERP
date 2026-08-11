@@ -4,6 +4,7 @@ import PageHeader from "../components/common/PageHeader";
 import FormField from "../components/common/FormField";
 import Button from "../components/common/Button";
 import Badge from "../components/common/Badge";
+import PrintableWeighmentSlipModal from "../components/weighment/PrintableWeighmentSlipModal";
 import { useWeighment } from "../features/weighment/useWeighment";
 import { useStockEntries } from "../features/stockEntries/useStockEntries";
 import { useWeightMachines } from "../features/weightMachines/useWeightMachines";
@@ -34,6 +35,8 @@ function emptyForm(defaultWarehouseId = "") {
     gross: "",
     tare: "",
     moisture: "",
+    allowedMoisture: "20",
+    rate: "1900",
   };
 }
 
@@ -42,20 +45,37 @@ function useMoistureCalc(form, slabMap) {
     const gross = parseFloat(form.gross) || 0;
     const tare = parseFloat(form.tare) || 0;
     const moisture = parseFloat(form.moisture) || 0;
-    const slab = slabMap[form.commodity];
-    const beforeDeduction = Math.max(gross - tare, 0);
+    const allowed = parseFloat(form.allowedMoisture) || 20;
+    const rate = parseFloat(form.rate) || 1900;
 
-    if (!slab || !form.gross || !form.tare) {
-      return { beforeDeduction, deductionPct: 0, deductionWeight: 0, netWeight: beforeDeduction, threshold: slab ? slab.threshold : null, over: false };
-    }
+    const beforeDeduction = Math.max(gross - tare, 0); // Net weight in kg
+    const netWeightMt = beforeDeduction / 1000;
 
-    const excess = Math.max(moisture - slab.threshold, 0);
-    const deductionPct = excess * slab.rate;
-    const deductionWeight = (beforeDeduction * deductionPct) / 100;
-    const netWeight = beforeDeduction - deductionWeight;
+    const excessPct = Math.max(moisture - allowed, 0);
+    const deductionPct = excessPct; // 1% cut per 1% excess moisture
+    const deductionKg = (beforeDeduction * deductionPct) / 100;
+    const deductionMt = deductionKg / 1000;
 
-    return { beforeDeduction, deductionPct, deductionWeight, netWeight, threshold: slab.threshold, over: excess > 0 };
-  }, [form, slabMap]);
+    const actualWeightKg = Math.max(0, beforeDeduction - deductionKg);
+    const actualWeightMt = actualWeightKg / 1000;
+
+    const totalAmountRs = Math.round(actualWeightMt * rate * 100) / 100;
+
+    return {
+      beforeDeduction,
+      netWeightMt,
+      allowed,
+      excessPct,
+      deductionPct,
+      deductionKg,
+      deductionMt,
+      actualWeightKg,
+      actualWeightMt,
+      rate,
+      totalAmountRs,
+      over: excessPct > 0,
+    };
+  }, [form]);
 }
 
 export default function CreateWeighmentSlip() {
@@ -71,6 +91,8 @@ export default function CreateWeighmentSlip() {
 
   const [form, setForm] = useState(() => emptyForm());
   const [saving, setSaving] = useState(false);
+  const [showPrintModal, setShowPrintModal] = useState(false);
+
   const calc = useMoistureCalc(form, slabMap);
 
   useEffect(() => {
@@ -79,9 +101,6 @@ export default function CreateWeighmentSlip() {
     }
   }, [isScopedRole, myWarehouse?.id]);
 
-  // Machines are scoped to whichever warehouse is currently selected - for
-  // a Supervisor/Warehouse Admin that's always their own; Super Admin can
-  // switch warehouses and the machine list refetches accordingly.
   const { machines, status: machinesStatus } = useWeightMachines(form.warehouseId || undefined);
   const activeMachines = useMemo(() => machines.filter((m) => m.status === "active"), [machines]);
 
@@ -108,6 +127,9 @@ export default function CreateWeighmentSlip() {
       grossWeightKg: form.gross,
       tareWeightKg: form.tare,
       moisturePct: form.moisture,
+      allowedMoisturePct: form.allowedMoisture,
+      deductionPct: calc.deductionPct,
+      ratePerMt: form.rate,
     });
     if (!parsed) return;
 
@@ -323,12 +345,12 @@ export default function CreateWeighmentSlip() {
               </div>
             </div>
 
-            {/* Section 3: Weight & Moisture Readings */}
+            {/* Section 3: Weight, Moisture & Rate Measurements */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
                 <i className="fa-solid fa-scale-balanced" style={{ color: "var(--primary)", fontSize: 13 }} />
                 <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
-                  Weight & Moisture Measurements
+                  Weight, Moisture & Rate Measurements
                 </h3>
               </div>
 
@@ -365,6 +387,31 @@ export default function CreateWeighmentSlip() {
                   value={form.moisture}
                   onChange={set("moisture")}
                   placeholder="0.0"
+                  compact
+                  marginBottom={8}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 10px", marginTop: 4 }} className="responsive-grid-2">
+                <FormField
+                  label="Allowed Moisture Baseline"
+                  type="number"
+                  icon="fa-solid fa-shield-halved"
+                  suffix="%"
+                  value={form.allowedMoisture}
+                  onChange={set("allowedMoisture")}
+                  placeholder="20"
+                  compact
+                  marginBottom={8}
+                />
+                <FormField
+                  label="Purchase Rate"
+                  type="number"
+                  icon="fa-solid fa-indian-rupee-sign"
+                  suffix="₹ / MT"
+                  value={form.rate}
+                  onChange={set("rate")}
+                  placeholder="1900"
                   compact
                   marginBottom={8}
                 />
@@ -410,7 +457,7 @@ export default function CreateWeighmentSlip() {
           </form>
         </div>
 
-        {/* Real-time Net Weight & Moisture Calculator Card */}
+        {/* Real-time Net Weight & Payment Calculator Card */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div
             style={{
@@ -424,22 +471,42 @@ export default function CreateWeighmentSlip() {
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
               <i className="fa-solid fa-calculator" style={{ color: "var(--primary)", fontSize: 13 }} />
               <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>
-                Live Net Weight Breakdown
+                Live Calculation & Bill Breakdown
               </h4>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
                 <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-weight-hanging" style={{ fontSize: 11 }} /> Net Weight (Gross − Tare):
+                  <i className="fa-solid fa-scale-unbalanced" style={{ fontSize: 11 }} /> Gross - Tare (Net Weight):
                 </span>
-                <span style={{ fontWeight: 700, color: "var(--ink)" }}>{calc.beforeDeduction.toFixed(0)} kg</span>
+                <span style={{ fontWeight: 700, color: "var(--ink)" }}>
+                  {calc.netWeightMt.toFixed(3)} MT ({calc.beforeDeduction.toFixed(0)} kg)
+                </span>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
+                  <i className="fa-solid fa-droplet" style={{ fontSize: 11 }} /> Moisture Deduction ({calc.deductionPct.toFixed(1)}%):
+                </span>
+                <span style={{ fontWeight: 700, color: calc.over ? "#d97706" : "var(--ink)" }}>
+                  - {calc.deductionMt.toFixed(3)} MT ({calc.deductionKg.toFixed(0)} kg)
+                </span>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
+                  <i className="fa-solid fa-scale-balanced" style={{ fontSize: 11 }} /> Actual Payable Weight:
+                </span>
+                <span style={{ fontWeight: 800, color: "var(--primary-deep)" }}>
+                  {calc.actualWeightMt.toFixed(3)} MT
+                </span>
               </div>
 
               <div
                 style={{
                   background: "var(--primary-tint)",
-                  border: "1px solid rgba(0, 184, 107, 0.2)",
+                  border: "1px solid rgba(0, 184, 107, 0.25)",
                   borderRadius: 10,
                   padding: "12px 14px",
                   marginTop: 4,
@@ -450,50 +517,28 @@ export default function CreateWeighmentSlip() {
                 }}
               >
                 <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>
-                  Net Weight (Saved to Ledger)
+                  Total Payable Amount (At ₹{calc.rate}/MT)
                 </span>
-                <span style={{ fontSize: 22, fontWeight: 800, color: "var(--primary-deep)", marginTop: 2 }}>
-                  {calc.beforeDeduction.toFixed(0)} kg
+                <span style={{ fontSize: 24, fontWeight: 900, color: "var(--primary-deep)", marginTop: 2 }}>
+                  ₹{calc.totalAmountRs.toLocaleString("en-IN")}
                 </span>
-              </div>
-
-              <div style={{ borderTop: "1px dashed var(--line)", paddingTop: 10, marginTop: 2 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}>
-                  <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                    <i className="fa-solid fa-shield-halved" style={{ fontSize: 10 }} /> Moisture Threshold:
-                  </span>
-                  <span style={{ fontWeight: 600, color: "var(--ink)" }}>
-                    {calc.threshold !== null ? `${calc.threshold}%` : "—"}
-                  </span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, marginTop: 4 }}>
-                  <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                    <i className="fa-solid fa-percent" style={{ fontSize: 10 }} /> Estimated Deduction:
-                  </span>
-                  <span style={{ fontWeight: 600, color: calc.over ? "var(--status-warning, #d97706)" : "var(--ink)" }}>
-                    {calc.deductionPct.toFixed(2)}% ({calc.deductionWeight.toFixed(0)} kg)
-                  </span>
-                </div>
-                <p style={{ fontSize: 10.5, color: "var(--muted)", margin: "6px 0 0", lineHeight: 1.4 }}>
-                  Illustrative only, based on Deduction Slab Config - not deducted from the saved net weight.
-                </p>
               </div>
 
               {calc.over && (
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: 2 }}>
-                  <Badge tone="warning">⚡ ABOVE MOISTURE THRESHOLD</Badge>
+                  <Badge tone="warning">⚡ MOISTURE DEDUCTION APPLIED ({calc.deductionPct}%)</Badge>
                 </div>
               )}
 
-              {/* Quick Actions: Print & WhatsApp */}
+              {/* Quick Actions: Print Receipt Slip & WhatsApp */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8, paddingTop: 10, borderTop: "1px solid var(--line)" }}>
                 <button
                   type="button"
-                  onClick={handlePrint}
+                  onClick={() => setShowPrintModal(true)}
                   style={{
-                    padding: "7px 10px",
+                    padding: "8px 10px",
                     fontSize: 11.5,
-                    fontWeight: 600,
+                    fontWeight: 700,
                     borderRadius: 8,
                     border: "1px solid var(--line-strong)",
                     background: "var(--canvas)",
@@ -514,14 +559,14 @@ export default function CreateWeighmentSlip() {
                     e.currentTarget.style.background = "var(--canvas)";
                   }}
                 >
-                  <i className="fa-solid fa-print" style={{ color: "var(--primary)" }} /> Print Slip
+                  <i className="fa-solid fa-print" style={{ color: "var(--primary)" }} /> Print Receipt Slip
                 </button>
 
                 <button
                   type="button"
-                  onClick={handleShareWhatsApp}
+                  onClick={() => setShowPrintModal(true)}
                   style={{
-                    padding: "7px 10px",
+                    padding: "8px 10px",
                     fontSize: 11.5,
                     fontWeight: 700,
                     borderRadius: 8,
@@ -543,13 +588,33 @@ export default function CreateWeighmentSlip() {
                     e.currentTarget.style.background = "#25D366";
                   }}
                 >
-                  <i className="fa-brands fa-whatsapp" style={{ fontSize: 13 }} /> WhatsApp
+                  <i className="fa-brands fa-whatsapp" style={{ fontSize: 13 }} /> Share WhatsApp
                 </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Printable Receipt Modal */}
+      <PrintableWeighmentSlipModal
+        isOpen={showPrintModal}
+        onClose={() => setShowPrintModal(false)}
+        data={{
+          warehouse: warehouses.find((w) => w.id === form.warehouseId)?.name || "Gorakhpur Purchase Center",
+          slipNo: form.slipNo || "720",
+          commodity: form.commodity,
+          partyName: form.party,
+          vehicleNo: form.vehicleNo,
+          grossWeightKg: form.gross,
+          tareWeightKg: form.tare,
+          moisturePct: form.moisture,
+          allowedMoisturePct: form.allowedMoisture,
+          deductionPct: calc.deductionPct,
+          ratePerMt: form.rate,
+          totalAmountRs: calc.totalAmountRs,
+        }}
+      />
     </div>
   );
 }

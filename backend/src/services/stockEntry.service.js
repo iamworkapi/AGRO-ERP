@@ -59,6 +59,9 @@ export async function createStockEntry(actor, payload) {
       grossWeightKg: payload.grossWeightKg,
       tareWeightKg: payload.tareWeightKg,
       moisturePct: payload.moisturePct,
+      allowedMoisturePct: payload.allowedMoisturePct,
+      deductionPct: payload.deductionPct,
+      ratePerMt: payload.ratePerMt,
       recordedBy: actor.profile._id,
     });
     await entry.populate("warehouse", "name code");
