@@ -23,17 +23,25 @@ export default function Weighment() {
   const { entries, status, error } = useStockEntries();
 
   const [activeTab, setActiveTab] = useState("register"); // "register" | "list"
+  const [commodityFilter, setCommodityFilter] = useState("ALL");
   const [selectedSlipForPrint, setSelectedSlipForPrint] = useState(null);
 
-  const approvedCount = useMemo(() => entries.filter((e) => e.status === "approved").length, [entries]);
+  // Filtered entries
+  const filteredEntries = useMemo(() => {
+    if (commodityFilter === "ALL") return entries;
+    return entries.filter((e) => e.commodity?.toLowerCase() === commodityFilter.toLowerCase());
+  }, [entries, commodityFilter]);
+
+  const approvedCount = useMemo(() => filteredEntries.filter((e) => e.status === "approved").length, [filteredEntries]);
 
   // Aggregate stats for metrics bar
-  const totalNetMt = useMemo(() => entries.reduce((sum, e) => sum + (e.actualWeightMt || (e.netWeightKg || 0) / 1000), 0), [entries]);
-  const totalAmountSum = useMemo(() => entries.reduce((sum, e) => sum + (e.totalAmountRs || 0), 0), [entries]);
+  const totalNetMt = useMemo(() => filteredEntries.reduce((sum, e) => sum + (e.actualWeightMt || (e.netWeightKg || 0) / 1000), 0), [filteredEntries]);
+  const totalAmountSum = useMemo(() => filteredEntries.reduce((sum, e) => sum + (e.totalAmountRs || 0), 0), [filteredEntries]);
+  const totalDeductionSum = useMemo(() => filteredEntries.reduce((sum, e) => sum + (e.totalDeductionMt || 0), 0), [filteredEntries]);
 
   // Function to export daily register to CSV
   function handleExportCSV() {
-    if (!entries.length) {
+    if (!filteredEntries.length) {
       toast.error("No entries available to export.");
       return;
     }
@@ -58,7 +66,7 @@ export default function Weighment() {
       "Total Amount (Rs.)",
     ];
 
-    const rows = entries.map((e, index) => [
+    const rows = filteredEntries.map((e, index) => [
       index + 1,
       `"${e.slipNo || ""}"`,
       `"${e.vehicleNo || ""}"`,
@@ -115,7 +123,7 @@ export default function Weighment() {
       `💰 *Rate:* ₹${rate.toLocaleString("en-IN")} / MT\n` +
       `💵 *TOTAL AMOUNT:* ₹${totalAmt.toLocaleString("en-IN")}\n` +
       `-----------------------------------\n` +
-      `Thank you for doing business with us!`;
+      `Automated Weighbridge Token - Kusumganga Agro Solutions.`;
 
     let phone = prompt("WhatsApp send karne ke liye mobile number darj karein (with country code e.g. 919876543210):");
     let url = "";
@@ -132,11 +140,11 @@ export default function Weighment() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <PageHeader
-        title={isScopedRole ? `Weighment Slips — ${myWarehouseName || "your warehouse"}` : "Daily Weight Register & Slips"}
+        title={isScopedRole ? `Weighment Slips — ${myWarehouseName || "your warehouse"}` : "Daily Weight Register & Procurement Ledger"}
         subtitle={
           isScopedRole
             ? `Digitised weighment slips & daily purchase register for ${myWarehouseName || "your assigned warehouse"}`
-            : "Digitised weighment slips & daily purchase register with moisture deduction, auto bill calculation and printing"
+            : "Digitised weighment slips & daily purchase register with moisture deduction, auto bill calculation and print studio"
         }
       />
 
@@ -150,7 +158,7 @@ export default function Weighment() {
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Total Slips</p>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "var(--ink)", marginTop: 2 }}>{entries.length} Slips</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "var(--ink)", marginTop: 2 }}>{filteredEntries.length} Slips</div>
           </div>
         </div>
 
@@ -187,9 +195,9 @@ export default function Weighment() {
         </div>
       </div>
 
-      {/* VIEW SELECTION TAB BAR & ACTIONS */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line)", paddingBottom: 8 }}>
-        <div style={{ display: "flex", gap: 8 }}>
+      {/* VIEW SELECTION TAB BAR, COMMODITY FILTER & ACTIONS */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line)", paddingBottom: 8, flexWrap: "wrap", gap: 10 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button
             type="button"
             onClick={() => setActiveTab("register")}
@@ -229,6 +237,30 @@ export default function Weighment() {
           >
             <i className="fa-solid fa-list-check" /> Slips Cards View
           </button>
+
+          {/* Commodity Filter dropdown */}
+          <select
+            value={commodityFilter}
+            onChange={(e) => setCommodityFilter(e.target.value)}
+            style={{
+              padding: "6px 10px",
+              fontSize: 12,
+              fontWeight: 600,
+              borderRadius: 8,
+              border: "1px solid var(--line-strong)",
+              background: "var(--surface)",
+              color: "var(--ink)",
+              outline: "none"
+            }}
+          >
+            <option value="ALL">All Commodities</option>
+            <option value="Maize">Maize</option>
+            <option value="Wheat">Wheat</option>
+            <option value="Paddy">Paddy</option>
+            <option value="PRALLI">PRALLI</option>
+            <option value="Mustard">Mustard</option>
+            <option value="Seeds">Seeds</option>
+          </select>
         </div>
 
         <div style={{ display: "flex", gap: 8 }}>
@@ -278,7 +310,7 @@ export default function Weighment() {
           searchable
           searchPlaceholder="Search slip no, party, vehicle, commodity..."
           keyField="id"
-          rows={entries}
+          rows={filteredEntries}
           emptyMessage="No weight register entries recorded yet."
           columns={[
             {
@@ -328,7 +360,7 @@ export default function Weighment() {
               key: "moisturePct",
               label: "Moisture %",
               render: (r) => (
-                <span style={{ color: (r.moisturePct || 20) > 20 ? "#d97706" : "var(--ink)", fontWeight: 600 }}>
+                <span style={{ color: (r.moisturePct || 20) > (r.allowedMoisturePct || 20) ? "#d97706" : "var(--ink)", fontWeight: 600 }}>
                   {r.moisturePct != null ? `${r.moisturePct}%` : "20%"}
                 </span>
               ),
@@ -428,7 +460,7 @@ export default function Weighment() {
           searchable
           searchPlaceholder="Search slip no, party, vehicle, commodity..."
           keyField="id"
-          rows={entries}
+          rows={filteredEntries}
           emptyMessage="No weighment slips recorded yet."
           columns={[
             {
@@ -561,4 +593,3 @@ export default function Weighment() {
     </div>
   );
 }
-

@@ -14,33 +14,34 @@ import { createStockEntrySchema } from "../validators/stockEntryValidators";
 import { validateOrToast } from "../utils/validate";
 import { toast } from "../utils/toast";
 
-function useSlabMap(slabs) {
-  return useMemo(() => {
-    return slabs.reduce((acc, s) => {
-      acc[s.commodity] = { threshold: parseFloat(s.threshold), rate: parseFloat(s.deductionPerPercent) };
-      return acc;
-    }, {});
-  }, [slabs]);
-}
+const COMMODITY_DEFAULTS = {
+  Maize: { allowedMoisture: "20", rate: "1900" },
+  Wheat: { allowedMoisture: "14", rate: "2275" },
+  Paddy: { allowedMoisture: "17", rate: "2183" },
+  PRALLI: { allowedMoisture: "18", rate: "1650" },
+  Mustard: { allowedMoisture: "8", rate: "5650" },
+  Seeds: { allowedMoisture: "12", rate: "3500" },
+};
 
 function emptyForm(defaultWarehouseId = "") {
+  const randomSlip = "RST-" + Math.floor(18000 + Math.random() * 1000);
   return {
     warehouseId: defaultWarehouseId,
     weightMachineId: "",
-    slipNo: "",
+    slipNo: randomSlip,
     entryType: "inward",
     party: "",
     vehicleNo: "",
     commodity: "Maize",
     gross: "",
     tare: "",
-    moisture: "",
+    moisture: "20",
     allowedMoisture: "20",
     rate: "1900",
   };
 }
 
-function useMoistureCalc(form, slabMap) {
+function useMoistureCalc(form) {
   return useMemo(() => {
     const gross = parseFloat(form.gross) || 0;
     const tare = parseFloat(form.tare) || 0;
@@ -52,7 +53,7 @@ function useMoistureCalc(form, slabMap) {
     const netWeightMt = beforeDeduction / 1000;
 
     const excessPct = Math.max(moisture - allowed, 0);
-    const deductionPct = excessPct; // 1% cut per 1% excess moisture
+    const deductionPct = excessPct; // 1% weight cut per 1% excess moisture
     const deductionKg = (beforeDeduction * deductionPct) / 100;
     const deductionMt = deductionKg / 1000;
 
@@ -60,6 +61,11 @@ function useMoistureCalc(form, slabMap) {
     const actualWeightMt = actualWeightKg / 1000;
 
     const totalAmountRs = Math.round(actualWeightMt * rate * 100) / 100;
+
+    // Moisture Level Status: safe (<allowed), caution (allowed to allowed+5), high (>allowed+5)
+    let moistureStatus = "safe";
+    if (excessPct > 5) moistureStatus = "danger";
+    else if (excessPct > 0) moistureStatus = "warning";
 
     return {
       beforeDeduction,
@@ -74,6 +80,7 @@ function useMoistureCalc(form, slabMap) {
       rate,
       totalAmountRs,
       over: excessPct > 0,
+      moistureStatus,
     };
   }, [form]);
 }
@@ -83,9 +90,6 @@ export default function CreateWeighmentSlip() {
   const { user } = useAuth();
   const isScopedRole = user?.roleKey === "supervisor" || user?.roleKey === "warehouse_admin";
 
-  const { slabs } = useWeighment();
-  const slabMap = useSlabMap(slabs);
-
   const { warehouses } = useWarehouses();
   const myWarehouse = isScopedRole ? warehouses[0] : null;
 
@@ -93,7 +97,7 @@ export default function CreateWeighmentSlip() {
   const [saving, setSaving] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
 
-  const calc = useMoistureCalc(form, slabMap);
+  const calc = useMoistureCalc(form);
 
   useEffect(() => {
     if (isScopedRole && myWarehouse?.id) {
@@ -110,7 +114,22 @@ export default function CreateWeighmentSlip() {
 
   const { addEntry } = useStockEntries();
 
-  const set = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
+  const set = (key) => (val) => {
+    setForm((f) => {
+      const updated = { ...f, [key]: val };
+      if (key === "commodity" && COMMODITY_DEFAULTS[val]) {
+        updated.allowedMoisture = COMMODITY_DEFAULTS[val].allowedMoisture;
+        updated.rate = COMMODITY_DEFAULTS[val].rate;
+      }
+      return updated;
+    });
+  };
+
+  function handleAutoGenerateSlipNo() {
+    const generated = "RST-" + Math.floor(18000 + Math.random() * 1000);
+    setForm((f) => ({ ...f, slipNo: generated }));
+    toast.info(`Generated Slip No: ${generated}`);
+  }
 
   const noActiveMachine = form.warehouseId && machinesStatus === "succeeded" && activeMachines.length === 0;
 
@@ -145,30 +164,7 @@ export default function CreateWeighmentSlip() {
     }
   }
 
-  function handleShareWhatsApp() {
-    const centreName = warehouses.find((w) => w.id === form.warehouseId)?.name || "—";
-    const text = `🌾 *AGRO-ERP WEIGHMENT SLIP* 🌾\n` +
-      `-----------------------------------\n` +
-      `📍 *Centre:* ${centreName}\n` +
-      `📦 *Commodity:* ${form.commodity || "Maize"}\n` +
-      `👤 *Party:* ${form.party || "Unspecified"}\n` +
-      `🚛 *Vehicle No:* ${form.vehicleNo || "N/A"}\n` +
-      `-----------------------------------\n` +
-      `⚖️ *Gross Weight:* ${form.gross || 0} kg\n` +
-      `⚖️ *Tare Weight:* ${form.tare || 0} kg\n` +
-      `💧 *Moisture Level:* ${form.moisture || 0}%\n` +
-      `📊 *Estimated Deduction:* ${calc.deductionPct.toFixed(2)}% (${calc.deductionWeight.toFixed(0)} kg)\n` +
-      `-----------------------------------\n` +
-      `✅ *NET WEIGHT (Gross − Tare):* ${calc.beforeDeduction.toFixed(0)} kg\n` +
-      `-----------------------------------\n` +
-      `Generated on ${new Date().toLocaleDateString()}`;
-    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-    window.open(url, "_blank");
-  }
-
-  function handlePrint() {
-    window.print();
-  }
+  const selectedWarehouseObj = warehouses.find((w) => w.id === form.warehouseId);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -191,13 +187,13 @@ export default function CreateWeighmentSlip() {
           onMouseOver={(e) => (e.currentTarget.style.color = "var(--primary-deep)")}
           onMouseOut={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
         >
-          <i className="fa-solid fa-arrow-left-long" /> Back to Weighment Slips
+          <i className="fa-solid fa-arrow-left-long" /> Back to Weighment Slips & Register
         </button>
       </div>
 
       <PageHeader
-        title="New Weighment Slip"
-        subtitle="Record gross/tare weight and moisture; net weight is stored as gross minus tare"
+        title="New Weighment Slip & Bill Generator"
+        subtitle="Record gross/tare weights, moisture percentage & auto-calculate moisture cut & net payable bill"
       />
 
       {noActiveMachine && (
@@ -217,7 +213,7 @@ export default function CreateWeighmentSlip() {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 310px", gap: 18 }} className="responsive-grid-2">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 18 }} className="responsive-grid-2">
         {/* Main Entry Form */}
         <div
           style={{
@@ -248,7 +244,7 @@ export default function CreateWeighmentSlip() {
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
                 <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 13 }} />
                 <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
-                  Procurement Hub & Machine
+                  Procurement Hub & Weight Machine
                 </h3>
               </div>
 
@@ -279,35 +275,58 @@ export default function CreateWeighmentSlip() {
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
-                <FormField
-                  label="Slip Number"
-                  required
-                  icon="fa-solid fa-hashtag"
-                  value={form.slipNo}
-                  onChange={set("slipNo")}
-                  placeholder="e.g. 18663"
-                  compact
-                  marginBottom={10}
-                />
+                <div style={{ position: "relative" }}>
+                  <FormField
+                    label="R.S.T / Slip Number"
+                    required
+                    icon="fa-solid fa-hashtag"
+                    value={form.slipNo}
+                    onChange={set("slipNo")}
+                    placeholder="e.g. RST-720"
+                    compact
+                    marginBottom={10}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAutoGenerateSlipNo}
+                    title="Auto generate slip sequence number"
+                    style={{
+                      position: "absolute",
+                      right: 6,
+                      top: 26,
+                      border: "none",
+                      background: "var(--primary-tint)",
+                      color: "var(--primary-deep)",
+                      fontSize: 10.5,
+                      fontWeight: 700,
+                      padding: "3px 7px",
+                      borderRadius: 6,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Auto <i className="fa-solid fa-wand-magic-sparkles" />
+                  </button>
+                </div>
+
                 <FormField
                   label="Entry Type"
                   type="select"
                   required
                   value={form.entryType}
                   onChange={set("entryType")}
-                  options={[{ value: "inward", label: "Inward" }, { value: "outward", label: "Outward" }]}
+                  options={[{ value: "inward", label: "Inward (Procurement)" }, { value: "outward", label: "Outward (Dispatch)" }]}
                   compact
                   marginBottom={10}
                 />
               </div>
 
               <FormField
-                label="Commodity"
+                label="Commodity / Crop Name"
                 type="select"
                 required
                 value={form.commodity}
                 onChange={set("commodity")}
-                options={Object.keys(slabMap).length ? Object.keys(slabMap) : ["Maize", "PRALLI", "Seeds"]}
+                options={["Maize", "Wheat", "Paddy", "PRALLI", "Mustard", "Seeds"]}
                 compact
                 marginBottom={10}
               />
@@ -318,7 +337,7 @@ export default function CreateWeighmentSlip() {
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
                 <i className="fa-solid fa-truck-ramp-box" style={{ color: "var(--primary)", fontSize: 13 }} />
                 <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
-                  Supplier & Vehicle Info
+                  Supplier / Farmer & Vehicle Details
                 </h3>
               </div>
 
@@ -328,7 +347,7 @@ export default function CreateWeighmentSlip() {
                   icon="fa-solid fa-building-user"
                   value={form.party}
                   onChange={set("party")}
-                  placeholder="e.g. Pannu Agro Innovation"
+                  placeholder="e.g. Kusumganga Agro Supplier"
                   compact
                   marginBottom={10}
                 />
@@ -338,7 +357,7 @@ export default function CreateWeighmentSlip() {
                   icon="fa-solid fa-truck"
                   value={form.vehicleNo}
                   onChange={set("vehicleNo")}
-                  placeholder="e.g. UP32 SN 5184"
+                  placeholder="e.g. UP27 AF 2860"
                   compact
                   marginBottom={10}
                 />
@@ -457,8 +476,10 @@ export default function CreateWeighmentSlip() {
           </form>
         </div>
 
-        {/* Real-time Net Weight & Payment Calculator Card */}
+        {/* Real-time Net Weight, Moisture Meter & Live Preview Card */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          
+          {/* Live Calculation Panel */}
           <div
             style={{
               background: "var(--surface)",
@@ -471,7 +492,7 @@ export default function CreateWeighmentSlip() {
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
               <i className="fa-solid fa-calculator" style={{ color: "var(--primary)", fontSize: 13 }} />
               <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>
-                Live Calculation & Bill Breakdown
+                Live Net Weight & Bill Breakdown
               </h4>
             </div>
 
@@ -483,6 +504,28 @@ export default function CreateWeighmentSlip() {
                 <span style={{ fontWeight: 700, color: "var(--ink)" }}>
                   {calc.netWeightMt.toFixed(3)} MT ({calc.beforeDeduction.toFixed(0)} kg)
                 </span>
+              </div>
+
+              {/* Moisture Level Gauge Meter Bar */}
+              <div style={{ background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 8, padding: "8px 10px", marginTop: 2 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 700, marginBottom: 4 }}>
+                  <span>Moisture Level Indicator:</span>
+                  <span style={{
+                    color: calc.moistureStatus === "danger" ? "#dc2626" : calc.moistureStatus === "warning" ? "#d97706" : "#059669"
+                  }}>
+                    {form.moisture || "0"}% (Allowed: {calc.allowed}%)
+                  </span>
+                </div>
+                <div style={{ width: "100%", height: 6, background: "#e2e8f0", borderRadius: 3, overflow: "hidden", position: "relative" }}>
+                  <div
+                    style={{
+                      height: "100%",
+                      width: `${Math.min(100, ((parseFloat(form.moisture) || 0) / 40) * 100)}%`,
+                      background: calc.moistureStatus === "danger" ? "#dc2626" : calc.moistureStatus === "warning" ? "#f59e0b" : "#10b981",
+                      transition: "width 0.3s ease"
+                    }}
+                  />
+                </div>
               </div>
 
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
@@ -593,6 +636,38 @@ export default function CreateWeighmentSlip() {
               </div>
             </div>
           </div>
+
+          {/* Mini Live Kusumganga Receipt Preview Card */}
+          <div
+            style={{
+              background: "#ffffff",
+              border: "1px solid #cbd5e1",
+              borderRadius: 12,
+              padding: "12px 14px",
+              boxShadow: "var(--shadow-sm)",
+              fontSize: 11,
+              fontFamily: "'Courier New', Courier, monospace",
+              color: "#0f172a"
+            }}
+          >
+            <div style={{ fontWeight: 900, textAlign: "center", textTransform: "uppercase", fontSize: 11.5, borderBottom: "1px dashed #64748b", paddingBottom: 4, marginBottom: 6 }}>
+              KUSUMGANGA AGRO SOLUTIONS
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>No: {form.slipNo || "720"}</span>
+              <span>Date: {new Date().toLocaleDateString("en-IN")}</span>
+            </div>
+            <div>Party: {form.party || "Unspecified"}</div>
+            <div>Vehicle: {form.vehicleNo || "N/A"}</div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+              <span>Gross: {calc.netWeightMt > 0 ? ((parseFloat(form.gross)||0)/1000).toFixed(3) : "0"} MT</span>
+              <span>Tare: {calc.netWeightMt > 0 ? ((parseFloat(form.tare)||0)/1000).toFixed(3) : "0"} MT</span>
+            </div>
+            <div style={{ fontWeight: 700, color: "#059669", marginTop: 2 }}>
+              Net Payable: {calc.actualWeightMt.toFixed(3)} MT (₹{calc.totalAmountRs.toLocaleString("en-IN")})
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -601,7 +676,7 @@ export default function CreateWeighmentSlip() {
         isOpen={showPrintModal}
         onClose={() => setShowPrintModal(false)}
         data={{
-          warehouse: warehouses.find((w) => w.id === form.warehouseId)?.name || "Gorakhpur Purchase Center",
+          warehouse: selectedWarehouseObj?.name || "Gorakhpur Purchase Center",
           slipNo: form.slipNo || "720",
           commodity: form.commodity,
           partyName: form.party,
