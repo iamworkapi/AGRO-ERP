@@ -37,7 +37,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data }) {
   const slipNo = data.slipNo || "720";
   const partyName = data.partyName || data.party || "—";
   const vehicleNo = data.vehicleNo || "—";
-  const commodity = data.commodity || "Maize";
+  const commodity = data.commodity || "PRALLI";
 
   const whatsappMessageText =
     `🌾 *KUSUMGANGA AGRO SOLUTIONS PVT. LTD.* 🌾\n` +
@@ -57,10 +57,130 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data }) {
     `💰 *Purchase Rate:* ₹${rate.toLocaleString("en-IN")} / MT\n` +
     `💵 *TOTAL PAYABLE:* ₹${totalAmount.toLocaleString("en-IN")}\n` +
     `-----------------------------------\n` +
-    `Automated Weighbridge Receipt - Kusumganga Agro Solutions.`;
+    `Automated Weighbridge Token - Kusumganga Agro Solutions.`;
 
-  function handlePrint() {
-    window.print();
+  // Builds standalone print-ready HTML page for high-res PDF print/download
+  function generateReceiptHTML(autoPrint = false) {
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Weighbridge Receipt #${slipNo} - Kusumganga Agro</title>
+  <style>
+    @page { size: auto; margin: 10mm; }
+    body {
+      font-family: 'Courier New', Courier, monospace, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      margin: 0;
+      padding: 20px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .toolbar {
+      max-width: 620px;
+      margin: 0 auto 16px auto;
+      display: flex;
+      justify: space-between;
+      gap: 10px;
+    }
+    .btn {
+      background: #059669;
+      color: #ffffff;
+      border: none;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-secondary { background: #475569; }
+    .receipt-card {
+      background: #ffffff;
+      max-width: 600px;
+      margin: 0 auto;
+      border: 2px solid #0f172a;
+      border-radius: 6px;
+      padding: 24px 28px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 14px; }
+    .header h2 { margin: 0; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+    .address-badge { background: #0f172a; color: #ffffff; font-size: 11px; font-weight: bold; padding: 3px 12px; border-radius: 3px; display: inline-block; margin-top: 4px; }
+    .row { display: flex; justify-content: space-between; border-bottom: 1px dotted #94a3b8; padding-bottom: 4px; margin-bottom: 6px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-bottom: 1px dotted #94a3b8; padding-bottom: 4px; margin-bottom: 6px; }
+    .amount-box { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #f0fdf4; padding: 10px 14px; border: 1px solid #86efac; border-radius: 4px; margin-top: 6px; }
+    .signatures { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 36px; font-size: 11px; font-weight: bold; }
+    .sig-box { border-top: 1px solid #0f172a; width: 130px; text-align: center; padding-top: 4px; }
+    @media print {
+      .toolbar { display: none !important; }
+      body { background: #ffffff !important; padding: 0 !important; }
+      .receipt-card { border: 2px solid #000 !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button class="btn" onclick="window.print()">🖨️ Save as PDF / Print Slip</button>
+    <button class="btn btn-secondary" onclick="window.close()">❌ Close</button>
+  </div>
+  <div class="receipt-card">
+    <div class="header">
+      <h2>KUSUMGANGA AGRO SOLUTIONS PVT. LTD.</h2>
+      <div class="address-badge">24-A, Sai Complex, Betiya Hata Gorakhpur (U.P.) 273001</div>
+    </div>
+    <div class="row"><span><strong>Center:</strong> ${centerName}</span><span><strong>Date:</strong> ${dateStr}</span></div>
+    <div class="row"><span><strong>No. / RST:</strong> <span style="font-size:16px; font-weight:900; color:#059669;">${slipNo}</span></span><span><strong>Commodity:</strong> ${commodity}</span></div>
+    <div class="row" style="display:block;"><strong>Name of Party:</strong> ${partyName}</div>
+    <div class="row"><span><strong>Moisture (%):</strong> ${moisture}% (Allowed: ${allowedMoisture}%)</span><span><strong>Slip No.:</strong> ${slipNo}</span></div>
+    <div class="row" style="display:block;"><strong>Vehicle No.:</strong> <span style="font-family:monospace; font-weight:bold;">${vehicleNo}</span></div>
+    <div class="grid-2"><span><strong>Gross Weight:</strong> ${grossMt} MT (${grossKg.toLocaleString()} kg)</span><span><strong>Tare Weight:</strong> ${tareMt} MT (${tareKg.toLocaleString()} kg)</span></div>
+    <div class="grid-2"><span><strong>Deduction (${dedPct}%):</strong> ${deductionMt} MT (${deductionKg.toFixed(0)} kg)</span><span><strong>Net Weight:</strong> ${netMt} MT (${netKg.toLocaleString()} kg)</span></div>
+    <div class="amount-box">
+      <span><strong>Purchase Rate:</strong> ₹${rate.toLocaleString("en-IN")} / MT</span>
+      <span style="fontSize:15px; color:#166534;"><strong>Total Amount:</strong> ₹${totalAmount.toLocaleString("en-IN")}</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:10px; color:#64748b; border-top:1px dashed #cbd5e1; padding-top:6px;">
+      <span>Automated Weighbridge Token | Verification Code: RST-${slipNo}-KG</span>
+      <span style="font-family:monospace; letter-spacing:2px;">||||| | |||| || |||||| | |||</span>
+    </div>
+    <div class="signatures">
+      <div class="sig-box">Sign. of Driver</div>
+      <div class="sig-box">Security</div>
+      <div class="sig-box">Sign. of Supervisor</div>
+    </div>
+  </div>
+  ${autoPrint ? `<script>window.onload = function() { setTimeout(function() { window.print(); }, 300); }</script>` : ""}
+</body>
+</html>`;
+  }
+
+  // Handles high-precision print in dedicated popup window
+  function handlePrintInNewWindow() {
+    const printWin = window.open("", "_blank", "width=800,height=900");
+    if (printWin) {
+      printWin.document.write(generateReceiptHTML(true));
+      printWin.document.close();
+      toast.success("Print & PDF view opened!");
+    } else {
+      toast.error("Pop-up blocked. Please allow pop-ups for this site to print.");
+    }
+  }
+
+  // Opens standalone PDF preview tab
+  function handleOpenPDFView() {
+    const pdfWin = window.open("", "_blank");
+    if (pdfWin) {
+      pdfWin.document.write(generateReceiptHTML(false));
+      pdfWin.document.close();
+      toast.success("PDF receipt preview opened in new tab!");
+    } else {
+      toast.error("Pop-up blocked. Please allow pop-ups for this site.");
+    }
   }
 
   function handleDirectWhatsAppSend() {
@@ -84,7 +204,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data }) {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Weighment Slip Receipt & Print Studio" maxWidth={720}>
+    <Modal isOpen={isOpen} onClose={onClose} title="Weighment Slip Receipt & PDF Print Studio" maxWidth={720}>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         
         {/* Printable Paper Slip Container */}
@@ -122,7 +242,6 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data }) {
               pointerEvents: "none",
               whiteSpace: "nowrap",
               textTransform: "uppercase",
-              border: "4px stroke rgba(0, 184, 107, 0.05)",
               padding: "10px 30px"
             }}
           >
@@ -210,7 +329,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data }) {
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-between",
+                justify: "space-between",
                 alignItems: "flex-end",
                 marginTop: 24,
                 paddingTop: 8,
@@ -302,45 +421,45 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data }) {
             Close
           </Button>
 
-          <Button
-            onClick={handlePrint}
-            style={{
-              padding: "8px 20px",
-              fontSize: 13,
-              fontWeight: 700,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              background: "var(--gradient-primary)",
-              boxShadow: "0 4px 12px rgba(0, 184, 107, 0.3)"
-            }}
-          >
-            <i className="fa-solid fa-print" /> Print Receipt Slip Now
-          </Button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              type="button"
+              onClick={handleOpenPDFView}
+              style={{
+                padding: "8px 14px",
+                fontSize: 12.5,
+                fontWeight: 700,
+                borderRadius: 8,
+                border: "1px solid var(--line-strong)",
+                background: "var(--surface)",
+                color: "var(--ink)",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6
+              }}
+            >
+              <i className="fa-solid fa-file-pdf" style={{ color: "#dc2626" }} /> Open PDF View
+            </button>
+
+            <Button
+              onClick={handlePrintInNewWindow}
+              style={{
+                padding: "8px 20px",
+                fontSize: 13,
+                fontWeight: 700,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                background: "var(--gradient-primary)",
+                boxShadow: "0 4px 12px rgba(0, 184, 107, 0.3)"
+              }}
+            >
+              <i className="fa-solid fa-print" /> Print Receipt / Save PDF
+            </Button>
+          </div>
         </div>
       </div>
-
-      {/* High-res Print CSS Engine */}
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden !important;
-          }
-          #printable-receipt-slip, #printable-receipt-slip * {
-            visibility: visible !important;
-          }
-          #printable-receipt-slip {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            border: 2px solid #000 !important;
-            box-shadow: none !important;
-            padding: 20px !important;
-          }
-        }
-      `}</style>
     </Modal>
   );
 }
