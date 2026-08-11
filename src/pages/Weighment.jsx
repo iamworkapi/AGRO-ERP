@@ -315,12 +315,12 @@ export default function Weighment() {
           columns={[
             {
               key: "srNo",
-              label: "Sr.",
+              label: "SR.",
               render: (_, options) => <span style={{ color: "var(--muted)", fontWeight: 600 }}>{(options?.rowIndex !== undefined ? options.rowIndex + 1 : 1)}</span>,
             },
             {
               key: "slipNo",
-              label: "R.S.T No.",
+              label: "R.S.T SLIP NO.",
               emphasize: true,
               render: (r) => (
                 <button
@@ -331,15 +331,15 @@ export default function Weighment() {
                     border: "1px solid #10B981",
                     background: "#E5F8F0",
                     color: "#009657",
-                    padding: "4px 10px",
+                    padding: "5px 12px",
                     borderRadius: 6,
                     fontSize: 12,
-                    fontWeight: 700,
+                    fontWeight: 800,
                     cursor: "pointer",
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: 5,
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                    gap: 6,
+                    boxShadow: "0 1px 3px rgba(0, 184, 107, 0.15)",
                     transition: "all 0.15s ease",
                   }}
                   onMouseOver={(e) => {
@@ -357,98 +357,101 @@ export default function Weighment() {
               ),
             },
             {
-              key: "quickPrint",
-              label: "Print Slip",
-              render: (r) => (
-                <button
-                  type="button"
-                  onClick={() => setSelectedSlipForPrint(r)}
-                  style={{
-                    padding: "4px 9px",
-                    fontSize: 11.5,
-                    fontWeight: 700,
-                    borderRadius: 6,
-                    border: "1px solid #059669",
-                    background: "#f0fdf4",
-                    color: "#059669",
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 5,
-                    whiteSpace: "nowrap"
-                  }}
-                >
-                  <i className="fa-solid fa-file-pdf" /> Print / View PDF
-                </button>
-              ),
-            },
-            {
               key: "vehicleNo",
-              label: "Vehicle No.",
+              label: "VEHICLE NO.",
               render: (r) => (
-                <span style={{ fontWeight: 600, fontFamily: "monospace" }}>{r.vehicleNo || "—"}</span>
+                <span style={{ fontWeight: 700, fontFamily: "monospace", color: "var(--ink)", letterSpacing: 0.3 }}>{r.vehicleNo || "—"}</span>
               ),
             },
             {
               key: "createdAt",
-              label: "Date",
-              render: (r) => <span style={{ fontSize: 11.5 }}>{r.createdAt || "—"}</span>,
+              label: "DATE",
+              render: (r) => <span style={{ fontSize: 11.5, color: "var(--ink-secondary)" }}>{r.createdAt || "—"}</span>,
             },
             {
               key: "grossWeightKg",
-              label: "Gross (MT)",
+              label: "GROSS (MT)",
               render: (r) => (r.grossWeightKg / 1000).toFixed(3),
             },
             {
               key: "tareWeightKg",
-              label: "Tare (MT)",
+              label: "TARE (MT)",
               render: (r) => (r.tareWeightKg / 1000).toFixed(3),
             },
             {
               key: "netWeightKg",
-              label: "Net (MT)",
-              render: (r) => <strong>{(r.netWeightKg / 1000).toFixed(3)}</strong>,
+              label: "NET (MT)",
+              render: (r) => <strong style={{ color: "var(--ink)" }}>{(r.netWeightKg / 1000).toFixed(3)}</strong>,
             },
             {
               key: "moisturePct",
-              label: "Moisture %",
-              render: (r) => (
-                <span style={{ color: (r.moisturePct || 20) > (r.allowedMoisturePct || 20) ? "#d97706" : "var(--ink)", fontWeight: 600 }}>
-                  {r.moisturePct != null ? `${r.moisturePct}%` : "20%"}
-                </span>
-              ),
+              label: "MOISTURE %",
+              render: (r) => {
+                const isHigh = (r.moisturePct || 20) > (r.allowedMoisturePct || 20);
+                return (
+                  <span
+                    style={{
+                      background: isHigh ? "#FEF3C7" : "#D1FAE5",
+                      color: isHigh ? "#D97706" : "#059669",
+                      padding: "2px 7px",
+                      borderRadius: 6,
+                      fontWeight: 700,
+                      fontSize: 11.5,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4
+                    }}
+                  >
+                    <i className="fa-solid fa-droplet" style={{ fontSize: 9 }} />
+                    {r.moisturePct != null ? `${r.moisturePct}%` : "20%"}
+                  </span>
+                );
+              },
             },
             {
               key: "allowedMoisturePct",
-              label: "Allowed %",
+              label: "ALLOWED %",
               render: (r) => `${r.allowedMoisturePct || 20}%`,
             },
             {
               key: "diffPct",
-              label: "Diff %",
+              label: "DIFF %",
               render: (r) => {
                 const diff = Math.max(0, (r.moisturePct || 20) - (r.allowedMoisturePct || 20));
-                return <span style={{ color: diff > 0 ? "#dc2626" : "var(--muted)" }}>{diff}%</span>;
+                return <span style={{ color: diff > 0 ? "#dc2626" : "var(--muted)", fontWeight: diff > 0 ? 700 : 500 }}>{diff}%</span>;
               },
             },
             {
               key: "totalDeductionMt",
-              label: "Total Ded. (MT)",
+              label: "DED. (MT)",
               render: (r) => (r.totalDeductionMt || 0).toFixed(3),
             },
             {
               key: "actualWeightMt",
-              label: "Actual Wt. (MT)",
-              render: (r) => <strong style={{ color: "var(--primary-deep)" }}>{(r.actualWeightMt || (r.netWeightKg / 1000)).toFixed(3)}</strong>,
+              label: "ACTUAL WT. (MT)",
+              render: (r) => (
+                <span
+                  style={{
+                    background: "var(--primary-tint)",
+                    color: "var(--primary-deep)",
+                    padding: "3px 8px",
+                    borderRadius: 6,
+                    fontWeight: 800,
+                    fontSize: 12
+                  }}
+                >
+                  {(r.actualWeightMt || (r.netWeightKg / 1000)).toFixed(3)} MT
+                </span>
+              ),
             },
             {
               key: "ratePerMt",
-              label: "Rate (Rs.)",
+              label: "RATE (RS.)",
               render: (r) => `₹${(r.ratePerMt || 1900).toLocaleString("en-IN")}`,
             },
             {
               key: "totalAmountRs",
-              label: "Total Amount (Rs.)",
+              label: "TOTAL AMOUNT (RS.)",
               render: (r) => (
                 <strong style={{ color: "#047857", fontSize: 13 }}>
                   ₹{(r.totalAmountRs || 0).toLocaleString("en-IN")}
@@ -457,20 +460,20 @@ export default function Weighment() {
             },
             {
               key: "actions",
-              label: "Actions",
+              label: "ACTIONS",
               render: (r) => (
                 <div style={{ display: "flex", gap: 6 }}>
                   <button
                     type="button"
-                    title="Print Receipt Slip"
+                    title="Print Receipt Slip PDF"
                     onClick={() => setSelectedSlipForPrint(r)}
                     style={{
-                      padding: "4px 8px",
-                      fontSize: 11,
-                      fontWeight: 600,
+                      padding: "4px 9px",
+                      fontSize: 11.5,
+                      fontWeight: 700,
                       borderRadius: 6,
-                      border: "1px solid var(--line)",
-                      background: "var(--surface)",
+                      border: "1px solid var(--primary)",
+                      background: "var(--primary-tint)",
                       color: "var(--primary-deep)",
                       cursor: "pointer",
                       display: "inline-flex",
@@ -478,7 +481,7 @@ export default function Weighment() {
                       gap: 4,
                     }}
                   >
-                    <i className="fa-solid fa-print" /> Print
+                    <i className="fa-solid fa-print" /> Print PDF
                   </button>
 
                   <button
@@ -499,7 +502,7 @@ export default function Weighment() {
                       gap: 4,
                     }}
                   >
-                    <i className="fa-brands fa-whatsapp" /> WhatsApp
+                    <i className="fa-brands fa-whatsapp" />
                   </button>
                 </div>
               ),
