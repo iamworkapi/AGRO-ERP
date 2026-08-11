@@ -15,12 +15,9 @@ import { validateOrToast } from "../utils/validate";
 import { toast } from "../utils/toast";
 
 const COMMODITY_DEFAULTS = {
-  Maize: { allowedMoisture: "20", rate: "1900" },
-  Wheat: { allowedMoisture: "14", rate: "2275" },
-  Paddy: { allowedMoisture: "17", rate: "2183" },
-  PRALLI: { allowedMoisture: "18", rate: "1650" },
-  Mustard: { allowedMoisture: "8", rate: "5650" },
-  Seeds: { allowedMoisture: "12", rate: "3500" },
+  PRALLI: { allowedMoisture: "20", rate: "1900" },
+  "PRALLI (Baled)": { allowedMoisture: "18", rate: "1950" },
+  "PRALLI (Loose)": { allowedMoisture: "22", rate: "1850" },
 };
 
 function emptyForm(defaultWarehouseId = "") {
@@ -32,7 +29,7 @@ function emptyForm(defaultWarehouseId = "") {
     entryType: "inward",
     party: "",
     vehicleNo: "",
-    commodity: "Maize",
+    commodity: "PRALLI",
     gross: "",
     tare: "",
     moisture: "20",
@@ -192,8 +189,8 @@ export default function CreateWeighmentSlip() {
       </div>
 
       <PageHeader
-        title="New Weighment Slip & Bill Generator"
-        subtitle="Record gross/tare weights, moisture percentage & auto-calculate moisture cut & net payable bill"
+        title="New PRALLI Weighment Slip & Bill Generator"
+        subtitle="Record gross/tare weights, moisture percentage & auto-calculate PRALLI moisture cut & net payable bill"
       />
 
       {noActiveMachine && (
@@ -326,7 +323,7 @@ export default function CreateWeighmentSlip() {
                 required
                 value={form.commodity}
                 onChange={set("commodity")}
-                options={["Maize", "Wheat", "Paddy", "PRALLI", "Mustard", "Seeds"]}
+                options={["PRALLI", "PRALLI (Baled)", "PRALLI (Loose)"]}
                 compact
                 marginBottom={10}
               />

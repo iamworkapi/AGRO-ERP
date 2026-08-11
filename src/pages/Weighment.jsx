@@ -140,11 +140,11 @@ export default function Weighment() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <PageHeader
-        title={isScopedRole ? `Weighment Slips — ${myWarehouseName || "your warehouse"}` : "Daily Weight Register & Procurement Ledger"}
+        title={isScopedRole ? `PRALLI Weighment Slips — ${myWarehouseName || "your warehouse"}` : "PRALLI Daily Weight Register & Procurement Ledger"}
         subtitle={
           isScopedRole
-            ? `Digitised weighment slips & daily purchase register for ${myWarehouseName || "your assigned warehouse"}`
-            : "Digitised weighment slips & daily purchase register with moisture deduction, auto bill calculation and print studio"
+            ? `Digitised PRALLI weighment slips & daily purchase register for ${myWarehouseName || "your assigned warehouse"}`
+            : "Digitised PRALLI weighment slips & daily procurement register with moisture cut, auto bill calculation and print studio"
         }
       />
 
