@@ -1,10 +1,12 @@
 import { app } from "./src/app.js";
 import { env } from "./src/config/env.js";
 import { connectDB } from "./src/config/db.js";
+import { seedDefaultUsersIfNeeded } from "./scripts/seedDefaultUsers.js";
 
 async function start() {
   try {
     await connectDB();
+    await seedDefaultUsersIfNeeded();
   } catch (err) {
     console.error("Database initialization warning:", err.message);
   }

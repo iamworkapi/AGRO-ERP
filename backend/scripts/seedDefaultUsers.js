@@ -49,18 +49,25 @@ async function seedOne({ role, fullName, email, phone, password }) {
   console.log(`  - created ${role}: ${email || phone} / ${password}`);
 }
 
-async function main() {
-  await connectDB();
-  console.log("Seeding default login accounts (dev/demo only)...");
+export async function seedDefaultUsersIfNeeded() {
+  console.log("Checking default login accounts (dev/demo only)...");
   for (const u of DEFAULT_USERS) {
     await seedOne(u);
   }
+}
+
+async function main() {
+  await connectDB();
+  await seedDefaultUsersIfNeeded();
   console.log("Done. These accounts are active immediately - no approval step needed.");
 }
 
-main()
-  .catch((err) => {
-    console.error("Failed to seed default users:", err.message);
-    process.exitCode = 1;
-  })
-  .finally(() => mongoose.disconnect());
+if (process.argv[1]?.includes("seedDefaultUsers.js")) {
+  main()
+    .catch((err) => {
+      console.error("Failed to seed default users:", err.message);
+      process.exitCode = 1;
+    })
+    .finally(() => mongoose.disconnect());
+}
+
