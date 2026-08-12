@@ -19,7 +19,7 @@ export default function DeductionSlabConfig() {
       {/* COMPACT SUMMARY METRICS BAR */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-wheat-awn" />
           </div>
           <div>
@@ -29,7 +29,7 @@ export default function DeductionSlabConfig() {
         </div>
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-droplet" />
           </div>
           <div>
@@ -39,7 +39,7 @@ export default function DeductionSlabConfig() {
         </div>
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-sliders" />
           </div>
           <div>

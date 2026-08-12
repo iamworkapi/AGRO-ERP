@@ -97,6 +97,446 @@ export default function Weighment() {
     toast.success("Daily Weight Register exported to CSV successfully!");
   }
 
+  function triggerDirectPrint(r) {
+    setSelectedSlipForPrint(r);
+    
+    const printWin = window.open("", "_blank");
+    if (!printWin) {
+      toast.error("Pop-up blocked. Please click allow pop-ups for this site to print.");
+      return;
+    }
+
+    const grossKg = parseFloat(r.grossWeightKg || 0);
+    const tareKg = parseFloat(r.tareWeightKg || 0);
+    const netKg = Math.max(0, grossKg - tareKg);
+    const grossMt = (grossKg / 1000).toFixed(3);
+    const tareMt = (tareKg / 1000).toFixed(3);
+    const netMt = (netKg / 1000).toFixed(3);
+    const moisture = parseFloat(r.moisturePct || 20);
+    const allowedMoisture = parseFloat(r.allowedMoisturePct || 20);
+    const diffPct = Math.max(0, moisture - allowedMoisture);
+    const dedPct = parseFloat(r.deductionPct !== undefined ? r.deductionPct : diffPct);
+    const deductionKg = (netKg * dedPct) / 100;
+    const deductionMt = (deductionKg / 1000).toFixed(3);
+    const actualKg = Math.max(0, netKg - deductionKg);
+    const actualMt = (actualKg / 1000).toFixed(3);
+    const rate = parseFloat(r.ratePerMt || 1900);
+    const totalAmount = r.totalAmountRs !== undefined ? parseFloat(r.totalAmountRs) : Math.round((actualKg / 1000) * rate * 100) / 100;
+    const centerName = r.warehouse || "Gorakhpur Purchase Center";
+    const dateStr = r.createdAt || new Date().toLocaleDateString("en-IN");
+    const slipNo = r.slipNo || "720";
+    const partyName = r.partyName || "";
+    const vehicleNo = r.vehicleNo || "";
+    const commodity = r.commodity || "PRALLI";
+
+    printWin.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Weighment Receipt #${slipNo} - Kusumganga Agro</title>
+  <style>
+    @page {
+      size: A5 portrait;
+      margin: 10mm;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ffffff;
+      color: #000000;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    /* Screen-only toolbar */
+    .toolbar {
+      padding: 10px 14px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      background: #f1f5f9;
+      border-bottom: 1px solid #cbd5e1;
+      margin-bottom: 20px;
+    }
+    .btn {
+      background: #0f172a;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-close { background: #ef4444; }
+
+    /* Main Bill Book Card */
+    .bill-book {
+      width: 148mm;
+      min-height: 200mm;
+      margin: 0 auto;
+      border: 2px solid #000;
+      padding: 2px;
+      background: #ffffff;
+      position: relative;
+    }
+    
+    .bill-inner {
+      border: 1px solid #000;
+      padding: 12px 15px;
+      height: 100%;
+    }
+
+    /* Header Section */
+    .header-section {
+      text-align: center;
+      border-bottom: 2px solid #000;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .header-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .receipt-type {
+      font-size: 9px;
+      font-weight: bold;
+      border: 1px solid #000;
+      padding: 3px 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .copy-type {
+      font-size: 9px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .company-name {
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #000;
+    }
+    .company-tagline {
+      font-size: 9px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .company-address {
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    /* Info Grid (2 Columns) */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .info-col {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .info-row {
+      display: flex;
+      border-bottom: 1px dotted #888;
+      padding-bottom: 2px;
+    }
+    
+    .info-label {
+      width: 80px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .info-val {
+      flex: 1;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .info-val-lg {
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    /* Weight Table Details */
+    .section-title {
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      background: #f1f5f9;
+      padding: 4px 8px;
+      border: 1px solid #000;
+      border-bottom: none;
+      margin-top: 10px;
+    }
+
+    .weight-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #000;
+      margin-bottom: 15px;
+    }
+    
+    .weight-table th, .weight-table td {
+      border: 1px solid #000;
+      padding: 6px 8px;
+      text-align: right;
+    }
+    
+    .weight-table th {
+      background: #f8fafc;
+      font-weight: bold;
+      font-size: 10px;
+      text-align: center;
+    }
+    
+    .weight-table td.label-cell {
+      text-align: left;
+      font-weight: bold;
+      font-size: 10px;
+      width: 40%;
+    }
+    
+    .weight-table td.val-cell {
+      font-size: 11px;
+      font-weight: 700;
+    }
+    
+    .highlight-row {
+      background: #f8fafc;
+    }
+    .highlight-row td {
+      font-weight: 900 !important;
+      font-size: 12px !important;
+    }
+
+    /* Payment Details Box */
+    .payment-box {
+      border: 1px solid #000;
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .rate-info {
+      font-size: 10px;
+      font-weight: bold;
+    }
+    .total-amt {
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    /* Terms and Signatures */
+    .terms {
+      font-size: 8px;
+      color: #555;
+      margin-bottom: 30px;
+    }
+    
+    .signature-area {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 40px;
+    }
+    
+    .sig-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 120px;
+    }
+    
+    .sig-line {
+      border-top: 1px solid #000;
+      width: 100%;
+      margin-bottom: 4px;
+    }
+    
+    .sig-title {
+      font-size: 9px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    .auth-signatory {
+      font-size: 10px;
+      font-weight: bold;
+      margin-bottom: 25px;
+    }
+
+    @media print {
+      .toolbar { display: none !important; }
+      body { margin: 0; background: none; }
+      .bill-book {
+        width: 100%;
+        border: 2px solid #000;
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body onload="setTimeout(function(){ window.print(); }, 250)">
+  <div class="toolbar">
+    <button class="btn" onclick="window.print()">🖨️ Print Bill / Save PDF</button>
+    <button class="btn btn-close" onclick="window.close()">✕ Close</button>
+  </div>
+
+  <div class="bill-book">
+    <div class="bill-inner">
+      
+      <!-- Header -->
+      <div class="header-section">
+        <div class="header-top-row">
+          <div class="receipt-type">Weighment Slip</div>
+          <div class="copy-type">Original Copy</div>
+        </div>
+        
+        <div class="company-name">Kusumganga Agro Solutions Pvt. Ltd.</div>
+        <div class="company-tagline">Procurement & Warehousing Operations</div>
+        <div class="company-address">24-A, Sai Complex, Betiya Hata, Gorakhpur (U.P.) 273001</div>
+      </div>
+
+      <!-- Info Grid -->
+      <div class="info-grid">
+        <!-- Left Col -->
+        <div class="info-col">
+          <div class="info-row">
+            <span class="info-label">Slip No:</span>
+            <span class="info-val info-val-lg">${slipNo}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Date:</span>
+            <span class="info-val">${dateStr}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Center:</span>
+            <span class="info-val">${centerName}</span>
+          </div>
+        </div>
+        
+        <!-- Right Col -->
+        <div class="info-col">
+          <div class="info-row">
+            <span class="info-label">Vehicle No:</span>
+            <span class="info-val" style="text-transform:uppercase;">${vehicleNo}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Party Name:</span>
+            <span class="info-val">${partyName}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Commodity:</span>
+            <span class="info-val">${commodity}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weight Details -->
+      <div class="section-title">Weight & Quality Assessment</div>
+      <table class="weight-table">
+        <thead>
+          <tr>
+            <th>Particulars</th>
+            <th>Weight (KG)</th>
+            <th>Weight (MT)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="label-cell">Gross Weight</td>
+            <td class="val-cell">${grossKg.toLocaleString("en-IN")}</td>
+            <td class="val-cell">${grossMt}</td>
+          </tr>
+          <tr>
+            <td class="label-cell">Tare Weight</td>
+            <td class="val-cell">${tareKg.toLocaleString("en-IN")}</td>
+            <td class="val-cell">${tareMt}</td>
+          </tr>
+          <tr class="highlight-row">
+            <td class="label-cell">Net Weight</td>
+            <td class="val-cell">${netKg.toLocaleString("en-IN")}</td>
+            <td class="val-cell">${netMt}</td>
+          </tr>
+          <tr>
+            <td class="label-cell">Moisture Content</td>
+            <td colspan="2" style="text-align:center; font-size:10px; font-weight:bold;">
+              ${moisture}% &nbsp; (Allowed: ${allowedMoisture}%)
+            </td>
+          </tr>
+          <tr>
+            <td class="label-cell">Quality Deduction (${dedPct}%)</td>
+            <td class="val-cell">${deductionKg.toFixed(0)}</td>
+            <td class="val-cell">${deductionMt}</td>
+          </tr>
+          <tr class="highlight-row">
+            <td class="label-cell">Actual Payable Weight</td>
+            <td class="val-cell">${actualKg.toLocaleString("en-IN")}</td>
+            <td class="val-cell">${actualMt}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Payment Box -->
+      <div class="payment-box">
+        <div class="rate-info">
+          <div>Agreed Rate: &#8377; ${rate.toLocaleString("en-IN")} / MT</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:11px; font-weight:bold; text-transform:uppercase;">Total Payable:</span>
+          <span class="total-amt">&#8377; ${totalAmount.toLocaleString("en-IN")}</span>
+        </div>
+      </div>
+
+      <div class="terms">
+        * This is a computer generated weighbridge slip.<br>
+        * All weights are recorded by automated load cells.<br>
+        * Subject to Gorakhpur jurisdiction only.
+      </div>
+
+      <!-- Signatures -->
+      <div class="signature-area">
+        <div class="sig-block">
+          <div class="sig-line"></div>
+          <div class="sig-title">Driver Sign</div>
+        </div>
+        
+        <div class="sig-block">
+          <div class="sig-line"></div>
+          <div class="sig-title">Weighbridge Operator</div>
+        </div>
+
+        <div class="sig-block" style="width:160px;">
+          <div class="auth-signatory">For Kusumganga Agro</div>
+          <div class="sig-line"></div>
+          <div class="sig-title">Authorized Signatory</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>`);
+    printWin.document.close();
+    toast.success("Professional Bill Book print opened!");
+  }
+
   function handleShareWhatsApp(r) {
     const grossMt = (r.grossWeightKg / 1000).toFixed(3);
     const tareMt = (r.tareWeightKg / 1000).toFixed(3);
@@ -153,7 +593,7 @@ export default function Weighment() {
       {/* COMPACT STAT METRICS BAR */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-file-invoice" />
           </div>
           <div>
@@ -163,7 +603,7 @@ export default function Weighment() {
         </div>
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-circle-check" />
           </div>
           <div>
@@ -173,7 +613,7 @@ export default function Weighment() {
         </div>
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-scale-balanced" />
           </div>
           <div>
@@ -183,7 +623,7 @@ export default function Weighment() {
         </div>
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-indian-rupee-sign" />
           </div>
           <div>
@@ -323,37 +763,10 @@ export default function Weighment() {
               label: "R.S.T SLIP NO.",
               emphasize: true,
               render: (r) => (
-                <button
-                  type="button"
-                  onClick={() => setSelectedSlipForPrint(r)}
-                  title="Click to View & Print Receipt Slip PDF"
-                  style={{
-                    border: "1px solid #10B981",
-                    background: "#E5F8F0",
-                    color: "#009657",
-                    padding: "5px 12px",
-                    borderRadius: 6,
-                    fontSize: 12,
-                    fontWeight: 800,
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    boxShadow: "0 1px 3px rgba(0, 184, 107, 0.15)",
-                    transition: "all 0.15s ease",
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.background = "#059669";
-                    e.currentTarget.style.color = "#ffffff";
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.background = "#E5F8F0";
-                    e.currentTarget.style.color = "#009657";
-                  }}
-                >
-                  <i className="fa-solid fa-print" style={{ fontSize: 11 }} />
-                  #{r.slipNo}
-                </button>
+                <span style={{ fontWeight: 800, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <i className="fa-solid fa-hashtag" style={{ fontSize: 10 }} />
+                  {r.slipNo}
+                </span>
               ),
             },
             {
@@ -466,7 +879,7 @@ export default function Weighment() {
                   <button
                     type="button"
                     title="Print Receipt Slip PDF"
-                    onClick={() => setSelectedSlipForPrint(r)}
+                    onClick={() => triggerDirectPrint(r)}
                     style={{
                       padding: "4px 9px",
                       fontSize: 11.5,
@@ -524,27 +937,10 @@ export default function Weighment() {
               label: "Slip No.",
               emphasize: true,
               render: (r) => (
-                <button
-                  type="button"
-                  onClick={() => setSelectedSlipForPrint(r)}
-                  title="Click to View & Print Receipt Slip PDF"
-                  style={{
-                    border: "1px solid #10B981",
-                    background: "#E5F8F0",
-                    color: "#009657",
-                    padding: "4px 10px",
-                    borderRadius: 6,
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 5,
-                  }}
-                >
-                  <i className="fa-solid fa-print" style={{ fontSize: 11 }} />
-                  #{r.slipNo}
-                </button>
+                <span style={{ fontWeight: 800, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <i className="fa-solid fa-hashtag" style={{ fontSize: 10 }} />
+                  {r.slipNo}
+                </span>
               ),
             },
             {
@@ -612,7 +1008,7 @@ export default function Weighment() {
                   <button
                     type="button"
                     title="Print Receipt Slip"
-                    onClick={() => setSelectedSlipForPrint(r)}
+                    onClick={() => triggerDirectPrint(r)}
                     style={{
                       padding: "4px 8px",
                       fontSize: 11,

@@ -13,7 +13,9 @@ export const auditLog = [
 ];
 
 export const orgProfile = {
-  name: "Samanyu Samarpit Foundation",
+  name: "KUSUMGANGA AGRO SOLUTIONS PVT. LTD.",
+  address: "24-A, Sai Complex, Betiya Hata Gorakhpur (U.P.) 273001",
   centres: 12,
-  plan: "PRALLI ERP \u2014 Full Deployment",
+  commodity: "PRALLI (Paddy Straw)",
+  plan: "PRALLI ERP — 12 Warehouses & Purchase Centers",
 };

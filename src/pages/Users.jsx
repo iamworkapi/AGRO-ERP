@@ -166,7 +166,7 @@ export default function Users() {
               <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(0,184,107,0.2)" }}>{profiles.length} Users</div>
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Org-Wide Directory</div>
             </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justify: "center", fontSize: 16, border: "1px solid rgba(0,184,107,0.3)", boxShadow: "0 0 14px rgba(0,184,107,0.35)", flexShrink: 0 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(0,184,107,0.3)", boxShadow: "0 0 14px rgba(0,184,107,0.35)", flexShrink: 0 }}>
               <i className="fa-solid fa-users" />
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function Users() {
               <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(16,185,129,0.2)" }}>{activeCount}</div>
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Enabled Accounts</div>
             </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justify: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
               <i className="fa-solid fa-circle-check" />
             </div>
           </div>
@@ -246,7 +246,7 @@ export default function Users() {
               <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(245,158,11,0.2)" }}>{pendingCount}</div>
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Awaiting Action</div>
             </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justify: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
               <i className="fa-solid fa-user-clock" />
             </div>
           </div>
@@ -286,7 +286,7 @@ export default function Users() {
               <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(59,130,246,0.2)" }}>{adminCount}</div>
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Hub Managers</div>
             </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justify: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
               <i className="fa-solid fa-user-shield" />
             </div>
           </div>

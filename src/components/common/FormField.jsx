@@ -112,7 +112,7 @@ export default function FormField({
               pointerEvents: "none",
               display: "inline-flex",
               alignItems: "center",
-              justify: "center",
+              justifyContent: "center",
               width: 16,
               height: 16,
             }}

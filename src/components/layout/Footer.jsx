@@ -13,9 +13,9 @@ export default function Footer() {
         color: "var(--muted)",
       }}
     >
-      <span>&copy; {new Date().getFullYear()} Orish Agro. All rights reserved.</span>
+      <span>&copy; {new Date().getFullYear()} Kusumganga Agro Solutions Pvt. Ltd. All rights reserved.</span>
       <span>
-        Crafted by <strong style={{ color: "var(--ink-secondary)", fontWeight: 600 }}>Orish</strong>
+        PRALLI Procurement ERP (12 Centers)
       </span>
     </footer>
   );

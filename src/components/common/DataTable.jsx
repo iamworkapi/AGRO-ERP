@@ -138,6 +138,7 @@ export default function DataTable({
             </div>
           }
           size="small"
+          showGridlines
           stripedRows
           paginator={showPaginator}
           rows={rowsPerPage}
@@ -148,13 +149,13 @@ export default function DataTable({
               key={col.key}
               field={col.key}
               header={col.label}
-              sortable={col.sortable !== false}
+              sortable={false}
               body={col.render ? (row, options) => col.render(row, options) : undefined}
               bodyStyle={{
                 ...(col.emphasize ? { color: "var(--ink)", fontWeight: 600 } : {}),
                 ...(col.style || {}),
               }}
-              headerStyle={col.headerStyle}
+              headerStyle={{ whiteSpace: "nowrap", wordBreak: "keep-all", ...(col.headerStyle || {}) }}
             />
           ))}
         </PrimeDataTable>

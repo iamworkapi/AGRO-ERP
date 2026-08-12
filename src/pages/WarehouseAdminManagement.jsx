@@ -112,7 +112,7 @@ export default function WarehouseAdminManagement() {
       {/* COMPACT STAT TILES BAR */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-user-shield" />
           </div>
           <div>
@@ -122,7 +122,7 @@ export default function WarehouseAdminManagement() {
         </div>
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-user-gear" />
           </div>
           <div>
@@ -132,7 +132,7 @@ export default function WarehouseAdminManagement() {
         </div>
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-circle-check" />
           </div>
           <div>
@@ -142,7 +142,7 @@ export default function WarehouseAdminManagement() {
         </div>
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justify: "center", fontSize: 14 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
             <i className="fa-solid fa-triangle-exclamation" />
           </div>
           <div>
@@ -235,7 +235,7 @@ export default function WarehouseAdminManagement() {
                 {/* Warehouse Title Header */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 14, borderBottom: "1px solid var(--line)", marginBottom: 18 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 34, height: 34, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justify: "center", fontSize: 15 }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
                       <i className="fa-solid fa-warehouse" />
                     </div>
                     <div>
@@ -291,7 +291,7 @@ export default function WarehouseAdminManagement() {
 
                     {adminObj ? (
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--gradient-primary)", color: "white", display: "flex", alignItems: "center", justify: "center", fontWeight: 800, fontSize: 14, boxShadow: "0 2px 8px rgba(0,184,107,0.3)" }}>
+                        <div style={{ width: 40, height: 40, borderRadius: "50%", background: "var(--gradient-primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 14, boxShadow: "0 2px 8px rgba(0,184,107,0.3)" }}>
                           {adminObj.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -337,7 +337,7 @@ export default function WarehouseAdminManagement() {
 
                     {superObj ? (
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--surface)", border: "2px solid var(--primary)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justify: "center", fontWeight: 800, fontSize: 13 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--surface)", border: "2px solid var(--primary)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 13 }}>
                           {superObj.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -396,7 +396,7 @@ export default function WarehouseAdminManagement() {
                               boxShadow: "var(--shadow-xs)",
                             }}
                           >
-                            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justify: "center", fontWeight: 700, fontSize: 11, flexShrink: 0 }}>
+                            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 11, flexShrink: 0 }}>
                               {empInitials}
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>

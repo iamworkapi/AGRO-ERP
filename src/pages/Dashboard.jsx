@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import Card from "../components/common/Card";
 import MoistureGauge from "../components/dashboard/MoistureGauge";
 import WarehouseTable from "../components/dashboard/WarehouseTable";
@@ -15,6 +16,7 @@ function parseKg(display) {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const isSupervisor = user?.roleKey === "supervisor" || user?.role === "Supervisor";
 
@@ -134,6 +136,75 @@ export default function Dashboard() {
       />
 
       <AsyncState status={status} error={error} loadingLabel="Loading dashboard…" />
+
+      {/* BIOMASS SUPPLY CHAIN QUICK LAUNCH BANNER */}
+      <div
+        onClick={() => navigate("/biomass")}
+        style={{
+          background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
+          color: "#FFFFFF",
+          borderRadius: 16,
+          padding: "16px 20px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          cursor: "pointer",
+          boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.3)",
+          border: "1px solid #334155",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div
+            style={{
+              width: 50,
+              height: 50,
+              borderRadius: 12,
+              background: "rgba(16, 185, 129, 0.2)",
+              color: "#34D399",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 24,
+              border: "1px solid rgba(52, 211, 153, 0.3)",
+            }}
+          >
+            <i className="fa-solid fa-wheat-awn" />
+          </div>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: "#FFFFFF" }}>
+                Biomass Supply Chain System (पराली एवं फसल अवशेष प्रबंधन)
+              </h3>
+              <span style={{ fontSize: 10.5, fontWeight: 800, background: "#10B981", color: "#FFFFFF", padding: "2px 8px", borderRadius: 10 }}>
+                NEW MODULE
+              </span>
+            </div>
+            <p style={{ margin: "3px 0 0", fontSize: 12, color: "#94A3B8" }}>
+              Paddy Straw (धान की पराली) • Wheat Straw (गेहूं का भूसा) • Maize Stalk (मक्का का डंठल) — Track 50-100 Villages, Weighbridge GRN Formula & Factory Dispatches (Reliance & Balrampur)
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          style={{
+            padding: "8px 16px",
+            fontSize: 12.5,
+            fontWeight: 800,
+            borderRadius: 8,
+            border: "none",
+            background: "#10B981",
+            color: "#FFFFFF",
+            cursor: "pointer",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            boxShadow: "0 4px 12px rgba(16, 185, 129, 0.4)",
+          }}
+        >
+          Open Biomass Tracker →
+        </button>
+      </div>
 
       {/* KPI CARDS (static - no click interaction, each card stands alone) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="responsive-grid-2">

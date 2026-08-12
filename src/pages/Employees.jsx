@@ -151,7 +151,7 @@ export default function Employees() {
               <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(16,185,129,0.2)" }}>{activeCount} Staff</div>
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Verified Active Duty</div>
             </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justify: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
               <i className="fa-solid fa-user-check" />
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function Employees() {
               <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(245,158,11,0.2)" }}>{onLeaveCount} Staff</div>
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Sanctioned Leave</div>
             </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justify: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
               <i className="fa-solid fa-umbrella-beach" />
             </div>
           </div>
@@ -225,7 +225,7 @@ export default function Employees() {
               <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(239,68,68,0.2)" }}>{inactiveCount} Staff</div>
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Deactivated Accounts</div>
             </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justify: "center", fontSize: 16, border: "1px solid rgba(239,68,68,0.3)", boxShadow: "0 0 14px rgba(239,68,68,0.35)", flexShrink: 0 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(239,68,68,0.3)", boxShadow: "0 0 14px rgba(239,68,68,0.35)", flexShrink: 0 }}>
               <i className="fa-solid fa-user-xmark" />
             </div>
           </div>
@@ -262,7 +262,7 @@ export default function Employees() {
               <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(59,130,246,0.2)" }}>{scopedEmployees.length}</div>
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Registered Personnel</div>
             </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justify: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
               <i className="fa-solid fa-users" />
             </div>
           </div>

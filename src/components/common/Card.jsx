@@ -4,8 +4,8 @@ export default function Card({ title, subtitle, icon, right, children, style, cl
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {icon && (
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justify: "center", fontSize: 13, flexShrink: 0 }}>
-              <i className={icon} style={{ display: "inline-flex", alignItems: "center", justify: "center", width: 14, height: 14 }} />
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flexShrink: 0 }}>
+              <i className={icon} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 14, height: 14 }} />
             </div>
           )}
           <div>

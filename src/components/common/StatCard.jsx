@@ -69,7 +69,7 @@ function StatCard({
                 color: iconColor,
                 display: "flex",
                 alignItems: "center",
-                justify: "center",
+                justifyContent: "center",
                 fontWeight: 700,
                 fontSize: 16,
                 border: `1px solid ${iconColor}30`,
@@ -78,7 +78,7 @@ function StatCard({
               }}
             >
               {typeof icon === "string" && icon.startsWith("fa-") ? (
-                <i className={icon} style={{ display: "inline-flex", alignItems: "center", justify: "center", width: 16, height: 16 }} />
+                <i className={icon} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 16, height: 16 }} />
               ) : (
                 icon || "🏢"
               )}

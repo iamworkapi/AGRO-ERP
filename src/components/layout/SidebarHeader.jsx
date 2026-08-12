@@ -44,10 +44,10 @@ export default function SidebarHeader({ collapsed, onToggleCollapse }) {
                 lineHeight: 1.1,
               }}
             >
-              PRALLI
+              PRALLI ERP
             </p>
-            <span style={{ fontSize: 10.5, color: "rgba(255, 255, 255, 0.45)", fontWeight: 500, letterSpacing: "0.02em" }}>
-              Agri Command Centre
+            <span style={{ fontSize: 10, color: "rgba(255, 255, 255, 0.55)", fontWeight: 600, letterSpacing: "0.02em" }}>
+              Kusumganga Agro Solutions
             </span>
           </div>
         )}

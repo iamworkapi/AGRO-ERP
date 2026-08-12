@@ -17,6 +17,7 @@ const ExceptionApprovals = lazy(() => import("../pages/ExceptionApprovals"));
 const EmployeeLocationMap = lazy(() => import("../pages/EmployeeLocationMap"));
 const Weighment = lazy(() => import("../pages/Weighment"));
 const CreateWeighmentSlip = lazy(() => import("../pages/CreateWeighmentSlip"));
+const BiomassSupplyChain = lazy(() => import("../pages/BiomassSupplyChain"));
 const DeductionSlabConfig = lazy(() => import("../pages/DeductionSlabConfig"));
 const WeightMachines = lazy(() => import("../pages/WeightMachines"));
 const Inventory = lazy(() => import("../pages/Inventory"));
@@ -91,6 +92,8 @@ export default function AppRoutes() {
         <Route path="weighment/new" element={<CreateWeighmentSlip />} />
         <Route path="weighment/machines" element={<WeightMachines />} />
         <Route path="weighment/deduction-slabs" element={<DeductionSlabConfig />} />
+
+        <Route path="biomass" element={<BiomassSupplyChain />} />
 
         <Route path="inventory" element={<Inventory />} />
         <Route path="inventory/items" element={<ItemPartsMaster />} />

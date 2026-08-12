@@ -105,7 +105,7 @@ export default function EmployeeLocationMap() {
                 }}
               >
                 {/* Radar pulse marker */}
-                <div style={{ position: "relative", display: "flex", alignItems: "center", justify: "center" }}>
+                <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <div
                     style={{
                       width: 24,

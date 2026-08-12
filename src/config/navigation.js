@@ -43,6 +43,14 @@ export const NAV_GROUPS = [
     badge: true,
   },
   {
+    label: "Biomass Supply Chain",
+    path: "/biomass",
+    sections: [
+      { label: "Biomass Tracker (पराली प्रबंधन)", path: "/biomass" },
+    ],
+    badge: true,
+  },
+  {
     label: "Inventory",
     path: "/inventory",
     sections: [
