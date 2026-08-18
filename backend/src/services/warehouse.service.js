@@ -7,6 +7,19 @@ import { ApiError } from "../utils/ApiError.js";
 import { ROLES } from "../constants/roles.js";
 import { recordAudit } from "./audit.service.js";
 import { getOwnWarehouseId } from "./warehouseScope.service.js";
+import { strongPassword } from "../validators/auth.validator.js";
+
+function validateStaffPassword(password, label) {
+  // Self-registration enforces strongPassword at the validator layer; the
+  // warehouse-create flow creates profiles inline, so it has to enforce
+  // the same policy itself - otherwise a Super Admin could mint a
+  // Supervisor with "abc" and then have no way to reject it.
+  const result = strongPassword.safeParse(password);
+  if (!result.success) {
+    const message = result.error.errors[0]?.message || `Invalid ${label} password.`;
+    throw ApiError.badRequest(`${label} password: ${message}`);
+  }
+}
 
 const STAFF_FIELDS = "fullName phone email";
 
@@ -114,24 +127,72 @@ export const listAvailableAdmins = () => listAvailableStaff(ROLES.WAREHOUSE_ADMI
 export const listAvailableSupervisors = () => listAvailableStaff(ROLES.SUPERVISOR, "supervisor");
 
 export async function createWarehouse(actor, payload) {
-  await assertEligibleStaff({ adminId: payload.adminId, supervisorId: payload.supervisorId });
+  let finalAdminId = payload.adminId;
+  let finalSupervisorId = payload.supervisorId;
+
+  // 1. Create New Admin Profile if requested
+  if (!finalAdminId && payload.newAdmin?.fullName) {
+    const adminPassword = payload.newAdmin.password;
+    if (!adminPassword) {
+      throw ApiError.badRequest("A password is required when creating a new Warehouse Admin.");
+    }
+    validateStaffPassword(adminPassword, "Warehouse Admin");
+    const passwordHash = await User.hashPassword(adminPassword);
+    const createdAdmin = await User.create({
+      fullName: payload.newAdmin.fullName,
+      email: (payload.newAdmin.email || `admin.${Date.now()}@kusumganga.com`).toLowerCase(),
+      phone: payload.newAdmin.phone || `98${Math.floor(10000000 + Math.random() * 90000000)}`,
+      passwordHash,
+      role: ROLES.WAREHOUSE_ADMIN,
+      status: "active",
+    });
+    finalAdminId = createdAdmin._id;
+  }
+
+  // 2. Create New Supervisor Profile if requested
+  if (!finalSupervisorId && payload.newSupervisor?.fullName) {
+    const supervisorPassword = payload.newSupervisor.password;
+    if (!supervisorPassword) {
+      throw ApiError.badRequest("A password is required when creating a new Warehouse Supervisor.");
+    }
+    validateStaffPassword(supervisorPassword, "Warehouse Supervisor");
+    const passwordHash = await User.hashPassword(supervisorPassword);
+    const createdSupervisor = await User.create({
+      fullName: payload.newSupervisor.fullName,
+      email: (payload.newSupervisor.email || `sup.${Date.now()}@kusumganga.com`).toLowerCase(),
+      phone: payload.newSupervisor.phone || `97${Math.floor(10000000 + Math.random() * 90000000)}`,
+      passwordHash,
+      role: ROLES.SUPERVISOR,
+      status: "active",
+    });
+    finalSupervisorId = createdSupervisor._id;
+  }
+
+  if (finalAdminId || finalSupervisorId) {
+    await assertEligibleStaff({ adminId: finalAdminId, supervisorId: finalSupervisorId });
+  }
 
   try {
     const warehouse = await Warehouse.create({
       name: payload.name,
+      companyName: payload.companyName || "Kusumganga Agro Solutions Pvt. Ltd.",
       commodity: payload.commodity,
       address: payload.address,
+      gstin: payload.gstin || "09AALCK4355J1Z2",
+      pan: payload.pan || "AALCK4355J",
+      contactPerson: payload.contactPerson || "Mr. Jagdeep Singh",
+      contactPhone: payload.contactPhone || "7055000315",
+      email: payload.email || "kusumganga5@gmail.com",
+      helpDeskPhone: payload.helpDeskPhone || "7905525983",
       gpsLat: payload.gpsLat,
       gpsLng: payload.gpsLng,
-      admin: payload.adminId,
-      supervisor: payload.supervisorId,
+      admin: finalAdminId || null,
+      supervisor: finalSupervisorId || null,
       createdBy: actor.profile._id,
     });
 
     await recordAudit({ actor, action: "warehouse.create", entityType: "warehouse", entityId: warehouse._id, warehouseId: warehouse._id, metadata: { name: warehouse.name } });
     await warehouse.populate([{ path: "admin", select: STAFF_FIELDS }, { path: "supervisor", select: STAFF_FIELDS }]);
-    // A brand-new warehouse can't have any employees or approved stock yet -
-    // no need to run the aggregation just to learn that.
     return { ...warehouse.toJSON(), staffCount: 0, stockKg: 0 };
   } catch (error) {
     throw translateWriteError(error);
@@ -143,8 +204,15 @@ export async function updateWarehouse(actor, id, payload) {
 
   const patch = {};
   if (payload.name !== undefined) patch.name = payload.name;
+  if (payload.companyName !== undefined) patch.companyName = payload.companyName;
   if (payload.commodity !== undefined) patch.commodity = payload.commodity;
   if (payload.address !== undefined) patch.address = payload.address;
+  if (payload.gstin !== undefined) patch.gstin = payload.gstin;
+  if (payload.pan !== undefined) patch.pan = payload.pan;
+  if (payload.contactPerson !== undefined) patch.contactPerson = payload.contactPerson;
+  if (payload.contactPhone !== undefined) patch.contactPhone = payload.contactPhone;
+  if (payload.email !== undefined) patch.email = payload.email;
+  if (payload.helpDeskPhone !== undefined) patch.helpDeskPhone = payload.helpDeskPhone;
   if (payload.gpsLat !== undefined) patch.gpsLat = payload.gpsLat;
   if (payload.gpsLng !== undefined) patch.gpsLng = payload.gpsLng;
   if (payload.adminId !== undefined) patch.admin = payload.adminId;

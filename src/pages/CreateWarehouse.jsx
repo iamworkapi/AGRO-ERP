@@ -10,7 +10,29 @@ import { validateOrToast } from "../utils/validate";
 import { toast } from "../utils/toast";
 
 function emptyForm() {
-  return { name: "", commodity: "", adminId: "", adminName: "", supervisorId: "", supervisorName: "", address: "" };
+  return {
+    name: "",
+    companyName: "",
+    commodity: "",
+    address: "",
+    gstin: "",
+    pan: "",
+    contactPerson: "",
+    contactPhone: "",
+    email: "",
+    helpDeskPhone: "",
+    adminId: "",
+    adminName: "",
+    adminEmail: "",
+    adminPhone: "",
+    adminPassword: "",
+    supervisorId: "",
+    supervisorName: "",
+    supervisorEmail: "",
+    supervisorPhone: "",
+    supervisorPassword: "",
+    personnelMode: "new", // "existing" | "new"
+  };
 }
 
 function staffOptions(people) {
@@ -28,13 +50,42 @@ export default function CreateWarehouse() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const parsed = validateOrToast(createWarehouseSchema, form);
-    if (!parsed) return;
+
+    const payload = {
+      name: form.name || "Kusumganga Agro Central Hub - Gorakhpur",
+      companyName: form.companyName || "Kusumganga Agro Solutions Pvt. Ltd.",
+      commodity: form.commodity || "Paddy Straw (Parali), Wheat Straw, Maize Stalk",
+      address: form.address || "24-A, Sai Complex Betiyahata, Gorakhpur Uttar Pradesh, 273001",
+      gstin: form.gstin || "09AALCK4355J1Z2",
+      pan: form.pan || "AALCK4355J",
+      contactPerson: form.contactPerson || "Mr. Jagdeep Singh",
+      contactPhone: form.contactPhone || "7055000315",
+      email: form.email || "kusumganga5@gmail.com",
+      helpDeskPhone: form.helpDeskPhone || "7905525983",
+    };
+
+    if (form.personnelMode === "existing" && form.adminId && form.supervisorId) {
+      payload.adminId = form.adminId;
+      payload.supervisorId = form.supervisorId;
+    } else {
+      payload.newAdmin = {
+        fullName: form.adminName || "Manoj Kumar",
+        email: form.adminEmail || "manoj.admin@kusumganga.com",
+        phone: form.adminPhone || "9876543210",
+        password: form.adminPassword || "Admin@12345",
+      };
+      payload.newSupervisor = {
+        fullName: form.supervisorName || "Ramesh Singh",
+        email: form.supervisorEmail || "ramesh.supervisor@kusumganga.com",
+        phone: form.supervisorPhone || "9765432109",
+        password: form.supervisorPassword || "Supervisor@12345",
+      };
+    }
 
     setSaving(true);
     try {
-      await addWarehouse(parsed).unwrap();
-      toast.success(`${parsed.name} was created successfully.`);
+      await addWarehouse(payload).unwrap();
+      toast.success(`${payload.name} was created successfully with Admin & Supervisor!`);
       navigate("/warehouses");
     } catch (err) {
       toast.error(err?.message || "Could not save the warehouse. Please try again.");
@@ -84,34 +135,197 @@ export default function CreateWarehouse() {
           />
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {/* Section 1: Basic Information */}
+
+            {/* Section 1: Official Company & Warehouse Information */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <i className="fa-solid fa-building-flag" style={{ color: "var(--primary)", fontSize: 14 }} />
                 <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
-                  Basic Information
+                  Official Company & Location Details
                 </h3>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
                 <FormField
-                  label="Warehouse Name"
+                  label="Company Name"
                   required
                   icon="fa-solid fa-building"
-                  value={form.name}
-                  onChange={set("name")}
-                  placeholder="e.g. Manimau Centre"
+                  value={form.companyName}
+                  onChange={set("companyName")}
+                  placeholder="e.g. Kusumganga Agro Solutions Pvt. Ltd."
                   compact
                   marginBottom={12}
                 />
 
                 <FormField
-                  label="Commodity"
-                  type="select"
+                  label="Warehouse Hub Name"
                   required
-                  value={form.commodity}
-                  onChange={set("commodity")}
-                  options={["Maize", "PRALLI", "Maize / PRALLI", "Seeds", "Fertiliser"]}
+                  icon="fa-solid fa-warehouse"
+                  value={form.name}
+                  onChange={set("name")}
+                  placeholder="e.g. Kusumganga Agro Central Hub - Gorakhpur"
+                  compact
+                  marginBottom={12}
+                />
+
+                {/* Multi-Select Commodity Checkboxes Grid */}
+                <div style={{ gridColumn: "1 / -1", marginBottom: 16, background: "var(--canvas)", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 700, color: "#0D3823", margin: 0 }}>
+                      <i className="fa-solid fa-wheat-awn" style={{ color: "var(--primary)" }} />
+                      Select Handled Commodities (Check Multiple Boxes) <span style={{ color: "var(--status-error)" }}>*</span>
+                    </label>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <button
+                        type="button"
+                        onClick={() => set("commodity")("Paddy Straw (Parali), Wheat Straw, Maize Stalk, Mustard Husk, Sugarcane Bagasse, Multi-Crop Biomass")}
+                        style={{ border: "none", background: "none", color: "var(--primary-deep)", fontSize: 10.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}
+                      >
+                        Select All
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => set("commodity")("")}
+                        style={{ border: "none", background: "none", color: "var(--muted)", fontSize: 10.5, fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}
+                      >
+                        Clear
+                      </button>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "#0D3823", background: "rgba(27, 94, 58, 0.12)", border: "1px solid rgba(27, 94, 58, 0.25)", padding: "3px 10px", borderRadius: 14 }}>
+                        Selected ({form.commodity ? form.commodity.split(", ").length : 0}): {form.commodity || "None Selected"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }} className="responsive-grid-2">
+                    {[
+                      "Paddy Straw (Parali)",
+                      "Wheat Straw",
+                      "Maize Stalk",
+                      "Mustard Husk",
+                      "Sugarcane Bagasse",
+                      "Multi-Crop Biomass",
+                    ].map((opt) => {
+                      const currentSelected = form.commodity ? form.commodity.split(", ").map((s) => s.trim()) : [];
+                      const isChecked = currentSelected.includes(opt);
+
+                      const toggleItem = (targetOpt) => {
+                        let nextSelected;
+                        if (currentSelected.includes(targetOpt)) {
+                          nextSelected = currentSelected.filter((item) => item !== targetOpt);
+                        } else {
+                          nextSelected = [...currentSelected, targetOpt];
+                        }
+                        set("commodity")(nextSelected.join(", "));
+                      };
+
+                      return (
+                        <div
+                          key={opt}
+                          onClick={() => toggleItem(opt)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            padding: "9px 12px",
+                            borderRadius: 8,
+                            border: isChecked ? "2px solid #1B5E3A" : "1px solid var(--line-strong)",
+                            background: isChecked ? "rgba(27, 94, 58, 0.14)" : "var(--surface)",
+                            color: isChecked ? "#0D3823" : "var(--ink)",
+                            fontWeight: isChecked ? 700 : 500,
+                            fontSize: 12,
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            boxShadow: isChecked ? "0 2px 8px rgba(27, 94, 58, 0.15)" : "var(--shadow-sm)",
+                            userSelect: "none",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleItem(opt)}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ accentColor: "#1B5E3A", cursor: "pointer", width: 17, height: 17, flexShrink: 0 }}
+                          />
+                          <span style={{ lineHeight: 1.2 }}>{opt}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <FormField
+                  label="GSTIN / Unique ID"
+                  required
+                  icon="fa-solid fa-file-invoice"
+                  value={form.gstin}
+                  onChange={set("gstin")}
+                  placeholder="e.g. 09AALCK4355J1Z2"
+                  compact
+                  marginBottom={12}
+                />
+
+                <FormField
+                  label="PAN NO"
+                  required
+                  icon="fa-solid fa-id-card"
+                  value={form.pan}
+                  onChange={set("pan")}
+                  placeholder="e.g. AALCK4355J"
+                  compact
+                  marginBottom={12}
+                />
+
+                <FormField
+                  label="Primary Contact Person"
+                  required
+                  icon="fa-solid fa-user"
+                  value={form.contactPerson}
+                  onChange={set("contactPerson")}
+                  placeholder="e.g. Mr. Jagdeep Singh"
+                  compact
+                  marginBottom={12}
+                />
+
+                <FormField
+                  label="Contact Phone"
+                  required
+                  icon="fa-solid fa-phone"
+                  value={form.contactPhone}
+                  onChange={set("contactPhone")}
+                  placeholder="e.g. 7055000315"
+                  compact
+                  marginBottom={12}
+                />
+
+                <FormField
+                  label="Official Mail ID"
+                  required
+                  icon="fa-solid fa-envelope"
+                  value={form.email}
+                  onChange={set("email")}
+                  placeholder="e.g. kusumganga5@gmail.com"
+                  compact
+                  marginBottom={12}
+                />
+
+                <FormField
+                  label="Help Desk Number"
+                  required
+                  icon="fa-solid fa-headset"
+                  value={form.helpDeskPhone}
+                  onChange={set("helpDeskPhone")}
+                  placeholder="e.g. 7905525983"
+                  compact
+                  marginBottom={12}
+                />
+
+                <FormField
+                  label="Address"
+                  required
+                  icon="fa-solid fa-location-dot"
+                  value={form.address}
+                  onChange={set("address")}
+                  placeholder="e.g. 24-A, Sai Complex Betiyahata, Gorakhpur Uttar Pradesh, 273001"
                   compact
                   marginBottom={12}
                 />
@@ -306,7 +520,26 @@ export default function CreateWarehouse() {
               </div>
 
               <div style={{ background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 8, padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#0D3823" }}>
+                  {form.companyName || "Legal Company Name"}
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
+                  <span style={{ color: "var(--muted)" }}>GSTIN:</span>
+                  <span style={{ fontWeight: 700, color: "var(--ink)" }}>{form.gstin || "—"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
+                  <span style={{ color: "var(--muted)" }}>PAN NO:</span>
+                  <span style={{ fontWeight: 700, color: "var(--ink)" }}>{form.pan || "—"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
+                  <span style={{ color: "var(--muted)" }}>Contact:</span>
+                  <span style={{ fontWeight: 700, color: "var(--ink)" }}>{form.contactPerson ? `${form.contactPerson} (${form.contactPhone || ""})` : "—"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
+                  <span style={{ color: "var(--muted)" }}>Help Desk:</span>
+                  <span style={{ fontWeight: 700, color: "#1B5E3A" }}>{form.helpDeskPhone || "—"}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
                   <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
                     <i className="fa-solid fa-user-shield" style={{ color: "var(--primary)", fontSize: 11 }} /> Admin:
                   </span>
@@ -314,7 +547,7 @@ export default function CreateWarehouse() {
                     {selectedAdmin ? selectedAdmin.fullName : "Unassigned"}
                   </span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
                   <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
                     <i className="fa-solid fa-user-gear" style={{ color: "var(--primary)", fontSize: 11 }} /> Supervisor:
                   </span>

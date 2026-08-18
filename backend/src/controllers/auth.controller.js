@@ -4,7 +4,7 @@ import * as authService from "../services/auth.service.js";
 import * as passwordResetService from "../services/passwordReset.service.js";
 
 export const login = asyncHandler(async (req, res) => {
-  const result = await authService.login(req.body);
+  const result = await authService.login(req.body, req);
   sendSuccess(res, result);
 });
 

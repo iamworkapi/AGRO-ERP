@@ -13,41 +13,34 @@ export default function SidebarHeader({ collapsed, onToggleCollapse }) {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
-        <div
+        <img
+          src="/Agro-Logo.svg"
+          alt="Kusumganga Agro Logo"
           style={{
-            width: 34,
-            height: 34,
+            width: 36,
+            height: 36,
             flexShrink: 0,
-            background: "var(--gradient-primary)",
-            borderRadius: 9,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontWeight: 800,
-            fontSize: 17,
-            boxShadow: "0 3px 12px rgba(0, 184, 107, 0.4)",
+            objectFit: "contain",
+            filter: "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3))",
           }}
-        >
-          <i className="fa-solid fa-wheat-awn" style={{ fontSize: 17 }} />
-        </div>
+        />
         {!collapsed && (
           <div>
             <p
               style={{
                 margin: 0,
                 fontWeight: 800,
-                fontSize: 17.5,
+                fontSize: 16.5,
                 color: "white",
                 whiteSpace: "nowrap",
                 letterSpacing: "-0.02em",
                 lineHeight: 1.1,
               }}
             >
-              PRALLI ERP
+              KUSUMGANGA
             </p>
-            <span style={{ fontSize: 10, color: "rgba(255, 255, 255, 0.55)", fontWeight: 600, letterSpacing: "0.02em" }}>
-              Kusumganga Agro Solutions
+            <span style={{ fontSize: 10, color: "rgba(255, 255, 255, 0.65)", fontWeight: 600, letterSpacing: "0.02em" }}>
+              Agro Solutions ERP
             </span>
           </div>
         )}

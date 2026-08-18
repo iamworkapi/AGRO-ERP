@@ -8,6 +8,7 @@ export const NAV_GROUPS = [
     roles: ["admin"],
     sections: [
       { label: "All Warehouses", path: "/warehouses", roles: ["admin"] },
+      { label: "Add Warehouse", path: "/warehouses/create", roles: ["admin"] },
       { label: "Warehouse Detail", path: "/warehouses/detail", roles: ["admin"] },
       { label: "Warehouse Admin Management", path: "/warehouses/admin-management", roles: ["admin"] },
     ],
@@ -23,15 +24,6 @@ export const NAV_GROUPS = [
     badge: true,
   },
   {
-    label: "Attendance",
-    path: "/attendance",
-    sections: [
-      { label: "Daily Attendance", path: "/attendance" },
-      { label: "Exception Approvals", path: "/attendance/exceptions" },
-      { label: "Employee Location Map", path: "/attendance/location-map" },
-    ],
-  },
-  {
     label: "Weighment & Moisture",
     path: "/weighment",
     sections: [
@@ -43,57 +35,109 @@ export const NAV_GROUPS = [
     badge: true,
   },
   {
-    label: "Biomass Supply Chain",
+    label: "Biomass 4-Stage Master",
     path: "/biomass",
+    sections: ["4-Stage Master Tracker"],
+    badge: true,
+  },
+  {
+    label: "Stage 1: Collection & Vendors",
+    path: "/biomass/collection",
     sections: [
-      { label: "Biomass Tracker (पराली प्रबंधन)", path: "/biomass" },
+      { label: "Stage 1: Collection (ग्राम संग्रह)", path: "/biomass/collection" },
+      { label: "Biomass Vendor List (आपूर्तिकर्ता सूची)", path: "/biomass/vendors" },
+      { label: "Create Vendor (नया आपूर्तिकर्ता)", path: "/biomass/vendors/create" },
+    ],
+    badge: true,
+  },
+  {
+    label: "Stage 2: Process & Moisture",
+    path: "/biomass/processing",
+    sections: [
+      { label: "Processing & Moisture Calculator", path: "/biomass/processing" },
+      { label: "Weighment Slips & GRN Log", path: "/weighment" },
+      { label: "New Weighment Entry", path: "/weighment/new" },
+      { label: "Moisture Deduction Slabs", path: "/weighment/deduction-slabs", roles: ["admin"] },
+    ],
+    badge: true,
+  },
+  {
+    label: "Stage 3: Storage (सुरक्षित भंडारण)",
+    path: "/biomass/storage",
+    sections: [
+      { label: "Yard Stacking & Probes", path: "/biomass/storage" },
+      { label: "Warehouse Operations Detail", path: "/warehouses/detail", roles: ["admin"] },
+    ],
+  },
+  {
+    label: "Stage 4: Dispatch & Buyers",
+    path: "/biomass/dispatch",
+    sections: [
+      { label: "Stage 4: Factory Dispatches", path: "/biomass/dispatch" },
+      { label: "Biomass Buyer List (क्रेता / फ़ैक्ट्री)", path: "/biomass/buyers" },
+      { label: "Create Buyer (नया खरीदार जोड़ें)", path: "/biomass/buyers/create" },
     ],
     badge: true,
   },
   {
     label: "Inventory",
     path: "/inventory",
+    roles: ["admin"],
     sections: [
-      { label: "Stock Overview", path: "/inventory" },
-      { label: "Item / Parts Master", path: "/inventory/items" },
-      { label: "Low Stock Alerts", path: "/inventory/low-stock-alerts" },
+      { label: "Stock Overview", path: "/inventory", roles: ["admin"] },
+      { label: "Item / Parts Master", path: "/inventory/items", roles: ["admin"] },
+      { label: "Low Stock Alerts", path: "/inventory/low-stock-alerts", roles: ["admin"] },
     ],
     badge: true,
   },
   {
     label: "Purchase",
     path: "/purchase",
+    roles: ["admin"],
     sections: [
-      { label: "Purchase Orders", path: "/purchase" },
-      { label: "Vendor Master & Ledger", path: "/purchase/vendors" },
+      { label: "Purchase Orders", path: "/purchase", roles: ["admin"] },
+      { label: "Vendor Master & Ledger", path: "/purchase/vendors", roles: ["admin"] },
+      { label: "Biomass Vendor Directory", path: "/biomass/vendors", roles: ["admin"] },
+      { label: "Create Biomass Vendor", path: "/biomass/vendors/create", roles: ["admin"] },
     ],
   },
   {
     label: "Sales & Billing",
     path: "/sales",
+    roles: ["admin"],
     sections: [
-      { label: "Invoices", path: "/sales" },
-      { label: "Customer Master & Ledger", path: "/sales/customer-master-ledger" },
+      { label: "Invoices", path: "/sales", roles: ["admin"] },
+      { label: "Customer Master & Ledger", path: "/sales/customer-master-ledger", roles: ["admin"] },
+      { label: "Industrial Buyer Directory", path: "/biomass/buyers", roles: ["admin"] },
+      { label: "Create Industrial Buyer", path: "/biomass/buyers/create", roles: ["admin"] },
     ],
   },
   {
     label: "Employees",
     path: "/employees",
+    roles: ["admin"],
     sections: [
-      { label: "Employee Directory", path: "/employees" },
-      { label: "Task Assignment", path: "/employees/tasks" },
-      { label: "Leave Requests", path: "/employees/leave-requests" },
+      { label: "Employee Directory", path: "/employees", roles: ["admin"] },
+      { label: "Task Assignment", path: "/employees/tasks", roles: ["admin"] },
+      { label: "Leave Requests", path: "/employees/leave-requests", roles: ["admin"] },
     ],
   },
   {
     label: "Reports",
     path: "/reports",
+    roles: ["admin"],
     sections: [
-      { label: "Analytics Centre", path: "/reports" },
-      { label: "Export MIS Reports", path: "/reports/export" },
+      { label: "Analytics Centre", path: "/reports", roles: ["admin"] },
+      { label: "Export MIS Reports", path: "/reports/export", roles: ["admin"] },
     ],
   },
-  { label: "Alerts & Exceptions", path: "/alerts", sections: ["All Exceptions"], badge: true },
+  {
+    label: "Alerts & Exceptions",
+    path: "/alerts",
+    roles: ["admin"],
+    sections: ["All Exceptions"],
+    badge: true,
+  },
   {
     label: "Settings",
     path: "/settings",

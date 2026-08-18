@@ -17,8 +17,8 @@ router.get("/available-supervisors", authorize(ROLES.SUPER_ADMIN), warehouseCont
 router.get("/", warehouseController.list);
 router.get("/:id", warehouseController.getById);
 
-router.post("/", authorize(ROLES.SUPER_ADMIN), validate(createWarehouseSchema), warehouseController.create);
-router.patch("/:id", authorize(ROLES.SUPER_ADMIN), validate(updateWarehouseSchema), warehouseController.update);
-router.delete("/:id", authorize(ROLES.SUPER_ADMIN), warehouseController.deactivate);
+router.post("/", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN), validate(createWarehouseSchema), warehouseController.create);
+router.patch("/:id", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN, ROLES.SUPERVISOR), validate(updateWarehouseSchema), warehouseController.update);
+router.delete("/:id", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN), warehouseController.deactivate);
 
 export default router;

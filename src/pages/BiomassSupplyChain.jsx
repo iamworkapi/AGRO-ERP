@@ -409,9 +409,31 @@ export default function BiomassSupplyChain() {
                       </div>
 
                       <div style={{ background: "#FEF3C7", border: "1px solid #F59E0B", padding: "8px 10px", borderRadius: 6, marginTop: 4 }}>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: "#92400E" }}>Term Sheet PO No: {currentVendor.poNo} (Date: {currentVendor.poDate})</div>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: "#92400E" }}>Term Sheet PO No: #{currentVendor.poNo} (Date: {currentVendor.poDate})</div>
                         <div style={{ fontSize: 10.5, color: "#B45309" }}>Tenure: {currentVendor.tenure} | Agreed Rate: ₹{currentVendor.agreedPricePerMt}/MT</div>
                       </div>
+
+                      <button
+                        type="button"
+                        onClick={() => navigate("/biomass/vendors")}
+                        style={{
+                          marginTop: 6,
+                          padding: "7px 10px",
+                          fontSize: 11.5,
+                          fontWeight: 800,
+                          background: "#2563EB",
+                          color: "#FFFFFF",
+                          border: "none",
+                          borderRadius: 6,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                        }}
+                      >
+                        👥 Open Full Vendor Master & Directory →
+                      </button>
                     </div>
                   )}
                 </>

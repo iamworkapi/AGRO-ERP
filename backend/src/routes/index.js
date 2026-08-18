@@ -8,6 +8,8 @@ import stockEntryRoutes from "./stockEntry.routes.js";
 import auditRoutes from "./audit.routes.js";
 import itemRoutes from "./item.routes.js";
 import attendanceRoutes from "./attendance.routes.js";
+import biomassVendorRoutes from "./biomassVendor.routes.js";
+import biomassBuyerRoutes from "./biomassBuyer.routes.js";
 
 const router = Router();
 
@@ -20,5 +22,7 @@ router.use("/stock-entries", stockEntryRoutes);
 router.use("/audit-logs", auditRoutes);
 router.use("/items", itemRoutes);
 router.use("/attendance", attendanceRoutes);
+router.use("/biomass-vendors", biomassVendorRoutes);
+router.use("/biomass-buyers", biomassBuyerRoutes);
 
 export default router;

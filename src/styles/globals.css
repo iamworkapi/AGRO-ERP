@@ -4,45 +4,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* --- Brand / Accent (StockMind Green) --- */
-  --primary: #00B86B;        /* Vibrant Green */
-  --primary-deep: #009657;   /* Hover state */
-  --primary-light: #33C689;
-  --primary-tint: #E5F8F0;   /* Light green for badges/chips */
+  /* --- Brand / Accent (Kusumganga Agro Logo Theme) --- */
+  --primary: #1B5E3A;        /* Rich Agriculture Emerald Green */
+  --primary-deep: #0D3823;   /* Deep Forest Emerald */
+  --primary-light: #2E8B57;  /* Vibrant Organic Leaf Green */
+  --primary-tint: #E8F5EE;   /* Light Mint for badges/chips */
+  --accent-gold: #D4A373;    /* Harvest Gold Accent */
 
   /* --- Neutrals --- */
-  --ink: #1E293B;            /* Slate 800 - dark primary text */
-  --ink-secondary: #475569;  /* Slate 600 - softer text */
-  --muted: #94A3B8;          /* Slate 400 - secondary text */
-  --faint: #CBD5E1;          /* Slate 300 - borders */
+  --ink: #12241A;            /* Deep Forest Slate text */
+  --ink-secondary: #3D5245;  /* Softer text */
+  --muted: #789082;          /* Muted text */
+  --faint: #C3D4CB;          /* Borders */
   
   /* --- Sidebar Theme --- */
-  --sidebar-bg: #07281D;     /* Very Dark Green */
+  --sidebar-bg: #082115;     /* Very Dark Pine Green from Agro Logo */
   --sidebar-ink: #FFFFFF;    /* White text */
-  --sidebar-muted: #8B9D96;  /* Muted text in sidebar */
-  --sidebar-hover: #0F382A;  /* Hover background */
-  --sidebar-active: #1A3D2F; /* Active background */
+  --sidebar-muted: #8FA89B;  /* Muted text in sidebar */
+  --sidebar-hover: #0F3320;  /* Hover background */
+  --sidebar-active: #17472D; /* Active background */
 
   /* --- Backgrounds & Surfaces --- */
-  --line: #E2E8F0;           
-  --line-strong: #CBD5E1;    
+  --line: #E1EBE5;           
+  --line-strong: #C3D4CB;    
   --surface: #FFFFFF;        
-  --surface-hover: #F8FAFC;  
-  --canvas: #F8F9FA;         /* Light grayish page background */
+  --surface-hover: #F2F7F4;  
+  --canvas: #F4F7F5;         /* Crisp organic page background */
 
   /* --- Status Colors --- */
-  --status-success: #10B981;
-  --status-success-bg: #D1FAE5;
-  --status-warning: #F59E0B;
+  --status-success: #1B5E3A;
+  --status-success-bg: #E8F5EE;
+  --status-warning: #D97706;
   --status-warning-bg: #FEF3C7;
-  --status-error: #EF4444;
+  --status-error: #DC2626;
   --status-error-bg: #FEE2E2;
-  --status-info: #3B82F6;
+  --status-info: #2563EB;
   --status-info-bg: #DBEAFE;
 
   /* --- Gradients --- */
-  --gradient-primary: linear-gradient(135deg, #059669 0%, #10B981 100%);
-  --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+  --gradient-primary: linear-gradient(135deg, #0D3823 0%, #1B5E3A 50%, #2E8B57 100%);
+  --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #F4F7F5 100%);
 
   /* --- Shadows --- */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -314,9 +315,9 @@ i.fa-brands,
 .app-card,
 .p-card {
   background: var(--surface) !important;
-  border: 1px solid rgba(0, 184, 107, 0.15) !important;
+  border: 1px solid rgba(27, 94, 58, 0.15) !important;
   border-radius: 16px !important;
-  box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 10px rgba(0, 184, 107, 0.08) !important;
+  box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 10px rgba(27, 94, 58, 0.08) !important;
   position: relative !important;
   overflow: hidden !important;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease !important;
@@ -330,8 +331,8 @@ i.fa-brands,
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #059669 0%, #10B981 100%);
-  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.5);
+  background: var(--gradient-primary);
+  box-shadow: 0 2px 10px rgba(27, 94, 58, 0.35);
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   z-index: 2;
@@ -340,8 +341,8 @@ i.fa-brands,
 .app-card:hover,
 .p-card:hover {
   transform: translateY(-2px) !important;
-  border-color: rgba(0, 184, 107, 0.35) !important;
-  box-shadow: 0 14px 32px -4px rgba(0, 0, 0, 0.08), 0 6px 20px rgba(0, 184, 107, 0.18) !important;
+  border-color: rgba(27, 94, 58, 0.35) !important;
+  box-shadow: 0 14px 32px -4px rgba(0, 0, 0, 0.08), 0 6px 20px rgba(27, 94, 58, 0.18) !important;
 }
 
 .p-card .p-card-body {
@@ -895,6 +896,276 @@ th {
   background-color: #e6f7f0 !important;
   color: var(--ink) !important;
   cursor: pointer;
+}
+
+/* ============================================================
+   GEOMETRIC LAYERED LOGIN DESIGN CONCEPT (AGRO GREEN THEME)
+   ============================================================ */
+
+.auth-geometric-hero {
+  position: relative;
+  background: #051F14;
+  overflow: hidden;
+}
+
+.auth-ribbon-1 {
+  position: absolute;
+  top: -30%;
+  left: -50%;
+  width: 160%;
+  height: 160%;
+  background: linear-gradient(135deg, #062317 0%, #0D3823 100%);
+  transform: rotate(-38deg);
+  box-shadow: 12px 12px 36px rgba(0, 0, 0, 0.45);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.auth-ribbon-2 {
+  position: absolute;
+  top: -15%;
+  left: -40%;
+  width: 140%;
+  height: 140%;
+  background: linear-gradient(135deg, #11452B 0%, #1B5E3A 100%);
+  transform: rotate(-32deg);
+  box-shadow: 10px 10px 28px rgba(0, 0, 0, 0.38);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.auth-ribbon-3 {
+  position: absolute;
+  top: 0%;
+  left: -30%;
+  width: 120%;
+  height: 120%;
+  background: linear-gradient(135deg, #1C6940 0%, #2E8B57 100%);
+  transform: rotate(-26deg);
+  box-shadow: 8px 8px 22px rgba(0, 0, 0, 0.28);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Underline Input Fields */
+.underline-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-bottom: 1.5px solid var(--line-strong);
+  padding: 8px 4px;
+  transition: border-color 0.25s ease;
+  margin-bottom: 14px;
+}
+
+.underline-input-group:focus-within {
+  border-bottom-color: var(--primary);
+}
+
+.underline-input-icon {
+  font-size: 15px;
+  color: var(--muted);
+  margin-right: 12px;
+  transition: color 0.25s ease;
+  width: 18px;
+  text-align: center;
+}
+
+.underline-input-group:focus-within .underline-input-icon {
+  color: var(--primary);
+}
+
+.underline-input-field {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12px !important;
+  color: var(--ink);
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.underline-input-field::placeholder {
+  color: #94A3B8;
+  font-weight: 400;
+  font-size: 12px !important;
+}
+
+/* Global Compact Small Input Text Override */
+input, select, textarea, .p-inputtext, .p-dropdown, .p-multiselect {
+  font-size: 12px !important;
+}
+
+/* Pill Submit Button */
+.pill-submit-btn {
+  border-radius: 30px !important;
+  padding: 11px 32px !important;
+  background: linear-gradient(135deg, #0D3823 0%, #1B5E3A 50%, #2E8B57 100%) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 6px 20px rgba(13, 56, 35, 0.35) !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+}
+
+.pill-submit-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 24px rgba(13, 56, 35, 0.45) !important;
+}
+
+/* Vertical Protruding Role Pill Tabs (Desktop / Mobile Responsive) */
+.role-tabs-container {
+  position: absolute;
+  left: -140px;
+  top: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 30;
+}
+
+@media (max-width: 1024px) {
+  .role-tabs-container {
+    position: static !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin-bottom: 20px !important;
+    left: auto !important;
+    top: auto !important;
+  }
+
+  .role-tab-pill-btn {
+    border-radius: 20px !important;
+    padding: 8px 14px !important;
+  }
+}
+
+.role-tab-pill-btn {
+  padding: 10px 18px 10px 16px;
+  border-radius: 25px 0 0 25px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.role-tab-pill-btn.active {
+  background: #FFFFFF !important;
+  color: #0D3823 !important;
+  box-shadow: -8px 6px 20px rgba(0, 0, 0, 0.28) !important;
+  transform: translateX(12px) scale(1.05) !important;
+  border-left: 4px solid #2E8B57 !important;
+  z-index: 35 !important;
+}
+
+.role-tab-pill-btn.inactive {
+  background: #0A2B1B !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-right: none !important;
+  box-shadow: -4px 4px 12px rgba(0, 0, 0, 0.25) !important;
+  opacity: 0.95 !important;
+}
+
+.role-tab-pill-btn.inactive:hover {
+  background: #11452B !important;
+  color: #FFFFFF !important;
+  transform: translateX(5px) !important;
+  opacity: 1 !important;
+}
+
+/* Glassmorphism Agro Container Styles */
+.agro-glass-card {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-radius: 28px !important;
+  border: none !important;
+  box-shadow: 0 32px 64px -12px rgba(3, 21, 12, 0.48), 0 12px 32px rgba(0, 0, 0, 0.24) !important;
+  overflow: hidden !important;
+}
+
+.agro-glass-badge {
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: none !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Tactile 3-Segmented Button Switcher (Matching Reference Image with Agro Theme Colors) */
+.tactile-segmented-container {
+  display: flex;
+  width: 100%;
+  height: 44px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #061A11;
+  border: 2.5px solid #03100A;
+  box-shadow: 0 8px 24px rgba(3, 16, 10, 0.4), inset 0 2px 4px rgba(0, 0, 0, 0.6);
+  box-sizing: border-box;
+}
+
+.tactile-segmented-btn {
+  flex: 1;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
+  padding: 0 4px;
+  border: none;
+  border-right: 1.5px solid #03100A;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.tactile-segmented-btn:last-child {
+  border-right: none;
+}
+
+/* Active Segment State - Like "PLAY" in image with Agro Green theme */
+.tactile-segmented-btn.active {
+  background: linear-gradient(180deg, #164E30 0%, #0D3823 60%, #082618 100%);
+  color: #FFFFFF;
+  text-shadow: 0 0 12px rgba(154, 230, 180, 0.9), 0 0 24px rgba(72, 187, 120, 0.5);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3), inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+}
+
+/* Inactive Segment State - Like "STOP" and "RESET" in image */
+.tactile-segmented-btn.inactive {
+  background: linear-gradient(180deg, #122B1E 0%, #091C13 100%);
+  color: rgba(255, 255, 255, 0.55);
+  text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.8);
+}
+
+.tactile-segmented-btn.inactive:hover {
+  background: linear-gradient(180deg, #183827 0%, #0D2619 100%);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 

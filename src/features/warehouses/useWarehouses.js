@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchWarehousesThunk, createWarehouseThunk } from "./warehousesSlice";
+import { fetchWarehousesThunk, createWarehouseThunk, updateWarehouseThunk, deleteWarehouseThunk } from "./warehousesSlice";
 import * as api from "./api";
 
 export function useWarehouses() {
@@ -13,9 +13,6 @@ export function useWarehouses() {
     }
   }, [state.status, dispatch]);
 
-  // Derived from the single warehouses list (each warehouse already carries
-  // its admin/supervisor) instead of separate network calls - one fetch,
-  // one source of truth, no risk of the two views drifting apart.
   const admins = useMemo(
     () =>
       state.list
@@ -44,7 +41,9 @@ export function useWarehouses() {
     supervisors,
     status: state.status,
     error: state.error,
-    addWarehouse: (payload) => dispatch(createWarehouseThunk(payload)),
+    addWarehouse: (payload) => dispatch(createWarehouseThunk(payload)).unwrap(),
+    updateWarehouse: (id, payload) => dispatch(updateWarehouseThunk({ id, payload })).unwrap(),
+    removeWarehouse: (id) => dispatch(deleteWarehouseThunk(id)).unwrap(),
   };
 }
 

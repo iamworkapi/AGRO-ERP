@@ -12,8 +12,45 @@ import { requestPasswordReset, resetPassword } from "../features/auth/api";
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [form, setForm] = useState({ identifier: "", password: "" });
-  const [selectedRole, setSelectedRole] = useState(null);
+
+  const WAREHOUSES = [
+    {
+      id: "wh_1",
+      name: "Warehouse #1 — Kusumganga Central Hub (Nashik)",
+      adminEmail: "admin@pralli.com",
+      supervisorEmail: "supervisor@pralli.com",
+      adminPass: "Password@123",
+      supervisorPass: "Password@123",
+    },
+    {
+      id: "wh_2",
+      name: "Warehouse #2 — Satara Grain Processing Hub",
+      adminEmail: "admin.satara@kusumganga.com",
+      supervisorEmail: "supervisor.satara@kusumganga.com",
+      adminPass: "Password@123",
+      supervisorPass: "Password@123",
+    },
+    {
+      id: "wh_3",
+      name: "Warehouse #3 — Sangli Agri Storage & Bio-Hub",
+      adminEmail: "admin.sangli@kusumganga.com",
+      supervisorEmail: "supervisor.sangli@kusumganga.com",
+      adminPass: "Password@123",
+      supervisorPass: "Password@123",
+    },
+    {
+      id: "wh_4",
+      name: "Warehouse #4 — Kolhapur Biomass Distribution Centre",
+      adminEmail: "admin.kolhapur@kusumganga.com",
+      supervisorEmail: "supervisor.kolhapur@kusumganga.com",
+      adminPass: "Password@123",
+      supervisorPass: "Password@123",
+    },
+  ];
+
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState("wh_1");
+  const [selectedRole, setSelectedRole] = useState("super_admin");
+  const [form, setForm] = useState({ identifier: "superadmin@pralli.com", password: "Password@123" });
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,12 +67,28 @@ export default function Login() {
 
   const set = (key) => (val) => {
     setForm((f) => ({ ...f, [key]: val }));
-    setSelectedRole(null);
   };
 
-  const handleRoleSelect = (roleKey, identifier, password) => {
+  const handleRoleSelect = (roleKey) => {
     setSelectedRole(roleKey);
-    setForm({ identifier, password });
+    const wh = WAREHOUSES.find((w) => w.id === selectedWarehouseId) || WAREHOUSES[0];
+    if (roleKey === "super_admin") {
+      setForm({ identifier: "superadmin@pralli.com", password: "Password@123" });
+    } else if (roleKey === "admin") {
+      setForm({ identifier: wh.adminEmail, password: wh.adminPass });
+    } else if (roleKey === "supervisor") {
+      setForm({ identifier: wh.supervisorEmail, password: wh.supervisorPass });
+    }
+  };
+
+  const handleWarehouseChange = (whId) => {
+    setSelectedWarehouseId(whId);
+    const wh = WAREHOUSES.find((w) => w.id === whId) || WAREHOUSES[0];
+    if (selectedRole === "admin") {
+      setForm({ identifier: wh.adminEmail, password: wh.adminPass });
+    } else if (selectedRole === "supervisor") {
+      setForm({ identifier: wh.supervisorEmail, password: wh.supervisorPass });
+    }
   };
 
   async function handleSubmit(e) {
@@ -136,33 +189,25 @@ export default function Login() {
 
   return (
     <AuthLayout>
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)", margin: 0, letterSpacing: "-0.02em" }}>
-            Welcome back 👋
-          </h2>
-          <span style={{ fontSize: 10.5, fontWeight: 600, color: "var(--primary-deep)", background: "var(--primary-tint)", padding: "2px 9px", borderRadius: 12, display: "flex", alignItems: "center", gap: 5 }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#10B981", boxShadow: "0 0 6px #10B981" }} />
-            Live Portal
-          </span>
-        </div>
-        <p style={{ fontSize: 12.5, color: "var(--muted)", margin: 0, lineHeight: 1.4 }}>
-          Sign in to access your PRALLI warehouse dashboard.
-        </p>
+      {/* RIGHT SIDE HEADER */}
+      <div style={{ textAlign: "center", marginBottom: 18 }}>
+        <h2 style={{ fontSize: 24, fontWeight: 900, color: "#0D3823", margin: "0 0 4px", letterSpacing: "-0.02em" }}>
+          Welcome Back 👋
+        </h2>
+        <span style={{ fontSize: 12, color: "var(--muted)", fontWeight: 600 }}>
+          Sign in to your Kusumganga ERP portal
+        </span>
       </div>
 
-      {/* NEXT-LEVEL QUICK DEMO ROLE SELECTOR CARDS */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-            Quick Demo Login Roles
-          </span>
-          <span style={{ fontSize: 10.5, color: "var(--muted)", fontWeight: 500 }}>
-            Click to auto-fill
+      {/* TACTILE 3-SEGMENTED ROLE SWITCHER (MATCHING USER REFERENCE IMAGE) */}
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ marginBottom: 6, textAlign: "left" }}>
+          <span style={{ fontSize: 10.5, fontWeight: 800, color: "#0D3823", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+            Select Login Role
           </span>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
+        <div className="tactile-segmented-container">
           {DEMO_ROLES.map((r) => {
             const isActive = selectedRole === r.key || form.identifier === r.identifier;
             return (
@@ -170,67 +215,103 @@ export default function Login() {
                 key={r.key}
                 type="button"
                 onClick={() => handleRoleSelect(r.key, r.identifier, r.password)}
-                className="hover-lift"
-                style={{
-                  padding: "8px 6px",
-                  borderRadius: 10,
-                  border: isActive ? "1.5px solid var(--primary)" : "1px solid var(--line-strong)",
-                  background: isActive ? "var(--primary-tint)" : "var(--canvas)",
-                  color: isActive ? "var(--primary-deep)" : "var(--ink-secondary)",
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 3,
-                  position: "relative",
-                  transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                  boxShadow: isActive ? "0 4px 12px rgba(0, 184, 107, 0.15)" : "none",
-                }}
+                className={`tactile-segmented-btn ${isActive ? "active" : "inactive"}`}
               >
-                {isActive && (
-                  <span style={{ position: "absolute", top: 4, right: 4, fontSize: 9, color: "var(--primary)" }}>
-                    <i className="fa-solid fa-circle-check" />
-                  </span>
-                )}
-                <i className={r.icon} style={{ fontSize: 13, color: isActive ? "var(--primary)" : "var(--muted)" }} />
-                <span style={{ fontSize: 11.5, fontWeight: 700, lineHeight: 1.1 }}>{r.label}</span>
-                <span style={{ fontSize: 9.5, color: isActive ? "var(--primary-deep)" : "var(--muted)", fontWeight: 500 }}>{r.subLabel}</span>
+                <i className={r.icon} style={{ fontSize: 11.5, color: isActive ? "#9AE6B4" : "rgba(255,255,255,0.6)" }} />
+                <span>{r.label}</span>
               </button>
             );
           })}
         </div>
+
+        {/* Selected Role Capability Notice */}
+        <div style={{ marginTop: 8, textAlign: "center" }}>
+          <span style={{ fontSize: 10.5, color: "#0D3823", fontWeight: 700, background: "rgba(27, 94, 58, 0.1)", padding: "4px 14px", borderRadius: 20, border: "none", display: "inline-flex", alignItems: "center", gap: 6, boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
+            <i className="fa-solid fa-shield-halved" style={{ fontSize: 10, color: "#1B5E3A" }} />
+            {selectedRole === "super_admin" && "Super Admin — Full Multi-Hub Access & Audit Logs"}
+            {selectedRole === "admin" && "Admin — Warehouse Operations & Stock Ledger"}
+            {selectedRole === "supervisor" && "Supervisor — Floor Weighbridge & Moisture Deductions"}
+            {!selectedRole && "Select a role above to pre-fill credentials"}
+          </span>
+        </div>
+
+        {/* WAREHOUSE / HUB SELECTOR DROPDOWN FOR ADMIN & SUPERVISOR ROLES */}
+        {selectedRole !== "super_admin" && (
+          <div style={{ marginTop: 14, textAlign: "left" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <label style={{ fontSize: 10.5, fontWeight: 800, color: "#0D3823", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+                Select Warehouse / Hub
+              </label>
+              <span style={{ fontSize: 9.5, color: "#1B5E3A", fontWeight: 700 }}>
+                {selectedRole === "admin" ? "Admin Hub" : "Supervisor Hub"}
+              </span>
+            </div>
+            <div className="underline-input-group" style={{ marginBottom: 0 }}>
+              <i className="fa-solid fa-warehouse underline-input-icon" style={{ color: "#1B5E3A" }} />
+              <select
+                value={selectedWarehouseId}
+                onChange={(e) => handleWarehouseChange(e.target.value)}
+                className="underline-input-field"
+                style={{
+                  cursor: "pointer",
+                  fontWeight: 700,
+                  color: "#0D3823",
+                  appearance: "none",
+                  WebkitAppearance: "none",
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231B5E3A' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 8px center",
+                  paddingRight: 24,
+                }}
+              >
+                {WAREHOUSES.map((wh) => (
+                  <option key={wh.id} value={wh.id} style={{ color: "#0D3823", fontWeight: 600 }}>
+                    {wh.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* UNDERLINE INPUT FORM */}
       <form onSubmit={handleSubmit}>
-        <FormField
-          label="Phone or Email Address"
-          required
-          icon="fa-solid fa-user-large"
-          value={form.identifier}
-          onChange={set("identifier")}
-          placeholder="e.g. admin@pralli.com"
-          compact
-          marginBottom={12}
-        />
+        {/* Email / Phone Field */}
+        <div className="underline-input-group">
+          <i className="fa-solid fa-user-large underline-input-icon" />
+          <input
+            type="text"
+            required
+            value={form.identifier}
+            onChange={(e) => set("identifier")(e.target.value)}
+            placeholder="Phone or Email Address"
+            className="underline-input-field"
+          />
+        </div>
 
-        <FormField
-          label="Password"
-          type={showPassword ? "text" : "password"}
-          required
-          icon="fa-solid fa-lock"
-          value={form.password}
-          onChange={set("password")}
-          placeholder="••••••••"
-          compact
-          marginBottom={12}
-          showPasswordToggle
-          showPassword={showPassword}
-          onTogglePassword={() => setShowPassword(!showPassword)}
-        />
+        {/* Password Field */}
+        <div className="underline-input-group">
+          <i className="fa-solid fa-lock underline-input-icon" />
+          <input
+            type={showPassword ? "text" : "password"}
+            required
+            value={form.password}
+            onChange={(e) => set("password")(e.target.value)}
+            placeholder="Password"
+            className="underline-input-field"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            style={{ border: "none", background: "transparent", color: "var(--muted)", cursor: "pointer", padding: "0 4px" }}
+          >
+            <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`} style={{ fontSize: 14 }} />
+          </button>
+        </div>
 
-        {/* Options Row: Remember Me & Forgot Password */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "2px 0 16px" }}>
+        {/* Action Row: Remember me & Forgot Password */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, marginBottom: 26 }}>
           <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", userSelect: "none" }}>
             <input
               type="checkbox"
@@ -238,7 +319,7 @@ export default function Login() {
               onChange={(e) => setRememberMe(e.target.checked)}
               style={{ accentColor: "var(--primary)", width: 14, height: 14, cursor: "pointer" }}
             />
-            <span style={{ fontSize: 12, color: "var(--ink-secondary)", fontWeight: 500 }}>Remember me</span>
+            <span style={{ fontSize: 12.5, color: "var(--ink-secondary)", fontWeight: 500 }}>Remember me</span>
           </label>
 
           <button
@@ -247,60 +328,55 @@ export default function Login() {
             style={{
               border: "none",
               background: "transparent",
-              color: "var(--primary-deep)",
+              color: "#0D3823",
               fontSize: 12,
-              fontWeight: 600,
+              fontWeight: 700,
               cursor: "pointer",
               padding: 0,
               display: "flex",
               alignItems: "center",
-              gap: 4
+              gap: 5
             }}
           >
-            <i className="fa-solid fa-key" style={{ fontSize: 10 }} /> Forgot password?
+            <i className="fa-solid fa-key" style={{ fontSize: 11, color: "#1B5E3A" }} /> Forgot Password?
           </button>
         </div>
 
-        {/* Submit Button with Shimmer & Loading Spinner */}
+        {/* Modern Full-Width Submit Button */}
         <Button
           type="submit"
           disabled={isLoading}
           className="btn-glow"
           style={{
             width: "100%",
-            padding: "11px 16px",
-            fontSize: 13.5,
-            fontWeight: 700,
-            borderRadius: "var(--radius)",
-            background: "var(--gradient-primary)",
-            boxShadow: "0 4px 14px rgba(0, 184, 107, 0.35)",
+            padding: "13px 20px",
+            fontSize: 14,
+            fontWeight: 800,
+            borderRadius: 30,
+            background: "linear-gradient(135deg, #0D3823 0%, #1B5E3A 50%, #2E8B57 100%)",
+            boxShadow: "0 8px 24px rgba(13, 56, 35, 0.38)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 8,
+            border: "none",
+            letterSpacing: "0.03em",
           }}
         >
           {isLoading ? (
             <>
-              <i className="fa-solid fa-circle-notch spin" style={{ fontSize: 14 }} />
+              <i className="fa-solid fa-circle-notch spin" style={{ fontSize: 15 }} />
               Signing in...
             </>
           ) : (
             <>
-              Sign In to PRALLI <i className="fa-solid fa-arrow-right-to-bracket" style={{ fontSize: 13 }} />
+              Sign In to Kusumganga ERP <i className="fa-solid fa-arrow-right-to-bracket" style={{ fontSize: 14 }} />
             </>
           )}
         </Button>
       </form>
 
-      <div style={{ textAlign: "center", marginTop: 18, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-        <p style={{ fontSize: 12, color: "var(--muted)", margin: 0 }}>
-          New warehouse admin or staff member?{" "}
-          <Link to="/register" style={{ color: "var(--primary-deep)", fontWeight: 700, textDecoration: "none" }}>
-            Create an account
-          </Link>
-        </p>
-      </div>
+
 
       {/* Forgot Password Modal - real 2-step OTP flow: request a code (sent
           to every email/phone on file), then verify it and set a new

@@ -90,12 +90,37 @@ function UsersIcon({ size = 17, style = {} }) {
   return <i className="fa-solid fa-user-group" style={{ fontSize: size, ...style }} />;
 }
 
+function BiomassIcon({ size = 17, style = {} }) {
+  return <i className="fa-solid fa-wheat-awn" style={{ fontSize: size, ...style }} />;
+}
+
+function Stage1Icon({ size = 17, style = {} }) {
+  return <i className="fa-solid fa-tractor" style={{ fontSize: size, ...style }} />;
+}
+
+function Stage2Icon({ size = 17, style = {} }) {
+  return <i className="fa-solid fa-gears" style={{ fontSize: size, ...style }} />;
+}
+
+function Stage3Icon({ size = 17, style = {} }) {
+  return <i className="fa-solid fa-cubes-stacked" style={{ fontSize: size, ...style }} />;
+}
+
+function Stage4Icon({ size = 17, style = {} }) {
+  return <i className="fa-solid fa-truck-ramp-box" style={{ fontSize: size, ...style }} />;
+}
+
 export const NAV_ICONS = {
   "/": DashboardIcon,
   "/warehouses": WarehouseIcon,
   "/users": UsersIcon,
   "/attendance": AttendanceIcon,
   "/weighment": WeighmentIcon,
+  "/biomass": BiomassIcon,
+  "/biomass/collection": Stage1Icon,
+  "/biomass/processing": Stage2Icon,
+  "/biomass/storage": Stage3Icon,
+  "/biomass/dispatch": Stage4Icon,
   "/inventory": InventoryIcon,
   "/purchase": PurchaseIcon,
   "/sales": SalesIcon,

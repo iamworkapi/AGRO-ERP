@@ -109,7 +109,7 @@ export default function Topbar({ onToggleMobileSidebar }) {
             gap: 8,
           }}
         >
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#10B981" }} />
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--primary)" }} />
           <span>
             <i className="fa-solid fa-warehouse" style={{ fontSize: 11, color: "var(--primary)", marginRight: 4 }} />
             {hubStatusLabel}

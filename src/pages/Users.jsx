@@ -16,8 +16,21 @@ import { createUserSchema } from "../validators/profileValidators";
 import { validateOrToast } from "../utils/validate";
 import { toast } from "../utils/toast";
 
+function getPasswordStrength(pw) {
+  if (!pw) return { level: 0, label: "", color: "transparent" };
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  if (score <= 1) return { level: 1, label: "Weak", color: "#EF4444" };
+  if (score <= 3) return { level: 2, label: "Medium", color: "#F59E0B" };
+  return { level: 3, label: "Strong", color: "#10B981" };
+}
+
 function emptyForm(defaultRole) {
-  return { role: defaultRole, fullName: "", phone: "", email: "", password: "", avatarUrl: "" };
+  return { role: defaultRole, fullName: "", phone: "", email: "", password: "", confirmPassword: "", avatarUrl: "" };
 }
 
 const STATUS_TONE = { active: "success", pending: "warning", inactive: "error" };
@@ -83,7 +96,12 @@ export default function Users() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const parsed = validateOrToast(createUserSchema, form);
+    if (form.password !== form.confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    const { confirmPassword, ...schemaFields } = form;
+    const parsed = validateOrToast(createUserSchema, schemaFields);
     if (!parsed) return;
 
     setSaving(true);
@@ -565,7 +583,31 @@ export default function Users() {
             onChange={set("password")}
             placeholder="At least 8 characters"
             compact
-            marginBottom={12}
+            marginBottom={4}
+          />
+          {/* Password strength bar */}
+          {form.password && (() => {
+            const s = getPasswordStrength(form.password);
+            return (
+              <div style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ flex: 1, height: 5, borderRadius: 3, background: "var(--line)", overflow: "hidden" }}>
+                  <div style={{ width: `${(s.level / 3) * 100}%`, height: "100%", background: s.color, borderRadius: 3, transition: "width 0.3s ease" }} />
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, color: s.color, whiteSpace: "nowrap" }}>{s.label}</span>
+              </div>
+            );
+          })()}
+          <FormField
+            label="Confirm Password"
+            type="password"
+            required
+            icon="fa-solid fa-lock"
+            value={form.confirmPassword}
+            onChange={set("confirmPassword")}
+            placeholder="Re-type the password"
+            compact
+            marginBottom={10}
+            error={form.confirmPassword && form.password !== form.confirmPassword ? "Passwords do not match" : ""}
           />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
             <Button variant="secondary" type="button" onClick={() => closeModal()} style={{ padding: "7px 14px", fontSize: 12.5 }}>

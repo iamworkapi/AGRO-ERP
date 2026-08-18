@@ -18,6 +18,14 @@ const EmployeeLocationMap = lazy(() => import("../pages/EmployeeLocationMap"));
 const Weighment = lazy(() => import("../pages/Weighment"));
 const CreateWeighmentSlip = lazy(() => import("../pages/CreateWeighmentSlip"));
 const BiomassSupplyChain = lazy(() => import("../pages/BiomassSupplyChain"));
+const BiomassCollection = lazy(() => import("../pages/BiomassCollection"));
+const BiomassVendors = lazy(() => import("../pages/BiomassVendors"));
+const CreateBiomassVendor = lazy(() => import("../pages/CreateBiomassVendor"));
+const BiomassProcessing = lazy(() => import("../pages/BiomassProcessing"));
+const BiomassStorage = lazy(() => import("../pages/BiomassStorage"));
+const BiomassDispatch = lazy(() => import("../pages/BiomassDispatch"));
+const BiomassBuyers = lazy(() => import("../pages/BiomassBuyers"));
+const CreateBiomassBuyer = lazy(() => import("../pages/CreateBiomassBuyer"));
 const DeductionSlabConfig = lazy(() => import("../pages/DeductionSlabConfig"));
 const WeightMachines = lazy(() => import("../pages/WeightMachines"));
 const Inventory = lazy(() => import("../pages/Inventory"));
@@ -60,7 +68,7 @@ export default function AppRoutes() {
         <Route
           path="warehouses/create"
           element={
-            <ProtectedRoute roles={["super_admin"]}>
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
               <CreateWarehouse />
             </ProtectedRoute>
           }
@@ -69,7 +77,7 @@ export default function AppRoutes() {
         <Route
           path="warehouses/admin-management"
           element={
-            <ProtectedRoute roles={["super_admin"]}>
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
               <WarehouseAdminManagement />
             </ProtectedRoute>
           }
@@ -94,6 +102,14 @@ export default function AppRoutes() {
         <Route path="weighment/deduction-slabs" element={<DeductionSlabConfig />} />
 
         <Route path="biomass" element={<BiomassSupplyChain />} />
+        <Route path="biomass/collection" element={<BiomassCollection />} />
+        <Route path="biomass/vendors" element={<BiomassVendors />} />
+        <Route path="biomass/vendors/create" element={<CreateBiomassVendor />} />
+        <Route path="biomass/processing" element={<BiomassProcessing />} />
+        <Route path="biomass/storage" element={<BiomassStorage />} />
+        <Route path="biomass/dispatch" element={<BiomassDispatch />} />
+        <Route path="biomass/buyers" element={<BiomassBuyers />} />
+        <Route path="biomass/buyers/create" element={<CreateBiomassBuyer />} />
 
         <Route path="inventory" element={<Inventory />} />
         <Route path="inventory/items" element={<ItemPartsMaster />} />
