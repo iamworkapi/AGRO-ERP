@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
 import Button from "../components/common/Button";
-import NewBiomassCollectionModal from "../components/biomass/NewBiomassCollectionModal";
-import NewBiomassDispatchModal from "../components/biomass/NewBiomassDispatchModal";
-import BiomassGatePassModal from "../components/biomass/BiomassGatePassModal";
-import NewVendorModal from "../components/biomass/NewVendorModal";
-import NewBuyerModal from "../components/biomass/NewBuyerModal";
-import NewWarehouseTccModal from "../components/biomass/NewWarehouseTccModal";
+import NewBiomassCollectionModal from "../features/biomass/components/NewBiomassCollectionModal";
+import NewBiomassDispatchModal from "../features/biomass/components/NewBiomassDispatchModal";
+import BiomassGatePassModal from "../features/biomass/components/BiomassGatePassModal";
+import NewVendorModal from "../features/biomass/components/NewVendorModal";
+import NewBuyerModal from "../features/biomass/components/NewBuyerModal";
+import NewWarehouseTccModal from "../features/biomass/components/NewWarehouseTccModal";
 import {
   CROPS_MASTER,
   getStoredVendors,

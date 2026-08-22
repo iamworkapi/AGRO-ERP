@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
 import Button from "../components/common/Button";
-import NewBuyerModal from "../components/biomass/NewBuyerModal";
-import BiomassGatePassModal from "../components/biomass/BiomassGatePassModal";
+import NewBuyerModal from "../features/biomass/components/NewBuyerModal";
+import BiomassGatePassModal from "../features/biomass/components/BiomassGatePassModal";
 import {
   getStoredBuyers,
   updateBuyer,

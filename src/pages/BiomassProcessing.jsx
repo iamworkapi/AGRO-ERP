@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
 import Button from "../components/common/Button";
-import BiomassCollectionSlipModal from "../components/biomass/BiomassCollectionSlipModal";
+import BiomassCollectionSlipModal from "../features/biomass/components/BiomassCollectionSlipModal";
 import {
   getStoredCollections,
   calculateGrnInvoiceWeight,

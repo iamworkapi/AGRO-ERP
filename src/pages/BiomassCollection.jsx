@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
 import Button from "../components/common/Button";
-import NewBiomassCollectionModal from "../components/biomass/NewBiomassCollectionModal";
-import NewVendorModal from "../components/biomass/NewVendorModal";
-import BiomassCollectionSlipModal from "../components/biomass/BiomassCollectionSlipModal";
+import NewBiomassCollectionModal from "../features/biomass/components/NewBiomassCollectionModal";
+import NewVendorModal from "../features/biomass/components/NewVendorModal";
+import BiomassCollectionSlipModal from "../features/biomass/components/BiomassCollectionSlipModal";
 import {
   CROPS_MASTER,
   DEFAULT_VILLAGES,

@@ -5,7 +5,7 @@ import DataTable from "../components/common/DataTable";
 import Badge from "../components/common/Badge";
 import Button from "../components/common/Button";
 import AsyncState from "../components/common/AsyncState";
-import PrintableWeighmentSlipModal from "../components/weighment/PrintableWeighmentSlipModal";
+import PrintableWeighmentSlipModal from "../features/weighment/components/PrintableWeighmentSlipModal";
 import { useStockEntries } from "../features/stockEntries/useStockEntries";
 import { useWarehouses } from "../features/warehouses/useWarehouses";
 import { useAuth } from "../hooks/useAuth";

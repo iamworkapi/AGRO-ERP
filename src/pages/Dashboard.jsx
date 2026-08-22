@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "../components/common/Card";
-import MoistureGauge from "../components/dashboard/MoistureGauge";
-import WarehouseTable from "../components/dashboard/WarehouseTable";
-import RecentActivity from "../components/dashboard/RecentActivity";
+import MoistureGauge from "../features/dashboard/components/MoistureGauge";
+import WarehouseTable from "../features/dashboard/components/WarehouseTable";
+import RecentActivity from "../features/dashboard/components/RecentActivity";
 import PageHeader from "../components/common/PageHeader";
 import AsyncState from "../components/common/AsyncState";
 import { useDashboard } from "../features/dashboard/useDashboard";

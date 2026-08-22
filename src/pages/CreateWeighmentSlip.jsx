@@ -4,7 +4,7 @@ import PageHeader from "../components/common/PageHeader";
 import FormField from "../components/common/FormField";
 import Button from "../components/common/Button";
 import Badge from "../components/common/Badge";
-import PrintableWeighmentSlipModal from "../components/weighment/PrintableWeighmentSlipModal";
+import PrintableWeighmentSlipModal from "../features/weighment/components/PrintableWeighmentSlipModal";
 import { useWeighment } from "../features/weighment/useWeighment";
 import { useStockEntries } from "../features/stockEntries/useStockEntries";
 import { useWeightMachines } from "../features/weightMachines/useWeightMachines";
