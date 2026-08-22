@@ -1,15 +1,15 @@
 import { Router } from "express";
-import authRoutes from "./auth.routes.js";
-import profileRoutes from "./profile.routes.js";
-import warehouseRoutes from "./warehouse.routes.js";
-import employeeRoutes from "./employee.routes.js";
-import weightMachineRoutes from "./weightMachine.routes.js";
-import stockEntryRoutes from "./stockEntry.routes.js";
-import auditRoutes from "./audit.routes.js";
-import itemRoutes from "./item.routes.js";
-import attendanceRoutes from "./attendance.routes.js";
-import biomassVendorRoutes from "./biomassVendor.routes.js";
-import biomassBuyerRoutes from "./biomassBuyer.routes.js";
+import authRoutes from "./modules/auth/index.js";
+import profileRoutes from "./modules/users/index.js";
+import warehouseRoutes from "./modules/warehouses/index.js";
+import employeeRoutes from "./modules/employees/index.js";
+import weightMachineRoutes from "./modules/weighment/index.js";
+import stockEntryRoutes from "./modules/stock/index.js";
+import auditRoutes from "./modules/audit/index.js";
+import itemRoutes from "./modules/inventory/index.js";
+import attendanceRoutes from "./modules/attendance/index.js";
+import biomassVendorRoutes from "./modules/biomass-vendors/index.js";
+import biomassBuyerRoutes from "./modules/biomass-buyers/index.js";
 
 const router = Router();
 
