@@ -3,8 +3,8 @@ import {
   CROPS_MASTER,
   getStoredVendors,
   calculateGrnInvoiceWeight,
-} from "../../features/biomass/biomassService";
-import { toast } from "../../utils/toast";
+} from "../biomassService";
+import { toast } from "../../../utils/toast";
 
 export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
   const vendors = getStoredVendors();

@@ -1,4 +1,4 @@
-import { toast } from "../../utils/toast";
+import { toast } from "../../../utils/toast";
 
 export default function BiomassGatePassModal({ passData, onClose }) {
   if (!passData) return null;

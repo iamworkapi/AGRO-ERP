@@ -1,4 +1,4 @@
-import Badge from "../common/Badge";
+import Badge from "../../../components/common/Badge";
 
 export default function WarehouseTable({ rows }) {
   return (

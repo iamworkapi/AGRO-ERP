@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "../../utils/toast";
+import { toast } from "../../../utils/toast";
 
 export default function NewWarehouseTccModal({ isOpen, onClose, onSaved }) {
   const [name, setName] = useState("");

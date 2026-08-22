@@ -3,8 +3,8 @@ import {
   CROPS_MASTER,
   getStoredBuyers,
   saveNewBuyer,
-} from "../../features/biomass/biomassService";
-import { toast } from "../../utils/toast";
+} from "../biomassService";
+import { toast } from "../../../utils/toast";
 
 export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
   const [buyersList, setBuyersList] = useState(getStoredBuyers);

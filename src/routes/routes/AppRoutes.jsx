@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
-import Loader from "../components/common/Loader";
+import Loader from "../../components/common/Loader";
 
 // Route-level code splitting: each page ships as its own chunk instead of
 // one ~1.1MB bundle loaded up front (Dashboard, Purchase, Settings, etc. all

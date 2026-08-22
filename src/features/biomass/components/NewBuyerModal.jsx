@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { saveNewBuyer } from "../../features/biomass/biomassService";
-import { toast } from "../../utils/toast";
+import { saveNewBuyer } from "../biomassService";
+import { toast } from "../../../utils/toast";
 
 export default function NewBuyerModal({ isOpen, onClose, onSaved }) {
   const [name, setName] = useState("");

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Modal from "../common/Modal";
-import Button from "../common/Button";
-import { toast } from "../../utils/toast";
+import Modal from "../../../components/common/Modal";
+import Button from "../../../components/common/Button";
+import { toast } from "../../../utils/toast";
 
 export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, autoPrint = false }) {
   const [phone, setPhone] = useState("");

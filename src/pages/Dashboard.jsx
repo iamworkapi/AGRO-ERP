@@ -261,7 +261,7 @@ export default function Dashboard() {
                 gap: 6,
               }}
             >
-              🚜 Stage 1: Village Collection
+              <i className="fa-solid fa-truck" style={{ fontSize: 10 }} /> Collection Entry
             </button>
 
             <button
@@ -280,7 +280,7 @@ export default function Dashboard() {
                 gap: 6,
               }}
             >
-              ⚖️ New Weighbridge Slip
+              <i className="fa-solid fa-scale-balanced" style={{ fontSize: 10 }} /> Weighment Slip
             </button>
 
             <button
@@ -299,11 +299,11 @@ export default function Dashboard() {
                 gap: 6,
               }}
             >
-              📦 Yard Stacking & Probes
+              <i className="fa-solid fa-warehouse" style={{ fontSize: 10 }} /> View Storage
             </button>
 
             <button
-              onClick={() => navigate("/biomass/vendors")}
+              onClick={() => navigate("/biomass/dispatch")}
               style={{
                 padding: "6px 12px",
                 fontSize: 11.5,
@@ -318,7 +318,7 @@ export default function Dashboard() {
                 gap: 6,
               }}
             >
-              👥 Sourcing Vendors
+              <i className="fa-solid fa-truck-fast" style={{ fontSize: 10 }} /> Dispatch Log
             </button>
           </div>
         </div>
@@ -400,6 +400,25 @@ export default function Dashboard() {
               }}
             >
               <i className="fa-solid fa-user-check" style={{ fontSize: 10 }} /> Add Employee
+            </button>
+
+            <button
+              onClick={() => navigate("/settings/audit-log")}
+              style={{
+                padding: "6px 12px",
+                fontSize: 11.5,
+                fontWeight: 700,
+                borderRadius: 8,
+                border: "1px solid #F59E0B",
+                background: "#FFFBEB",
+                color: "#92400E",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <i className="fa-solid fa-clipboard-list" style={{ fontSize: 10 }} /> Audit Log
             </button>
 
             <button

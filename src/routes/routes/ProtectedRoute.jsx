@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 
 // Two layers, same as the backend: is there a session at all (isAuthenticated),
 // and if `roles` is given, does this session's role match (mirrors the
