@@ -5,8 +5,8 @@ import morgan from "morgan";
 import mongoSanitize from "express-mongo-sanitize";
 import { env } from "./config/env.js";
 import routes from "./routes/index.js";
-import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
-import { apiLimiter } from "./middleware/rateLimiters.js";
+import { notFoundHandler, errorHandler } from "./modules/common/middleware/errorHandler.js";
+import { apiLimiter } from "./modules/common/middleware/rateLimiters.js";
 
 export const app = express();
 
