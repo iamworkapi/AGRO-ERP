@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ROLES } from "../../common/constants/roles.js";
-import { strongPassword } from "./auth.validator.js";
-import { avatarUrl } from "./common.js";
+import { strongPassword } from "../../auth/validators/auth.validator.js";
+import { avatarUrl } from "../../common/validators/common.js";
 
 export const listProfilesQuerySchema = z.object({
   role: z.enum([ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN, ROLES.SUPERVISOR]).optional(),

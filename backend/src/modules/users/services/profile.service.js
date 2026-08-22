@@ -1,8 +1,8 @@
 import { User } from "../models/User.js";
-import { Warehouse } from "../models/Warehouse.js";
+import { Warehouse } from "../../warehouses/models/Warehouse.js";
 import { ApiError } from "../../common/utils/ApiError.js";
 import { ROLES } from "../../common/constants/roles.js";
-import { recordAudit } from "./audit.service.js";
+import { recordAudit } from "../../audit/services/audit.service.js";
 
 // Two very different actors can call this:
 //  - Super Admin: can create a Warehouse Admin OR a Supervisor, unassigned

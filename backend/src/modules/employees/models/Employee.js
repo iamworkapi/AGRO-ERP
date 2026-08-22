@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { toJSONPlugin } from "../../common/models/plugins/toJSON.js";
-import { nextSequence } from "./Counter.js";
+import { nextSequence } from "../../common/models/Counter.js";
 
 // Warehouse staff/field-employee records a Supervisor maintains. These are
 // managed records, not login accounts - employees don't get a User document

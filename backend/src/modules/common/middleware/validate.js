@@ -1,4 +1,4 @@
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../../common/utils/ApiError.js";
 
 // Validates req.body (or req.query, via `source`) against a Zod schema,
 // replacing it with the parsed+coerced result so controllers always see

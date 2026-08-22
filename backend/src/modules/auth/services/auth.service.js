@@ -1,4 +1,4 @@
-import { User } from "../models/User.js";
+import { User } from "../../users/models/User.js";
 import { RevokedToken } from "../models/RevokedToken.js";
 import { LoginAttempt } from "../models/LoginAttempt.js";
 import { ApiError } from "../../common/utils/ApiError.js";

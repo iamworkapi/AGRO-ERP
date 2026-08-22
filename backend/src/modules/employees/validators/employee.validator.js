@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { objectId, avatarUrl } from "./common.js";
+import { objectId, avatarUrl } from "../../common/validators/common.js";
 
 const email = z.string().email("Enter a valid email address.").optional().or(z.literal(""));
 const dateOfJoining = z.string().date().optional().or(z.literal(""));

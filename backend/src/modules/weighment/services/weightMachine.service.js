@@ -1,8 +1,8 @@
 import { WeightMachine } from "../models/WeightMachine.js";
 import { ApiError } from "../../common/utils/ApiError.js";
 import { ROLES } from "../../common/constants/roles.js";
-import { recordAudit } from "./audit.service.js";
-import { assertCanAccessWarehouse, getOwnWarehouseId } from "./warehouseScope.service.js";
+import { recordAudit } from "../../audit/services/audit.service.js";
+import { assertCanAccessWarehouse, getOwnWarehouseId } from "../../warehouses/services/warehouseScope.service.js";
 
 export async function listWeightMachines(actor, { warehouseId }) {
   // Super Admin with no warehouseId gets the org-wide list, matching the

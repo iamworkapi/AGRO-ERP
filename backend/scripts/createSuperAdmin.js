@@ -6,8 +6,8 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import { connectDB } from "../src/config/db.js";
-import { User } from "../src/models/User.js";
-import { ROLES } from "../src/constants/roles.js";
+import { User } from "../src/modules/users/models/User.js";
+import { ROLES } from "../src/modules/common/constants/roles.js";
 
 async function main() {
   const email = process.env.SUPER_ADMIN_EMAIL;

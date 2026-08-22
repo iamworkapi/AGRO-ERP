@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { objectId } from "./common.js";
+import { objectId } from "../../common/validators/common.js";
 
 const profileId = objectId("profile id");
 

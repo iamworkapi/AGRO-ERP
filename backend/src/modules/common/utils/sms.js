@@ -1,4 +1,4 @@
-import { env } from "../config/env.js";
+import { env } from "../../../config/env.js";
 
 const configured = Boolean(env.twilio.accountSid && env.twilio.authToken && env.twilio.fromNumber);
 

@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
 import { Warehouse } from "../models/Warehouse.js";
-import { User } from "../models/User.js";
-import { Employee } from "../models/Employee.js";
-import { StockEntry } from "../models/StockEntry.js";
+import { User } from "../../users/models/User.js";
+import { Employee } from "../../employees/models/Employee.js";
+import { StockEntry } from "../../stock/models/StockEntry.js";
 import { ApiError } from "../../common/utils/ApiError.js";
 import { ROLES } from "../../common/constants/roles.js";
-import { recordAudit } from "./audit.service.js";
+import { recordAudit } from "../../audit/services/audit.service.js";
 import { getOwnWarehouseId } from "./warehouseScope.service.js";
-import { strongPassword } from "../validators/auth.validator.js";
+import { strongPassword } from "../../auth/validators/auth.validator.js";
 
 function validateStaffPassword(password, label) {
   // Self-registration enforces strongPassword at the validator layer; the

@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
-import { env } from "../config/env.js";
+import { env } from "../../../config/env.js";
 
 // jti (JWT ID) is what makes real logout possible: authenticate.js checks
 // it against RevokedToken on every request, and logout inserts it there.

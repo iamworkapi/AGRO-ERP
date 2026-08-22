@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { objectId } from "./common.js";
+import { objectId } from "../../common/validators/common.js";
 
 const optionalPositiveNumber = z.preprocess(
   (val) => (val === "" || val === null || val === undefined ? undefined : val),

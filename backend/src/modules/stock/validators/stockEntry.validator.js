@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { objectId } from "./common.js";
+import { objectId } from "../../common/validators/common.js";
 
 export const createStockEntrySchema = z.object({
   warehouseId: objectId("warehouseId"),

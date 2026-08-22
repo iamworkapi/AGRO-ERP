@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { toJSONPlugin } from "../../common/models/plugins/toJSON.js";
-import { nextSequence } from "./Counter.js";
+import { nextSequence } from "../../common/models/Counter.js";
 
 // The central entity. admin/supervisor are UNIQUE (sparse) refs into User -
 // a warehouse always has exactly one of each, and a person can run at most

@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { env } from "../config/env.js";
+import { env } from "../../../config/env.js";
 
 let transporter = null;
 if (env.smtp.host && env.smtp.user && env.smtp.pass) {

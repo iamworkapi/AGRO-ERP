@@ -1,13 +1,9 @@
-import { User } from "../models/User.js";
-import { RevokedToken } from "../models/RevokedToken.js";
+import { User } from "../../users/models/User.js";
+import { RevokedToken } from "../../auth/models/RevokedToken.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { verifyAccessToken } from "../utils/jwt.js";
 
-// Verifies the bearer JWT, rejects it if it's been logged-out/revoked, then
-// loads the matching User (role + status) so every downstream handler can
-// rely on req.user without re-querying. Runs before every /api/v1 route
-// except /auth/login and /auth/register.
 export const authenticate = asyncHandler(async (req, _res, next) => {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;

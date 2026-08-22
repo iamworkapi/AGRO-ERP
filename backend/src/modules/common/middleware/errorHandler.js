@@ -1,4 +1,4 @@
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../../common/utils/ApiError.js";
 
 export function notFoundHandler(req, _res, next) {
   next(ApiError.notFound(`No route ${req.method} ${req.originalUrl}`));

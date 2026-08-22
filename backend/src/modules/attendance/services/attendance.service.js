@@ -1,9 +1,9 @@
 import { AttendanceRecord } from "../models/AttendanceRecord.js";
-import { Employee } from "../models/Employee.js";
+import { Employee } from "../../employees/models/Employee.js";
 import { ApiError } from "../../common/utils/ApiError.js";
 import { ROLES } from "../../common/constants/roles.js";
 import { recordAudit } from "../../audit/services/audit.service.js";
-import { assertCanAccessWarehouse, getOwnWarehouseId } from "./warehouseScope.service.js";
+import { assertCanAccessWarehouse, getOwnWarehouseId } from "../../warehouses/services/warehouseScope.service.js";
 import { parsePagination, paginationMeta } from "../../common/utils/pagination.js";
 
 const POPULATE = [

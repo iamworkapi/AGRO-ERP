@@ -9,8 +9,8 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import { connectDB } from "../src/config/db.js";
-import { User } from "../src/models/User.js";
-import { ROLES } from "../src/constants/roles.js";
+import { User } from "../src/modules/users/models/User.js";
+import { ROLES } from "../src/modules/common/constants/roles.js";
 
 // Identifiers/passwords here match the "Quick Demo Login Roles" buttons on
 // the frontend's Login page exactly - if you change the defaults on one

@@ -1,4 +1,4 @@
-import { ApiError } from "../utils/ApiError.js";
+import { ApiError } from "../../common/utils/ApiError.js";
 
 // Coarse gate: does this role even have a shot at this route.
 // Fine-grained scoping (e.g. "this admin's warehouse specifically") happens

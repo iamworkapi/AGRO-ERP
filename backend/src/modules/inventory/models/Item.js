@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { toJSONPlugin } from "../../common/models/plugins/toJSON.js";
-import { nextSequence } from "./Counter.js";
+import { nextSequence } from "../../common/models/Counter.js";
 
 // Item / Parts Master - per-warehouse stock of named items (seeds,
 // fertiliser bags, spare parts, etc.), distinct from StockEntry which is

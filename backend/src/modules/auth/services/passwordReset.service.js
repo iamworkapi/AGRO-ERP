@@ -1,4 +1,4 @@
-import { User } from "../models/User.js";
+import { User } from "../../users/models/User.js";
 import { PasswordResetOtp } from "../models/PasswordResetOtp.js";
 import { ApiError } from "../../common/utils/ApiError.js";
 import { generateOtp } from "../../common/utils/otp.js";
