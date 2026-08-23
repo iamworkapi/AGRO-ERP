@@ -1,4 +1,12 @@
 import { useMemo, useState } from "react";
+import {   Receipt, Tractor , Trees , IndianRupee } from "lucide-react";
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
@@ -89,11 +97,10 @@ export default function BiomassCollection() {
     }
   }
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="🚜 Stage 1: Biomass Collection (ग्राम संग्रह)"
+        title="🚜 Stage 1: Biomass Collection "
         subtitle="Raw Biomass & Parali Inflow Tracking — 50–100 Villages Procurement Network, Weighbridge Slips & Vendor Mapping"
       />
 
@@ -101,7 +108,7 @@ export default function BiomassCollection() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-tractor" />
+            <LucideIconWrapper size={16}><Tractor size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Raw Inflow (MT)</p>
@@ -112,7 +119,7 @@ export default function BiomassCollection() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-tree-city" />
+            <LucideIconWrapper size={16}><Trees size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Village Network</p>
@@ -123,7 +130,7 @@ export default function BiomassCollection() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#DBEAFE", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-receipt" />
+            <LucideIconWrapper size={16}><Receipt size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Slips & Bales</p>
@@ -134,7 +141,7 @@ export default function BiomassCollection() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#F3E8FF", color: "#7E22CE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-indian-rupee-sign" />
+            <LucideIconWrapper size={16}><IndianRupee size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Collection Payout (₹)</p>
@@ -159,14 +166,13 @@ export default function BiomassCollection() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <span style={{ fontSize: 13, fontWeight: 900, color: "var(--ink)", textTransform: "uppercase" }}>
-              🌾 Sourcing Villages & Clusters Network (ग्राम संकलन क्लस्टर)
+              🌾 Sourcing Villages & Clusters Network 
             </span>
             <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
               Direct farm-gate aggregation covering 50–100 villages across Unnao, Hardoi, and Shahjahanpur
             </p>
           </div>
-          {selectedVillageFilter !== "ALL" && (
-            <button
+          {selectedVillageFilter !== "ALL" && (<button
               onClick={() => setSelectedVillageFilter("ALL")}
               style={{
                 fontSize: 11,
@@ -180,15 +186,13 @@ export default function BiomassCollection() {
               }}
             >
               ✕ Clear Filter ({selectedVillageFilter})
-            </button>
-          )}
+            </button>)}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }} className="responsive-grid-2">
           {DEFAULT_VILLAGES.map((v) => {
             const isSelected = selectedVillageFilter.toLowerCase().includes(v.name.split(" ")[0].toLowerCase());
-            return (
-              <div
+            return (<div
                 key={v.id}
                 onClick={() => setSelectedVillageFilter(isSelected ? "ALL" : v.name.split(" ")[0])}
                 style={{
@@ -216,8 +220,7 @@ export default function BiomassCollection() {
                   <span style={{ fontWeight: 700, color: "#047857" }}>{v.primaryCrop}</span>
                   <span style={{ fontWeight: 800, color: "var(--ink)" }}>{v.totalTonnageDeliveredMt} MT</span>
                 </div>
-              </div>
-            );
+              </div>);
           })}
         </div>
       </div>
@@ -261,11 +264,9 @@ export default function BiomassCollection() {
                 style={{ padding: "6px 10px", fontSize: 11.5, fontWeight: 700, borderRadius: 6, border: "1px solid var(--line-strong)" }}
               >
                 <option value="ALL">All Crop Residues</option>
-                {CROPS_MASTER.map((c) => (
-                  <option key={c.id} value={c.id}>
+                {CROPS_MASTER.map((c) => (<option key={c.id} value={c.id}>
                     {c.name}
-                  </option>
-                ))}
+                  </option>))}
               </select>
 
               <select
@@ -274,11 +275,9 @@ export default function BiomassCollection() {
                 style={{ padding: "6px 10px", fontSize: 11.5, fontWeight: 700, borderRadius: 6, border: "1px solid var(--line-strong)" }}
               >
                 <option value="ALL">All Supply Vendors</option>
-                {vendorsList.map((v) => (
-                  <option key={v.id} value={v.id}>
+                {vendorsList.map((v) => (<option key={v.id} value={v.id}>
                     {v.companyName}
-                  </option>
-                ))}
+                  </option>))}
               </select>
             </div>
 
@@ -302,22 +301,18 @@ export default function BiomassCollection() {
                 key: "slipNo",
                 label: "SLIP NO.",
                 emphasize: true,
-                render: (r) => (
-                  <div>
+                render: (r) => (<div>
                     <strong style={{ fontFamily: "monospace", color: "#1E40AF" }}>{r.slipNo}</strong>
                     <div style={{ fontSize: 10.5, color: "var(--muted)" }}>{r.date} {r.time || ""}</div>
-                  </div>
-                ),
+                  </div>),
               },
               {
                 key: "villageName",
                 label: "VILLAGE / FARMER",
-                render: (r) => (
-                  <div>
+                render: (r) => (<div>
                     <strong style={{ color: "var(--ink)" }}>{r.villageName}</strong>
                     <div style={{ fontSize: 11, color: "var(--muted)" }}>{r.farmerName} ({r.farmerMobile})</div>
-                  </div>
-                ),
+                  </div>),
               },
               {
                 key: "cropName",
@@ -337,11 +332,9 @@ export default function BiomassCollection() {
               {
                 key: "actualMoisturePct",
                 label: "MOIST / ASH",
-                render: (r) => (
-                  <span style={{ fontSize: 11 }}>
+                render: (r) => (<span style={{ fontSize: 11 }}>
                     {r.actualMoisturePct}% / {r.actualAshPct}%
-                  </span>
-                ),
+                  </span>),
               },
               {
                 key: "invoiceWeightMt",
@@ -356,8 +349,7 @@ export default function BiomassCollection() {
               {
                 key: "actions",
                 label: "ACTIONS",
-                render: (r) => (
-                  <div style={{ display: "flex", gap: 6 }}>
+                render: (r) => (<div style={{ display: "flex", gap: 6 }}>
                     <button
                       onClick={() => setSelectedSlipForPrint(r)}
                       title="Print Weighbridge Slip"
@@ -372,14 +364,13 @@ export default function BiomassCollection() {
                     >
                       🗑️
                     </button>
-                  </div>
-                ),
+                  </div>),
               },
             ]}
           />
         </div>
 
-        {/* RIGHT COLUMN: RAW MATERIAL VENDOR SUMMARY PANEL (जहाँ से माल लिया जा रहा है) */}
+        {/* RIGHT COLUMN: RAW MATERIAL VENDOR SUMMARY PANEL  */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div
             style={{
@@ -395,7 +386,7 @@ export default function BiomassCollection() {
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #E2E8F0", paddingBottom: 8 }}>
               <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", color: "#0F172A" }}>
-                👤 Raw Material Vendor (जहाँ से माल लिया जा रहा है)
+                👤 Raw Material Vendor 
               </span>
               <button
                 onClick={() => setIsNewVendorModalOpen(true)}
@@ -415,16 +406,13 @@ export default function BiomassCollection() {
                 onChange={(e) => setActiveVendorId(e.target.value)}
                 style={{ width: "100%", padding: "6px 8px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid #94A3B8" }}
               >
-                {vendorsList.map((v) => (
-                  <option key={v.id} value={v.id}>
+                {vendorsList.map((v) => (<option key={v.id} value={v.id}>
                     {v.companyName} ({v.vendorCode})
-                  </option>
-                ))}
+                  </option>))}
               </select>
             </div>
 
-            {currentVendor && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 12 }}>
+            {currentVendor && (<div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 12 }}>
                 <div style={{ background: "#F8FAFC", padding: 10, borderRadius: 8, border: "1px solid #E2E8F0" }}>
                   <div style={{ fontSize: 14, fontWeight: 900, color: "#0F172A" }}>{currentVendor.companyName}</div>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#2563EB", marginTop: 2 }}>
@@ -473,8 +461,7 @@ export default function BiomassCollection() {
                 >
                   👥 Open Full Vendor Master & Directory →
                 </button>
-              </div>
-            )}
+              </div>)}
           </div>
         </div>
       </div>
@@ -499,6 +486,5 @@ export default function BiomassCollection() {
         slipData={selectedSlipForPrint}
         onClose={() => setSelectedSlipForPrint(null)}
       />
-    </div>
-  );
+    </div>);
 }

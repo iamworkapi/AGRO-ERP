@@ -1,4 +1,14 @@
 import { useNavigate } from "react-router-dom";
+import { Shield } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
 
 export default function WarehouseCapacityGrid({
   currentStockMt = 4820.5,
@@ -140,7 +150,9 @@ export default function WarehouseCapacityGrid({
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <i className="fa-solid fa-shield-halved" style={{ color: "#059669", fontSize: 14 }} />
+          <LucideIconWrapper size={14}>
+            <Shield size={14} />
+          </LucideIconWrapper>
           <span style={{ fontSize: 11.5, fontWeight: 800, color: "#065F46" }}>
             Thermal Probe Safety Score: {fireSafetyScore}
           </span>

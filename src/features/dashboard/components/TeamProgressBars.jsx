@@ -1,4 +1,14 @@
 import { useState } from "react";
+import { Warehouse, Boxes, Scale, Tractor, ChevronDown } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
 
 export default function TeamProgressBars() {
   const [period, setPeriod] = useState("This Week");
@@ -12,7 +22,7 @@ export default function TeamProgressBars() {
       color: "#6366F1",
       avatarBg: "#EEF2FF",
       avatarColor: "#6366F1",
-      icon: "fa-solid fa-warehouse",
+      Icon: Warehouse,
     },
     {
       name: "Sahjanwa Transit Yard",
@@ -22,7 +32,7 @@ export default function TeamProgressBars() {
       color: "#38BDF8",
       avatarBg: "#F0F9FF",
       avatarColor: "#0284C7",
-      icon: "fa-solid fa-boxes-stacked",
+      Icon: Boxes,
     },
     {
       name: "Bansgaon Stacking Unit",
@@ -32,7 +42,7 @@ export default function TeamProgressBars() {
       color: "#F59E0B",
       avatarBg: "#FFFBEB",
       avatarColor: "#D97706",
-      icon: "fa-solid fa-scale-balanced",
+      Icon: Scale,
     },
     {
       name: "Bighapur Sourcing Desk",
@@ -42,7 +52,7 @@ export default function TeamProgressBars() {
       color: "#10B981",
       avatarBg: "#ECFDF5",
       avatarColor: "#059669",
-      icon: "fa-solid fa-tractor",
+      Icon: Tractor,
     },
   ];
 
@@ -85,7 +95,9 @@ export default function TeamProgressBars() {
           }}
         >
           <span>{period}</span>
-          <i className="fa-solid fa-chevron-down" style={{ fontSize: 9, color: "var(--muted)" }} />
+          <LucideIconWrapper size={9}>
+            <ChevronDown size={9} />
+          </LucideIconWrapper>
         </div>
       </div>
 
@@ -111,7 +123,9 @@ export default function TeamProgressBars() {
                     border: `1px solid ${t.color}30`,
                   }}
                 >
-                  <i className={t.icon} style={{ fontSize: 10 }} />
+                  <LucideIconWrapper size={10}>
+                    <t.Icon size={10} />
+                  </LucideIconWrapper>
                 </div>
                 <div>
                   <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>

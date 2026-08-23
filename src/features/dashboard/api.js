@@ -1,22 +1,28 @@
-// Mock-backed for now - resolves from mockData.js with a fake delay instead
-// of calling apiClient. Swapping in the real backend later means restoring
-// the apiClient.get calls here only.
-import { summaryStats, warehouses, recentActivity, moistureSnapshot } from "./mockData";
+import { apiClient } from "../../services/apiClient";
 
-const resolveAfter = (value, ms = 300) => new Promise((resolve) => setTimeout(() => resolve(value), ms));
-
-export function fetchSummaryStats() {
-  return resolveAfter([...summaryStats]);
+function unwrapList(data) {
+  return Array.isArray(data?.data) ? data.data : [];
 }
 
-export function fetchWarehouseOverview() {
-  return resolveAfter([...warehouses]);
+// ─── Dashboard KPIs (only recentActivity and moistureSnapshot used) ───
+
+export async function fetchSummaryStats() {
+  const { data } = await apiClient.get("/reports/dashboard");
+  return data.data?.summaryStats || [];
 }
 
-export function fetchRecentActivity() {
-  return resolveAfter([...recentActivity]);
+export async function fetchWarehouseOverview() {
+  const { data } = await apiClient.get("/reports/dashboard");
+  return data.data?.warehouses || [];
 }
 
-export function fetchMoistureSnapshot() {
-  return resolveAfter({ ...moistureSnapshot });
+export async function fetchRecentActivity() {
+  const { data } = await apiClient.get("/reports/dashboard");
+  const logs = data.data?.recentActivity || [];
+  return logs.map((l) => ({ text: l.action || l.text, time: l.time }));
+}
+
+export async function fetchMoistureSnapshot() {
+  const { data } = await apiClient.get("/reports/dashboard");
+  return data.data?.moistureSnapshot || { average: 30, threshold: 14, unit: "%" };
 }

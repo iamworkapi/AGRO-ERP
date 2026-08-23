@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { DataTable as PrimeDataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { Search, FolderOpen } from "lucide-react";
+
+function IconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 
 export default function DataTable({
   columns,
@@ -81,17 +90,7 @@ export default function DataTable({
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginLeft: "auto" }}>
             {searchable && (
               <div style={{ position: "relative", minWidth: 180 }}>
-                <i
-                  className="fa-solid fa-magnifying-glass"
-                  style={{
-                    position: "absolute",
-                    left: 10,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    fontSize: 12,
-                    color: "var(--muted)",
-                  }}
-                />
+                <IconWrapper size={12} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--muted)" }}><Search size={12} /></IconWrapper>
                 <input
                   type="text"
                   value={globalFilter}
@@ -133,7 +132,9 @@ export default function DataTable({
           rowClassName={(row) => (rowStyle?.(row) ? "pr-row-highlight" : undefined)}
           emptyMessage={
             <div style={{ padding: "24px 16px", textAlign: "center", color: "var(--muted)" }}>
-              <i className="fa-solid fa-folder-open" style={{ fontSize: 24, marginBottom: 6, display: "block", color: "var(--faint)" }} />
+              <div style={{ fontSize: 24, marginBottom: 6, display: "block", color: "var(--faint)", textAlign: "center" }}>
+                <IconWrapper size={24}><FolderOpen size={24} /></IconWrapper>
+              </div>
               <span style={{ fontSize: 12.5 }}>{emptyMessage}</span>
             </div>
           }

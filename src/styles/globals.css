@@ -296,18 +296,6 @@ td { padding: 10px 6px; color: var(--ink); border-top: 1px solid var(--line); }
 /* ============================================================
    GLOBAL ICON ALIGNMENT & CENTERING FIXES
    ============================================================ */
-i.fa-solid,
-i.fa-regular,
-i.fa-brands,
-.fa-solid,
-.fa-regular,
-.fa-brands {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  vertical-align: middle !important;
-  line-height: 1 !important;
-}
 
 /* ============================================================
    ADVANCED CARD DESIGN SYSTEM

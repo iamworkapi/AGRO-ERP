@@ -1,4 +1,12 @@
 import { useState } from "react";
+import {  Eye, Shield, Users, Settings, Phone, AlertTriangle, ChevronDown, Mail, Warehouse, CheckCircle , GitBranch, ExternalLink, List, Network } from "lucide-react";
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { Link, useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
@@ -34,7 +42,7 @@ function personCell(name, phone, role, index) {
         <span style={{ fontWeight: 700, color: "var(--ink)", fontSize: 13 }}>{name}</span>
         {phone && (
           <span style={{ fontSize: 11, color: "var(--muted)", display: "flex", alignItems: "center", gap: 4 }}>
-            <i className="fa-solid fa-phone" style={{ fontSize: 9.5, color: "var(--primary)" }} /> {phone}
+            <LucideIconWrapper size={9}><Phone size={9} /></LucideIconWrapper> {phone}
           </span>
         )}
       </div>
@@ -59,7 +67,7 @@ function warehouseLink(warehouseName, warehouseId) {
         fontSize: 12.5,
       }}
     >
-      <i className="fa-solid fa-warehouse" style={{ fontSize: 11, color: "var(--primary)" }} />
+      <LucideIconWrapper size={11}><Warehouse size={11} /></LucideIconWrapper>
       {warehouseName}
     </Link>
   );
@@ -113,7 +121,7 @@ export default function WarehouseAdminManagement() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-user-shield" />
+            <LucideIconWrapper size={16}><Shield size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Warehouse Admins</p>
@@ -123,7 +131,7 @@ export default function WarehouseAdminManagement() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-user-gear" />
+            <LucideIconWrapper size={16}><Settings size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Warehouse Supervisors</p>
@@ -133,7 +141,7 @@ export default function WarehouseAdminManagement() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-circle-check" />
+            <LucideIconWrapper size={16}><CheckCircle size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Fully Staffed Hubs</p>
@@ -143,7 +151,7 @@ export default function WarehouseAdminManagement() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-triangle-exclamation" />
+            <LucideIconWrapper size={16}><AlertTriangle size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Missing Coverage</p>
@@ -162,7 +170,7 @@ export default function WarehouseAdminManagement() {
             onClick={() => setViewMode("hierarchy")}
             style={{ padding: "6px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
           >
-            <i className="fa-solid fa-sitemap" /> Hierarchy Flow View
+            <LucideIconWrapper size={16}><Network size={16} /></LucideIconWrapper> Hierarchy Flow View
           </button>
           <button
             type="button"
@@ -170,14 +178,14 @@ export default function WarehouseAdminManagement() {
             onClick={() => setViewMode("directory")}
             style={{ padding: "6px 14px", display: "inline-flex", alignItems: "center", gap: 6 }}
           >
-            <i className="fa-solid fa-table-list" /> Directory Table View
+            <LucideIconWrapper size={16}><List size={16} /></LucideIconWrapper> Directory Table View
           </button>
         </div>
 
         {/* Warehouse Dropdown Selector */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 5 }}>
-            <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)" }} /> Select Warehouse:
+            <LucideIconWrapper size={16}><Warehouse size={16} /></LucideIconWrapper> Select Warehouse:
           </span>
           <div style={{ minWidth: 260 }}>
             <Select
@@ -236,7 +244,7 @@ export default function WarehouseAdminManagement() {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 14, borderBottom: "1px solid var(--line)", marginBottom: 18 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ width: 34, height: 34, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
-                      <i className="fa-solid fa-warehouse" />
+                      <LucideIconWrapper size={16}><Warehouse size={16} /></LucideIconWrapper>
                     </div>
                     <div>
                       <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--ink)" }}>{wh.name}</h3>
@@ -262,7 +270,7 @@ export default function WarehouseAdminManagement() {
                       gap: 4,
                     }}
                   >
-                    <i className="fa-solid fa-up-right-from-square" style={{ fontSize: 10 }} /> View Warehouse Detail
+                    <LucideIconWrapper size={10}><ExternalLink size={10} /></LucideIconWrapper> View Warehouse Detail
                   </Link>
                 </div>
 
@@ -284,7 +292,7 @@ export default function WarehouseAdminManagement() {
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
                       <span style={{ fontSize: 10, fontWeight: 800, color: "var(--primary-deep)", textTransform: "uppercase", letterSpacing: 0.5, display: "inline-flex", alignItems: "center", gap: 5 }}>
-                        <i className="fa-solid fa-shield-halved" /> Level 1 &bull; Warehouse Admin
+                        <LucideIconWrapper size={16}><Shield size={16} /></LucideIconWrapper> Level 1 &bull; Warehouse Admin
                       </span>
                       <Badge tone="success">FULL HUB AUTHORITY</Badge>
                     </div>
@@ -297,15 +305,15 @@ export default function WarehouseAdminManagement() {
                         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                           <strong style={{ fontSize: 14, color: "var(--ink)" }}>{adminObj.name}</strong>
                           <span style={{ fontSize: 11.5, color: "var(--muted)", display: "flex", alignItems: "center", gap: 8 }}>
-                            <span><i className="fa-solid fa-phone" style={{ color: "var(--primary)", fontSize: 10 }} /> {adminObj.phone || "N/A"}</span>
+                            <span><LucideIconWrapper size={10}><Phone size={10} /></LucideIconWrapper> {adminObj.phone || "N/A"}</span>
                             <span>&bull;</span>
-                            <span><i className="fa-solid fa-envelope" style={{ color: "var(--muted)", fontSize: 10 }} /> {adminObj.email || "N/A"}</span>
+                            <span><LucideIconWrapper size={10}><Mail size={10} /></LucideIconWrapper> {adminObj.email || "N/A"}</span>
                           </span>
                         </div>
                       </div>
                     ) : (
                       <div style={{ padding: "8px 0", fontSize: 12, color: "var(--status-error)", display: "flex", alignItems: "center", gap: 6 }}>
-                        <i className="fa-solid fa-triangle-exclamation" /> Unassigned Admin &mdash; Action Required
+                        <LucideIconWrapper size={16}><AlertTriangle size={16} /></LucideIconWrapper> Unassigned Admin &mdash; Action Required
                       </div>
                     )}
                   </div>
@@ -313,7 +321,7 @@ export default function WarehouseAdminManagement() {
                   {/* VERTICAL CONNECTOR ARROW 1 */}
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "4px 0" }}>
                     <div style={{ width: 2, height: 20, background: "var(--primary)" }} />
-                    <i className="fa-solid fa-chevron-down" style={{ fontSize: 11, color: "var(--primary)", marginTop: -4 }} />
+                    <LucideIconWrapper size={11}><ChevronDown size={11} /></LucideIconWrapper>
                   </div>
 
                   {/* LEVEL 2: WAREHOUSE SUPERVISOR */}
@@ -330,7 +338,7 @@ export default function WarehouseAdminManagement() {
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, paddingBottom: 6, borderBottom: "1px solid rgba(0, 184, 107, 0.2)" }}>
                       <span style={{ fontSize: 10, fontWeight: 800, color: "var(--primary-deep)", textTransform: "uppercase", letterSpacing: 0.5, display: "inline-flex", alignItems: "center", gap: 5 }}>
-                        <i className="fa-solid fa-user-gear" /> Level 2 &bull; Warehouse Supervisor
+                        <LucideIconWrapper size={16}><Settings size={16} /></LucideIconWrapper> Level 2 &bull; Warehouse Supervisor
                       </span>
                       <Badge tone="info">OPERATIONAL LEAD</Badge>
                     </div>
@@ -343,7 +351,7 @@ export default function WarehouseAdminManagement() {
                         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                           <strong style={{ fontSize: 13.5, color: "var(--ink)" }}>{superObj.name}</strong>
                           <span style={{ fontSize: 11.5, color: "var(--muted)", display: "flex", alignItems: "center", gap: 8 }}>
-                            <span><i className="fa-solid fa-phone" style={{ color: "var(--primary)", fontSize: 10 }} /> {superObj.phone || "N/A"}</span>
+                            <span><LucideIconWrapper size={10}><Phone size={10} /></LucideIconWrapper> {superObj.phone || "N/A"}</span>
                             <span>&bull;</span>
                             <span>Reports To: <strong>{adminObj ? adminObj.name : "Admin"}</strong></span>
                           </span>
@@ -351,7 +359,7 @@ export default function WarehouseAdminManagement() {
                       </div>
                     ) : (
                       <div style={{ padding: "6px 0", fontSize: 12, color: "var(--status-warning, #d97706)", display: "flex", alignItems: "center", gap: 6 }}>
-                        <i className="fa-solid fa-triangle-exclamation" /> Unassigned Supervisor
+                        <LucideIconWrapper size={16}><AlertTriangle size={16} /></LucideIconWrapper> Unassigned Supervisor
                       </div>
                     )}
                   </div>
@@ -359,7 +367,7 @@ export default function WarehouseAdminManagement() {
                   {/* VERTICAL CONNECTOR ARROW 2 */}
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", margin: "4px 0" }}>
                     <div style={{ width: 2, height: 20, background: "var(--line-strong)" }} />
-                    <i className="fa-solid fa-code-branch" style={{ fontSize: 11, color: "var(--muted)", marginTop: -4 }} />
+                    <LucideIconWrapper size={11}><GitBranch size={11} /></LucideIconWrapper>
                   </div>
 
                   {/* LEVEL 3: OPERATIONAL STAFF & EMPLOYEES GRID */}
@@ -374,7 +382,7 @@ export default function WarehouseAdminManagement() {
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
                       <span style={{ fontSize: 10.5, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.5, display: "inline-flex", alignItems: "center", gap: 6 }}>
-                        <i className="fa-solid fa-users" style={{ color: "var(--primary)" }} /> Level 3 &bull; Hub Staff & Operatives ({staffList.length} Personnel)
+                        <LucideIconWrapper size={16}><Users size={16} /></LucideIconWrapper> Level 3 &bull; Hub Staff & Operatives ({staffList.length} Personnel)
                       </span>
                       <span style={{ fontSize: 11, color: "var(--muted)" }}>Reports to Supervisor</span>
                     </div>
@@ -408,7 +416,7 @@ export default function WarehouseAdminManagement() {
                               </span>
                               {emp.phone && (
                                 <span style={{ fontSize: 10.5, color: "var(--primary-deep)", marginTop: 2, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                                  <i className="fa-solid fa-phone" style={{ fontSize: 9 }} /> {emp.phone}
+                                  <LucideIconWrapper size={9}><Phone size={9} /></LucideIconWrapper> {emp.phone}
                                 </span>
                               )}
                             </div>
@@ -438,7 +446,7 @@ export default function WarehouseAdminManagement() {
                 onClick={() => setActiveTab("admins")}
                 style={{ padding: "6px 14px" }}
               >
-                <i className="fa-solid fa-user-shield" /> Warehouse Admins ({admins.length})
+                <LucideIconWrapper size={16}><Shield size={16} /></LucideIconWrapper> Warehouse Admins ({admins.length})
               </button>
               <button
                 type="button"
@@ -446,7 +454,7 @@ export default function WarehouseAdminManagement() {
                 onClick={() => setActiveTab("supervisors")}
                 style={{ padding: "6px 14px" }}
               >
-                <i className="fa-solid fa-user-gear" /> Warehouse Supervisors ({supervisors.length})
+                <LucideIconWrapper size={16}><Settings size={16} /></LucideIconWrapper> Warehouse Supervisors ({supervisors.length})
               </button>
             </div>
           </div>
@@ -476,7 +484,7 @@ export default function WarehouseAdminManagement() {
                   label: "Staff Managed",
                   render: (a) => (
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12 }}>
-                      <i className="fa-solid fa-users" style={{ color: "var(--muted)", fontSize: 10 }} />
+                      <LucideIconWrapper size={10}><Users size={10} /></LucideIconWrapper>
                       {warehouses.find((w) => w.id === a.warehouseId)?.staff ?? "0"} member(s)
                     </span>
                   ),
@@ -508,7 +516,7 @@ export default function WarehouseAdminManagement() {
                         gap: 4,
                       }}
                     >
-                      <i className="fa-solid fa-eye" style={{ fontSize: 10 }} /> View Hub
+                      <LucideIconWrapper size={10}><Eye size={10} /></LucideIconWrapper> View Hub
                     </button>
                   ),
                 },
@@ -539,7 +547,7 @@ export default function WarehouseAdminManagement() {
                   label: "Reports To (Admin)",
                   render: (s) => (
                     <span style={{ fontWeight: 600, color: "var(--ink-secondary)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                      <i className="fa-solid fa-user-shield" style={{ color: "var(--primary)", fontSize: 11 }} />
+                      <LucideIconWrapper size={11}><Shield size={11} /></LucideIconWrapper>
                       {s.reportsTo || "Unassigned"}
                     </span>
                   ),
@@ -571,7 +579,7 @@ export default function WarehouseAdminManagement() {
                         gap: 4,
                       }}
                     >
-                      <i className="fa-solid fa-eye" style={{ fontSize: 10 }} /> View Hub
+                      <LucideIconWrapper size={10}><Eye size={10} /></LucideIconWrapper> View Hub
                     </button>
                   ),
                 },

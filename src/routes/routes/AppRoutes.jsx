@@ -11,6 +11,7 @@ const WarehousesAll = lazy(() => import("../pages/WarehousesAll"));
 const CreateWarehouse = lazy(() => import("../pages/CreateWarehouse"));
 const WarehouseDetail = lazy(() => import("../pages/WarehouseDetail"));
 const WarehouseAdminManagement = lazy(() => import("../pages/WarehouseAdminManagement"));
+const Godowns = lazy(() => import("../pages/Godowns"));
 const Users = lazy(() => import("../pages/Users"));
 const Attendance = lazy(() => import("../pages/Attendance"));
 const ExceptionApprovals = lazy(() => import("../pages/ExceptionApprovals"));
@@ -38,6 +39,7 @@ const AddEmployee = lazy(() => import("../pages/AddEmployee"));
 const TaskAssignment = lazy(() => import("../pages/TaskAssignment"));
 const LeaveRequests = lazy(() => import("../pages/LeaveRequests"));
 const Reports = lazy(() => import("../pages/Reports"));
+const Payroll = lazy(() => import("../pages/Payroll"));
 const ExportMISReports = lazy(() => import("../pages/ExportMISReports"));
 const Alerts = lazy(() => import("../pages/Alerts"));
 const Settings = lazy(() => import("../pages/Settings"));
@@ -78,6 +80,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
               <WarehouseAdminManagement />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="warehouses/godowns"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Godowns />
             </ProtectedRoute>
           }
         />
@@ -128,6 +138,7 @@ export default function AppRoutes() {
 
         <Route path="reports" element={<Reports />} />
         <Route path="reports/export" element={<ExportMISReports />} />
+        <Route path="reports/payroll" element={<Payroll />} />
 
         <Route path="alerts" element={<Alerts />} />
 

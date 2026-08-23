@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserCog, Wheat, Circle, CalendarDays, Clock, RefreshCw } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
 
 export default function OverviewHero({
   user,
@@ -115,7 +125,9 @@ export default function OverviewHero({
               flexShrink: 0,
             }}
           >
-            <i className={isSupervisor ? "fa-solid fa-user-gear" : "fa-solid fa-wheat-awn"} />
+            <LucideIconWrapper size={20}>
+              {isSupervisor ? <UserCog size={20} /> : <Wheat size={20} />}
+            </LucideIconWrapper>
           </div>
 
           <div>
@@ -147,7 +159,9 @@ export default function OverviewHero({
                   gap: 4,
                 }}
               >
-                <i className="fa-solid fa-circle" style={{ fontSize: 5, color: "#34D399" }} />
+                <LucideIconWrapper size={5}>
+                  <Circle size={5} fill="#34D399" />
+                </LucideIconWrapper>
                 {roleTitle}
               </span>
             </div>
@@ -185,10 +199,14 @@ export default function OverviewHero({
                 gap: 8,
               }}
             >
-              <i className="fa-regular fa-calendar-days" style={{ color: "#34D399" }} />
+              <LucideIconWrapper size={13}>
+                <CalendarDays size={13} />
+              </LucideIconWrapper>
               <span>{formattedDate}</span>
               <span style={{ opacity: 0.4 }}>|</span>
-              <i className="fa-regular fa-clock" style={{ color: "#34D399" }} />
+              <LucideIconWrapper size={13}>
+                <Clock size={13} />
+              </LucideIconWrapper>
               <span style={{ fontFamily: "monospace", letterSpacing: "0.5px" }}>{formattedTime}</span>
             </div>
 
@@ -210,10 +228,20 @@ export default function OverviewHero({
                 transition: "all 0.2s ease",
               }}
             >
-              <i
-                className={`fa-solid fa-arrows-rotate ${isRefreshing ? "spin" : ""}`}
-                style={{ fontSize: 12 }}
-              />
+              {isRefreshing ? (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    animation: "spin 1s linear infinite",
+                  }}
+                >
+                  <RefreshCw size={12} />
+                </span>
+              ) : (
+                <LucideIconWrapper size={12}>
+                  <RefreshCw size={12} />
+                </LucideIconWrapper>
+              )}
             </button>
           </div>
 

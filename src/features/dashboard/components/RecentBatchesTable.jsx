@@ -1,5 +1,15 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { Tractor, Boxes, Truck, Scale, X, Search, Eye, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
 
 export default function RecentBatchesTable({ rows = [] }) {
   const navigate = useNavigate();
@@ -22,7 +32,7 @@ export default function RecentBatchesTable({ rows = [] }) {
       statusVariant: "info",
       priority: "Grade A",
       priorityVariant: "high",
-      icon: "fa-solid fa-tractor",
+      Icon: Tractor,
       iconBg: "#EEF2FF",
       iconColor: "#6366F1",
       tonnage: "10.00 MT",
@@ -40,7 +50,7 @@ export default function RecentBatchesTable({ rows = [] }) {
       statusVariant: "info",
       priority: "Grade B",
       priorityVariant: "medium",
-      icon: "fa-solid fa-boxes-stacked",
+      Icon: Boxes,
       iconBg: "#F0F9FF",
       iconColor: "#0284C7",
       tonnage: "19.50 MT",
@@ -58,7 +68,7 @@ export default function RecentBatchesTable({ rows = [] }) {
       statusVariant: "success",
       priority: "Grade A",
       priorityVariant: "low",
-      icon: "fa-solid fa-truck-fast",
+      Icon: Truck,
       iconBg: "#ECFDF5",
       iconColor: "#059669",
       tonnage: "43.50 MT",
@@ -76,7 +86,7 @@ export default function RecentBatchesTable({ rows = [] }) {
       statusVariant: "warning",
       priority: "Grade B",
       priorityVariant: "medium",
-      icon: "fa-solid fa-scale-balanced",
+      Icon: Scale,
       iconBg: "#FFFBEB",
       iconColor: "#D97706",
       tonnage: "14.20 MT",
@@ -94,7 +104,7 @@ export default function RecentBatchesTable({ rows = [] }) {
       statusVariant: "danger",
       priority: "Grade C",
       priorityVariant: "high",
-      icon: "fa-solid fa-xmark",
+      Icon: X,
       iconBg: "#FEF2F2",
       iconColor: "#DC2626",
       tonnage: "8.00 MT",
@@ -185,17 +195,18 @@ export default function RecentBatchesTable({ rows = [] }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           {/* Search Box */}
           <div style={{ position: "relative", minWidth: 200 }}>
-            <i
-              className="fa-solid fa-magnifying-glass"
+            <span
               style={{
                 position: "absolute",
                 left: 10,
                 top: "50%",
                 transform: "translateY(-50%)",
-                fontSize: 11.5,
+                display: "inline-flex",
                 color: "var(--muted)",
               }}
-            />
+            >
+              <Search size={11.5} />
+            </span>
             <input
               type="text"
               value={search}
@@ -301,7 +312,9 @@ export default function RecentBatchesTable({ rows = [] }) {
                           flexShrink: 0,
                         }}
                       >
-                        <i className={row.icon} />
+                        <LucideIconWrapper size={14}>
+                          <row.Icon size={14} />
+                        </LucideIconWrapper>
                       </div>
                       <div>
                         <div style={{ fontWeight: 800, color: "var(--ink)" }}>{row.name}</div>
@@ -393,7 +406,9 @@ export default function RecentBatchesTable({ rows = [] }) {
                         }}
                         title="View Details"
                       >
-                        <i className="fa-regular fa-eye" />
+                        <LucideIconWrapper size={13}>
+                          <Eye size={13} />
+                        </LucideIconWrapper>
                       </button>
                       <button
                         type="button"
@@ -406,7 +421,9 @@ export default function RecentBatchesTable({ rows = [] }) {
                           fontSize: 13,
                         }}
                       >
-                        <i className="fa-solid fa-ellipsis-vertical" />
+                        <LucideIconWrapper size={13}>
+                          <MoreVertical size={13} />
+                        </LucideIconWrapper>
                       </button>
                     </div>
                   </td>
@@ -452,7 +469,9 @@ export default function RecentBatchesTable({ rows = [] }) {
               color: "var(--ink)",
             }}
           >
-            <i className="fa-solid fa-chevron-left" style={{ fontSize: 10 }} />
+            <LucideIconWrapper size={10}>
+              <ChevronLeft size={10} />
+            </LucideIconWrapper>
           </button>
 
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
@@ -489,7 +508,9 @@ export default function RecentBatchesTable({ rows = [] }) {
               color: "var(--ink)",
             }}
           >
-            <i className="fa-solid fa-chevron-right" style={{ fontSize: 10 }} />
+            <LucideIconWrapper size={10}>
+              <ChevronRight size={10} />
+            </LucideIconWrapper>
           </button>
         </div>
       </div>

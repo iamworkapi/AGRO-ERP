@@ -1,5 +1,14 @@
 import Modal from "./Modal";
 import Button from "./Button";
+import { AlertTriangle, Loader } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
 
 /**
  * Reusable "Are you sure?" confirmation dialog.
@@ -77,10 +86,7 @@ export default function ConfirmDialog({
             alignItems: "flex-start",
           }}
         >
-          <i
-            className="fa-solid fa-triangle-exclamation"
-            style={{ fontSize: 18, color: palette.icon, flexShrink: 0, marginTop: 1 }}
-          />
+          <LucideIconWrapper size={18} style={{ color: palette.icon, flexShrink: 0, marginTop: 1 }}><AlertTriangle size={18} /></LucideIconWrapper>
           <div style={{ lineHeight: 1.55 }}>{message}</div>
         </div>
 
@@ -102,8 +108,7 @@ export default function ConfirmDialog({
           >
             {loading ? (
               <>
-                <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: 6 }} />
-                Processing…
+                <LucideIconWrapper size={14} style={{ marginRight: 6 }}><Loader size={14} /></LucideIconWrapper> Processing…
               </>
             ) : (
               confirmLabel

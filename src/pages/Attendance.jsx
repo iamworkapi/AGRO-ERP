@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { Users, CircleCheck, CircleX, Clock, Plus, Warehouse as WarehouseIcon } from "lucide-react";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
 import Badge from "../components/common/Badge";
@@ -7,6 +9,12 @@ import Modal from "../components/common/Modal";
 import FormField from "../components/common/FormField";
 import Button from "../components/common/Button";
 import AsyncState from "../components/common/AsyncState";
+import {
+  StatCard,
+  SectionHeader,
+  QuickAction,
+  StaggerContainer,
+} from "../components/design-system/index";
 import { useAttendance } from "../features/attendance/useAttendance";
 import { useEmployees } from "../features/employees/useEmployees";
 import { useWarehouses } from "../features/warehouses/useWarehouses";
@@ -36,18 +44,26 @@ function nameCell(name, index) {
   );
 }
 
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
 export default function Attendance() {
   const { user } = useAuth();
   const isScopedRole = user?.roleKey === "supervisor" || user?.roleKey === "warehouse_admin";
   const { warehouses } = useWarehouses();
   const myWarehouse = isScopedRole ? warehouses[0] : null;
 
-  const { records, status, error, addRecord } = useAttendance();
+  const { records, status, error, addRecord, summary } = useAttendance();
   const { employees } = useEmployees();
   const { isOpen: open, open: openModal, close: closeModal } = useDisclosure();
   const [form, setForm] = useState(() => emptyForm());
   const [saving, setSaving] = useState(false);
-  const [statusFilter, setStatusFilter] = useState("all"); // "all" | "Present" | "Late" | "Pending"
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     if (isScopedRole && myWarehouse?.id) {
@@ -83,14 +99,16 @@ export default function Attendance() {
     }
   }
 
-  const presentCount = records.filter((r) => r.status === "Present").length;
-  const lateCount = records.filter((r) => r.status === "Late").length;
-  const pendingCount = records.filter((r) => r.status === "Pending" || r.status === "Absent").length;
+  const presentCount = summary?.present || 0;
+  const absentCount = summary?.absent || 0;
+  const lateCount = summary?.late || 0;
+  const pendingCount = summary?.pending || 0;
+  const attendanceRate = summary?.attendanceRate || 0;
+  const totalEmployees = summary?.totalEmployees || 0;
 
-  const totalCount = records.length || 1;
-  const presentPct = ((presentCount / totalCount) * 100).toFixed(0);
-  const latePct = ((lateCount / totalCount) * 100).toFixed(0);
-  const pendingPct = ((pendingCount / totalCount) * 100).toFixed(0);
+  const presentPct = totalEmployees > 0 ? ((presentCount / totalEmployees) * 100).toFixed(0) : "0";
+  const latePct = totalEmployees > 0 ? ((lateCount / totalEmployees) * 100).toFixed(0) : "0";
+  const pendingPct = totalEmployees > 0 ? ((pendingCount / totalEmployees) * 100).toFixed(0) : "0";
 
   const filteredRecords = records.filter((r) => {
     if (statusFilter === "Present") return r.status === "Present";
@@ -99,167 +117,172 @@ export default function Attendance() {
     return true;
   });
 
+  const kpiCards = [
+    {
+      label: "Total Staff",
+      value: `${totalEmployees}`,
+      trend: "Active Employees",
+      icon: <LucideIconWrapper><Users size={16} /></LucideIconWrapper>,
+      color: "#3B82F6",
+    },
+    {
+      label: "Present Today",
+      value: `${presentCount}`,
+      trend: `${presentPct}% attendance rate`,
+      icon: <LucideIconWrapper><CircleCheck size={16} /></LucideIconWrapper>,
+      color: "#10B981",
+      progressPct: Number(presentPct),
+    },
+    {
+      label: "Absent",
+      value: `${absentCount}`,
+      trend: "Marked absent",
+      icon: <LucideIconWrapper><CircleX size={16} /></LucideIconWrapper>,
+      color: "#EF4444",
+    },
+    {
+      label: "Pending Review",
+      value: `${pendingCount}`,
+      trend: "Awaiting approval",
+      icon: <LucideIconWrapper><Clock size={16} /></LucideIconWrapper>,
+      color: "#F59E0B",
+    },
+  ];
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <motion.div style={{ display: "flex", flexDirection: "column", gap: 14 }} initial="hidden" animate="visible">
       <PageHeader
         title="Daily Attendance"
         subtitle={
           isScopedRole
-            ? `Manual attendance corrections for ${myWarehouse?.name || "your assigned warehouse"}`
-            : "Manual attendance corrections across all warehouses, pending Warehouse Admin sign-off"
+            ? `Corrections for ${myWarehouse?.name || "your warehouse"}`
+            : "Corrections across all warehouses, pending Warehouse Admin sign-off"
         }
       />
 
-      <AsyncState status={status} error={error} loadingLabel="Loading attendance records…" />
+      <AsyncState status={status} error={error} loadingLabel="Loading attendance records..." />
 
-      {/* STAT METRICS CARDS (static - filtering happens via the tab bar below) */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="responsive-grid-2">
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "linear-gradient(90deg, #059669 0%, #10B981 100%)" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>Total Records</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{records.length}</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>All Logged Entries</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
-              <i className="fa-solid fa-users" />
-            </div>
-          </div>
+      {/* KPI STAT CARDS */}
+      <motion.div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
+        <StaggerContainer>
+          {kpiCards.map((cfg) => (
+            <StatCard key={cfg.label} {...cfg} />
+          ))}
+        </StaggerContainer>
+      </motion.div>
+
+      {/* Attendance Rate Bar */}
+      <motion.div
+        variants={slideUp}
+        style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px" }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>Attendance Rate</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: attendanceRate >= 80 ? "#059669" : attendanceRate >= 50 ? "#D97706" : "#DC2626" }}>{attendanceRate}%</span>
         </div>
-
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "#10B981" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>Present</span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#D1FAE5", color: "#059669" }}>{presentPct}%</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{presentCount}</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Verified</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
-              <i className="fa-solid fa-circle-check" />
-            </div>
-          </div>
+        <div style={{ width: "100%", height: 6, background: "var(--line)", borderRadius: 3, overflow: "hidden" }}>
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.min(100, attendanceRate)}%` }}
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            style={{ height: "100%", borderRadius: 3, background: attendanceRate >= 80 ? "#10B981" : attendanceRate >= 50 ? "#F59E0B" : "#EF4444" }}
+          />
         </div>
+      </motion.div>
 
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "#F59E0B" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>Late</span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#FEF3C7", color: "#D97706" }}>{latePct}%</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{lateCount}</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Requires Approval</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
-              <i className="fa-solid fa-user-clock" />
-            </div>
-          </div>
-        </div>
-
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "#EF4444" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>Pending Review</span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#FEE2E2", color: "#EF4444" }}>{pendingPct}%</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)" }}>{pendingCount}</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Action Needed</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
-              <i className="fa-solid fa-triangle-exclamation" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* FILTER TABS */}
-      <div className="role-picker-container" style={{ width: "auto", marginBottom: 0, background: "var(--surface)", border: "1px solid var(--line)", padding: 3, borderRadius: 10, display: "inline-flex" }}>
-        <button type="button" className={`role-picker-option ${statusFilter === "all" ? "active" : ""}`} onClick={() => setStatusFilter("all")} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700 }}>
-          All ({records.length})
-        </button>
-        <button type="button" className={`role-picker-option ${statusFilter === "Present" ? "active" : ""}`} onClick={() => setStatusFilter("Present")} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700 }}>
-          Present ({presentCount})
-        </button>
-        <button type="button" className={`role-picker-option ${statusFilter === "Late" ? "active" : ""}`} onClick={() => setStatusFilter("Late")} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700 }}>
-          Late ({lateCount})
-        </button>
-        <button type="button" className={`role-picker-option ${statusFilter === "Pending" ? "active" : ""}`} onClick={() => setStatusFilter("Pending")} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700 }}>
-          Pending / Absent ({pendingCount})
-        </button>
-      </div>
-
-      <DataTable
-        title={statusFilter === "all" ? "Daily Attendance Roster" : `Filtered Attendance (${statusFilter})`}
-        right={
-          <Button
-            className="btn-glow"
-            onClick={() => openModal()}
-            style={{ padding: "7px 14px", fontSize: 12.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6, background: "var(--gradient-primary)", boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)" }}
-          >
-            <i className="fa-solid fa-pen-to-square" /> Manual Correction
-          </Button>
+      {/* Data Table */}
+      <SectionHeader
+        title="Attendance Roster"
+        subtitle={`${records.length} records`}
+        action={
+          <QuickAction icon={<Plus size={13} />} label="Manual Correction" onClick={openModal} color="#10B981" />
         }
-        searchable
-        searchPlaceholder="Search employee, warehouse, status..."
-        keyField="id"
-        rows={filteredRecords}
-        emptyMessage="No matching attendance logs found."
-        columns={[
-          { key: "employee", label: "Employee", emphasize: true, render: (r, idx) => nameCell(r.employee, idx) },
-          {
-            key: "warehouse",
-            label: "Warehouse Hub",
-            render: (r) => (
-              <span style={{ fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 11 }} />
-                {r.warehouse}
-              </span>
-            ),
-          },
-          { key: "date", label: "Date" },
-          {
-            key: "checkIn",
-            label: "Check-in Time",
-            render: (r) => (
-              <span style={{ fontWeight: 600, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <i className="fa-solid fa-right-to-bracket" style={{ fontSize: 11 }} />
-                {r.checkIn}
-              </span>
-            ),
-          },
-          {
-            key: "checkOut",
-            label: "Check-out Time",
-            render: (r) => (
-              <span style={{ fontSize: 12, color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <i className="fa-solid fa-right-from-bracket" style={{ fontSize: 11 }} />
-                {r.checkOut}
-              </span>
-            ),
-          },
-          { key: "status", label: "Status", render: (r) => <Badge tone={statusTone[r.status] || "warning"}>{r.status.toUpperCase()}</Badge> },
-        ]}
       />
+
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+        {["all", "Present", "Late", "Pending"].map((tab) => {
+          const count = tab === "all" ? records.length : tab === "Present" ? presentCount : tab === "Late" ? lateCount : pendingCount;
+          return (
+            <motion.button
+              key={tab}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setStatusFilter(tab)}
+              style={{
+                padding: "6px 14px",
+                fontSize: 12,
+                fontWeight: 700,
+                borderRadius: 8,
+                border: "none",
+                background: statusFilter === tab ? "var(--primary)" : "var(--canvas)",
+                color: statusFilter === tab ? "#fff" : "var(--ink)",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                boxShadow: statusFilter === tab ? "0 2px 8px var(--primary-light)" : "none",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {tab === "Present" && <CircleCheck size={12} />}
+              {tab === "Late" && <Clock size={12} />}
+              {tab === "Pending" && <CircleX size={12} />}
+              {tab === "all" && <Users size={12} />}
+              {tab} ({count})
+            </motion.button>
+          );
+        })}
+      </div>
+
+      <motion.div variants={fadeIn}>
+        <DataTable
+          keyField="id"
+          rows={filteredRecords}
+          emptyTitle="No matching attendance logs"
+          emptyDesc="Try adjusting filters or add a correction."
+          columns={[
+            { key: "employee", label: "Employee", render: (r, idx) => nameCell(r.employee, idx) },
+            {
+              key: "warehouse",
+              label: "Hub",
+              render: (r) => (
+                <span style={{ fontWeight: 600, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <LucideIconWrapper><WarehouseIcon size={12} /></LucideIconWrapper>
+                  {r.warehouse}
+                </span>
+              ),
+            },
+            { key: "date", label: "Date" },
+            {
+              key: "checkIn",
+              label: "Check-in",
+              render: (r) => (
+                <span style={{ fontWeight: 600, color: "var(--primary-deep)" }}>{r.checkIn}</span>
+              ),
+            },
+            {
+              key: "checkOut",
+              label: "Check-out",
+              render: (r) => (
+                <span style={{ fontSize: 12, color: "var(--muted)" }}>{r.checkOut}</span>
+              ),
+            },
+            {
+              key: "status",
+              label: "Status",
+              render: (r) => <Badge tone={statusTone[r.status] || "warning"}>{r.status?.toUpperCase()}</Badge>,
+            },
+          ]}
+        />
+      </motion.div>
 
       {/* MANUAL CORRECTION MODAL */}
-      <Modal open={open} title="Manual Attendance Correction" subtitle="Submit a manual check-in/out adjustment for admin approval." onClose={() => closeModal()}>
+      <Modal open={open} title="Manual Attendance Correction" subtitle="Submit a check-in/out adjustment for admin approval." onClose={() => closeModal()}>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <FormField
             label="Warehouse Hub"
             type="select"
             required
             disabled={isScopedRole}
-            icon="fa-solid fa-warehouse"
             value={form.warehouseId}
             onChange={set("warehouseId")}
             options={warehouses.map((w) => ({ value: w.id, label: w.name }))}
@@ -270,47 +293,37 @@ export default function Attendance() {
             label="Employee"
             type="select"
             required
-            icon="fa-solid fa-user"
             value={form.employeeId}
             onChange={set("employeeId")}
             options={employeeOptions}
-            placeholder={form.warehouseId ? "Select employee" : "Select a warehouse first"}
+            placeholder={form.warehouseId ? "Select employee" : "Select warehouse first"}
             compact
             marginBottom={10}
           />
           <FormField label="Date" type="date" required value={form.date} onChange={set("date")} compact marginBottom={10} />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
-            <FormField label="Check-in Time" type="time" icon="fa-solid fa-right-to-bracket" value={form.checkInTime} onChange={set("checkInTime")} compact marginBottom={10} />
-            <FormField label="Check-out Time" type="time" icon="fa-solid fa-right-from-bracket" value={form.checkOutTime} onChange={set("checkOutTime")} compact marginBottom={10} />
+            <FormField label="Check-in Time" type="time" value={form.checkInTime} onChange={set("checkInTime")} compact marginBottom={10} />
+            <FormField label="Check-out Time" type="time" value={form.checkOutTime} onChange={set("checkOutTime")} compact marginBottom={10} />
           </div>
           <FormField
             label="Reason for Correction"
             type="textarea"
-            icon="fa-solid fa-comment-dots"
             value={form.reason}
             onChange={set("reason")}
-            placeholder="e.g. Device offline at check-in, confirmed present by warehouse admin"
+            placeholder="e.g. Device offline at check-in, confirmed present"
             compact
             marginBottom={12}
           />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
             <Button variant="secondary" type="button" onClick={() => closeModal()} style={{ padding: "7px 14px", fontSize: 12.5 }}>
-              <i className="fa-solid fa-xmark" /> Cancel
+              Cancel
             </Button>
-            <Button type="submit" disabled={saving} className="btn-glow" style={{ padding: "7px 16px", fontSize: 12.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6, background: "var(--gradient-primary)" }}>
-              {saving ? (
-                <>
-                  <i className="fa-solid fa-circle-notch spin" /> Submitting…
-                </>
-              ) : (
-                <>
-                  <i className="fa-solid fa-paper-plane" /> Submit for Approval
-                </>
-              )}
+            <Button type="submit" disabled={saving} style={{ padding: "7px 16px", fontSize: 12.5, fontWeight: 700, background: "var(--primary)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" }}>
+              {saving ? "Submitting..." : "Submit for Approval"}
             </Button>
           </div>
         </form>
       </Modal>
-    </div>
+    </motion.div>
   );
 }

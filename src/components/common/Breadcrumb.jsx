@@ -1,4 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { ChevronRight, Home } from "lucide-react";
+
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 
 export default function Breadcrumb({ items = [] }) {
   const navigate = useNavigate();
@@ -29,7 +38,7 @@ export default function Breadcrumb({ items = [] }) {
         return (
           <span key={idx} style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
             {!isFirst && (
-              <i className="fa-solid fa-chevron-right" style={{ fontSize: 8, color: "var(--primary-deep)", opacity: 0.5 }} />
+              <span style={{ fontSize: 8, color: "var(--primary-deep)", opacity: 0.5, display: "inline-flex" }}><ChevronRight size={8} /></span>
             )}
 
             {item.path && !isLast ? (
@@ -52,7 +61,7 @@ export default function Breadcrumb({ items = [] }) {
                 onMouseOver={(e) => (e.currentTarget.style.color = "var(--primary-deep)")}
                 onMouseOut={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
               >
-                {isHome && <i className="fa-solid fa-house-chimney" style={{ fontSize: 10, color: "var(--primary-deep)" }} />}
+                {isHome && <LucideIconWrapper size={10}><Home size={10} /></LucideIconWrapper>}
                 {item.label}
               </button>
             ) : (
@@ -66,7 +75,7 @@ export default function Breadcrumb({ items = [] }) {
                   gap: 4,
                 }}
               >
-                {isHome && <i className="fa-solid fa-house-chimney" style={{ fontSize: 10, color: "var(--primary-deep)" }} />}
+                {isHome && <LucideIconWrapper size={10}><Home size={10} /></LucideIconWrapper>}
                 {item.label}
               </span>
             )}

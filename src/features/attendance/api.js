@@ -51,3 +51,8 @@ export async function markAttendancePresent(id) {
   const { data } = await apiClient.patch(`/attendance/${id}/mark-present`);
   return adaptRecord(data.data);
 }
+
+export async function fetchAttendanceSummary(warehouseId) {
+  const { data } = await apiClient.get("/attendance/summary", { params: warehouseId ? { warehouseId } : undefined });
+  return data.data;
+}

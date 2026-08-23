@@ -5,13 +5,18 @@ export function useAttendance(warehouseId) {
   const [records, setRecords] = useState([]);
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState(null);
+  const [summary, setSummary] = useState(null);
 
   const reload = useCallback(() => {
+    if (!warehouseId) return;
     setStatus("loading");
-    api
-      .fetchAttendanceRecords(warehouseId)
-      .then((data) => {
+    Promise.all([
+      api.fetchAttendanceRecords(warehouseId),
+      api.fetchAttendanceSummary(warehouseId),
+    ])
+      .then(([data, sum]) => {
         setRecords(data);
+        setSummary(sum);
         setStatus("succeeded");
       })
       .catch((err) => {
@@ -36,5 +41,5 @@ export function useAttendance(warehouseId) {
     return updated;
   }
 
-  return { records, status, error, reload, addRecord, markPresent };
+  return { records, status, error, reload, addRecord, markPresent, summary };
 }

@@ -1,4 +1,14 @@
 import { memo } from "react";
+import { AlertTriangle, TrendingUp } from "lucide-react";
+
+function LucideIconWrapper({ Icon, size = 16 }) {
+  return <Icon size={size} strokeWidth={2} />;
+}
+
+const iconMap = {
+  "fa-triangle-exclamation": AlertTriangle,
+  "fa-arrow-trend-up": TrendingUp,
+};
 
 // Rendered 4-up on nearly every dashboard/overview page - memoized so
 // unrelated parent state (e.g. a filter tab) doesn't re-render every card.
@@ -70,17 +80,15 @@ function StatCard({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontWeight: 700,
-                fontSize: 16,
-                border: `1px solid ${iconColor}30`,
-                boxShadow: `0 0 14px ${iconColor}35`,
                 flexShrink: 0,
               }}
             >
               {typeof icon === "string" && icon.startsWith("fa-") ? (
                 <i className={icon} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 16, height: 16 }} />
+              ) : icon ? (
+                <LucideIconWrapper Icon={icon} size={18} />
               ) : (
-                icon || "🏢"
+                "🏢"
               )}
             </div>
             <p style={{ margin: 0, fontSize: 11.5, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4 }}>
@@ -135,7 +143,7 @@ function StatCard({
                 boxShadow: `0 2px 6px ${isWarning ? "rgba(245,158,11,0.15)" : "rgba(0,184,107,0.15)"}`,
               }}
             >
-              <i className={isWarning ? "fa-solid fa-triangle-exclamation" : "fa-solid fa-arrow-trend-up"} style={{ fontSize: 9.5 }} />
+              {isWarning ? <LucideIconWrapper Icon={iconMap["fa-triangle-exclamation"]} size={9.5} /> : <LucideIconWrapper Icon={iconMap["fa-arrow-trend-up"]} size={9.5} />}
               {trend}
             </span>
           )}

@@ -1,4 +1,13 @@
 import { useMemo, useState } from "react";
+import { Shield, Boxes, Warehouse } from "lucide-react";
+
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import Button from "../components/common/Button";
@@ -31,11 +40,9 @@ export default function BiomassStorage() {
   // Filtered Stacks
   const filteredStacks = useMemo(() => {
     if (selectedCropFilter === "ALL") return stacks;
-    return stacks.filter(
-      (s) =>
+    return stacks.filter((s) =>
         s.cropName?.toLowerCase().includes(selectedCropFilter.toLowerCase()) ||
-        s.cropId === selectedCropFilter
-    );
+        s.cropId === selectedCropFilter);
   }, [stacks, selectedCropFilter]);
 
   // Aggregate Metrics
@@ -100,11 +107,10 @@ export default function BiomassStorage() {
     }
   }
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="🏢 Stage 3: Storage & Yard Stacking (सुरक्षित भंडारण)"
+        title="🏢 Stage 3: Storage & Yard Stacking "
         subtitle="Transit Collection Centre (TCC) — Storage Capacity, Real-time Stack Storing Volume & Fire Safety Audit Probes"
       />
 
@@ -112,7 +118,7 @@ export default function BiomassStorage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-warehouse" />
+            <LucideIconWrapper size={16}><Warehouse size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Yard Stock</p>
@@ -123,7 +129,7 @@ export default function BiomassStorage() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-boxes-stacked" />
+            <LucideIconWrapper size={16}><Boxes size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Stored Bales</p>
@@ -134,7 +140,7 @@ export default function BiomassStorage() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#ECFDF5", color: "#047857", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-shield-halved" />
+            <LucideIconWrapper size={16}><Shield size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Fire Safety Audit</p>
@@ -145,7 +151,7 @@ export default function BiomassStorage() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-cubes" />
+            <LucideIconWrapper size={16}><Boxes size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Active Yard Zones</p>
@@ -184,9 +190,9 @@ export default function BiomassStorage() {
             }}
           >
             <option value="ALL">All Stored Crops</option>
-            <option value="paddy">Paddy Straw (धान की पराली)</option>
-            <option value="maize">Maize Stem (मक्का का डंठल)</option>
-            <option value="wheat">Wheat Straw (गेहूं का भूसा)</option>
+            <option value="paddy">Paddy Straw </option>
+            <option value="maize">Maize Stem </option>
+            <option value="wheat">Wheat Straw </option>
           </select>
         </div>
 
@@ -330,8 +336,7 @@ export default function BiomassStorage() {
 
           {/* STACK CARDS GRID (Exact Match to User Screenshot) */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14 }} className="responsive-grid-1">
-            {filteredStacks.map((st) => (
-              <div
+            {filteredStacks.map((st) => (<div
                 key={st.id}
                 style={{
                   background: "#FFFFFF",
@@ -398,14 +403,13 @@ export default function BiomassStorage() {
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              </div>))}
           </div>
 
           {/* Probe Telemetry & Yard Map Info Card */}
           <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 10, padding: 14 }}>
             <div style={{ fontSize: 12.5, fontWeight: 800, color: "#0F172A", marginBottom: 6 }}>
-              🛡️ Yard Fire Safety & Probe Standards (कृषि अपशिष्ट भंडारण सुरक्षा)
+              🛡️ Yard Fire Safety & Probe Standards 
             </div>
             <div style={{ fontSize: 11.5, color: "#475569", lineHeight: 1.5 }}>
               • <strong>Optimal Core Temp:</strong> 25°C to 29°C (Green Safe Zone).<br />
@@ -417,8 +421,7 @@ export default function BiomassStorage() {
       </div>
 
       {/* ADD NEW STACK MODAL */}
-      {isAddStackModalOpen && (
-        <div
+      {isAddStackModalOpen && (<div
           style={{
             position: "fixed",
             inset: 0,
@@ -499,12 +502,10 @@ export default function BiomassStorage() {
               </div>
             </form>
           </div>
-        </div>
-      )}
+        </div>)}
 
       {/* PROBE AUDIT MODAL */}
-      {selectedStackForAudit && (
-        <div
+      {selectedStackForAudit && (<div
           style={{
             position: "fixed",
             inset: 0,
@@ -567,8 +568,6 @@ export default function BiomassStorage() {
               </button>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        </div>)}
+    </div>);
 }

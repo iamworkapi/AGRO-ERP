@@ -1,4 +1,14 @@
+import React from "react";
 import { useState } from "react";
+import { Scale, Truck, Shield, ClipboardList, Zap } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
 
 export default function LiveActivityFeed({ items = [], isSupervisor }) {
   const [filterType, setFilterType] = useState("all");
@@ -8,18 +18,18 @@ export default function LiveActivityFeed({ items = [], isSupervisor }) {
     const t = String(type || "").toLowerCase();
 
     if (t === "weighment" || text.includes("weighment") || text.includes("slip") || text.includes("grn")) {
-      return { icon: "fa-solid fa-scale-balanced", bg: "#EFF6FF", color: "#2563EB", tag: "Weighbridge" };
+      return { Icon: Scale, bg: "#EFF6FF", color: "#2563EB", tag: "Weighbridge" };
     }
     if (t === "dispatch" || text.includes("dispatched") || text.includes("truck") || text.includes("trailer") || text.includes("gate pass")) {
-      return { icon: "fa-solid fa-truck-fast", bg: "#FAF5FF", color: "#7E22CE", tag: "Dispatch" };
+      return { Icon: Truck, bg: "#FAF5FF", color: "#7E22CE", tag: "Dispatch" };
     }
     if (t === "inspection" || t === "safety" || text.includes("moisture") || text.includes("probe") || text.includes("temp")) {
-      return { icon: "fa-solid fa-shield-halved", bg: "#ECFDF5", color: "#059669", tag: "Safety Check" };
+      return { Icon: Shield, bg: "#ECFDF5", color: "#059669", tag: "Safety Check" };
     }
     if (t === "attendance" || text.includes("shift") || text.includes("attendance") || text.includes("staff")) {
-      return { icon: "fa-solid fa-clipboard-user", bg: "#FFFBEB", color: "#D97706", tag: "Shift Attendance" };
+      return { Icon: ClipboardList, bg: "#FFFBEB", color: "#D97706", tag: "Shift Attendance" };
     }
-    return { icon: "fa-solid fa-bolt", bg: "#F1F5F9", color: "#475569", tag: "Event" };
+    return { Icon: Zap, bg: "#F1F5F9", color: "#475569", tag: "Event" };
   };
 
   const safeItems = Array.isArray(items) ? items : [];
@@ -152,7 +162,7 @@ export default function LiveActivityFeed({ items = [], isSupervisor }) {
                       flexShrink: 0,
                     }}
                   >
-                    <i className={meta.icon} />
+                    <LucideIconWrapper size={14}>{React.createElement(meta.Icon, { size: 14 })}</LucideIconWrapper>
                   </div>
 
                   <div style={{ minWidth: 0 }}>

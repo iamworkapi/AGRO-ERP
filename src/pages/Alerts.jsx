@@ -24,7 +24,7 @@ export default function Alerts() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await resolveException(active.description);
+    await resolveException(active._id);
     closeModal();
   }
 

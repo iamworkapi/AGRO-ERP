@@ -13,10 +13,6 @@ const employeeSchema = new mongoose.Schema(
     designation: { type: String, required: true, trim: true },
     phone: { type: String, trim: true },
     email: { type: String, trim: true, lowercase: true },
-    // Small photo stored inline as a data URI (base64) rather than pulled
-    // from external object storage - keeps "an employee has their own
-    // photo" working with zero cloud config. Size is capped client-side
-    // and re-checked in the validator (see employee.validator.js).
     avatarUrl: { type: String },
     dateOfJoining: { type: Date },
     address: { type: String, trim: true },
@@ -24,6 +20,18 @@ const employeeSchema = new mongoose.Schema(
     emergencyContactPhone: { type: String, trim: true },
     employmentStatus: { type: String, enum: ["active", "on_leave", "inactive"], default: "active" },
     addedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    // Payroll
+    salaryType: { type: String, enum: ["monthly", "daily", "piece_rate"], default: "monthly" },
+    basicSalary: { type: Number, min: 0, default: 0 },
+    allowances: { type: Number, min: 0, default: 0 },
+    deductions: { type: Number, min: 0, default: 0 },
+    bankName: { type: String, trim: true },
+    accountNo: { type: String, trim: true },
+    ifscCode: { type: String, trim: true },
+    panNo: { type: String, trim: true },
+    pfAccountNo: { type: String, trim: true },
+    esiNo: { type: String, trim: true },
+    uan: { type: String, trim: true },
   },
   { timestamps: true }
 );

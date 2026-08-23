@@ -1,7 +1,16 @@
 import { useState } from "react";
+import { Warehouse, Eye, EyeOff, CheckCircle, Key, Shield, Lock, Mail, LogIn, User, UserCheck, Settings } from "lucide-react";
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate, Link } from "react-router-dom";
 import AuthLayout from "../layouts/AuthLayout";
 import FormField from "../components/common/FormField";
+import Loader from "../components/common/Loader";
 import Button from "../components/common/Button";
 import { useAuth } from "../hooks/useAuth";
 import { loginSchema, forgotPasswordSchema, resetPasswordSchema } from "../validators/authValidators";
@@ -162,7 +171,7 @@ export default function Login() {
       key: "super_admin",
       label: "Super Admin",
       subLabel: "Full Access",
-      icon: "fa-solid fa-user-shield",
+      icon: <LucideIconWrapper size={11.5}><Shield size={11.5} /></LucideIconWrapper>,
       identifier: "superadmin@pralli.com",
       password: "Password@123",
       color: "#10B981",
@@ -171,7 +180,7 @@ export default function Login() {
       key: "admin",
       label: "Admin",
       subLabel: "Warehouse Admin",
-      icon: "fa-solid fa-user-check",
+      icon: <LucideIconWrapper size={11.5}><UserCheck size={11.5} /></LucideIconWrapper>,
       identifier: "admin@pralli.com",
       password: "Password@123",
       color: "#059669",
@@ -180,7 +189,7 @@ export default function Login() {
       key: "supervisor",
       label: "Supervisor",
       subLabel: "Floor Ops",
-      icon: "fa-solid fa-user-gear",
+      icon: <LucideIconWrapper size={11.5}><Settings size={11.5} /></LucideIconWrapper>,
       identifier: "supervisor@pralli.com",
       password: "Password@123",
       color: "#0D9488",
@@ -217,7 +226,7 @@ export default function Login() {
                 onClick={() => handleRoleSelect(r.key, r.identifier, r.password)}
                 className={`tactile-segmented-btn ${isActive ? "active" : "inactive"}`}
               >
-                <i className={r.icon} style={{ fontSize: 11.5, color: isActive ? "#9AE6B4" : "rgba(255,255,255,0.6)" }} />
+                {r.icon}
                 <span>{r.label}</span>
               </button>
             );
@@ -227,7 +236,7 @@ export default function Login() {
         {/* Selected Role Capability Notice */}
         <div style={{ marginTop: 8, textAlign: "center" }}>
           <span style={{ fontSize: 10.5, color: "#0D3823", fontWeight: 700, background: "rgba(27, 94, 58, 0.1)", padding: "4px 14px", borderRadius: 20, border: "none", display: "inline-flex", alignItems: "center", gap: 6, boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
-            <i className="fa-solid fa-shield-halved" style={{ fontSize: 10, color: "#1B5E3A" }} />
+            <LucideIconWrapper size={10}><Shield size={10} /></LucideIconWrapper>
             {selectedRole === "super_admin" && "Super Admin — Full Multi-Hub Access & Audit Logs"}
             {selectedRole === "admin" && "Admin — Warehouse Operations & Stock Ledger"}
             {selectedRole === "supervisor" && "Supervisor — Floor Weighbridge & Moisture Deductions"}
@@ -247,7 +256,7 @@ export default function Login() {
               </span>
             </div>
             <div className="underline-input-group" style={{ marginBottom: 0 }}>
-              <i className="fa-solid fa-warehouse underline-input-icon" style={{ color: "#1B5E3A" }} />
+              <LucideIconWrapper size={16}><Warehouse size={16} /></LucideIconWrapper>
               <select
                 value={selectedWarehouseId}
                 onChange={(e) => handleWarehouseChange(e.target.value)}
@@ -279,7 +288,7 @@ export default function Login() {
       <form onSubmit={handleSubmit}>
         {/* Email / Phone Field */}
         <div className="underline-input-group">
-          <i className="fa-solid fa-user-large underline-input-icon" />
+          <LucideIconWrapper size={16}><User size={16} /></LucideIconWrapper>
           <input
             type="text"
             required
@@ -292,7 +301,7 @@ export default function Login() {
 
         {/* Password Field */}
         <div className="underline-input-group">
-          <i className="fa-solid fa-lock underline-input-icon" />
+          <LucideIconWrapper size={16}><Lock size={16} /></LucideIconWrapper>
           <input
             type={showPassword ? "text" : "password"}
             required
@@ -306,7 +315,7 @@ export default function Login() {
             onClick={() => setShowPassword(!showPassword)}
             style={{ border: "none", background: "transparent", color: "var(--muted)", cursor: "pointer", padding: "0 4px" }}
           >
-            <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`} style={{ fontSize: 14 }} />
+            {showPassword ? <LucideIconWrapper size={14}><EyeOff size={14} /></LucideIconWrapper> : <LucideIconWrapper size={14}><Eye size={14} /></LucideIconWrapper>}
           </button>
         </div>
 
@@ -338,7 +347,7 @@ export default function Login() {
               gap: 5
             }}
           >
-            <i className="fa-solid fa-key" style={{ fontSize: 11, color: "#1B5E3A" }} /> Forgot Password?
+            <LucideIconWrapper size={11}><Key size={11} /></LucideIconWrapper> Forgot Password?
           </button>
         </div>
 
@@ -365,12 +374,11 @@ export default function Login() {
         >
           {isLoading ? (
             <>
-              <i className="fa-solid fa-circle-notch spin" style={{ fontSize: 15 }} />
-              Signing in...
+              <LucideIconWrapper size={14}><Loader size={14} /></LucideIconWrapper> Signing in...
             </>
           ) : (
             <>
-              Sign In to Kusumganga ERP <i className="fa-solid fa-arrow-right-to-bracket" style={{ fontSize: 14 }} />
+              Sign In to Kusumganga ERP <LucideIconWrapper size={14}><LogIn size={14} /></LucideIconWrapper>
             </>
           )}
         </Button>
@@ -411,7 +419,7 @@ export default function Login() {
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
-                <i className="fa-solid fa-key" style={{ color: "var(--primary)" }} />
+                <LucideIconWrapper size={16}><Key size={16} /></LucideIconWrapper>
                 {forgotStep === "request" ? "Reset Password" : "Enter Reset Code"}
               </h3>
               <button
@@ -431,7 +439,7 @@ export default function Login() {
                 <FormField
                   label="Registered Email or Phone"
                   required
-                  icon="fa-solid fa-envelope"
+                  icon={<LucideIconWrapper size={16}><Mail size={16} /></LucideIconWrapper>}
                   value={forgotIdentifier}
                   onChange={setForgotIdentifier}
                   placeholder="e.g. admin@pralli.com"
@@ -449,14 +457,14 @@ export default function Login() {
               <form onSubmit={handleForgotVerify}>
                 {forgotInfo && (
                   <div style={{ padding: "10px 12px", background: "var(--primary-tint)", border: "1px solid var(--line)", borderRadius: 8, fontSize: 12, color: "var(--primary-deep)", display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 14 }}>
-                    <i className="fa-solid fa-circle-check" style={{ fontSize: 14, marginTop: 1 }} />
+                    <LucideIconWrapper size={14}><CheckCircle size={14} /></LucideIconWrapper>
                     <span>{forgotInfo}</span>
                   </div>
                 )}
                 <FormField
                   label="6-Digit Code"
                   required
-                  icon="fa-solid fa-shield-halved"
+                  icon={<LucideIconWrapper size={16}><Shield size={16} /></LucideIconWrapper>}
                   value={forgotOtp}
                   onChange={(v) => setForgotOtp(v.replace(/\D/g, "").slice(0, 6))}
                   placeholder="123456"
@@ -467,7 +475,7 @@ export default function Login() {
                   label="New Password"
                   type="password"
                   required
-                  icon="fa-solid fa-lock"
+                  icon={<LucideIconWrapper size={16}><Lock size={16} /></LucideIconWrapper>}
                   value={forgotNewPassword}
                   onChange={setForgotNewPassword}
                   placeholder="••••••••"
@@ -481,7 +489,7 @@ export default function Login() {
                   label="Confirm New Password"
                   type="password"
                   required
-                  icon="fa-solid fa-lock"
+                  icon={<LucideIconWrapper size={16}><Lock size={16} /></LucideIconWrapper>}
                   value={forgotConfirmPassword}
                   onChange={setForgotConfirmPassword}
                   placeholder="••••••••"

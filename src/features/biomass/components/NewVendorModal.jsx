@@ -86,7 +86,7 @@ export default function NewVendorModal({ isOpen, onClose, onSaved }) {
         >
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
-              👤 Register New Raw Material Vendor (जहाँ से माल लेना है)
+              👤 Register New Raw Material Vendor (    )
             </h3>
             <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
               Add a new raw straw supplier, contractor, or FPO to the system

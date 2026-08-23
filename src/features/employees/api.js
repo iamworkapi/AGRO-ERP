@@ -1,9 +1,4 @@
 import { apiClient } from "../../services/apiClient";
-// Tasks / leave requests have no backend yet (see root README's "what's
-// real vs mock" section) - only the employee roster itself is wired here.
-import { tasks, leaveRequests } from "./mockData";
-
-const resolveAfter = (value, ms = 300) => new Promise((resolve) => setTimeout(() => resolve(value), ms));
 
 function unwrapList(data) {
   return Array.isArray(data?.data) ? data.data : [];
@@ -16,31 +11,26 @@ function formatDate(iso) {
 
 function adaptEmployee(e) {
   return {
-    id: e.id,
+    id: e._id || e.id,
     employeeCode: e.employeeCode,
     name: e.fullName,
     designation: e.designation,
-    role: e.designation, // legacy column name some table configs still use
+    role: e.designation,
     phone: e.phone || "",
     email: e.email || "",
     avatarUrl: e.avatarUrl || "",
     dateOfJoining: formatDate(e.dateOfJoining),
-    // Raw ISO value (yyyy-mm-dd) for pre-filling an <input type="date"> when
-    // editing - the display field above is human-formatted and unusable there.
     dateOfJoiningRaw: e.dateOfJoining ? e.dateOfJoining.slice(0, 10) : "",
     address: e.address || "",
     emergencyContactName: e.emergencyContactName || "",
     emergencyContactPhone: e.emergencyContactPhone || "",
-    warehouseId: e.warehouse?.id || e.warehouse || "",
-    warehouse: e.warehouse?.name || "",
+    warehouseId: typeof e.warehouseId === "string" ? e.warehouseId : e.warehouseId?._id || "",
+    warehouse: typeof e.warehouseId === "string" ? e.warehouseId : e.warehouseId?.name || "",
     employmentStatus: e.employmentStatus || "active",
     status: e.employmentStatus === "active" ? "Active" : e.employmentStatus === "on_leave" ? "On Leave" : "Inactive",
   };
 }
 
-// Super Admin gets the org-wide roster (no warehouseId); a Supervisor/Admin
-// is always scoped server-side to their own warehouse regardless of what's
-// passed here.
 export async function fetchEmployees(warehouseId) {
   const { data } = await apiClient.get("/employees", { params: warehouseId ? { warehouseId } : undefined });
   return unwrapList(data).map(adaptEmployee);
@@ -83,66 +73,34 @@ export async function updateEmployee({ id, ...payload }) {
   return adaptEmployee(data.data);
 }
 
-export function fetchTasks() {
-  return resolveAfter([...tasks]);
+// --- Task helpers (no backend endpoint yet; local mock) ---
+let _tasks = [
+  { id: "t1", task: "Moisture check — Lot 12", assignedTo: "Sunita Devi", warehouse: "Manimau Centre", category: "Weighment", priority: "High", due: "Today", description: "Verify moisture before accepting lot.", status: "In Progress" },
+  { id: "t2", task: "Restock North Bay shelf", assignedTo: "Manoj Kumar", warehouse: "Gorakhpur North", category: "Inventory", priority: "Normal", due: "Tomorrow", description: "Move 50 bags from bulk to shelf.", status: "Not Started" },
+  { id: "t3", task: "Field inspection — Plot 7", assignedTo: "Rajesh Yadav", warehouse: "Manimau Centre", category: "Field", priority: "Medium", due: "Today", description: "Check crop health and pest markers.", status: "In Progress" },
+  { id: "t4", task: "Dispatch verification", assignedTo: "Karan Singh", warehouse: "Betiya Hata Store", category: "General", priority: "Normal", due: "Today", description: "", status: "Completed" },
+];
+
+export async function fetchTasks() {
+  await new Promise((r) => setTimeout(r, 150));
+  return _tasks.slice();
 }
 
-export function createTask(payload) {
-  const newTask = {
-    id: `tsk-${Date.now()}`,
-    task: payload.task,
-    assignedTo: payload.assignedTo,
-    warehouse: payload.warehouse || "Manimau Centre",
-    priority: payload.priority || "Normal",
-    due: payload.due || "Today",
-    status: "In Progress",
-    category: payload.category || "General",
-    description: payload.description || "",
-  };
-  tasks.unshift(newTask);
-  return resolveAfter(newTask);
+export async function createTask(payload) {
+  await new Promise((r) => setTimeout(r, 120));
+  const record = { id: `t${Date.now()}`, status: "In Progress", ...payload };
+  _tasks.unshift(record);
+  return record;
 }
 
-export function completeTask(idOrTitle) {
-  const idx = tasks.findIndex((t) => t.id === idOrTitle || t.task === idOrTitle);
-  if (idx === -1) return resolveAfter(null);
-  const updated = { ...tasks[idx], status: "Completed" };
-  tasks[idx] = updated;
-  return resolveAfter(updated);
-}
-
-export function fetchLeaveRequests() {
-  return resolveAfter([...leaveRequests]);
-}
-
-export function createLeaveRequest(payload) {
-  const newReq = {
-    id: `lr-${Date.now()}`,
-    employee: payload.employee,
-    warehouse: payload.warehouse || "Manimau Centre",
-    type: payload.type || "Casual Leave",
-    dates: payload.dates || "Upcoming",
-    days: payload.days || 1,
-    reason: payload.reason || "Personal reason",
-    status: "Pending",
-    appliedOn: "Today",
-  };
-  leaveRequests.unshift(newReq);
-  return resolveAfter(newReq);
-}
-
-export function approveLeave(employeeOrId) {
-  const idx = leaveRequests.findIndex((r) => r.id === employeeOrId || r.employee === employeeOrId);
-  if (idx === -1) return resolveAfter(null);
-  const updated = { ...leaveRequests[idx], status: "Approved" };
-  leaveRequests[idx] = updated;
-  return resolveAfter(updated);
-}
-
-export function rejectLeave(employeeOrId) {
-  const idx = leaveRequests.findIndex((r) => r.id === employeeOrId || r.employee === employeeOrId);
-  if (idx === -1) return resolveAfter(null);
-  const updated = { ...leaveRequests[idx], status: "Rejected" };
-  leaveRequests[idx] = updated;
-  return resolveAfter(updated);
+export async function completeTask(idOrTitle) {
+  await new Promise((r) => setTimeout(r, 100));
+  const idx = _tasks.findIndex(
+    (t) => (t.id && t.id === idOrTitle) || (t.task && t.task === idOrTitle)
+  );
+  if (idx !== -1) {
+    _tasks[idx] = { ..._tasks[idx], status: "Completed" };
+    return _tasks[idx];
+  }
+  return null;
 }

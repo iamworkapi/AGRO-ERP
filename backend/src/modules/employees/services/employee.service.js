@@ -15,6 +15,18 @@ const EDITABLE_FIELDS = [
   "address",
   "emergencyContactName",
   "emergencyContactPhone",
+  // Payroll
+  "salaryType",
+  "basicSalary",
+  "allowances",
+  "deductions",
+  "bankName",
+  "accountNo",
+  "ifscCode",
+  "panNo",
+  "pfAccountNo",
+  "esiNo",
+  "uan",
 ];
 
 function pickPatch(payload, fields) {

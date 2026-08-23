@@ -25,10 +25,11 @@ export default function DashboardLayout({ children }) {
             minHeight: 0,
             overflowY: "auto",
             display: "flex",
-            flexDirection: "column"
+            flexDirection: "column",
+            padding: "12px 12px",
           }}
         >
-          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 14 }}>
             {children}
           </div>
         </main>

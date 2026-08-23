@@ -1,4 +1,12 @@
 import { useMemo, useState } from "react";
+import {   Printer, Droplets, Wheat, Warehouse, Plus, CheckSquare, Scale, CheckCircle, FileText , Building2, Hash, Table2 , IndianRupee, MessageCircle } from "lucide-react";
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
@@ -594,7 +602,7 @@ export default function Weighment() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-file-invoice" />
+            <LucideIconWrapper size={16}><FileText size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Total Slips</p>
@@ -604,7 +612,7 @@ export default function Weighment() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-circle-check" />
+            <LucideIconWrapper size={16}><CheckCircle size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Approved Slips</p>
@@ -614,7 +622,7 @@ export default function Weighment() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-scale-balanced" />
+            <LucideIconWrapper size={16}><Scale size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Actual Net Weight</p>
@@ -624,7 +632,7 @@ export default function Weighment() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-indian-rupee-sign" />
+            <LucideIconWrapper size={16}><IndianRupee size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Total Purchase Bill</p>
@@ -655,7 +663,7 @@ export default function Weighment() {
               gap: 6,
             }}
           >
-            <i className="fa-solid fa-table-cells" /> Daily Weight Register (Ledger View)
+            <LucideIconWrapper size={16}><Table2 size={16} /></LucideIconWrapper> Daily Weight Register (Ledger View)
           </button>
 
           <button
@@ -675,7 +683,7 @@ export default function Weighment() {
               gap: 6,
             }}
           >
-            <i className="fa-solid fa-list-check" /> Slips Cards View
+            <LucideIconWrapper size={16}><CheckSquare size={16} /></LucideIconWrapper> Slips Cards View
           </button>
 
           {/* Commodity Filter dropdown */}
@@ -721,7 +729,7 @@ export default function Weighment() {
               gap: 6,
             }}
           >
-            <i className="fa-solid fa-file-excel" /> Export Excel / CSV
+            <LucideIconWrapper size={16}><FileText size={16} /></LucideIconWrapper> Export Excel / CSV
           </button>
 
           <Button
@@ -738,7 +746,7 @@ export default function Weighment() {
               boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)",
             }}
           >
-            <i className="fa-solid fa-plus" /> New Weighment Slip
+            <LucideIconWrapper size={16}><Plus size={16} /></LucideIconWrapper> New Weighment Slip
           </Button>
         </div>
       </div>
@@ -764,7 +772,7 @@ export default function Weighment() {
               emphasize: true,
               render: (r) => (
                 <span style={{ fontWeight: 800, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-hashtag" style={{ fontSize: 10 }} />
+                  <LucideIconWrapper size={10}><Hash size={10} /></LucideIconWrapper>
                   {r.slipNo}
                 </span>
               ),
@@ -815,7 +823,7 @@ export default function Weighment() {
                       gap: 4
                     }}
                   >
-                    <i className="fa-solid fa-droplet" style={{ fontSize: 9 }} />
+                    <LucideIconWrapper size={9}><Droplets size={9} /></LucideIconWrapper>
                     {r.moisturePct != null ? `${r.moisturePct}%` : "20%"}
                   </span>
                 );
@@ -894,7 +902,7 @@ export default function Weighment() {
                       gap: 4,
                     }}
                   >
-                    <i className="fa-solid fa-print" /> Print PDF
+                    <LucideIconWrapper size={16}><Printer size={16} /></LucideIconWrapper> Print PDF
                   </button>
 
                   <button
@@ -915,7 +923,7 @@ export default function Weighment() {
                       gap: 4,
                     }}
                   >
-                    <i className="fa-brands fa-whatsapp" />
+                    <LucideIconWrapper size={15}><MessageCircle size={15} /></LucideIconWrapper>
                   </button>
                 </div>
               ),
@@ -938,7 +946,7 @@ export default function Weighment() {
               emphasize: true,
               render: (r) => (
                 <span style={{ fontWeight: 800, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-hashtag" style={{ fontSize: 10 }} />
+                  <LucideIconWrapper size={10}><Hash size={10} /></LucideIconWrapper>
                   {r.slipNo}
                 </span>
               ),
@@ -948,7 +956,7 @@ export default function Weighment() {
               label: "Centre",
               render: (r) => (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                  <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 11 }} />
+                  <LucideIconWrapper size={11}><Warehouse size={11} /></LucideIconWrapper>
                   {r.warehouse}
                 </span>
               ),
@@ -958,7 +966,7 @@ export default function Weighment() {
               label: "Party / Supplier",
               render: (r) => (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-building-user" style={{ color: "var(--muted)", fontSize: 11 }} />
+                  <LucideIconWrapper size={11}><Building2 size={11} /></LucideIconWrapper>
                   {r.partyName || "—"}
                 </span>
               ),
@@ -973,7 +981,7 @@ export default function Weighment() {
               label: "Commodity",
               render: (r) => (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-wheat-awn" style={{ color: "var(--muted)", fontSize: 11 }} />
+                  <LucideIconWrapper size={11}><Wheat size={11} /></LucideIconWrapper>
                   {r.commodity}
                 </span>
               ),
@@ -983,7 +991,7 @@ export default function Weighment() {
               label: "Moisture",
               render: (r) => (
                 <span style={{ fontWeight: 600, color: "#2563EB", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-droplet" style={{ fontSize: 10 }} />
+                  <LucideIconWrapper size={10}><Droplets size={10} /></LucideIconWrapper>
                   {r.moisturePct != null ? `${r.moisturePct}%` : "—"}
                 </span>
               ),
@@ -1023,7 +1031,7 @@ export default function Weighment() {
                       gap: 4,
                     }}
                   >
-                    <i className="fa-solid fa-print" /> Print
+                    <LucideIconWrapper size={16}><Printer size={16} /></LucideIconWrapper> Print
                   </button>
 
                   <button
@@ -1044,7 +1052,7 @@ export default function Weighment() {
                       gap: 4,
                     }}
                   >
-                    <i className="fa-brands fa-whatsapp" /> WhatsApp
+                    <LucideIconWrapper size={15}><MessageCircle size={15} /></LucideIconWrapper> WhatsApp
                   </button>
                 </div>
               ),

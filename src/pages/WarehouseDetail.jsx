@@ -1,4 +1,12 @@
 import { useState } from "react";
+import {  Wheat, Settings2, CheckCircle, Boxes, Users, MapPin, Headphones, Mail, Phone, User, FileText, Landmark, Trash2, Pencil, Barcode, Warehouse, ArrowRight , ArrowLeft, Shield, Settings } from "lucide-react";
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import FormField from "../components/common/FormField";
@@ -26,7 +34,7 @@ function RoleCard({ roleLabel, name, phone, email, icon, gradient = false }) {
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <i className={`fa-solid ${icon}`} style={{ color: "var(--muted)", fontSize: 13 }} />
+            {icon}
             <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
               {roleLabel}
             </span>
@@ -40,7 +48,7 @@ function RoleCard({ roleLabel, name, phone, email, icon, gradient = false }) {
           to="/warehouses/admin-management"
           style={{ fontSize: 12, fontWeight: 600, color: "var(--primary-deep)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
         >
-          Assign Personnel <i className="fa-solid fa-arrow-right" style={{ fontSize: 10 }} />
+          Assign Personnel <LucideIconWrapper size={10}><ArrowRight size={10} /></LucideIconWrapper>
         </Link>
       </div>
     );
@@ -81,15 +89,15 @@ function RoleCard({ roleLabel, name, phone, email, icon, gradient = false }) {
       </div>
       <div style={{ minWidth: 0, flexGrow: 1 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <i className={`fa-solid ${icon}`} style={{ color: "var(--primary)", fontSize: 11 }} />
+          {icon}
           <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
             {roleLabel}
           </span>
         </div>
         <h4 style={{ margin: "2px 0 0", fontSize: 14, fontWeight: 700, color: "var(--ink)" }}>{name}</h4>
         <div style={{ marginTop: 4, display: "flex", gap: 12, fontSize: 11.5, color: "var(--ink-secondary)" }}>
-          <span><i className="fa-solid fa-phone" style={{ fontSize: 10, color: "var(--muted)" }} /> {phone || "—"}</span>
-          <span><i className="fa-solid fa-envelope" style={{ fontSize: 10, color: "var(--muted)" }} /> {email || "—"}</span>
+          <span><LucideIconWrapper size={10}><Phone size={10} /></LucideIconWrapper> {phone || "—"}</span>
+          <span><LucideIconWrapper size={10}><Mail size={10} /></LucideIconWrapper> {email || "—"}</span>
         </div>
       </div>
     </div>
@@ -230,7 +238,7 @@ export default function WarehouseDetail() {
                     boxShadow: "0 4px 12px rgba(0, 184, 107, 0.3)",
                   }}
                 >
-                  <i className="fa-solid fa-warehouse" />
+                  <LucideIconWrapper size={16}><Warehouse size={16} /></LucideIconWrapper>
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -242,9 +250,9 @@ export default function WarehouseDetail() {
                     </Badge>
                   </div>
                   <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)", fontWeight: 500, display: "flex", alignItems: "center", gap: 8 }}>
-                    <span><i className="fa-solid fa-barcode" style={{ fontSize: 10 }} /> Code: <strong>{warehouse.code || "WH-MAIN"}</strong></span>
+                    <span><LucideIconWrapper size={10}><Barcode size={10} /></LucideIconWrapper> Code: <strong>{warehouse.code || "WH-MAIN"}</strong></span>
                     <span>•</span>
-                    <span><i className="fa-solid fa-wheat-awn" style={{ fontSize: 10, color: "var(--primary)" }} /> Commodity: <strong>{warehouse.commodity}</strong></span>
+                    <span><LucideIconWrapper size={10}><Wheat size={10} /></LucideIconWrapper> Commodity: <strong>{warehouse.commodity}</strong></span>
                   </p>
                 </div>
               </div>
@@ -279,7 +287,7 @@ export default function WarehouseDetail() {
                     cursor: "pointer",
                   }}
                 >
-                  <i className="fa-solid fa-pen-to-square" /> Edit
+                  <LucideIconWrapper size={16}><Pencil size={16} /></LucideIconWrapper> Edit
                 </Button>
 
                 <Button
@@ -299,7 +307,7 @@ export default function WarehouseDetail() {
                     cursor: "pointer",
                   }}
                 >
-                  <i className="fa-solid fa-trash-can" /> Delete
+                  <LucideIconWrapper size={16}><Trash2 size={16} /></LucideIconWrapper> Delete
                 </Button>
               </div>
             </div>
@@ -317,7 +325,7 @@ export default function WarehouseDetail() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
-              <i className="fa-solid fa-building-flag" style={{ color: "var(--primary)", fontSize: 14 }} />
+              <LucideIconWrapper size={14}><Landmark size={14} /></LucideIconWrapper>
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--ink)" }}>
                 Official Registration & Contact Credentials
               </h3>
@@ -333,7 +341,7 @@ export default function WarehouseDetail() {
                   {warehouse.companyName || "Kusumganga Agro Solutions Pvt. Ltd."}
                 </p>
                 <div style={{ fontSize: 11.5, color: "var(--ink)", fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-file-invoice" style={{ color: "var(--primary)" }} />
+                  <LucideIconWrapper size={16}><FileText size={16} /></LucideIconWrapper>
                   GSTIN: {warehouse.gstin || "09AALCK4355J1Z2"}
                 </div>
                 <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600, marginTop: 2 }}>
@@ -347,15 +355,15 @@ export default function WarehouseDetail() {
                   Primary Contact Person
                 </span>
                 <p style={{ margin: "2px 0 6px", fontSize: 13, fontWeight: 800, color: "var(--ink)" }}>
-                  <i className="fa-solid fa-user-tie" style={{ color: "#059669", marginRight: 6 }} />
+                  <LucideIconWrapper size={16}><User size={16} /></LucideIconWrapper>
                   {warehouse.contactPerson || "Mr. Jagdeep Singh"}
                 </p>
                 <div style={{ fontSize: 11.5, color: "var(--ink-secondary)", display: "flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-phone" style={{ color: "var(--primary)", fontSize: 10 }} />
+                  <LucideIconWrapper size={10}><Phone size={10} /></LucideIconWrapper>
                   {warehouse.contactPhone || "7055000315"}
                 </div>
                 <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2, display: "flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-envelope" style={{ color: "var(--primary)", fontSize: 9.5 }} />
+                  <LucideIconWrapper size={9}><Mail size={9} /></LucideIconWrapper>
                   {warehouse.email || "kusumganga5@gmail.com"}
                 </div>
               </div>
@@ -366,11 +374,11 @@ export default function WarehouseDetail() {
                   Help Desk & Location Address
                 </span>
                 <p style={{ margin: "2px 0 6px", fontSize: 12.5, fontWeight: 800, color: "#1B5E3A", display: "flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-headset" style={{ color: "var(--primary)" }} />
+                  <LucideIconWrapper size={16}><Headphones size={16} /></LucideIconWrapper>
                   Help Desk: {warehouse.helpDeskPhone || "7905525983"}
                 </p>
                 <div style={{ fontSize: 11, color: "var(--ink-secondary)", display: "flex", alignItems: "flex-start", gap: 6, lineHeight: 1.35 }}>
-                  <i className="fa-solid fa-location-dot" style={{ color: "var(--primary)", marginTop: 2 }} />
+                  <LucideIconWrapper size={16}><MapPin size={16} /></LucideIconWrapper>
                   <span>{warehouse.address || "24-A, Sai Complex Betiyahata, Gorakhpur Uttar Pradesh, 273001"}</span>
                 </div>
               </div>
@@ -381,7 +389,7 @@ export default function WarehouseDetail() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
             <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-                <i className="fa-solid fa-wheat-awn" />
+                <LucideIconWrapper size={16}><Wheat size={16} /></LucideIconWrapper>
               </div>
               <div>
                 <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Commodity</p>
@@ -391,7 +399,7 @@ export default function WarehouseDetail() {
 
             <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-                <i className="fa-solid fa-users" />
+                <LucideIconWrapper size={16}><Users size={16} /></LucideIconWrapper>
               </div>
               <div>
                 <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Enrolled Staff</p>
@@ -401,7 +409,7 @@ export default function WarehouseDetail() {
 
             <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-                <i className="fa-solid fa-boxes-stacked" />
+                <LucideIconWrapper size={16}><Boxes size={16} /></LucideIconWrapper>
               </div>
               <div>
                 <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Current Stock</p>
@@ -411,7 +419,7 @@ export default function WarehouseDetail() {
 
             <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-                <i className="fa-solid fa-circle-check" />
+                <LucideIconWrapper size={16}><CheckCircle size={16} /></LucideIconWrapper>
               </div>
               <div>
                 <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Operating Status</p>
@@ -435,7 +443,7 @@ export default function WarehouseDetail() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
-              <i className="fa-solid fa-users-gear" style={{ color: "var(--primary)", fontSize: 14 }} />
+              <LucideIconWrapper size={14}><Settings2 size={14} /></LucideIconWrapper>
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--ink)" }}>Management Personnel</h3>
             </div>
 
@@ -445,7 +453,7 @@ export default function WarehouseDetail() {
                 name={warehouse.admin}
                 phone={warehouse.adminPhone}
                 email={warehouse.adminEmail}
-                icon="fa-user-shield"
+                icon={<LucideIconWrapper size={14}><Shield size={14} /></LucideIconWrapper>}
                 gradient
               />
               <RoleCard
@@ -453,7 +461,7 @@ export default function WarehouseDetail() {
                 name={warehouse.supervisor}
                 phone={warehouse.supervisorPhone}
                 email={warehouse.supervisorEmail}
-                icon="fa-user-gear"
+                icon={<LucideIconWrapper size={14}><Settings size={14} /></LucideIconWrapper>}
               />
             </div>
           </div>
@@ -464,13 +472,13 @@ export default function WarehouseDetail() {
               to="/warehouses"
               style={{ color: "var(--ink-secondary)", fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-arrow-left-long" /> Back to All Warehouses
+              <LucideIconWrapper size={16}><ArrowLeft size={16} /></LucideIconWrapper> Back to All Warehouses
             </Link>
             <Link
               to="/warehouses/admin-management"
               style={{ color: "var(--primary-deep)", fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              Manage Personnel <i className="fa-solid fa-arrow-right-long" />
+              Manage Personnel <LucideIconWrapper size={16}><ArrowRight size={16} /></LucideIconWrapper>
             </Link>
           </div>
           {/* EDIT WAREHOUSE MODAL */}
@@ -500,7 +508,7 @@ export default function WarehouseDetail() {
                   <div style={{ gridColumn: "1 / -1", margin: "6px 0 12px", background: "var(--canvas)", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--line)" }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
                       <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 700, color: "#0D3823", margin: 0 }}>
-                        <i className="fa-solid fa-wheat-awn" style={{ color: "var(--primary)" }} />
+                        <LucideIconWrapper size={16}><Wheat size={16} /></LucideIconWrapper>
                         Handled Commodities (Check Multiple Boxes) *
                       </label>
                       <span style={{ fontSize: 10.5, fontWeight: 700, color: "#0D3823", background: "rgba(27, 94, 58, 0.12)", border: "1px solid rgba(27, 94, 58, 0.25)", padding: "2px 8px", borderRadius: 12 }}>

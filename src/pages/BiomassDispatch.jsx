@@ -1,4 +1,12 @@
 import { useMemo, useState } from "react";
+import {   Truck , Shield, Boxes , IndianRupee } from "lucide-react";
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
@@ -51,7 +59,7 @@ export default function BiomassDispatch() {
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="🚚 Stage 4: Factory Dispatches (फ़ैक्ट्री प्रेषण)"
+        title="🚚 Stage 4: Factory Dispatches ( )"
         subtitle="Outbound Heavy Trailer Deliveries, Industrial Buyer Billing & Dispatch Gate Passes (Reliance, Balrampur, CBG Plants)"
       />
 
@@ -59,7 +67,7 @@ export default function BiomassDispatch() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-truck-fast" />
+            <LucideIconWrapper size={16}><Truck size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Dispatched MT</p>
@@ -70,7 +78,7 @@ export default function BiomassDispatch() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#ECFDF5", color: "#047857", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-indian-rupee-sign" />
+            <LucideIconWrapper size={16}><IndianRupee size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Billed Revenue</p>
@@ -81,7 +89,7 @@ export default function BiomassDispatch() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-boxes-packing" />
+            <LucideIconWrapper size={16}><Boxes size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Dispatched Bales</p>
@@ -92,7 +100,7 @@ export default function BiomassDispatch() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FAF5FF", color: "#7E22CE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-building-shield" />
+            <LucideIconWrapper size={16}><Shield size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Active Buyer Plants</p>
@@ -107,7 +115,7 @@ export default function BiomassDispatch() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, borderBottom: "1.5px solid #E2E8F0", paddingBottom: 10 }}>
           <div>
             <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: "#0F172A", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 8 }}>
-              <span>🏬</span> Industrial Buyer Plant Directories (जिस फ़ैक्ट्री को माल जाता है)
+              <span>🏬</span> Industrial Buyer Plant Directories (     )
             </h3>
             <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "#475569" }}>
               Consignee delivery addresses, GSTIN numbers, agreed commercial rates & plant supervisors

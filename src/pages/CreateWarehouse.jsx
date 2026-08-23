@@ -1,4 +1,13 @@
 import { useState } from "react";
+import { Info, Settings, Shield, Warehouse, Eye, Check, X, MapPin, AlertTriangle, Settings2, Wheat, Landmark, Headphones, Mail, Phone, User, IdCard, FileText, Building2, Loader } from "lucide-react";
+
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import FormField from "../components/common/FormField";
@@ -139,7 +148,7 @@ export default function CreateWarehouse() {
             {/* Section 1: Official Company & Warehouse Information */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-building-flag" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <LucideIconWrapper size={14}><Landmark size={14} /></LucideIconWrapper>
                 <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
                   Official Company & Location Details
                 </h3>
@@ -149,7 +158,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Company Name"
                   required
-                  icon="fa-solid fa-building"
+                  icon={<LucideIconWrapper size={16}><Building2 size={16} /></LucideIconWrapper>}
                   value={form.companyName}
                   onChange={set("companyName")}
                   placeholder="e.g. Kusumganga Agro Solutions Pvt. Ltd."
@@ -160,7 +169,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Warehouse Hub Name"
                   required
-                  icon="fa-solid fa-warehouse"
+                  icon={<LucideIconWrapper size={16}><Warehouse size={16} /></LucideIconWrapper>}
                   value={form.name}
                   onChange={set("name")}
                   placeholder="e.g. Kusumganga Agro Central Hub - Gorakhpur"
@@ -172,7 +181,7 @@ export default function CreateWarehouse() {
                 <div style={{ gridColumn: "1 / -1", marginBottom: 16, background: "var(--canvas)", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
                     <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 700, color: "#0D3823", margin: 0 }}>
-                      <i className="fa-solid fa-wheat-awn" style={{ color: "var(--primary)" }} />
+                      <LucideIconWrapper size={16}><Wheat size={16} /></LucideIconWrapper>
                       Select Handled Commodities (Check Multiple Boxes) <span style={{ color: "var(--status-error)" }}>*</span>
                     </label>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -256,7 +265,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="GSTIN / Unique ID"
                   required
-                  icon="fa-solid fa-file-invoice"
+                  icon={<LucideIconWrapper size={16}><FileText size={16} /></LucideIconWrapper>}
                   value={form.gstin}
                   onChange={set("gstin")}
                   placeholder="e.g. 09AALCK4355J1Z2"
@@ -267,7 +276,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="PAN NO"
                   required
-                  icon="fa-solid fa-id-card"
+                  icon={<LucideIconWrapper size={16}><IdCard size={16} /></LucideIconWrapper>}
                   value={form.pan}
                   onChange={set("pan")}
                   placeholder="e.g. AALCK4355J"
@@ -278,7 +287,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Primary Contact Person"
                   required
-                  icon="fa-solid fa-user"
+                  icon={<LucideIconWrapper size={16}><User size={16} /></LucideIconWrapper>}
                   value={form.contactPerson}
                   onChange={set("contactPerson")}
                   placeholder="e.g. Mr. Jagdeep Singh"
@@ -289,7 +298,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Contact Phone"
                   required
-                  icon="fa-solid fa-phone"
+                  icon={<LucideIconWrapper size={16}><Phone size={16} /></LucideIconWrapper>}
                   value={form.contactPhone}
                   onChange={set("contactPhone")}
                   placeholder="e.g. 7055000315"
@@ -300,7 +309,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Official Mail ID"
                   required
-                  icon="fa-solid fa-envelope"
+                  icon={<LucideIconWrapper size={16}><Mail size={16} /></LucideIconWrapper>}
                   value={form.email}
                   onChange={set("email")}
                   placeholder="e.g. kusumganga5@gmail.com"
@@ -311,7 +320,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Help Desk Number"
                   required
-                  icon="fa-solid fa-headset"
+                  icon={<LucideIconWrapper size={16}><Headphones size={16} /></LucideIconWrapper>}
                   value={form.helpDeskPhone}
                   onChange={set("helpDeskPhone")}
                   placeholder="e.g. 7905525983"
@@ -322,7 +331,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Address"
                   required
-                  icon="fa-solid fa-location-dot"
+                  icon={<LucideIconWrapper size={16}><MapPin size={16} /></LucideIconWrapper>}
                   value={form.address}
                   onChange={set("address")}
                   placeholder="e.g. 24-A, Sai Complex Betiyahata, Gorakhpur Uttar Pradesh, 273001"
@@ -335,7 +344,7 @@ export default function CreateWarehouse() {
             {/* Section 2: Management Personnel */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-users-gear" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <LucideIconWrapper size={14}><Settings2 size={14} /></LucideIconWrapper>
                 <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
                   Management Personnel
                 </h3>
@@ -360,7 +369,7 @@ export default function CreateWarehouse() {
                   <FormField
                     label="Admin Full Name"
                     required
-                    icon="fa-solid fa-user-shield"
+                    icon={<LucideIconWrapper size={16}><Shield size={16} /></LucideIconWrapper>}
                     value={form.adminName || (selectedAdmin ? selectedAdmin.fullName : "")}
                     onChange={set("adminName")}
                     placeholder="e.g. Manoj Kumar"
@@ -387,7 +396,7 @@ export default function CreateWarehouse() {
                   <FormField
                     label="Supervisor Full Name"
                     required
-                    icon="fa-solid fa-user-gear"
+                    icon={<LucideIconWrapper size={16}><Settings size={16} /></LucideIconWrapper>}
                     value={form.supervisorName || (selectedSupervisor ? selectedSupervisor.fullName : "")}
                     onChange={set("supervisorName")}
                     placeholder="e.g. Ramesh Singh"
@@ -399,7 +408,7 @@ export default function CreateWarehouse() {
 
               {/* Personnel Assignment Note */}
               <div style={{ background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 8, padding: "10px 12px", margin: "2px 0 6px", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <i className="fa-solid fa-shield-halved" style={{ color: "var(--primary)", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+                <LucideIconWrapper size={13}><Shield size={13} /></LucideIconWrapper>
                 <p style={{ fontSize: 11.5, color: "var(--ink-secondary)", margin: 0, lineHeight: 1.4 }}>
                   <strong>Note:</strong> Every warehouse requires an assigned Warehouse Admin and Supervisor. Only active, unassigned staff accounts appear in the dropdowns.
                 </p>
@@ -407,7 +416,7 @@ export default function CreateWarehouse() {
 
               {noEligibleStaff && (
                 <div style={{ fontSize: 12, color: "var(--status-warning, #92400e)", background: "var(--status-warning-bg, #fef3c7)", border: "1px solid rgba(217, 119, 6, 0.2)", borderRadius: 8, padding: "10px 12px", marginTop: 8, display: "flex", gap: 8, alignItems: "center" }}>
-                  <i className="fa-solid fa-triangle-exclamation" style={{ fontSize: 14, flexShrink: 0 }} />
+                  <LucideIconWrapper size={14}><AlertTriangle size={14} /></LucideIconWrapper>
                   <span>
                     No eligible {admins.length === 0 ? "Warehouse Admins" : "Warehouse Supervisors"} available right now. Approve a pending signup first.
                   </span>
@@ -418,7 +427,7 @@ export default function CreateWarehouse() {
             {/* Section 3: Location Details */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-location-dot" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <LucideIconWrapper size={14}><MapPin size={14} /></LucideIconWrapper>
                 <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
                   Location & Address
                 </h3>
@@ -443,7 +452,7 @@ export default function CreateWarehouse() {
                 onClick={() => navigate("/warehouses")}
                 style={{ padding: "8px 16px", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}
               >
-                <i className="fa-solid fa-xmark" /> Cancel
+                <LucideIconWrapper size={16}><X size={16} /></LucideIconWrapper> Cancel
               </Button>
               <Button
                 type="submit"
@@ -462,11 +471,11 @@ export default function CreateWarehouse() {
               >
                 {saving ? (
                   <>
-                    <i className="fa-solid fa-circle-notch spin" /> Saving…
+                    <LucideIconWrapper size={14}><Loader size={14} /></LucideIconWrapper> Saving…
                   </>
                 ) : (
                   <>
-                    <i className="fa-solid fa-check" /> Save Warehouse
+                    <LucideIconWrapper size={16}><Check size={16} /></LucideIconWrapper> Save Warehouse
                   </>
                 )}
               </Button>
@@ -486,7 +495,7 @@ export default function CreateWarehouse() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
-              <i className="fa-solid fa-eye" style={{ color: "var(--primary)", fontSize: 13 }} />
+              <LucideIconWrapper size={13}><Eye size={13} /></LucideIconWrapper>
               <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>Live Card Preview</h4>
             </div>
 
@@ -507,7 +516,7 @@ export default function CreateWarehouse() {
                     flexShrink: 0,
                   }}
                 >
-                  <i className="fa-solid fa-warehouse" />
+                  <LucideIconWrapper size={16}><Warehouse size={16} /></LucideIconWrapper>
                 </div>
                 <div>
                   <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", display: "block" }}>
@@ -541,7 +550,7 @@ export default function CreateWarehouse() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
                   <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                    <i className="fa-solid fa-user-shield" style={{ color: "var(--primary)", fontSize: 11 }} /> Admin:
+                    <LucideIconWrapper size={11}><Shield size={11} /></LucideIconWrapper> Admin:
                   </span>
                   <span style={{ fontWeight: 600, color: "var(--ink)" }}>
                     {selectedAdmin ? selectedAdmin.fullName : "Unassigned"}
@@ -549,7 +558,7 @@ export default function CreateWarehouse() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
                   <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                    <i className="fa-solid fa-user-gear" style={{ color: "var(--primary)", fontSize: 11 }} /> Supervisor:
+                    <LucideIconWrapper size={11}><Settings size={11} /></LucideIconWrapper> Supervisor:
                   </span>
                   <span style={{ fontWeight: 600, color: "var(--ink)" }}>
                     {selectedSupervisor ? selectedSupervisor.fullName : "Unassigned"}
@@ -575,7 +584,7 @@ export default function CreateWarehouse() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              <i className="fa-solid fa-circle-info" style={{ color: "#33C689", fontSize: 14 }} />
+              <LucideIconWrapper size={14}><Info size={14} /></LucideIconWrapper>
               <span style={{ fontSize: 12.5, fontWeight: 700, color: "white" }}>Setup Guidelines</span>
             </div>
             <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.72)", margin: 0, lineHeight: 1.45 }}>

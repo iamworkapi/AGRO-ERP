@@ -2,6 +2,23 @@ import React, { useState, useEffect } from "react";
 import Modal from "../../../components/common/Modal";
 import Button from "../../../components/common/Button";
 import { toast } from "../../../utils/toast";
+import { MessageCircle, Check, Copy, Globe, Download, Printer } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
+function iconWrapper(children, size) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 
 export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, autoPrint = false }) {
   const [phone, setPhone] = useState("");
@@ -723,7 +740,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
         <div style={{ background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 10, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "flex", alignItems: "center", gap: 6 }}>
-              <i className="fa-brands fa-whatsapp" style={{ color: "#25D366", fontSize: 15 }} /> Direct WhatsApp Share
+              <span style={{ color: "#25D366", display: "inline-flex", alignItems: "center" }}>{iconWrapper(<MessageCircle size={15} />, 15)}</span> Direct WhatsApp Share
             </span>
             <button
               type="button"
@@ -740,7 +757,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
                 gap: 4
               }}
             >
-              <i className={copied ? "fa-solid fa-check" : "fa-solid fa-copy"} /> {copied ? "Copied!" : "Copy Message Text"}
+              {copied ? iconWrapper(<Check size={14} />, 14) : iconWrapper(<Copy size={14} />, 14)} {copied ? "Copied!" : "Copy Message Text"}
             </button>
           </div>
 
@@ -779,7 +796,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
                 boxShadow: "0 2px 6px rgba(37, 211, 102, 0.3)"
               }}
             >
-              <i className="fa-brands fa-whatsapp" /> Send on WhatsApp
+              <span style={{ display: "inline-flex", alignItems: "center" }}>{iconWrapper(<MessageCircle size={14} style={{ color: "#25D366" }} />, 14)}</span> Send on WhatsApp
             </button>
           </div>
         </div>
@@ -808,7 +825,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
                 gap: 6
               }}
             >
-              <i className="fa-brands fa-chrome" style={{ color: "#0284c7" }} /> Open Chrome Tab PDF
+              <span style={{ display: "inline-flex", alignItems: "center", color: "#0284c7" }}>{iconWrapper(<Globe size={14} />, 14)}</span> Open Chrome Tab PDF
             </button>
 
             <button
@@ -828,7 +845,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
                 gap: 6
               }}
             >
-              <i className="fa-solid fa-file-arrow-down" style={{ color: "#059669" }} /> Download Token HTML
+              <span style={{ display: "inline-flex", alignItems: "center", color: "#059669" }}>{iconWrapper(<Download size={14} />, 14)}</span> Download Token HTML
             </button>
 
             <Button
@@ -844,7 +861,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
                 boxShadow: "0 4px 12px rgba(0, 184, 107, 0.3)"
               }}
             >
-              <i className="fa-solid fa-print" /> Print Receipt / Save as PDF
+              {iconWrapper(<Printer size={14} />, 14)} Print Receipt / Save as PDF
             </Button>
           </div>
         </div>

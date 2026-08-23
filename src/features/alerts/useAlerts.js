@@ -16,6 +16,6 @@ export function useAlerts() {
     exceptions: state.exceptions,
     status: state.status,
     error: state.error,
-    resolveException: (description) => dispatch(resolveExceptionThunk(description)),
+    resolveException: (id) => dispatch(resolveExceptionThunk(id)),
   };
 }

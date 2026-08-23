@@ -3,13 +3,23 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useAlerts } from "../../features/alerts/useAlerts";
 import { useWarehouses } from "../../features/warehouses/useWarehouses";
+import { Bell, ChevronDown, Menu, Warehouse as WarehouseIcon, Calendar, Building2, Sliders, LogOut } from "lucide-react";
 
-function BellIcon() {
-  return <i className="fa-solid fa-bell" style={{ fontSize: 16 }} />;
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
 }
 
-function ChevronDownIcon(props) {
-  return <i className="fa-solid fa-chevron-down" style={{ fontSize: 11, ...props?.style }} />;
+function BellIcon() {
+  return <LucideIconWrapper size={16}><Bell size={16} /></LucideIconWrapper>;
+}
+
+function ChevronDownIcon({ style, size }) {
+  const s = size || 11;
+  return <LucideIconWrapper size={s}><ChevronDown size={s} style={style} /></LucideIconWrapper>;
 }
 
 const toneByType = {
@@ -86,7 +96,7 @@ export default function Topbar({ onToggleMobileSidebar }) {
             cursor: "pointer",
           }}
         >
-          <i className="fa-solid fa-bars" />
+          <LucideIconWrapper size={16}><Menu size={16} /></LucideIconWrapper>
         </button>
         <h2 className="topbar-greeting" style={{ fontSize: 17, fontWeight: 700, color: "var(--ink)", margin: 0, letterSpacing: "-0.01em" }}>
           Hello, {userName}
@@ -111,11 +121,12 @@ export default function Topbar({ onToggleMobileSidebar }) {
         >
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--primary)" }} />
           <span>
-            <i className="fa-solid fa-warehouse" style={{ fontSize: 11, color: "var(--primary)", marginRight: 4 }} />
-            {hubStatusLabel}
+            <LucideIconWrapper size={11}><WarehouseIcon size={11} /></LucideIconWrapper> {hubStatusLabel}
           </span>
           <span style={{ color: "var(--faint)" }}>|</span>
-          <span style={{ color: "var(--muted)" }}><i className="fa-regular fa-calendar" style={{ fontSize: 11, marginRight: 4 }} />{todayStr}</span>
+          <span style={{ color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <LucideIconWrapper size={11}><Calendar size={11} /></LucideIconWrapper>{todayStr}
+          </span>
         </div>
 
         {/* Notifications */}
@@ -153,7 +164,9 @@ export default function Topbar({ onToggleMobileSidebar }) {
                 }}
               >
                 <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}><i className="fa-solid fa-bell" style={{ marginRight: 6, color: "var(--primary)" }} />Notifications</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <LucideIconWrapper size={14}><Bell size={14} /></LucideIconWrapper>Notifications
+                  </span>
                   <span style={{ fontSize: 11.5, color: "var(--muted)" }}>{openExceptions.length} open</span>
                 </div>
                 <div style={{ maxHeight: 280, overflowY: "auto" }}>
@@ -229,10 +242,10 @@ export default function Topbar({ onToggleMobileSidebar }) {
                   <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>{userRole}</p>
                 </div>
                 <MenuLink to="/settings/organisation-profile" onClick={() => setOpenMenu(null)}>
-                  <i className="fa-solid fa-building" style={{ marginRight: 8, width: 14, color: "var(--muted)" }} /> Organisation Profile
+                  <LucideIconWrapper size={14} style={{ marginRight: 8, color: "var(--muted)" }}><Building2 size={14} /></LucideIconWrapper> Organisation Profile
                 </MenuLink>
                 <MenuLink to="/settings" onClick={() => setOpenMenu(null)}>
-                  <i className="fa-solid fa-sliders" style={{ marginRight: 8, width: 14, color: "var(--muted)" }} /> Settings
+                  <LucideIconWrapper size={14} style={{ marginRight: 8, color: "var(--muted)" }}><Sliders size={14} /></LucideIconWrapper> Settings
                 </MenuLink>
                 <button
                   onClick={() => { setOpenMenu(null); logout(); navigate("/login"); }}
@@ -244,7 +257,7 @@ export default function Topbar({ onToggleMobileSidebar }) {
                   onMouseEnter={(e) => (e.currentTarget.style.background = "var(--status-error-bg)")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
-                  <i className="fa-solid fa-right-from-bracket" style={{ marginRight: 8, width: 14 }} /> Log out
+                  <LucideIconWrapper size={14} style={{ marginRight: 8 }}><LogOut size={14} /></LucideIconWrapper> Log out
                 </button>
               </div>
             </>

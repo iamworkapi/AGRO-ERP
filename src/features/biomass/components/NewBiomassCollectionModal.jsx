@@ -161,7 +161,7 @@ export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
               <label style={{ fontSize: 11.5, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 4 }}>
-                1. Select Biomass Commodity (फसल अवशेष) *
+                1. Select Biomass Commodity ( ) *
               </label>
               <select
                 value={selectedCropId}
@@ -187,7 +187,7 @@ export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
 
             <div>
               <label style={{ fontSize: 11.5, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 4 }}>
-                2. Vendor Company (जहाँ से माल लिया है) *
+                2. Vendor Company (    ) *
               </label>
               <select
                 value={selectedVendorId}
@@ -216,7 +216,7 @@ export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Village Name (गाँव)
+                Village Name ()
               </label>
               <input
                 type="text"
@@ -400,7 +400,7 @@ export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
 
             <div>
               <label style={{ fontSize: 11.5, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 4 }}>
-                Total Bales Produced (संख्या)
+                Total Bales Produced ()
               </label>
               <input
                 type="number"

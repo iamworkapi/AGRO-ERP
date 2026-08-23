@@ -1,4 +1,13 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { X, Send, Check, Plus, MessageSquare, Calendar, User, Warehouse, Loader } from "lucide-react";
+
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
 import Badge from "../components/common/Badge";
@@ -7,38 +16,42 @@ import Modal from "../components/common/Modal";
 import FormField from "../components/common/FormField";
 import Button from "../components/common/Button";
 import AsyncState from "../components/common/AsyncState";
+import { useLeaveRequests } from "../features/leaveRequests/useLeaveRequests";
 import { useEmployees } from "../features/employees/useEmployees";
-import { useAuth } from "../hooks/useAuth";
+import { useWarehouses } from "../features/warehouses/useWarehouses";
 import { useDisclosure } from "../hooks/useDisclosure";
+import { useAuth } from "../hooks/useAuth";
+import { validateOrToast } from "../utils/validate";
 import { toast } from "../utils/toast";
 
-const LEAVE_ICONS = {
-  "Casual Leave": "fa-solid fa-umbrella-beach",
-  "Sick Leave": "fa-solid fa-notes-medical",
-  "Earned Leave": "fa-solid fa-plane-departure",
-  "Emergency Leave": "fa-solid fa-kit-medical",
+const leaveTypeBadge = {
+  casual: "info",
+  sick: "warning",
+  earned: "success",
+  maternity: "purple",
+  paternity: "purple",
+  unpaid: "danger",
+  other: "secondary",
 };
 
-const LEAVE_TONES = {
-  Approved: "success",
-  Pending: "warning",
-  Rejected: "error",
-};
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
 
-function emptyForm(defaultWarehouse = "Manimau Centre") {
+function emptyForm(defaultWarehouseId = "") {
   return {
-    employee: "",
-    warehouse: defaultWarehouse,
-    type: "Casual Leave",
-    startDate: "",
-    endDate: "",
-    days: 1,
+    warehouseId: defaultWarehouseId,
+    employeeId: "",
+    leaveType: "casual",
+    fromDate: todayIso(),
+    toDate: todayIso(),
     reason: "",
   };
 }
 
 function nameCell(name, index) {
-  const initials = name ? name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "EM";
+  if (!name) return "-";
+  const initials = name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
       <Avatar initials={initials} index={index} />
@@ -47,550 +60,321 @@ function nameCell(name, index) {
   );
 }
 
+function StatusBadge({ status }) {
+  const tone =
+    status === "approved"
+      ? "success"
+      : status === "pending"
+        ? "warning"
+        : status === "rejected"
+          ? "danger"
+          : "secondary";
+  return <Badge tone={tone}>{status?.toUpperCase()}</Badge>;
+}
+
 export default function LeaveRequests() {
   const { user } = useAuth();
-  const isSupervisor = user?.roleKey === "supervisor" || user?.role === "Supervisor";
-  const assignedHub = user?.warehouse || "Manimau Centre";
+  const isScopedRole = user?.roleKey === "supervisor" || user?.roleKey === "warehouse_admin";
+  const { warehouses } = useWarehouses();
+  const myWarehouse = isScopedRole ? warehouses[0] : null;
 
-  const { leaveRequests, employees, status, error, approveLeave, rejectLeave, createLeave } = useEmployees();
+  const { leaveRequests, status, error, reload, addLeaveRequest, doReview, summary } = useLeaveRequests();
+  const { employees } = useEmployees();
   const { isOpen: open, open: openModal, close: closeModal } = useDisclosure();
-  const [form, setForm] = useState(() => emptyForm(assignedHub));
+  const { isOpen: reviewOpen, open: openReview, close: closeReview } = useDisclosure();
+  const [form, setForm] = useState(() => emptyForm());
   const [saving, setSaving] = useState(false);
-  const [busyId, setBusyId] = useState(null);
-  const [statusFilter, setStatusFilter] = useState("all"); // "all" | "Pending" | "Approved" | "Rejected"
+  const [reviewingId, setReviewingId] = useState(null);
+  const [reviewDecision, setReviewDecision] = useState("approved");
+  const [filterStatus, setFilterStatus] = useState("all");
+
+  useEffect(() => {
+    if (isScopedRole && myWarehouse?.id) {
+      setForm((f) => (f.warehouseId ? f : { ...f, warehouseId: myWarehouse.id }));
+    }
+  }, [isScopedRole, myWarehouse?.id]);
+
+  const employeeOptions = useMemo(
+    () =>
+      employees
+        .filter((e) => !form.warehouseId || e.warehouseId === form.warehouseId)
+        .map((e) => ({ value: e.id, label: `${e.name} (${e.code})` })),
+    [employees, form.warehouseId]
+  );
 
   const set = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
 
-  // Scope leave requests for Supervisor if applicable
-  const scopedRequests = isSupervisor
-    ? leaveRequests.filter((r) => r.warehouse === assignedHub || r.warehouse?.includes(assignedHub.split(" ")[0]))
-    : leaveRequests;
-
-  const pendingCount = scopedRequests.filter((r) => r.status === "Pending").length;
-  const approvedCount = scopedRequests.filter((r) => r.status === "Approved").length;
-  const rejectedCount = scopedRequests.filter((r) => r.status === "Rejected").length;
-  const totalCount = scopedRequests.length || 1;
-
-  const pendingPct = ((pendingCount / totalCount) * 100).toFixed(0);
-  const approvedPct = ((approvedCount / totalCount) * 100).toFixed(0);
-  const rejectedPct = ((rejectedCount / totalCount) * 100).toFixed(0);
-
-  const filteredRequests = scopedRequests.filter((r) => {
-    if (statusFilter === "Pending") return r.status === "Pending";
-    if (statusFilter === "Approved") return r.status === "Approved";
-    if (statusFilter === "Rejected") return r.status === "Rejected";
-    return true;
-  });
-
-  async function handleApprove(record) {
-    setBusyId(record.id || record.employee);
-    try {
-      await approveLeave(record.id || record.employee);
-      toast.success(`Leave request for ${record.employee} approved successfully.`);
-    } catch (err) {
-      toast.error(err?.message || "Could not approve leave request.");
-    } finally {
-      setBusyId(null);
-    }
-  }
-
-  async function handleReject(record) {
-    setBusyId(record.id || record.employee);
-    try {
-      await rejectLeave(record.id || record.employee);
-      toast.success(`Leave request for ${record.employee} rejected.`);
-    } catch (err) {
-      toast.error(err?.message || "Could not reject leave request.");
-    } finally {
-      setBusyId(null);
-    }
-  }
-
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.employee || !form.reason) {
-      toast.error("Please fill in employee name and leave reason.");
-      return;
-    }
+    const parsed = validateOrToast(
+      {
+        validate: () => {
+          if (!form.employeeId) return { success: false, message: "Select an employee." };
+          if (!form.fromDate) return { success: false, message: "From date is required." };
+          if (!form.toDate) return { success: false, message: "To date is required." };
+          if (form.toDate < form.fromDate) return { success: false, message: "To date cannot be before from date." };
+          return { success: true };
+        },
+      },
+      form
+    );
+    if (!parsed) return;
 
     setSaving(true);
     try {
-      const datesStr = form.startDate && form.endDate
-        ? `${form.startDate} to ${form.endDate}`
-        : form.startDate || "Upcoming";
-
-      await createLeave({
-        employee: form.employee,
-        warehouse: isSupervisor ? assignedHub : form.warehouse,
-        type: form.type,
-        dates: datesStr,
-        days: form.days || 1,
-        reason: form.reason,
-      });
-
-      toast.success(`Leave application submitted for ${form.employee}.`);
-      setForm(emptyForm(assignedHub));
+      await addLeaveRequest(parsed);
+      toast.success("Leave request submitted successfully.");
+      setForm(emptyForm(myWarehouse?.id || ""));
       closeModal();
     } catch (err) {
-      toast.error(err?.message || "Could not submit leave request.");
+      toast.error(err?.response?.data?.error?.message || err.message || "Could not submit leave request.");
     } finally {
       setSaving(false);
     }
   }
 
-  const employeeOptions = employees.length > 0
-    ? employees.map((e) => e.name)
-    : ["Anita Prasad", "Rajesh Yadav", "Manoj Kumar", "Sunita Devi", "Karan Singh"];
+  async function handleReview() {
+    if (!reviewingId) return;
+    try {
+      await doReview(reviewingId, reviewDecision);
+      toast.success(`Leave request ${reviewDecision}.`);
+      setReviewingId(null);
+      closeReview();
+    } catch (err) {
+      toast.error(err?.response?.data?.error?.message || err.message || "Could not review leave request.");
+    }
+  }
+
+  const pendingCount = summary?.pending || 0;
+
+  const filteredRecords = leaveRequests.filter((r) => {
+    if (filterStatus === "all") return true;
+    return r.status === filterStatus;
+  });
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <PageHeader
-        title={isSupervisor ? `Employee Leave Management — ${assignedHub}` : "Employee Leave Management"}
+        title="Leave Management"
         subtitle={
-          isSupervisor
-            ? `Review, approve, and track employee leave applications for ${assignedHub}`
-            : "Submit, review, and manage employee leave applications across all warehouse hubs"
+          isScopedRole
+            ? `Leave requests for ${myWarehouse?.name || "your assigned warehouse"}`
+            : "Track and approve leave requests across all warehouses"
         }
       />
 
       <AsyncState status={status} error={error} loadingLabel="Loading leave requests…" />
 
-      {/* HIGH-GLOW EXECUTIVE 4 STAT METRICS CARDS WITH INTERACTIVE FILTERING */}
+      {/* SUMMARY TILES */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="responsive-grid-2">
-        
-        {/* CARD 1: PENDING APPROVALS */}
-        <div
-          onClick={() => setStatusFilter("Pending")}
-          style={{
-            background: "var(--surface)",
-            border: statusFilter === "Pending" ? "2px solid #F59E0B" : "1px solid rgba(245,158,11,0.2)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: statusFilter === "Pending" ? "0 12px 30px -4px rgba(245, 158, 11, 0.25)" : "0 6px 20px -2px rgba(0,0,0,0.04)",
-            cursor: "pointer",
-            position: "relative",
-            overflow: "hidden",
-            transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
-        >
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#F59E0B", boxShadow: "0 2px 10px rgba(245, 158, 11, 0.5)" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
-              Pending Review
-            </span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#FEF3C7", color: "#D97706", border: "1px solid rgba(245,158,11,0.3)" }}>
-              {pendingPct}% Action Needed
-            </span>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(245,158,11,0.2)" }}>{pendingCount} Requests</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Awaiting Approval</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-clock-rotate-left" />
-            </div>
-          </div>
-
-          <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 12, overflow: "hidden" }}>
-            <div style={{ width: `${pendingPct}%`, height: "100%", background: "#F59E0B", borderRadius: 2, boxShadow: "0 0 8px rgba(245,158,11,0.8)", transition: "width 0.4s ease" }} />
-          </div>
+        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "var(--primary)" }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>Total Requests</span>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "var(--ink)", marginTop: 6 }}>{summary?.total || 0}</div>
         </div>
-
-        {/* CARD 2: APPROVED LEAVES */}
-        <div
-          onClick={() => setStatusFilter("Approved")}
-          style={{
-            background: "var(--surface)",
-            border: statusFilter === "Approved" ? "2px solid #10B981" : "1px solid rgba(16,185,129,0.2)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: statusFilter === "Approved" ? "0 12px 30px -4px rgba(16, 185, 129, 0.25)" : "0 6px 20px -2px rgba(0,0,0,0.04)",
-            cursor: "pointer",
-            position: "relative",
-            overflow: "hidden",
-            transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
-        >
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#10B981", boxShadow: "0 2px 10px rgba(16, 185, 129, 0.5)" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
-              Approved Leaves
-            </span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#D1FAE5", color: "#059669", border: "1px solid rgba(16,185,129,0.3)" }}>
-              {approvedPct}% Granted
-            </span>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(16,185,129,0.2)" }}>{approvedCount}</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Verified Leave Sanctions</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-circle-check" />
-            </div>
-          </div>
-
-          <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 12, overflow: "hidden" }}>
-            <div style={{ width: `${approvedPct}%`, height: "100%", background: "#10B981", borderRadius: 2, boxShadow: "0 0 8px rgba(16,185,129,0.8)", transition: "width 0.4s ease" }} />
-          </div>
+        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "#F59E0B" }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>Pending Approval</span>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#D97706", marginTop: 6 }}>{summary?.pending || 0}</div>
         </div>
-
-        {/* CARD 3: REJECTED LEAVES */}
-        <div
-          onClick={() => setStatusFilter("Rejected")}
-          style={{
-            background: "var(--surface)",
-            border: statusFilter === "Rejected" ? "2px solid #EF4444" : "1px solid rgba(239,68,68,0.2)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: statusFilter === "Rejected" ? "0 12px 30px -4px rgba(239, 68, 68, 0.25)" : "0 6px 20px -2px rgba(0,0,0,0.04)",
-            cursor: "pointer",
-            position: "relative",
-            overflow: "hidden",
-            transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
-        >
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#EF4444", boxShadow: "0 2px 10px rgba(239, 68, 68, 0.5)" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
-              Disapproved / Declined
-            </span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#FEE2E2", color: "#EF4444", border: "1px solid rgba(239,68,68,0.3)" }}>
-              {rejectedPct}% Rejected
-            </span>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(239,68,68,0.2)" }}>{rejectedCount}</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Declined Applications</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(239,68,68,0.3)", boxShadow: "0 0 14px rgba(239,68,68,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-circle-xmark" />
-            </div>
-          </div>
-
-          <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 12, overflow: "hidden" }}>
-            <div style={{ width: `${rejectedPct}%`, height: "100%", background: "#EF4444", borderRadius: 2, boxShadow: "0 0 8px rgba(239,68,68,0.8)", transition: "width 0.4s ease" }} />
-          </div>
+        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "#10B981" }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>Approved</span>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#059669", marginTop: 6 }}>{summary?.approved || 0}</div>
         </div>
-
-        {/* CARD 4: TOTAL APPLICATIONS */}
-        <div
-          onClick={() => setStatusFilter("all")}
-          style={{
-            background: "var(--surface)",
-            border: statusFilter === "all" ? "2px solid #3B82F6" : "1px solid rgba(59,130,246,0.2)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: statusFilter === "all" ? "0 12px 30px -4px rgba(59, 130, 246, 0.25)" : "0 6px 20px -2px rgba(0,0,0,0.04)",
-            cursor: "pointer",
-            position: "relative",
-            overflow: "hidden",
-            transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
-        >
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "linear-gradient(90deg, #1D4ED8 0%, #3B82F6 100%)", boxShadow: "0 2px 10px rgba(59, 130, 246, 0.5)" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
-              Total Applications
-            </span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#EFF6FF", color: "#2563EB", border: "1px solid rgba(59,130,246,0.3)" }}>
-              100% Total
-            </span>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(59,130,246,0.2)" }}>{scopedRequests.length}</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Leave Quota Register</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-calendar-minus" />
-            </div>
-          </div>
-
-          <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 12, overflow: "hidden" }}>
-            <div style={{ width: "100%", height: "100%", background: "linear-gradient(90deg, #1D4ED8 0%, #3B82F6 100%)", borderRadius: 2, boxShadow: "0 0 8px rgba(59,130,246,0.8)" }} />
-          </div>
+        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "#EF4444" }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>Rejected</span>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#DC2626", marginTop: 6 }}>{summary?.rejected || 0}</div>
         </div>
-
       </div>
 
-      {/* FILTER TABS & DATATABLE */}
-      <div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 10 }}>
-          <div className="role-picker-container" style={{ width: "auto", marginBottom: 0, background: "var(--surface)", border: "1px solid var(--line)", padding: 3, borderRadius: 10 }}>
-            <button
-              type="button"
-              className={`role-picker-option ${statusFilter === "all" ? "active" : ""}`}
-              onClick={() => setStatusFilter("all")}
-              style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
-            >
-              <i className="fa-solid fa-list-check" style={{ fontSize: 11 }} /> All Applications ({scopedRequests.length})
-            </button>
-            <button
-              type="button"
-              className={`role-picker-option ${statusFilter === "Pending" ? "active" : ""}`}
-              onClick={() => setStatusFilter("Pending")}
-              style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
-            >
-              <i className="fa-solid fa-clock-rotate-left" style={{ fontSize: 11 }} /> Pending ({pendingCount})
-            </button>
-            <button
-              type="button"
-              className={`role-picker-option ${statusFilter === "Approved" ? "active" : ""}`}
-              onClick={() => setStatusFilter("Approved")}
-              style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
-            >
-              <i className="fa-solid fa-circle-check" style={{ fontSize: 11 }} /> Approved ({approvedCount})
-            </button>
-            <button
-              type="button"
-              className={`role-picker-option ${statusFilter === "Rejected" ? "active" : ""}`}
-              onClick={() => setStatusFilter("Rejected")}
-              style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
-            >
-              <i className="fa-solid fa-circle-xmark" style={{ fontSize: 11 }} /> Rejected ({rejectedCount})
-            </button>
-          </div>
-        </div>
+      {/* FILTER TABS */}
+      <div className="role-picker-container" style={{ width: "auto", marginBottom: 0, background: "var(--surface)", border: "1px solid var(--line)", padding: 3, borderRadius: 10, display: "inline-flex" }}>
+        <button type="button" className={`role-picker-option ${filterStatus === "all" ? "active" : ""}`} onClick={() => setFilterStatus("all")} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700 }}>
+          All ({leaveRequests.length})
+        </button>
+        <button type="button" className={`role-picker-option ${filterStatus === "pending" ? "active" : ""}`} onClick={() => setFilterStatus("pending")} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700 }}>
+          Pending ({pendingCount})
+        </button>
+        <button type="button" className={`role-picker-option ${filterStatus === "approved" ? "active" : ""}`} onClick={() => setFilterStatus("approved")} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700 }}>
+          Approved ({summary?.approved || 0})
+        </button>
+        <button type="button" className={`role-picker-option ${filterStatus === "rejected" ? "active" : ""}`} onClick={() => setFilterStatus("rejected")} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700 }}>
+          Rejected ({summary?.rejected || 0})
+        </button>
+      </div>
 
-        <DataTable
-          title={statusFilter === "all" ? "Leave Applications Directory" : `Leave Applications (${statusFilter.toUpperCase()})`}
-          right={
-            <Button
-              className="btn-glow"
-              onClick={() => openModal()}
-              style={{
-                padding: "7px 14px",
-                fontSize: 12.5,
-                fontWeight: 700,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                background: "var(--gradient-primary)",
-                boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)",
-              }}
-            >
-              <i className="fa-solid fa-calendar-plus" /> Apply for Leave
-            </Button>
-          }
-          searchable
-          searchPlaceholder="Search employee, leave type, warehouse, status..."
-          keyField="id"
-          rows={filteredRequests}
-          emptyMessage="No matching leave applications found."
-          columns={[
-            {
-              key: "employee",
-              label: "Employee",
-              emphasize: true,
-              render: (r, idx) => nameCell(r.employee, idx),
-            },
-            {
-              key: "type",
-              label: "Leave Category",
-              render: (r) => (
-                <span style={{ fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <i className={LEAVE_ICONS[r.type] || "fa-solid fa-calendar-day"} style={{ color: "var(--primary)", fontSize: 11 }} />
-                  {r.type}
-                </span>
-              ),
-            },
-            {
-              key: "warehouse",
-              label: "Warehouse Hub",
-              render: (r) => (
-                <span style={{ fontWeight: 600, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-warehouse" style={{ fontSize: 11 }} />
-                  {r.warehouse || assignedHub}
-                </span>
-              ),
-            },
-            {
-              key: "dates",
-              label: "Leave Schedule",
-              render: (r) => (
-                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <span style={{ fontSize: 12.5, fontWeight: 700, color: "var(--ink)" }}>
-                    <i className="fa-regular fa-calendar" style={{ fontSize: 11, marginRight: 5, color: "var(--muted)" }} />
-                    {r.dates}
-                  </span>
-                  {r.days && (
-                    <span style={{ fontSize: 10.5, color: "var(--muted)", fontWeight: 600 }}>
-                      Duration: {r.days} {r.days === 1 ? "Day" : "Days"}
-                    </span>
-                  )}
-                </div>
-              ),
-            },
-            {
-              key: "reason",
-              label: "Reason / Notes",
-              sortable: false,
-              render: (r) => (
-                <span style={{ fontSize: 12, color: "var(--ink-secondary)", fontStyle: r.reason ? "normal" : "italic" }}>
-                  {r.reason || "No note provided"}
-                </span>
-              ),
-            },
-            {
-              key: "status",
-              label: "Status",
-              render: (r) => (
-                <Badge tone={LEAVE_TONES[r.status] || "warning"}>
-                  {r.status ? r.status.toUpperCase() : "PENDING"}
-                </Badge>
-              ),
-            },
-            {
-              key: "actions",
-              label: "Action",
-              sortable: false,
-              render: (r) => (
+      <DataTable
+        title="Leave Requests"
+        right={
+          <Button
+            className="btn-glow"
+            onClick={openModal}
+            style={{ padding: "7px 14px", fontSize: 12.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6, background: "var(--gradient-primary)", boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)" }}
+          >
+            <LucideIconWrapper size={16}><Plus size={16} /></LucideIconWrapper> New Leave Request
+          </Button>
+        }
+        searchable
+        searchPlaceholder="Search employee, leave type, status..."
+        keyField="id"
+        rows={filteredRecords}
+        emptyMessage="No matching leave requests found."
+        columns={[
+          {
+            key: "employee",
+            label: "Employee",
+            emphasize: true,
+            render: (r) => nameCell(r.employeeName, r.employeeName),
+          },
+          {
+            key: "leaveType",
+            label: "Type",
+            render: (r) => <Badge tone={leaveTypeBadge[r.leaveType] || "secondary"}>{r.leaveType?.toUpperCase()}</Badge>,
+          },
+          { key: "fromDate", label: "From" },
+          { key: "toDate", label: "To" },
+          { key: "totalDays", label: "Days" },
+          { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
+          {
+            key: "appliedBy",
+            label: "Applied By",
+            render: (r) => <span style={{ fontSize: 12 }}>{r.appliedByName}</span>,
+          },
+          {
+            key: "actions",
+            label: "",
+            render: (r) =>
+              r.status === "pending" ? (
                 <div style={{ display: "flex", gap: 6 }}>
-                  {r.status === "Pending" ? (
-                    <>
-                      <Button
-                        variant="secondary"
-                        disabled={busyId === (r.id || r.employee)}
-                        onClick={() => handleApprove(r)}
-                        style={{ padding: "4px 10px", fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, background: "var(--primary-tint)", color: "var(--primary-deep)", borderColor: "var(--primary)" }}
-                      >
-                        <i className="fa-solid fa-check" /> Approve
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        disabled={busyId === (r.id || r.employee)}
-                        onClick={() => handleReject(r)}
-                        style={{ padding: "4px 10px", fontSize: 11, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4, color: "#EF4444", borderColor: "#FEE2E2", background: "#FEF2F2" }}
-                      >
-                        <i className="fa-solid fa-xmark" /> Reject
-                      </Button>
-                    </>
-                  ) : (
-                    <span style={{ fontSize: 11.5, color: "var(--muted)", fontStyle: "italic" }}>Reviewed</span>
-                  )}
+                  <button
+                    onClick={() => { setReviewingId(r.id); setReviewDecision("approved"); openReview(); }}
+                    style={{ background: "#D1FAE5", color: "#059669", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                    title="Approve"
+                  >
+                    <LucideIconWrapper size={16}><Check size={16} /></LucideIconWrapper> Approve
+                  </button>
+                  <button
+                    onClick={() => { setReviewingId(r.id); setReviewDecision("rejected"); openReview(); }}
+                    style={{ background: "#FEE2E2", color: "#DC2626", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                    title="Reject"
+                  >
+                    <LucideIconWrapper size={16}><X size={16} /></LucideIconWrapper> Reject
+                  </button>
                 </div>
+              ) : (
+                <span style={{ fontSize: 11, color: "var(--muted)" }}>{r.reviewedBy ? `by ${r.reviewedBy}` : ""}</span>
               ),
-            },
-          ]}
-        />
-      </div>
+          },
+        ]}
+      />
 
-      {/* APPLY FOR LEAVE MODAL */}
-      <Modal
-        open={open}
-        title="Apply for Employee Leave"
-        subtitle="Submit a formal leave request for warehouse staff or field employees"
-        onClose={() => closeModal()}
-      >
+      {/* CREATE LEAVE REQUEST MODAL */}
+      <Modal open={open} title="New Leave Request" subtitle="Submit a leave request for an employee." onClose={closeModal}>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <FormField
-            label="Employee Name"
-            type="select"
-            required
-            icon="fa-solid fa-user"
-            value={form.employee}
-            onChange={set("employee")}
-            options={employeeOptions}
-            placeholder="Select staff member"
-            compact
-            marginBottom={10}
-          />
-
           <FormField
             label="Warehouse Hub"
             type="select"
             required
-            disabled={isSupervisor}
-            icon="fa-solid fa-warehouse"
-            value={isSupervisor ? assignedHub : form.warehouse}
-            onChange={set("warehouse")}
-            options={isSupervisor ? [assignedHub] : ["Manimau Centre", "Betiya Hata Store", "Sai Complex Yard", "Gorakhpur North"]}
+            disabled={isScopedRole}
+            icon={<LucideIconWrapper size={16}><Warehouse size={16} /></LucideIconWrapper>}
+            value={form.warehouseId}
+            onChange={set("warehouseId")}
+            options={warehouses.map((w) => ({ value: w.id, label: w.name }))}
             compact
             marginBottom={10}
           />
-
           <FormField
-            label="Leave Category"
+            label="Employee"
             type="select"
             required
-            icon="fa-solid fa-layer-group"
-            value={form.type}
-            onChange={set("type")}
-            options={["Casual Leave", "Sick Leave", "Earned Leave", "Emergency Leave"]}
+            icon={<LucideIconWrapper size={16}><User size={16} /></LucideIconWrapper>}
+            value={form.employeeId}
+            onChange={set("employeeId")}
+            options={employeeOptions}
+            placeholder={form.warehouseId ? "Select employee" : "Select a warehouse first"}
             compact
             marginBottom={10}
           />
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
-            <FormField
-              label="Start Date"
-              type="date"
-              icon="fa-solid fa-calendar-day"
-              value={form.startDate}
-              onChange={set("startDate")}
-              compact
-              marginBottom={10}
-            />
-            <FormField
-              label="End Date"
-              type="date"
-              icon="fa-solid fa-calendar-day"
-              value={form.endDate}
-              onChange={set("endDate")}
-              compact
-              marginBottom={10}
-            />
-          </div>
-
           <FormField
-            label="Reason for Leave"
+            label="Leave Type"
+            type="select"
+            icon={<LucideIconWrapper size={16}><Calendar size={16} /></LucideIconWrapper>}
+            value={form.leaveType}
+            onChange={set("leaveType")}
+            options={[
+              { value: "casual", label: "Casual" },
+              { value: "sick", label: "Sick" },
+              { value: "earned", label: "Earned" },
+              { value: "maternity", label: "Maternity" },
+              { value: "paternity", label: "Paternity" },
+              { value: "unpaid", label: "Unpaid" },
+              { value: "other", label: "Other" },
+            ]}
+            compact
+            marginBottom={10}
+          />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
+            <FormField label="From Date" type="date" required icon={<LucideIconWrapper size={16}><Calendar size={16} /></LucideIconWrapper>} value={form.fromDate} onChange={set("fromDate")} compact marginBottom={10} />
+            <FormField label="To Date" type="date" required icon={<LucideIconWrapper size={16}><Calendar size={16} /></LucideIconWrapper>} value={form.toDate} onChange={set("toDate")} compact marginBottom={10} />
+          </div>
+          <FormField
+            label="Reason (optional)"
             type="textarea"
-            required
-            icon="fa-solid fa-comment-dots"
+            icon={<LucideIconWrapper size={16}><MessageSquare size={16} /></LucideIconWrapper>}
             value={form.reason}
             onChange={set("reason")}
-            placeholder="Provide brief details regarding reason for leave application..."
+            placeholder="Reason for leave..."
             compact
             marginBottom={12}
           />
-
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
             <Button variant="secondary" type="button" onClick={() => closeModal()} style={{ padding: "7px 14px", fontSize: 12.5 }}>
-              <i className="fa-solid fa-xmark" /> Cancel
+              <LucideIconWrapper size={16}><X size={16} /></LucideIconWrapper> Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={saving}
-              className="btn-glow"
-              style={{
-                padding: "7px 16px",
-                fontSize: 12.5,
-                fontWeight: 700,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                background: "var(--gradient-primary)",
-              }}
-            >
+            <Button type="submit" disabled={saving} className="btn-glow" style={{ padding: "7px 16px", fontSize: 12.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6, background: "var(--gradient-primary)" }}>
               {saving ? (
                 <>
-                  <i className="fa-solid fa-circle-notch spin" /> Submitting…
+                  <LucideIconWrapper size={14}><Loader size={14} /></LucideIconWrapper> Submitting…
                 </>
               ) : (
                 <>
-                  <i className="fa-solid fa-paper-plane" /> Submit Request
+                  <LucideIconWrapper size={16}><Send size={16} /></LucideIconWrapper> Submit Request
                 </>
               )}
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* REVIEW MODAL */}
+      <Modal open={reviewOpen} title={reviewDecision === "approved" ? "Approve Leave Request" : "Reject Leave Request"} onClose={closeReview}>
+        <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>
+          You are about to <strong>{reviewDecision}</strong> this leave request. This action will be recorded in the audit log.
+        </p>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
+          <Button variant="secondary" type="button" onClick={() => closeReview()} style={{ padding: "7px 14px", fontSize: 12.5 }}>
+            <LucideIconWrapper size={16}><X size={16} /></LucideIconWrapper> Cancel
+          </Button>
+          <Button
+            type="button"
+            onClick={handleReview}
+            style={{
+              padding: "7px 16px",
+              fontSize: 12.5,
+              fontWeight: 700,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              background: reviewDecision === "approved" ? "#059669" : "#DC2626",
+              color: "#fff",
+              border: "none",
+            }}
+          >
+            {reviewDecision === "approved" ? <LucideIconWrapper size={14}><Check size={14} /></LucideIconWrapper> : <LucideIconWrapper size={14}><X size={14} /></LucideIconWrapper>} {reviewDecision === "approved" ? "Approve" : "Reject"}
+          </Button>
+        </div>
       </Modal>
     </div>
   );

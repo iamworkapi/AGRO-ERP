@@ -1,4 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import {   Printer, Scale, Droplets, Calculator, Check, X, Warehouse, AlertTriangle, Shield, Truck , ArrowLeft, Building2, Hash , IndianRupee, Sparkles, Loader, MessageCircle } from "lucide-react";
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import FormField from "../components/common/FormField";
@@ -184,7 +192,7 @@ export default function CreateWeighmentSlip() {
           onMouseOver={(e) => (e.currentTarget.style.color = "var(--primary-deep)")}
           onMouseOut={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
         >
-          <i className="fa-solid fa-arrow-left-long" /> Back to Weighment Slips & Register
+          <LucideIconWrapper size={16}><ArrowLeft size={16} /></LucideIconWrapper> Back to Weighment Slips & Register
         </button>
       </div>
 
@@ -195,7 +203,7 @@ export default function CreateWeighmentSlip() {
 
       {noActiveMachine && (
         <div style={{ background: "var(--status-warning-bg, #fef3c7)", border: "1px solid rgba(217, 119, 6, 0.25)", borderRadius: 10, padding: "12px 16px", display: "flex", gap: 10, alignItems: "flex-start" }}>
-          <i className="fa-solid fa-triangle-exclamation" style={{ color: "#D97706", fontSize: 15, marginTop: 1 }} />
+          <LucideIconWrapper size={15}><AlertTriangle size={15} /></LucideIconWrapper>
           <div>
             <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#92400e" }}>No active weight machine found</p>
             <p style={{ margin: "2px 0 0", fontSize: 12, color: "#92400e" }}>
@@ -239,7 +247,7 @@ export default function CreateWeighmentSlip() {
             {/* Section 1: Facility, Machine & Commodity */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 13 }} />
+                <LucideIconWrapper size={13}><Warehouse size={13} /></LucideIconWrapper>
                 <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
                   Procurement Hub & Weight Machine
                 </h3>
@@ -276,7 +284,7 @@ export default function CreateWeighmentSlip() {
                   <FormField
                     label="R.S.T / Slip Number"
                     required
-                    icon="fa-solid fa-hashtag"
+                    icon={<LucideIconWrapper size={16}><Hash size={16} /></LucideIconWrapper>}
                     value={form.slipNo}
                     onChange={set("slipNo")}
                     placeholder="e.g. RST-720"
@@ -301,7 +309,7 @@ export default function CreateWeighmentSlip() {
                       cursor: "pointer",
                     }}
                   >
-                    Auto <i className="fa-solid fa-wand-magic-sparkles" />
+                    Auto <LucideIconWrapper size={14}><Sparkles size={14} /></LucideIconWrapper>
                   </button>
                 </div>
 
@@ -332,7 +340,7 @@ export default function CreateWeighmentSlip() {
             {/* Section 2: Party & Vehicle Info */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-truck-ramp-box" style={{ color: "var(--primary)", fontSize: 13 }} />
+                <LucideIconWrapper size={13}><Truck size={13} /></LucideIconWrapper>
                 <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
                   Supplier / Farmer & Vehicle Details
                 </h3>
@@ -341,7 +349,7 @@ export default function CreateWeighmentSlip() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
                 <FormField
                   label="Name of Party / Farmer"
-                  icon="fa-solid fa-building-user"
+                  icon={<LucideIconWrapper size={16}><Building2 size={16} /></LucideIconWrapper>}
                   value={form.party}
                   onChange={set("party")}
                   placeholder="e.g. Kusumganga Agro Supplier"
@@ -351,7 +359,7 @@ export default function CreateWeighmentSlip() {
 
                 <FormField
                   label="Vehicle Registration No."
-                  icon="fa-solid fa-truck"
+                  icon={<LucideIconWrapper size={16}><Truck size={16} /></LucideIconWrapper>}
                   value={form.vehicleNo}
                   onChange={set("vehicleNo")}
                   placeholder="e.g. UP27 AF 2860"
@@ -364,7 +372,7 @@ export default function CreateWeighmentSlip() {
             {/* Section 3: Weight, Moisture & Rate Measurements */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-scale-balanced" style={{ color: "var(--primary)", fontSize: 13 }} />
+                <LucideIconWrapper size={13}><Scale size={13} /></LucideIconWrapper>
                 <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
                   Weight, Moisture & Rate Measurements
                 </h3>
@@ -375,7 +383,7 @@ export default function CreateWeighmentSlip() {
                   label="Gross Weight"
                   type="number"
                   required
-                  icon="fa-solid fa-scale-unbalanced"
+                  icon={<LucideIconWrapper size={16}><Scale size={16} /></LucideIconWrapper>}
                   suffix="kg"
                   value={form.gross}
                   onChange={set("gross")}
@@ -387,7 +395,7 @@ export default function CreateWeighmentSlip() {
                   label="Tare Weight"
                   type="number"
                   required
-                  icon="fa-solid fa-scale-balanced"
+                  icon={<LucideIconWrapper size={16}><Scale size={16} /></LucideIconWrapper>}
                   suffix="kg"
                   value={form.tare}
                   onChange={set("tare")}
@@ -398,7 +406,7 @@ export default function CreateWeighmentSlip() {
                 <FormField
                   label="Moisture Level"
                   type="number"
-                  icon="fa-solid fa-droplet"
+                  icon={<LucideIconWrapper size={16}><Droplets size={16} /></LucideIconWrapper>}
                   suffix="%"
                   value={form.moisture}
                   onChange={set("moisture")}
@@ -412,7 +420,7 @@ export default function CreateWeighmentSlip() {
                 <FormField
                   label="Allowed Moisture Baseline"
                   type="number"
-                  icon="fa-solid fa-shield-halved"
+                  icon={<LucideIconWrapper size={16}><Shield size={16} /></LucideIconWrapper>}
                   suffix="%"
                   value={form.allowedMoisture}
                   onChange={set("allowedMoisture")}
@@ -423,7 +431,7 @@ export default function CreateWeighmentSlip() {
                 <FormField
                   label="Purchase Rate"
                   type="number"
-                  icon="fa-solid fa-indian-rupee-sign"
+                  icon={<LucideIconWrapper size={16}><IndianRupee size={16} /></LucideIconWrapper>}
                   suffix="₹ / MT"
                   value={form.rate}
                   onChange={set("rate")}
@@ -442,7 +450,7 @@ export default function CreateWeighmentSlip() {
                 onClick={() => navigate("/weighment")}
                 style={{ padding: "8px 16px", fontSize: 12.5, display: "inline-flex", alignItems: "center", gap: 6 }}
               >
-                <i className="fa-solid fa-xmark" /> Cancel
+                <LucideIconWrapper size={16}><X size={16} /></LucideIconWrapper> Cancel
               </Button>
               <Button
                 type="submit"
@@ -461,11 +469,11 @@ export default function CreateWeighmentSlip() {
               >
                 {saving ? (
                   <>
-                    <i className="fa-solid fa-circle-notch spin" /> Saving…
+                    <LucideIconWrapper size={14}><Loader size={14} /></LucideIconWrapper> Saving…
                   </>
                 ) : (
                   <>
-                    <i className="fa-solid fa-check" /> Save Weighment Slip
+                    <LucideIconWrapper size={16}><Check size={16} /></LucideIconWrapper> Save Weighment Slip
                   </>
                 )}
               </Button>
@@ -487,7 +495,7 @@ export default function CreateWeighmentSlip() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
-              <i className="fa-solid fa-calculator" style={{ color: "var(--primary)", fontSize: 13 }} />
+              <LucideIconWrapper size={13}><Calculator size={13} /></LucideIconWrapper>
               <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>
                 Live Net Weight & Bill Breakdown
               </h4>
@@ -496,7 +504,7 @@ export default function CreateWeighmentSlip() {
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
                 <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-scale-unbalanced" style={{ fontSize: 11 }} /> Gross - Tare (Net Weight):
+                  <LucideIconWrapper size={11}><Scale size={11} /></LucideIconWrapper> Gross - Tare (Net Weight):
                 </span>
                 <span style={{ fontWeight: 700, color: "var(--ink)" }}>
                   {calc.netWeightMt.toFixed(3)} MT ({calc.beforeDeduction.toFixed(0)} kg)
@@ -527,7 +535,7 @@ export default function CreateWeighmentSlip() {
 
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
                 <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-droplet" style={{ fontSize: 11 }} /> Moisture Deduction ({calc.deductionPct.toFixed(1)}%):
+                  <LucideIconWrapper size={11}><Droplets size={11} /></LucideIconWrapper> Moisture Deduction ({calc.deductionPct.toFixed(1)}%):
                 </span>
                 <span style={{ fontWeight: 700, color: calc.over ? "#d97706" : "var(--ink)" }}>
                   - {calc.deductionMt.toFixed(3)} MT ({calc.deductionKg.toFixed(0)} kg)
@@ -536,7 +544,7 @@ export default function CreateWeighmentSlip() {
 
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
                 <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-scale-balanced" style={{ fontSize: 11 }} /> Actual Payable Weight:
+                  <LucideIconWrapper size={11}><Scale size={11} /></LucideIconWrapper> Actual Payable Weight:
                 </span>
                 <span style={{ fontWeight: 800, color: "var(--primary-deep)" }}>
                   {calc.actualWeightMt.toFixed(3)} MT
@@ -599,7 +607,7 @@ export default function CreateWeighmentSlip() {
                     e.currentTarget.style.background = "var(--canvas)";
                   }}
                 >
-                  <i className="fa-solid fa-print" style={{ color: "var(--primary)" }} /> Print Receipt Slip
+                  <LucideIconWrapper size={16}><Printer size={16} /></LucideIconWrapper> Print Receipt Slip
                 </button>
 
                 <button
@@ -628,7 +636,7 @@ export default function CreateWeighmentSlip() {
                     e.currentTarget.style.background = "#25D366";
                   }}
                 >
-                  <i className="fa-brands fa-whatsapp" style={{ fontSize: 13 }} /> Share WhatsApp
+                  <LucideIconWrapper size={13}><MessageCircle size={13} /></LucideIconWrapper> Share WhatsApp
                 </button>
               </div>
             </div>

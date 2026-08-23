@@ -80,7 +80,7 @@ export default function NewBuyerModal({ isOpen, onClose, onSaved }) {
         >
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
-              🏬 Register New Industrial Buyer / Client (जिसको माल बेचना है)
+              🏬 Register New Industrial Buyer / Client (   )
             </h3>
             <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
               Add a new Bio-Ethanol Plant, Power Plant, CBG Plant or Factory Consignee

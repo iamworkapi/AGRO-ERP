@@ -78,7 +78,7 @@ export default function CreateBiomassVendor() {
     <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 900, margin: "0 auto", width: "100%" }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="👤 Register New Raw Material Vendor (जहाँ से माल लेना है)"
+        title="👤 Register New Raw Material Vendor (    )"
         subtitle="Add a new biomass supply contractor, farmer aggregation collective, or FPO to the system"
       />
 

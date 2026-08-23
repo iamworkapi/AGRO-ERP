@@ -1,4 +1,14 @@
 import { useNavigate } from "react-router-dom";
+import { Scale, Tractor, Calculator, Boxes, Warehouse, Building2, Download, ChevronRight } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
 
 export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
   const navigate = useNavigate();
@@ -8,7 +18,7 @@ export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
         {
           label: "New Weighbridge Slip",
           subtitle: "Log Gross & Tare Weight",
-          icon: "fa-solid fa-scale-balanced",
+          Icon: Scale,
           gradient: "linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)",
           bgTint: "#EFF6FF",
           border: "#BFDBFE",
@@ -18,7 +28,7 @@ export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
         {
           label: "Sourcing Collection Entry",
           subtitle: "Farm-gate Inflow Record",
-          icon: "fa-solid fa-tractor",
+          Icon: Tractor,
           gradient: "linear-gradient(135deg, #065F46 0%, #10B981 100%)",
           bgTint: "#ECFDF5",
           border: "#A7F3D0",
@@ -28,7 +38,7 @@ export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
         {
           label: "Moisture & GRN Calculator",
           subtitle: "Lorry Deduction Testing",
-          icon: "fa-solid fa-calculator",
+          Icon: Calculator,
           gradient: "linear-gradient(135deg, #92400E 0%, #F59E0B 100%)",
           bgTint: "#FFFBEB",
           border: "#FDE68A",
@@ -38,7 +48,7 @@ export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
         {
           label: "Yard Stacking & Probes",
           subtitle: "Bale Storage & Temp",
-          icon: "fa-solid fa-boxes-stacked",
+          Icon: Boxes,
           gradient: "linear-gradient(135deg, #6B21A8 0%, #A855F7 100%)",
           bgTint: "#FAF5FF",
           border: "#E9D5FF",
@@ -50,7 +60,7 @@ export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
         {
           label: "Create Warehouse",
           subtitle: "New TCC / Storage Hub",
-          icon: "fa-solid fa-warehouse",
+          Icon: Warehouse,
           gradient: "linear-gradient(135deg, #065F46 0%, #10B981 100%)",
           bgTint: "#ECFDF5",
           border: "#A7F3D0",
@@ -60,7 +70,7 @@ export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
         {
           label: "New Weighbridge Slip",
           subtitle: "Inbound / Outbound Slip",
-          icon: "fa-solid fa-scale-balanced",
+          Icon: Scale,
           gradient: "linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)",
           bgTint: "#EFF6FF",
           border: "#BFDBFE",
@@ -70,7 +80,7 @@ export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
         {
           label: "Register New Buyer",
           subtitle: "Industrial Off-Taker",
-          icon: "fa-solid fa-building-circle-check",
+          Icon: Building2,
           gradient: "linear-gradient(135deg, #7E22CE 0%, #C084FC 100%)",
           bgTint: "#FAF5FF",
           border: "#E9D5FF",
@@ -80,7 +90,7 @@ export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
         {
           label: "Export MIS Reports",
           subtitle: "PDF / Excel Audit Sheets",
-          icon: "fa-solid fa-file-arrow-down",
+          Icon: Download,
           gradient: "linear-gradient(135deg, #9A3412 0%, #EA580C 100%)",
           bgTint: "#FFF7ED",
           border: "#FFEDD5",
@@ -143,7 +153,9 @@ export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
               flexShrink: 0,
             }}
           >
-            <i className={act.icon} />
+            <LucideIconWrapper size={16}>
+              <act.Icon size={16} />
+            </LucideIconWrapper>
           </div>
 
           <div style={{ minWidth: 0, flex: 1 }}>
@@ -161,10 +173,9 @@ export default function QuickActionDeck({ isSupervisor, onOpenNewSlipModal }) {
               }}
             >
               <span>{act.label}</span>
-              <i
-                className="fa-solid fa-chevron-right"
-                style={{ fontSize: 10, color: "var(--muted)", opacity: 0.7 }}
-              />
+              <LucideIconWrapper size={10}>
+                <ChevronRight size={10} />
+              </LucideIconWrapper>
             </div>
             <div
               style={{

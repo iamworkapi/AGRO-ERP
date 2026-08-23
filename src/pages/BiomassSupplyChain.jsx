@@ -1,4 +1,12 @@
 import { useMemo, useState } from "react";
+import {  Settings, Truck, Warehouse, Wheat , FileText } from "lucide-react";
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
@@ -122,19 +130,18 @@ export default function BiomassSupplyChain() {
     setNewVendorContact("");
   }
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="🌾 Biomass Supply Chain Management (पराली एवं फसल अवशेष प्रबंधन)"
-        subtitle="Complete 4-Stage Tracking — Collection (ग्राम संग्रह), Processing (धर्मकांटा & बेलिंग), Storage (स्टैकिंग), & Dispatch (एथेनॉल/पावर प्लांट)"
+        title="🌾 Biomass Supply Chain Management "
+        subtitle="Complete 4-Stage Tracking — Collection , Processing (&), Storage (), & Dispatch (/)"
       />
 
       {/* TOP KPI METRICS BAR */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-wheat-awn" />
+            <LucideIconWrapper size={16}><Wheat size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Collected & Baled</p>
@@ -145,7 +152,7 @@ export default function BiomassSupplyChain() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-warehouse" />
+            <LucideIconWrapper size={16}><Warehouse size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Active Yard Stock (Unnao TCC)</p>
@@ -156,7 +163,7 @@ export default function BiomassSupplyChain() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#DBEAFE", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-truck-fast" />
+            <LucideIconWrapper size={16}><Truck size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Factory Dispatched</p>
@@ -167,7 +174,7 @@ export default function BiomassSupplyChain() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#F3E8FF", color: "#7E22CE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-file-invoice-dollar" />
+            <LucideIconWrapper size={16}><FileText size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Dispatch Commercial Revenue</p>
@@ -194,7 +201,7 @@ export default function BiomassSupplyChain() {
               cursor: "pointer",
             }}
           >
-            🚜 Stage 1: Collection (ग्राम संग्रह)
+            🚜 Stage 1: Collection 
           </button>
 
           <button
@@ -210,7 +217,7 @@ export default function BiomassSupplyChain() {
               cursor: "pointer",
             }}
           >
-            ⚖️ Stage 2: Processing (धर्मकांटा & बेलिंग)
+            ⚖️ Stage 2: Processing (&)
           </button>
 
           <button
@@ -226,7 +233,7 @@ export default function BiomassSupplyChain() {
               cursor: "pointer",
             }}
           >
-            🏢 Stage 3: Storage (सुरक्षित भंडारण)
+            🏢 Stage 3: Storage 
           </button>
 
           <button
@@ -242,7 +249,7 @@ export default function BiomassSupplyChain() {
               cursor: "pointer",
             }}
           >
-            🚚 Stage 4: Dispatch (आगे फ़ैक्ट्री भेजना)
+            🚚 Stage 4: Dispatch 
           </button>
         </div>
 
@@ -261,10 +268,10 @@ export default function BiomassSupplyChain() {
               color: "var(--ink)",
             }}
           >
-            <option value="ALL">All Crop Residues (सभी फसल अवशेष)</option>
-            <option value="paddy_straw">Paddy Straw (धान की पराली)</option>
-            <option value="wheat_straw">Wheat Straw (गेहूं का भूसा)</option>
-            <option value="maize_stalk">Maize Stalk (मक्का का डंठल)</option>
+            <option value="ALL">All Crop Residues </option>
+            <option value="paddy_straw">Paddy Straw </option>
+            <option value="wheat_straw">Wheat Straw </option>
+            <option value="maize_stalk">Maize Stalk </option>
           </select>
 
           {/* Quick Registration Modals Trigger Bar */}
@@ -338,8 +345,7 @@ export default function BiomassSupplyChain() {
       </div>
 
       {/* STAGE 1: COLLECTION (IMAGE 3 SPEC: LEFT TABLE & RIGHT SIDE VENDOR SECTION) */}
-      {activeTab === "stage1" && (
-        <div style={{ display: "grid", gridTemplateColumns: "2.2fr 1fr", gap: 16 }}>
+      {activeTab === "stage1" && (<div style={{ display: "grid", gridTemplateColumns: "2.2fr 1fr", gap: 16 }}>
           {/* Left Table: Collection Entries */}
           <div>
             <DataTable
@@ -366,7 +372,7 @@ export default function BiomassSupplyChain() {
             <div style={{ background: "#FFFFFF", border: "2px solid #0F172A", borderRadius: 12, padding: 14, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #E2E8F0", paddingBottom: 8, marginBottom: 10 }}>
                 <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", color: "#0F172A" }}>
-                  👤 Raw Material Vendor (जहाँ से माल लिया जा रहा है)
+                  👤 Raw Material Vendor 
                 </span>
                 <button
                   onClick={() => setShowAddVendorForm(!showAddVendorForm)}
@@ -376,8 +382,7 @@ export default function BiomassSupplyChain() {
                 </button>
               </div>
 
-              {!showAddVendorForm ? (
-                <>
+              {!showAddVendorForm ? (<>
                   {/* Select Active Vendor Dropdown */}
                   <div style={{ marginBottom: 10 }}>
                     <label style={{ fontSize: 10.5, fontWeight: 700, color: "#64748B", display: "block", marginBottom: 3 }}>Switch Active Supply Vendor:</label>
@@ -386,16 +391,13 @@ export default function BiomassSupplyChain() {
                       onChange={(e) => setActiveVendorId(e.target.value)}
                       style={{ width: "100%", padding: "6px 8px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid #94A3B8" }}
                     >
-                      {vendorsList.map((v) => (
-                        <option key={v.id} value={v.id}>
+                      {vendorsList.map((v) => (<option key={v.id} value={v.id}>
                           {v.companyName} ({v.vendorCode})
-                        </option>
-                      ))}
+                        </option>))}
                     </select>
                   </div>
 
-                  {currentVendor && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12 }}>
+                  {currentVendor && (<div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12 }}>
                       <div style={{ background: "#F8FAFC", padding: 10, borderRadius: 8, border: "1px solid #E2E8F0" }}>
                         <div style={{ fontSize: 14, fontWeight: 900, color: "#0F172A" }}>{currentVendor.companyName}</div>
                         <div style={{ fontSize: 11, fontWeight: 700, color: "#2563EB", marginTop: 2 }}>Vendor Code: {currentVendor.vendorCode} | GST: {currentVendor.gstin}</div>
@@ -434,11 +436,8 @@ export default function BiomassSupplyChain() {
                       >
                         👥 Open Full Vendor Master & Directory →
                       </button>
-                    </div>
-                  )}
-                </>
-              ) : (
-                /* Dynamic Add Vendor Form */
+                    </div>)}
+                </>) : (/* Dynamic Add Vendor Form */
                 <form onSubmit={handleAddVendorSubmit} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   <h4 style={{ margin: 0, fontSize: 12.5, fontWeight: 800, color: "#1E40AF" }}>Register New Biomass Vendor</h4>
                   <input type="text" required placeholder="Company Name *" value={newVendorCompany} onChange={(e) => setNewVendorCompany(e.target.value)} style={{ width: "100%", padding: 6, fontSize: 11.5, borderRadius: 4, border: "1px solid #94A3B8" }} />
@@ -451,16 +450,13 @@ export default function BiomassSupplyChain() {
                   <button type="submit" style={{ padding: "6px", fontSize: 11.5, fontWeight: 700, background: "#2563EB", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>
                     💾 Save Vendor Details
                   </button>
-                </form>
-              )}
+                </form>)}
             </div>
           </div>
-        </div>
-      )}
+        </div>)}
 
       {/* STAGE 2: PROCESSING (IMAGE 2 FORMULA & BALING LOG) */}
-      {activeTab === "stage2" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {activeTab === "stage2" && (<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {/* IMAGE 2 LIVE GRN FORMULA CALCULATOR CARD */}
           <div style={{ background: "#F8FAFC", border: "2px solid #0F172A", borderRadius: 12, padding: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
@@ -501,20 +497,16 @@ export default function BiomassSupplyChain() {
             </div>
 
             <div style={{ background: liveGrnResult.isRejected ? "#FEE2E2" : "#ECFDF5", border: liveGrnResult.isRejected ? "1.5px solid #EF4444" : "1.5px solid #10B981", borderRadius: 8, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              {liveGrnResult.isRejected ? (
-                <div style={{ color: "#991B1B", fontWeight: 800, fontSize: 13 }}>
+              {liveGrnResult.isRejected ? (<div style={{ color: "#991B1B", fontWeight: 800, fontSize: 13 }}>
                   🚨 {liveGrnResult.rejectionReason}
-                </div>
-              ) : (
-                <div>
+                </div>) : (<div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: "#065F46" }}>
                     Calculation: {calcNetWt} MT × (100% - {calcActualMoist}% - {calcActualAsh}%) / (100% - {calcAgreedMoist}% - {calcAgreedAsh}%) = <strong>{liveGrnResult.invoiceWeightMt} MT</strong>
                   </div>
                   <div style={{ fontSize: 14, fontWeight: 900, color: "#047857", marginTop: 2 }}>
                     Adjusted Weight Considered for Invoice Claim: {liveGrnResult.invoiceWeightMt} MT (Deduction: {liveGrnResult.deductionMt} MT)
                   </div>
-                </div>
-              )}
+                </div>)}
             </div>
           </div>
 
@@ -538,12 +530,10 @@ export default function BiomassSupplyChain() {
               { key: "baleCountProduced", label: "BALES COUNT", render: (r) => <span style={{ fontWeight: 800 }}>{r.baleCountProduced} Bales</span> },
             ]}
           />
-        </div>
-      )}
+        </div>)}
 
       {/* STAGE 3: STORAGE (IMAGE 3 SPEC: LEFT WAREHOUSE SECTION & RIGHT STACK GRID) */}
-      {activeTab === "stage3" && (
-        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 2fr", gap: 16 }}>
+      {activeTab === "stage3" && (<div style={{ display: "grid", gridTemplateColumns: "1.2fr 2fr", gap: 16 }}>
           {/* LEFT SIDE WAREHOUSE DETAILS PANEL (Image 3 Specs) */}
           <div style={{ background: "#FFFFFF", border: "2px solid #0F172A", borderRadius: 12, padding: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
             <div style={{ borderBottom: "2px solid #0F172A", paddingBottom: 8, marginBottom: 12 }}>
@@ -580,12 +570,12 @@ export default function BiomassSupplyChain() {
               {/* ADMIN, WAREHOUSE ADMIN & SUPERVISOR HIERARCHY PANEL */}
               <div style={{ marginTop: 10, background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 8, padding: 10 }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: "#1E40AF", display: "flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-user-gear" /> Governance, Monitoring & Operations Hierarchy
+                  <LucideIconWrapper size={16}><Settings size={16} /></LucideIconWrapper> Governance, Monitoring & Operations Hierarchy
                 </div>
                 <div style={{ fontSize: 10.5, color: "#1E3A8A", marginTop: 4, lineHeight: 1.4 }}>
                   • <strong>Super Admin / Admin:</strong> Creates new warehouses/TCC hubs & assigns Admins/Supervisors.<br />
-                  • <strong>Warehouse Admin (मॉनिटर करने का काम):</strong> Monitors all daily operations, weighment logs, GRN deductions, stock levels & factory dispatches.<br />
-                  • <strong>Supervisor (चलाने का काम):</strong> Operates daily ground work — Collection gate entries, Weighbridge weighment, Baler compressing, Stack audits & Truck dispatches.
+                  • <strong>Warehouse Admin :</strong> Monitors all daily operations, weighment logs, GRN deductions, stock levels & factory dispatches.<br />
+                  • <strong>Supervisor :</strong> Operates daily ground work — Collection gate entries, Weighbridge weighment, Baler compressing, Stack audits & Truck dispatches.
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
                   <button
@@ -651,17 +641,15 @@ export default function BiomassSupplyChain() {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </div>)}
 
       {/* STAGE 4: FACTORY DISPATCH (IMAGE 1 SPEC: PRE-SAVED RELIANCE BUYER & ADD ANOTHER BUYER INPUT FIELDS) */}
-      {activeTab === "stage4" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {activeTab === "stage4" && (<div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {/* PRE-SAVED BUYERS CARDS (Image 1 Specs: RELIANCE INDUSTRIES LIMITED) */}
           <div style={{ background: "#FFFFFF", border: "2px solid #0F172A", borderRadius: 12, padding: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: "#0F172A", textTransform: "uppercase" }}>
-                🏬 Pre-Saved Industrial Buyers (जिस फ़ैक्ट्री को माल जाता है)
+                🏬 Pre-Saved Industrial Buyers 
               </h3>
               <Button onClick={() => setIsDispatchModalOpen(true)} style={{ padding: "6px 12px", fontSize: 12, fontWeight: 700 }}>
                 ➕ Create Dispatch Gate Pass
@@ -669,15 +657,13 @@ export default function BiomassSupplyChain() {
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-              {buyersList.map((b) => (
-                <div key={b.id} style={{ background: "#F8FAFC", border: "1.5px solid #CBD5E1", borderRadius: 10, padding: 14 }}>
+              {buyersList.map((b) => (<div key={b.id} style={{ background: "#F8FAFC", border: "1.5px solid #CBD5E1", borderRadius: 10, padding: 14 }}>
                   <div style={{ fontSize: 10.5, fontWeight: 800, color: "#64748B", textTransform: "uppercase" }}>Bill To / Consignee Details:-</div>
                   <div style={{ fontSize: 15, fontWeight: 900, color: "#0F172A", marginTop: 2 }}>{b.name}</div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: "#2563EB", marginTop: 2 }}>{b.division}</div>
                   <div style={{ fontSize: 11, color: "#334155", marginTop: 4, textTransform: "uppercase" }}>{b.address}</div>
                   <div style={{ fontSize: 12, fontWeight: 900, color: "#059669", marginTop: 6 }}>GSTIN: {b.gstin}</div>
-                </div>
-              ))}
+                </div>))}
             </div>
           </div>
 
@@ -699,19 +685,16 @@ export default function BiomassSupplyChain() {
               {
                 key: "actions",
                 label: "ACTIONS",
-                render: (r) => (
-                  <button
+                render: (r) => (<button
                     onClick={() => setSelectedGatePassForPrint(r)}
                     style={{ padding: "4px 10px", fontSize: 11, fontWeight: 700, background: "#0F172A", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}
                   >
                     🖨️ View & Print Pass
-                  </button>
-                ),
+                  </button>),
               },
             ]}
           />
-        </div>
-      )}
+        </div>)}
 
       {/* MODALS */}
       <NewBiomassCollectionModal
@@ -748,6 +731,5 @@ export default function BiomassSupplyChain() {
         onClose={() => setIsNewWarehouseModalOpen(false)}
         onSaved={() => toast.success("Warehouse added! You can also manage personnel in Admin Management.")}
       />
-    </div>
-  );
+    </div>);
 }

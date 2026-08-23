@@ -1,15 +1,31 @@
 import { useCallback, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { UserCheck, UserX, Users, UserPlus, Phone, Mail, Calendar, Briefcase, Warehouse as WarehouseIcon, Plus } from "lucide-react";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
 import Badge from "../components/common/Badge";
 import Avatar from "../components/common/Avatar";
 import Button from "../components/common/Button";
 import AsyncState from "../components/common/AsyncState";
+import {
+  StatCard,
+  SectionHeader,
+  QuickAction,
+  StaggerContainer,
+} from "../components/design-system/index";
 import { useEmployees } from "../features/employees/useEmployees";
 import { useWarehouses } from "../features/warehouses/useWarehouses";
 import { useAuth } from "../hooks/useAuth";
 import { toast } from "../utils/toast";
+
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 
 function employeeCell(employee, index) {
   const initials = employee.name
@@ -31,8 +47,7 @@ function employeeCell(employee, index) {
         <span style={{ fontWeight: 700, color: "var(--ink)", fontSize: 13 }}>{employee.name}</span>
         {employee.employeeCode && (
           <span style={{ fontSize: 11, color: "var(--primary-deep)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-            <i className="fa-solid fa-id-card" style={{ fontSize: 10 }} />
-            {employee.employeeCode}
+            ID: {employee.employeeCode}
           </span>
         )}
       </div>
@@ -40,27 +55,24 @@ function employeeCell(employee, index) {
   );
 }
 
+const slideUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] } }),
+};
+
 export default function Employees() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isSupervisor = user?.roleKey === "supervisor" || user?.role === "Supervisor";
 
-  // GET /warehouses is already scoped server-side to the caller's own
-  // warehouse for anyone below Super Admin - real, ID-based identity
-  // instead of a hardcoded name guess.
   const { warehouses: ownScopedWarehouses } = useWarehouses();
   const myWarehouse = isSupervisor ? ownScopedWarehouses[0] : null;
   const assignedHub = myWarehouse?.name || "your warehouse";
 
   const { employees, status, error, deactivateEmployee } = useEmployees();
   const [busyId, setBusyId] = useState(null);
-  const [filterTab, setFilterTab] = useState("all"); // "all" | "Active" | "On Leave" | "Inactive"
+  const [filterTab, setFilterTab] = useState("all");
 
-  // GET /employees is already scoped server-side to the caller's own
-  // warehouse for a Supervisor/Warehouse Admin (see employee.service.js
-  // listEmployees) - no client-side re-filtering needed, and re-filtering
-  // by name here previously hid the roster entirely whenever the name
-  // didn't match the hardcoded fallback above.
   const scopedEmployees = employees;
 
   const { activeCount, onLeaveCount, inactiveCount, activePct, onLeavePct, inactivePct } = useMemo(() => {
@@ -108,8 +120,43 @@ export default function Employees() {
     [deactivateEmployee]
   );
 
+  const kpiCards = [
+    {
+      label: "Active Staff",
+      value: `${activeCount} Staff`,
+      trend: "Verified Active Duty",
+      icon: <LucideIconWrapper><UserCheck size={16} /></LucideIconWrapper>,
+      color: "#10B981",
+      badge: `${activePct}% Roster`,
+    },
+    {
+      label: "On Leave",
+      value: `${onLeaveCount} Staff`,
+      trend: "Sanctioned Leave",
+      icon: <LucideIconWrapper size={16} />, // placeholder
+      color: "#F59E0B",
+      badge: `${onLeavePct}% Off-Duty`,
+    },
+    {
+      label: "Inactive Staff",
+      value: `${inactiveCount} Staff`,
+      trend: "Deactivated Accounts",
+      icon: <LucideIconWrapper><UserX size={16} /></LucideIconWrapper>,
+      color: "#EF4444",
+      badge: `${inactivePct}% Off-Roster`,
+    },
+    {
+      label: "Total Roster",
+      value: `${scopedEmployees.length}`,
+      trend: "Registered Personnel",
+      icon: <LucideIconWrapper><Users size={16} /></LucideIconWrapper>,
+      color: "#3B82F6",
+      badge: "100% Total",
+    },
+  ];
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <motion.div style={{ display: "flex", flexDirection: "column", gap: 14 }} initial="hidden" animate="visible">
       <PageHeader
         title={isSupervisor ? `Employee Directory — ${assignedHub}` : "Employee Directory"}
         subtitle={
@@ -119,230 +166,71 @@ export default function Employees() {
         }
       />
 
-      <AsyncState status={status} error={error} loadingLabel="Loading employee directory…" />
+      <AsyncState status={status} error={error} loadingLabel="Loading employee directory..." />
 
-      {/* HIGH-GLOW EXECUTIVE 4 STAT METRICS CARDS (static - filtering happens via the tab bar below) */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="responsive-grid-2">
-        
-        {/* CARD 1: ACTIVE ROSTER */}
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid rgba(16,185,129,0.2)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: "0 6px 20px -2px rgba(0,0,0,0.04)",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#10B981", boxShadow: "0 2px 10px rgba(16, 185, 129, 0.5)" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
-              Active Staff
-            </span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#D1FAE5", color: "#059669", border: "1px solid rgba(16,185,129,0.3)" }}>
-              {activePct}% Active Roster
-            </span>
-          </div>
+      {/* KPI STAT CARDS */}
+      <motion.div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
+        <StaggerContainer>
+          {kpiCards.map((cfg) => (
+            <StatCard key={cfg.label} {...cfg} />
+          ))}
+        </StaggerContainer>
+      </motion.div>
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(16,185,129,0.2)" }}>{activeCount} Staff</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Verified Active Duty</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-user-check" />
-            </div>
-          </div>
-
-          <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 12, overflow: "hidden" }}>
-            <div style={{ width: `${activePct}%`, height: "100%", background: "#10B981", borderRadius: 2, boxShadow: "0 0 8px rgba(16,185,129,0.8)", transition: "width 0.4s ease" }} />
-          </div>
-        </div>
-
-        {/* CARD 2: ON LEAVE */}
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid rgba(245,158,11,0.2)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: "0 6px 20px -2px rgba(0,0,0,0.04)",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#F59E0B", boxShadow: "0 2px 10px rgba(245, 158, 11, 0.5)" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
-              On Leave
-            </span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#FEF3C7", color: "#D97706", border: "1px solid rgba(245,158,11,0.3)" }}>
-              {onLeavePct}% Off-Duty
-            </span>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(245,158,11,0.2)" }}>{onLeaveCount} Staff</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Sanctioned Leave</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-umbrella-beach" />
-            </div>
-          </div>
-
-          <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 12, overflow: "hidden" }}>
-            <div style={{ width: `${onLeavePct}%`, height: "100%", background: "#F59E0B", borderRadius: 2, boxShadow: "0 0 8px rgba(245,158,11,0.8)", transition: "width 0.4s ease" }} />
-          </div>
-        </div>
-
-        {/* CARD 3: INACTIVE / OFF-BOARDED */}
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid rgba(239,68,68,0.2)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: "0 6px 20px -2px rgba(0,0,0,0.04)",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#EF4444", boxShadow: "0 2px 10px rgba(239, 68, 68, 0.5)" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
-              Inactive Staff
-            </span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#FEE2E2", color: "#EF4444", border: "1px solid rgba(239,68,68,0.3)" }}>
-              {inactivePct}% Off-Roster
-            </span>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(239,68,68,0.2)" }}>{inactiveCount} Staff</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Deactivated Accounts</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(239,68,68,0.3)", boxShadow: "0 0 14px rgba(239,68,68,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-user-xmark" />
-            </div>
-          </div>
-
-          <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 12, overflow: "hidden" }}>
-            <div style={{ width: `${inactivePct}%`, height: "100%", background: "#EF4444", borderRadius: 2, boxShadow: "0 0 8px rgba(239,68,68,0.8)", transition: "width 0.4s ease" }} />
-          </div>
-        </div>
-
-        {/* CARD 4: TOTAL ROSTER */}
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid rgba(59,130,246,0.2)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: "0 6px 20px -2px rgba(0,0,0,0.04)",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "linear-gradient(90deg, #1D4ED8 0%, #3B82F6 100%)", boxShadow: "0 2px 10px rgba(59, 130, 246, 0.5)" }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
-              Total Roster
-            </span>
-            <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 7px", borderRadius: 10, background: "#EFF6FF", color: "#2563EB", border: "1px solid rgba(59,130,246,0.3)" }}>
-              100% Total
-            </span>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: "var(--ink)", textShadow: "0 2px 10px rgba(59,130,246,0.2)" }}>{scopedEmployees.length}</div>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Registered Personnel</div>
-            </div>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-users" />
-            </div>
-          </div>
-
-          <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 12, overflow: "hidden" }}>
-            <div style={{ width: "100%", height: "100%", background: "linear-gradient(90deg, #1D4ED8 0%, #3B82F6 100%)", borderRadius: 2, boxShadow: "0 0 8px rgba(59,130,246,0.8)" }} />
-          </div>
-        </div>
-
-      </div>
-
-      {/* FILTER TABS & DATATABLE */}
-      <div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 10 }}>
-          <div className="role-picker-container" style={{ width: "auto", marginBottom: 0, background: "var(--surface)", border: "1px solid var(--line)", padding: 3, borderRadius: 10 }}>
-            <button
-              type="button"
-              className={`role-picker-option ${filterTab === "all" ? "active" : ""}`}
-              onClick={() => setFilterTab("all")}
-              style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
+      {/* DATA TABLE */}
+      <Card hover={false}>
+        <SectionHeader
+          title="Employee Roster"
+          subtitle={`${scopedEmployees.length} registered personnel`}
+          action={
+            <QuickAction
+              icon={<Plus size={13} />}
+              label="Add Employee"
+              onClick={() => navigate("/employees/new")}
+              color="var(--primary)"
+            />
+          }
+        />
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+          {["all", "Active", "On Leave", "Inactive"].map((tab) => (
+            <motion.button
+              key={tab}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setFilterTab(tab)}
+              style={{
+                padding: "6px 14px",
+                fontSize: 12,
+                fontWeight: 700,
+                borderRadius: 8,
+                border: "none",
+                background: filterTab === tab ? "var(--primary)" : "var(--canvas)",
+                color: filterTab === tab ? "#fff" : "var(--ink)",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                boxShadow: filterTab === tab ? "0 2px 8px var(--primary-light)" : "none",
+                transition: "all 0.2s ease",
+              }}
             >
-              <i className="fa-solid fa-list-check" style={{ fontSize: 11 }} /> All Staff ({scopedEmployees.length})
-            </button>
-            <button
-              type="button"
-              className={`role-picker-option ${filterTab === "Active" ? "active" : ""}`}
-              onClick={() => setFilterTab("Active")}
-              style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
-            >
-              <i className="fa-solid fa-user-check" style={{ fontSize: 11 }} /> Active ({activeCount})
-            </button>
-            <button
-              type="button"
-              className={`role-picker-option ${filterTab === "On Leave" ? "active" : ""}`}
-              onClick={() => setFilterTab("On Leave")}
-              style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
-            >
-              <i className="fa-solid fa-umbrella-beach" style={{ fontSize: 11 }} /> On Leave ({onLeaveCount})
-            </button>
-            <button
-              type="button"
-              className={`role-picker-option ${filterTab === "Inactive" ? "active" : ""}`}
-              onClick={() => setFilterTab("Inactive")}
-              style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
-            >
-              <i className="fa-solid fa-user-xmark" style={{ fontSize: 11 }} /> Inactive ({inactiveCount})
-            </button>
-          </div>
+              {tab === "Active" && <UserCheck size={12} />}
+              {tab === "On Leave" && <Calendar size={12} />}
+              {tab === "Inactive" && <UserX size={12} />}
+              {tab === "all" && <Users size={12} />}
+              {tab === "all" ? `All (${scopedEmployees.length})` : `${tab} (${filterTab === "Active" ? activeCount : filterTab === "On Leave" ? onLeaveCount : inactiveCount})`}
+            </motion.button>
+          ))}
         </div>
 
         <DataTable
-          title={filterTab === "all" ? "Employee Directory" : `Employee Directory (${filterTab.toUpperCase()})`}
-          right={
-            <Button
-              className="btn-glow"
-              onClick={() => navigate("/employees/new")}
-              style={{
-                padding: "7px 14px",
-                fontSize: 12.5,
-                fontWeight: 700,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                background: "var(--gradient-primary)",
-                boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)",
-              }}
-            >
-              <i className="fa-solid fa-user-plus" /> Add Employee
-            </Button>
-          }
-          searchable
-          searchPlaceholder="Search employees by name, designation, phone, warehouse..."
           keyField="id"
           rows={filteredEmployees}
-          emptyMessage="No employees found matching the selected filter."
+          emptyTitle="No employees found"
+          emptyDesc="Try adjusting your filters or add a new employee."
           columns={[
             {
               key: "name",
               label: "Employee",
-              emphasize: true,
               render: (e, idx) => employeeCell(e, idx),
             },
             {
@@ -350,7 +238,7 @@ export default function Employees() {
               label: "Designation",
               render: (e) => (
                 <span style={{ fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-briefcase" style={{ color: "var(--primary)", fontSize: 11 }} />
+                  <Briefcase size={12} style={{ color: "var(--muted)", flexShrink: 0 }} />
                   {e.designation || e.role || "Staff Member"}
                 </span>
               ),
@@ -360,7 +248,7 @@ export default function Employees() {
               label: "Warehouse Hub",
               render: (e) => (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontWeight: 600, color: "var(--primary-deep)" }}>
-                  <i className="fa-solid fa-warehouse" style={{ fontSize: 11 }} />
+                  <WarehouseIcon size={12} style={{ flexShrink: 0 }} />
                   {e.warehouseId ? (
                     <Link to={`/warehouses/detail?id=${e.warehouseId}`} style={{ color: "var(--primary-deep)", textDecoration: "none" }}>
                       {e.warehouse}
@@ -373,19 +261,18 @@ export default function Employees() {
             },
             {
               key: "contact",
-              label: "Contact Channels",
-              sortable: false,
+              label: "Contact",
               render: (e) => (
                 <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 12 }}>
                   {e.phone && (
                     <a href={`tel:${e.phone}`} style={{ color: "var(--ink)", textDecoration: "none", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-phone" style={{ fontSize: 10, color: "var(--muted)" }} />
+                      <Phone size={10} style={{ color: "var(--muted)", flexShrink: 0 }} />
                       {e.phone}
                     </a>
                   )}
                   {e.email && (
                     <a href={`mailto:${e.email}`} style={{ color: "var(--muted)", textDecoration: "none", fontSize: 11.5, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-envelope" style={{ fontSize: 10, color: "var(--muted)" }} />
+                      <Mail size={10} style={{ color: "var(--muted)", flexShrink: 0 }} />
                       {e.email}
                     </a>
                   )}
@@ -397,7 +284,7 @@ export default function Employees() {
               label: "Joined",
               render: (e) => (
                 <span style={{ fontSize: 12, color: "var(--ink-secondary)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-calendar-day" style={{ fontSize: 10, color: "var(--muted)" }} />
+                  <Calendar size={11} style={{ color: "var(--muted)", flexShrink: 0 }} />
                   {e.dateOfJoining || "Recently"}
                 </span>
               ),
@@ -413,35 +300,59 @@ export default function Employees() {
             },
             {
               key: "actions",
-              label: "Action",
-              sortable: false,
+              label: "Actions",
               render: (e) => (
                 <div style={{ display: "flex", gap: 6 }}>
-                  <Button
-                    variant="secondary"
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => navigate(`/employees/${e.id}/edit`)}
-                    style={{ padding: "4px 10px", fontSize: 11.5, fontWeight: 600 }}
+                    style={{
+                      padding: "4px 10px",
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      borderRadius: 6,
+                      border: "1px solid var(--line)",
+                      background: "var(--canvas)",
+                      color: "var(--ink)",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
                   >
-                    <i className="fa-solid fa-pen" style={{ marginRight: 4 }} /> Edit
-                  </Button>
+                    <UserCheck size={12} /> Edit
+                  </motion.button>
                   {e.status !== "Inactive" ? (
-                    <Button
-                      variant="secondary"
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
                       disabled={busyId === e.id}
                       onClick={() => handleDeactivate(e)}
-                      style={{ padding: "4px 10px", fontSize: 11.5, fontWeight: 600, color: "#EF4444", borderColor: "#FEE2E2", background: "#FEF2F2" }}
+                      style={{
+                        padding: "4px 10px",
+                        fontSize: 11.5,
+                        fontWeight: 700,
+                        borderRadius: 6,
+                        border: "1px solid #FEE2E2",
+                        background: "#FEF2F2",
+                        color: "#EF4444",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                        opacity: busyId === e.id ? 0.5 : 1,
+                      }}
                     >
-                      <i className="fa-solid fa-user-xmark" style={{ marginRight: 4 }} /> Deactivate
-                    </Button>
+                      <UserX size={12} /> Deactivate
+                    </motion.button>
                   ) : (
-                    <span style={{ fontSize: 11.5, color: "var(--muted)", fontStyle: "italic", alignSelf: "center" }}>Off-Roster</span>
+                    <span style={{ fontSize: 11.5, color: "var(--muted)", fontStyle: "italic" }}>Off-Roster</span>
                   )}
                 </div>
               ),
             },
           ]}
         />
-      </div>
-    </div>
+      </Card>
+    </motion.div>
   );
 }

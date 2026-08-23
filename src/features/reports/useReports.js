@@ -1,22 +1,37 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReportStatsThunk, fetchAvailableReportsThunk } from "./reportsSlice";
+import {
+  fetchDashboardStats,
+  resetError,
+  selectDashboardStats,
+  selectReportsError,
+  selectStockStatus,
+  selectAttendanceStatus,
+  selectMoistureStatus,
+  selectFinancialStatus,
+  selectOutstandingStatus,
+} from "./reportsSlice";
 
 export function useReports() {
   const dispatch = useDispatch();
-  const state = useSelector((s) => s.reports);
+  const stats = useSelector(selectDashboardStats);
+  const error = useSelector(selectReportsError);
 
   useEffect(() => {
-    if (state.status === "idle") {
-      dispatch(fetchReportStatsThunk());
-      dispatch(fetchAvailableReportsThunk());
-    }
-  }, [state.status, dispatch]);
+    dispatch(fetchDashboardStats());
+  }, [dispatch]);
 
-  return {
-    stats: state.stats,
-    availableReports: state.availableReports,
-    status: state.status,
-    error: state.error,
-  };
+  const statuses = [
+    useSelector(selectStockStatus),
+    useSelector(selectAttendanceStatus),
+    useSelector(selectMoistureStatus),
+    useSelector(selectFinancialStatus),
+    useSelector(selectOutstandingStatus),
+  ];
+
+  const status = statuses.some((s) => s === "loading") ? "loading"
+    : statuses.some((s) => s === "failed") ? "failed"
+    : "idle";
+
+  return { stats, status, error, resetError: () => dispatch(resetError()) };
 }

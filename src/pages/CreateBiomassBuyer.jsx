@@ -71,7 +71,7 @@ export default function CreateBiomassBuyer() {
     <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 900, margin: "0 auto", width: "100%" }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="🏬 Register New Industrial Buyer / Client (जिसको माल बेचना है)"
+        title="🏬 Register New Industrial Buyer / Client (   )"
         subtitle="Add a new Bio-Ethanol Plant, Power Plant, CBG Plant, or Factory Consignee to the off-take system"
       />
 

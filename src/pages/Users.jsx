@@ -1,4 +1,13 @@
 import { useState } from "react";
+import { Check, X, Calendar, Warehouse, Phone, Mail, UserPlus, Shield, Clock, CheckCircle, Users as UsersIcon, Lock, User, Settings, UserX, UserCheck } from "lucide-react";
+
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { Link } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
@@ -185,7 +194,7 @@ export default function Users() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Org-Wide Directory</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(0,184,107,0.3)", boxShadow: "0 0 14px rgba(0,184,107,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-users" />
+              <LucideIconWrapper size={16}><UsersIcon size={16} /></LucideIconWrapper>
             </div>
           </div>
 
@@ -225,7 +234,7 @@ export default function Users() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Enabled Accounts</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-circle-check" />
+              <LucideIconWrapper size={16}><CheckCircle size={16} /></LucideIconWrapper>
             </div>
           </div>
 
@@ -265,7 +274,7 @@ export default function Users() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Awaiting Action</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-user-clock" />
+              <LucideIconWrapper size={16}><Clock size={16} /></LucideIconWrapper>
             </div>
           </div>
 
@@ -305,7 +314,7 @@ export default function Users() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Hub Managers</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-user-shield" />
+              <LucideIconWrapper size={16}><Shield size={16} /></LucideIconWrapper>
             </div>
           </div>
 
@@ -326,7 +335,7 @@ export default function Users() {
               onClick={() => setFilterTab("all")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-users" style={{ fontSize: 11 }} /> All Users ({profiles.length})
+              <LucideIconWrapper size={11}><UsersIcon size={11} /></LucideIconWrapper> All Users ({profiles.length})
             </button>
             <button
               type="button"
@@ -334,7 +343,7 @@ export default function Users() {
               onClick={() => setFilterTab("active")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-circle-check" style={{ fontSize: 11 }} /> Active ({activeCount})
+              <LucideIconWrapper size={11}><CheckCircle size={11} /></LucideIconWrapper> Active ({activeCount})
             </button>
             <button
               type="button"
@@ -342,7 +351,7 @@ export default function Users() {
               onClick={() => setFilterTab("pending")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-user-clock" style={{ fontSize: 11 }} /> Pending ({pendingCount})
+              <LucideIconWrapper size={11}><Clock size={11} /></LucideIconWrapper> Pending ({pendingCount})
             </button>
             <button
               type="button"
@@ -350,7 +359,7 @@ export default function Users() {
               onClick={() => setFilterTab("admin")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-user-shield" style={{ fontSize: 11 }} /> Admins ({adminCount})
+              <LucideIconWrapper size={11}><Shield size={11} /></LucideIconWrapper> Admins ({adminCount})
             </button>
           </div>
         </div>
@@ -372,7 +381,7 @@ export default function Users() {
                 boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)",
               }}
             >
-              <i className="fa-solid fa-user-plus" /> Create User
+              <LucideIconWrapper size={16}><UserPlus size={16} /></LucideIconWrapper> Create User
             </Button>
           }
           searchable
@@ -405,8 +414,7 @@ export default function Users() {
                     gap: 6,
                   }}
                 >
-                  <i className={p.role?.includes("Admin") ? "fa-solid fa-user-shield" : "fa-solid fa-user-gear"} style={{ fontSize: 11 }} />
-                  {p.role}
+                  {p.role?.includes("Admin") ? <LucideIconWrapper size={11}><Shield size={11} /></LucideIconWrapper> : <LucideIconWrapper size={11}><Settings size={11} /></LucideIconWrapper>} {p.role}
                 </span>
               ),
             },
@@ -418,13 +426,13 @@ export default function Users() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 11.5 }}>
                   {p.email && (
                     <a href={`mailto:${p.email}`} style={{ color: "var(--ink)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-envelope" style={{ color: "var(--muted)", fontSize: 10 }} />
+                      <LucideIconWrapper size={10}><Mail size={10} /></LucideIconWrapper>
                       {p.email}
                     </a>
                   )}
                   {p.phone && (
                     <a href={`tel:${p.phone}`} style={{ color: "var(--muted)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-phone" style={{ color: "var(--primary)", fontSize: 9.5 }} />
+                      <LucideIconWrapper size={9}><Phone size={9} /></LucideIconWrapper>
                       {p.phone}
                     </a>
                   )}
@@ -452,7 +460,7 @@ export default function Users() {
                       gap: 5,
                     }}
                   >
-                    <i className="fa-solid fa-warehouse" style={{ fontSize: 10.5 }} />
+                    <LucideIconWrapper size={10}><Warehouse size={10} /></LucideIconWrapper>
                     {p.warehouse}
                   </Link>
                 ) : (
@@ -473,7 +481,7 @@ export default function Users() {
               label: "Joined",
               render: (p) => (
                 <span style={{ fontSize: 11.5, color: "var(--muted)" }}>
-                  <i className="fa-solid fa-calendar-day" style={{ fontSize: 10, marginRight: 4 }} />
+                  <LucideIconWrapper size={10}><Calendar size={10} /></LucideIconWrapper>
                   {p.createdAt || "Recent"}
                 </span>
               ),
@@ -491,7 +499,7 @@ export default function Users() {
                       onClick={() => handleApprove(p)}
                       style={{ padding: "4px 10px", fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, background: "var(--primary-tint)", color: "var(--primary-deep)", borderColor: "var(--primary)" }}
                     >
-                      <i className="fa-solid fa-check" /> Approve
+                      <LucideIconWrapper size={16}><Check size={16} /></LucideIconWrapper> Approve
                     </Button>
                   )}
                   {p.status !== "pending" && (
@@ -501,7 +509,7 @@ export default function Users() {
                       onClick={() => handleToggleStatus(p)}
                       style={{ padding: "4px 10px", fontSize: 11, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}
                     >
-                      <i className={`fa-solid ${p.status === "active" ? "fa-user-xmark" : "fa-user-check"}`} />
+                      {p.status === "active" ? <LucideIconWrapper size={14}><UserX size={14} /></LucideIconWrapper> : <LucideIconWrapper size={14}><UserCheck size={14} /></LucideIconWrapper>}
                       {p.status === "active" ? "Deactivate" : "Activate"}
                     </Button>
                   )}
@@ -545,7 +553,7 @@ export default function Users() {
           <FormField
             label="Full Name"
             required
-            icon="fa-solid fa-user"
+            icon={<LucideIconWrapper size={16}><User size={16} /></LucideIconWrapper>}
             value={form.fullName}
             onChange={set("fullName")}
             placeholder="e.g. Manoj Kumar"
@@ -556,7 +564,7 @@ export default function Users() {
             <FormField
               label="Phone Number"
               type="tel"
-              icon="fa-solid fa-phone"
+              icon={<LucideIconWrapper size={16}><Phone size={16} /></LucideIconWrapper>}
               value={form.phone}
               onChange={set("phone")}
               placeholder="98xxxxxxxx"
@@ -566,7 +574,7 @@ export default function Users() {
             <FormField
               label="Email Address"
               type="email"
-              icon="fa-solid fa-envelope"
+              icon={<LucideIconWrapper size={16}><Mail size={16} /></LucideIconWrapper>}
               value={form.email}
               onChange={set("email")}
               placeholder="you@company.com"
@@ -578,7 +586,7 @@ export default function Users() {
             label="Temporary Password"
             type="password"
             required
-            icon="fa-solid fa-lock"
+            icon={<LucideIconWrapper size={16}><Lock size={16} /></LucideIconWrapper>}
             value={form.password}
             onChange={set("password")}
             placeholder="At least 8 characters"
@@ -601,7 +609,7 @@ export default function Users() {
             label="Confirm Password"
             type="password"
             required
-            icon="fa-solid fa-lock"
+            icon={<LucideIconWrapper size={16}><Lock size={16} /></LucideIconWrapper>}
             value={form.confirmPassword}
             onChange={set("confirmPassword")}
             placeholder="Re-type the password"
@@ -611,7 +619,7 @@ export default function Users() {
           />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
             <Button variant="secondary" type="button" onClick={() => closeModal()} style={{ padding: "7px 14px", fontSize: 12.5 }}>
-              <i className="fa-solid fa-xmark" /> Cancel
+              <LucideIconWrapper size={16}><X size={16} /></LucideIconWrapper> Cancel
             </Button>
             <Button
               type="submit"
@@ -629,11 +637,11 @@ export default function Users() {
             >
               {saving ? (
                 <>
-                  <i className="fa-solid fa-circle-notch spin" /> Creating…
+                  <LucideIconWrapper size={14}><Loader size={14} /></LucideIconWrapper> Creating…
                 </>
               ) : (
                 <>
-                  <i className="fa-solid fa-check" /> Create User
+                  <LucideIconWrapper size={16}><Check size={16} /></LucideIconWrapper> Create User
                 </>
               )}
             </Button>

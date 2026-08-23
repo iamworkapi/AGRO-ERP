@@ -1,4 +1,13 @@
 import { useMemo } from "react";
+import { Clock, Warehouse, MapPin, Info, User } from "lucide-react";
+
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import PageHeader from "../components/common/PageHeader";
 import Badge from "../components/common/Badge";
 import Avatar from "../components/common/Avatar";
@@ -54,13 +63,13 @@ export default function EmployeeLocationMap() {
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <i className="fa-solid fa-map-location-dot" style={{ color: "var(--primary)", fontSize: 14 }} />
+            <LucideIconWrapper size={14}><MapPin size={14} /></LucideIconWrapper>
             <h3 style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: "var(--ink)" }}>
               Warehouse Field Overview
             </h3>
           </div>
           <span style={{ fontSize: 11, color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-            <i className="fa-solid fa-circle-info" style={{ color: "var(--primary)" }} /> Illustrative positions, not live GPS
+            <LucideIconWrapper size={16}><Info size={16} /></LucideIconWrapper> Illustrative positions, not live GPS
           </span>
         </div>
 
@@ -146,7 +155,7 @@ export default function EmployeeLocationMap() {
                     gap: 4,
                   }}
                 >
-                  <i className="fa-solid fa-user" style={{ fontSize: 9, color: "#10B981" }} />
+                  <LucideIconWrapper size={9}><User size={9} /></LucideIconWrapper>
                   {loc.employee.split(" ")[0]} ({loc.warehouse})
                 </span>
               </div>
@@ -155,7 +164,7 @@ export default function EmployeeLocationMap() {
         </div>
 
         <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-          <i className="fa-solid fa-circle-info" style={{ color: "var(--primary)" }} />
+          <LucideIconWrapper size={16}><Info size={16} /></LucideIconWrapper>
           Positions on the map are illustrative only - there is no GPS hardware integration yet. The list below reflects real attendance data.
         </p>
       </div>
@@ -171,7 +180,7 @@ export default function EmployeeLocationMap() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
-          <i className="fa-solid fa-location-dot" style={{ color: "var(--primary)", fontSize: 14 }} />
+          <LucideIconWrapper size={14}><MapPin size={14} /></LucideIconWrapper>
           <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--ink)" }}>
             Last Logged Check-In per Employee
           </h3>
@@ -204,14 +213,14 @@ export default function EmployeeLocationMap() {
                     <div>
                       <strong style={{ fontSize: 13, color: "var(--ink)" }}>{loc.employee}</strong>
                       <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                        <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 10 }} />
+                        <LucideIconWrapper size={10}><Warehouse size={10} /></LucideIconWrapper>
                         {loc.warehouse}
                       </p>
                     </div>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <span style={{ fontSize: 11.5, fontWeight: 700, color: "var(--primary-deep)", display: "block" }}>
-                      <i className="fa-solid fa-clock" style={{ fontSize: 10, marginRight: 4 }} />
+                      <LucideIconWrapper size={10}><Clock size={10} /></LucideIconWrapper>
                       {loc.lastSeen}
                     </span>
                     <Badge tone="success">{loc.accuracy}</Badge>

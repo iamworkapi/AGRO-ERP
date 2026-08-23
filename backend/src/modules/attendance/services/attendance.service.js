@@ -94,3 +94,39 @@ export async function markPresent(actor, id) {
   await recordAudit({ actor, action: "attendance.mark_present", entityType: "attendance_record", entityId: id, warehouseId: existing.warehouse });
   return existing;
 }
+
+export async function getAttendanceSummary(actor, warehouseId, month) {
+  let effectiveWarehouseId = warehouseId;
+  if (actor.profile.role !== ROLES.SUPER_ADMIN) {
+    effectiveWarehouseId = await getOwnWarehouseId(actor.profile);
+  }
+  if (!effectiveWarehouseId) {
+    return { totalEmployees: 0, present: 0, absent: 0, late: 0, pending: 0, attendanceRate: 0 };
+  }
+  await assertCanAccessWarehouse(actor, effectiveWarehouseId);
+
+  const match = { warehouse: effectiveWarehouseId };
+  if (month) {
+    const [year, m] = month.split("-").map(Number);
+    const start = new Date(year, m - 1, 1);
+    const end = new Date(year, m, 0, 23, 59, 59);
+    match.date = { $gte: start, $lte: end };
+  }
+
+  const [records, totalEmployees] = await Promise.all([
+    AttendanceRecord.find(match).populate("employee", "fullName employeeCode"),
+    Employee.countDocuments({ warehouse: effectiveWarehouseId, employmentStatus: "active" }),
+  ]);
+
+  const summary = { totalEmployees, present: 0, absent: 0, late: 0, pending: 0, attendanceRate: 0 };
+  for (const r of records) {
+    if (r.status === "present" || r.status === "late") summary[r.status]++;
+    else if (r.status === "absent") summary.absent++;
+    else if (r.status === "pending") summary.pending++;
+  }
+  const finalized = summary.present + summary.late + summary.absent;
+  summary.attendanceRate = finalized > 0 ? Math.round((summary.present / finalized) * 1000) / 10 : 0;
+  summary.recentRecords = records.slice(0, 10);
+
+  return summary;
+}

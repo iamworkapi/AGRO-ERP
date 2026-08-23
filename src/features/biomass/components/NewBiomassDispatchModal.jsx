@@ -97,8 +97,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
     onClose();
   }
 
-  return (
-    <div
+  return (<div
       style={{
         position: "fixed",
         inset: 0,
@@ -138,7 +137,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
         >
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
-              🚚 Stage 4: New Industrial Dispatch Gate Pass (आगे फ़ैक्ट्री भेजना)
+              🚚 Stage 4: New Industrial Dispatch Gate Pass 
             </h3>
             <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
               Select saved buyer (Reliance / Balrampur) or create a new buyer company & issue Gate Pass
@@ -154,7 +153,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
           <div style={{ background: "#F1F5F9", border: "1px solid #CBD5E1", borderRadius: 10, padding: 14, marginBottom: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
               <label style={{ fontSize: 12, fontWeight: 800, color: "#0F172A", textTransform: "uppercase" }}>
-                1. Buyer Selection (जिस फ़ैक्ट्री / कंपनी को माल दे रहे हैं) *
+                1. Buyer Selection (/) *
               </label>
               <button
                 type="button"
@@ -174,8 +173,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
               </button>
             </div>
 
-            {!showAddBuyerForm ? (
-              <div>
+            {!showAddBuyerForm ? (<div>
                 <select
                   value={selectedBuyerId}
                   onChange={(e) => setSelectedBuyerId(e.target.value)}
@@ -190,26 +188,20 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
                     color: "#0F172A",
                   }}
                 >
-                  {buyersList.map((b) => (
-                    <option key={b.id} value={b.id}>
+                  {buyersList.map((b) => (<option key={b.id} value={b.id}>
                       {b.name} — {b.division} (GSTIN: {b.gstin})
-                    </option>
-                  ))}
+                    </option>))}
                 </select>
 
-                {selectedBuyer && (
-                  <div style={{ marginTop: 10, background: "#FFFFFF", padding: 10, borderRadius: 6, border: "1px solid #E2E8F0", fontSize: 11.5, color: "#334155" }}>
+                {selectedBuyer && (<div style={{ marginTop: 10, background: "#FFFFFF", padding: 10, borderRadius: 6, border: "1px solid #E2E8F0", fontSize: 11.5, color: "#334155" }}>
                     <div style={{ fontWeight: 800, color: "#0F172A" }}>{selectedBuyer.name} ({selectedBuyer.division})</div>
                     <div style={{ color: "#475569", marginTop: 2 }}>📍 {selectedBuyer.address}</div>
                     <div style={{ fontWeight: 700, color: "#2563EB", marginTop: 2 }}>GSTIN: {selectedBuyer.gstin}</div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* DYNAMIC ADD ANOTHER BUYER FORM */
+                  </div>)}
+              </div>) : (/* DYNAMIC ADD ANOTHER BUYER FORM */
               <div style={{ background: "#FFFFFF", padding: 14, borderRadius: 8, border: "1px solid #93C5FD", marginTop: 8 }}>
                 <h4 style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 800, color: "#1E40AF" }}>
-                  📝 Register New Buyer / Client (जिसको माल बेचना है)
+                  📝 Register New Buyer / Client 
                 </h4>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <div>
@@ -279,8 +271,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
                     💾 Save & Select New Buyer
                   </button>
                 </div>
-              </div>
-            )}
+              </div>)}
           </div>
 
           {/* DISPATCH LOGISTICS FORM */}
@@ -295,11 +286,9 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
                   onChange={(e) => setCropId(e.target.value)}
                   style={{ width: "100%", padding: "7px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid var(--line-strong)" }}
                 >
-                  {CROPS_MASTER.map((c) => (
-                    <option key={c.id} value={c.id}>
+                  {CROPS_MASTER.map((c) => (<option key={c.id} value={c.id}>
                       {c.name}
-                    </option>
-                  ))}
+                    </option>))}
                 </select>
               </div>
 
@@ -343,7 +332,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                  Loaded Bale Count (संख्या)
+                  Loaded Bale Count ()
                 </label>
                 <input
                   type="number"
@@ -433,6 +422,5 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
           </form>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

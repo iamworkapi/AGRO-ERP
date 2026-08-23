@@ -142,7 +142,7 @@ export default function BiomassCollectionSlipModal({ slipData, onClose }) {
 
           <div class="grid-2">
             <div class="section-box">
-              <div class="section-title">🚜 Village & Farmer Procurement (ग्राम एवं किसान)</div>
+              <div class="section-title">🚜 Village & Farmer Procurement </div>
               <div class="data-row"><span class="label">Sourcing Village:</span> <span class="val">${slipData.villageName}</span></div>
               <div class="data-row"><span class="label">Farmer Name:</span> <span class="val">${slipData.farmerName}</span></div>
               <div class="data-row"><span class="label">Farmer Mobile:</span> <span class="val">${slipData.farmerMobile}</span></div>
@@ -150,7 +150,7 @@ export default function BiomassCollectionSlipModal({ slipData, onClose }) {
             </div>
 
             <div class="section-box">
-              <div class="section-title">👤 Sourcing Vendor & Vehicle (ठेकेदार एवं वाहन)</div>
+              <div class="section-title">👤 Sourcing Vendor & Vehicle </div>
               <div class="data-row"><span class="label">Contractor/Vendor:</span> <span class="val">${slipData.vendorName || "JYOTI ENTERPRISES"}</span></div>
               <div class="data-row"><span class="label">Vehicle No:</span> <span class="val" style="font-family: monospace;">${slipData.vehicleNo}</span></div>
               <div class="data-row"><span class="label">Vehicle Type:</span> <span class="val">${slipData.vehicleType || "Tractor Trolley"}</span></div>
@@ -208,8 +208,7 @@ export default function BiomassCollectionSlipModal({ slipData, onClose }) {
     }, 250);
   };
 
-  return (
-    <div
+  return (<div
       style={{
         position: "fixed",
         inset: 0,
@@ -392,6 +391,5 @@ export default function BiomassCollectionSlipModal({ slipData, onClose }) {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

@@ -1,11 +1,19 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import Card from "../components/common/Card";
+import { motion } from "framer-motion";
+import { Warehouse, Users, Boxes, IndianRupee, Plus, UserPlus, UserCheck, ClipboardList, WarehouseIcon, Truck, Scale, ArrowRight, Wheat } from "lucide-react";
 import MoistureGauge from "../features/dashboard/components/MoistureGauge";
 import WarehouseTable from "../features/dashboard/components/WarehouseTable";
 import RecentActivity from "../features/dashboard/components/RecentActivity";
 import PageHeader from "../components/common/PageHeader";
 import AsyncState from "../components/common/AsyncState";
+import {
+  StatCard,
+  SectionHeader,
+  QuickAction,
+  Card,
+  StaggerContainer,
+} from "../components/design-system/index";
 import { useDashboard } from "../features/dashboard/useDashboard";
 import { useAuth } from "../hooks/useAuth";
 import { useWarehouses } from "../features/warehouses/useWarehouses";
@@ -16,8 +24,18 @@ import {
   DEFAULT_WAREHOUSE_TCC,
 } from "../features/biomass/biomassService";
 
+const { slideUp, fadeIn } = { slideUp: { hidden: { opacity: 0, y: 12 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] } }) } };
+
 function parseKg(display) {
   return Number(String(display || "0").replace(/[^0-9]/g, "")) || 0;
+}
+
+function LucideIconRenderer({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
 }
 
 export default function Dashboard() {
@@ -31,11 +49,9 @@ export default function Dashboard() {
   const { warehouses: ownScopedWarehouses } = useWarehouses();
   const { employees } = useEmployees();
 
-  // Biomass operational state
   const collections = useMemo(() => getStoredCollections(), []);
   const stacks = useMemo(() => getStoredStacks(), []);
 
-  // Scoped Warehouse Data
   const myWarehouse = isSupervisor
     ? ownScopedWarehouses[0] || {
         name: user?.warehouseName || user?.warehouse?.name || "uttam nagar",
@@ -50,7 +66,6 @@ export default function Dashboard() {
 
   const assignedHub = myWarehouse?.name || "uttam nagar";
 
-  // Calculate Supervisor Hub Metrics
   const hubTotalRawMt = useMemo(() => {
     const sum = collections.reduce((s, c) => s + (Number(c.invoiceWeightMt) || 0), 0);
     return sum > 0 ? sum : 29.54;
@@ -80,7 +95,6 @@ export default function Dashboard() {
       : [];
   }, [isSupervisor, myWarehouse, ownScopedWarehouses, currentStockMt, hubTotalBales]);
 
-  // Supervisor Quick Operational Activity
   const supervisorRecentLogs = useMemo(() => {
     if (!isSupervisor) return recentActivity;
     return [
@@ -95,8 +109,8 @@ export default function Dashboard() {
       },
       {
         id: "ACT-02",
-        title: "Zone A Core Probe Temperature Check: 28°C",
-        text: "Zone A Core Probe Temperature Check: 28°C",
+        title: "Zone A Core Probe Temperature Check: 28 C",
+        text: "Zone A Core Probe Temperature Check: 28 C",
         time: "45 mins ago",
         type: "inspection",
         tag: "Thermal Safety",
@@ -130,18 +144,16 @@ export default function Dashboard() {
           label: "Assigned Warehouse Hub",
           value: assignedHub,
           trend: myWarehouse?.commodity ? "PRALLI & Multi-Crop Biomass" : "Primary Collection Centre",
-          icon: "fa-solid fa-warehouse",
+          icon: <LucideIconRenderer><Warehouse size={16} /></LucideIconRenderer>,
           color: "#10B981",
-          accentGradient: "linear-gradient(90deg, #059669 0%, #10B981 100%)",
           badge: "Active Hub",
         },
         {
           label: "Active Yard Stock",
           value: `${currentStockMt.toLocaleString("en-IN")} MT`,
           trend: `${hubTotalBales.toLocaleString("en-IN")} Compressed Bales`,
-          icon: "fa-solid fa-boxes-stacked",
+          icon: <LucideIconRenderer><Boxes size={16} /></LucideIconRenderer>,
           color: "#059669",
-          accentGradient: "linear-gradient(90deg, #047857 0%, #10B981 100%)",
           badge: `${capacityUtilPct}% Capacity`,
           progressPct: capacityUtilPct,
         },
@@ -149,18 +161,16 @@ export default function Dashboard() {
           label: "Shift Attendance Today",
           value: "96% Present",
           trend: "+4 Ground Staff On-Duty",
-          icon: "fa-solid fa-clipboard-user",
+          icon: <LucideIconRenderer><Users size={16} /></LucideIconRenderer>,
           color: "#2563EB",
-          accentGradient: "linear-gradient(90deg, #1D4ED8 0%, #3B82F6 100%)",
           badge: "Live Shift",
         },
         {
           label: "Pending Weighment Slips",
           value: `${collections.length} Slips`,
           trend: "Ready for Baler Stacking",
-          icon: "fa-solid fa-scale-balanced",
+          icon: <LucideIconRenderer><Scale size={16} /></LucideIconRenderer>,
           color: "#F59E0B",
-          accentGradient: "linear-gradient(90deg, #D97706 0%, #F59E0B 100%)",
           badge: "Verification Queue",
         },
       ];
@@ -174,9 +184,8 @@ export default function Dashboard() {
         label: "Active Hubs",
         value: `${activeHubCount}/${ownScopedWarehouses.length || 0}`,
         trend: "Procurement centres online",
-        icon: "fa-solid fa-warehouse",
+        icon: <LucideIconRenderer><Warehouse size={16} /></LucideIconRenderer>,
         color: "#10B981",
-        accentGradient: "linear-gradient(90deg, #059669 0%, #10B981 100%)",
         badge: ownScopedWarehouses.length ? `${Math.round((activeHubCount / ownScopedWarehouses.length) * 100)}% Active` : "—",
         progressPct: ownScopedWarehouses.length ? Math.round((activeHubCount / ownScopedWarehouses.length) * 100) : 0,
       },
@@ -184,319 +193,151 @@ export default function Dashboard() {
         label: "Personnel Roster",
         value: String(employees.length),
         trend: "Across all warehouses",
-        icon: "fa-solid fa-users",
+        icon: <LucideIconRenderer><Users size={16} /></LucideIconRenderer>,
         color: "#3B82F6",
-        accentGradient: "linear-gradient(90deg, #1D4ED8 0%, #3B82F6 100%)",
         badge: "Org-wide",
       },
       {
         label: "Stock In-Hand",
         value: `${totalStockKg.toLocaleString()} kg`,
         trend: "Maize / PRALLI, all hubs",
-        icon: "fa-solid fa-boxes-stacked",
+        icon: <LucideIconRenderer><Boxes size={16} /></LucideIconRenderer>,
         color: "#F59E0B",
-        accentGradient: "linear-gradient(90deg, #D97706 0%, #F59E0B 100%)",
         badge: "Live",
       },
       {
         label: "Procurement Value",
         value: "₹70,949",
         trend: "Direct Inflow Disbursals",
-        icon: "fa-solid fa-sack-dollar",
+        icon: <LucideIconRenderer><IndianRupee size={16} /></LucideIconRenderer>,
         color: "#059669",
-        accentGradient: "linear-gradient(90deg, #047857 0%, #34D399 100%)",
         badge: "Live",
       },
     ];
   }, [isSupervisor, myWarehouse, assignedHub, ownScopedWarehouses, employees.length, currentStockMt, hubTotalBales, capacityUtilPct, collections.length]);
 
+  const adminQuickActions = [
+    { label: "Create Warehouse", icon: <Plus size={13} />, onClick: () => navigate("/warehouses/create"), color: "#10B981" },
+    { label: "Add User", icon: <UserPlus size={13} />, onClick: () => navigate("/users"), color: "#3B82F6" },
+    { label: "Add Employee", icon: <UserCheck size={13} />, onClick: () => navigate("/employees/new"), color: "#F59E0B" },
+    { label: "Audit Log", icon: <ClipboardList size={13} />, onClick: () => navigate("/settings/audit-log"), color: "#F59E0B" },
+    { label: "View Warehouses", icon: <WarehouseIcon size={13} />, onClick: () => navigate("/warehouses"), color: "var(--primary)" },
+  ];
+
+  const supervisorQuickActions = [
+    { label: "Collection Entry", icon: <Truck size={13} />, onClick: () => navigate("/biomass/collection"), color: "#10B981" },
+    { label: "Weighment Slip", icon: <Scale size={13} />, onClick: () => navigate("/weighment/new"), color: "#2563EB" },
+    { label: "View Storage", icon: <Warehouse size={13} />, onClick: () => navigate("/biomass/storage"), color: "#7C3AED" },
+    { label: "Dispatch Log", icon: <ArrowRight size={13} />, onClick: () => navigate("/biomass/dispatch"), color: "#C2410C" },
+  ];
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <motion.div style={{ display: "flex", flexDirection: "column", gap: 14 }} initial="hidden" animate="visible">
       {/* PAGE HEADER */}
       <PageHeader
-        title={isSupervisor ? `🌾 ${assignedHub} Hub Overview` : "Organisation Overview"}
+        title={isSupervisor ? assignedHub : "Organisation Overview"}
         subtitle={
           isSupervisor
             ? `Live operational ground management for your assigned warehouse hub (${assignedHub})`
-            : "Live, consolidated executive view across all PRALLI & grain procurement centres"
+            : "Live, consolidated executive view across all procurement centres"
         }
       />
 
-      <AsyncState status={status} error={error} loadingLabel="Loading dashboard…" />
+      <AsyncState status={status} error={error} loadingLabel="Loading dashboard..." />
 
-      {/* SUPERVISOR QUICK ACTION TOOLBAR */}
+      {/* SUPERVISOR QUICK ACTIONS */}
       {isSupervisor && (
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--line)",
-            borderRadius: 12,
-            padding: "12px 16px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 10,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 14 }}>⚡</span>
-            <strong style={{ fontSize: 13, color: "var(--ink)" }}>Supervisor Quick Actions:</strong>
+        <Card hover={false}>
+          <SectionHeader
+            title="Quick Actions"
+            subtitle="Common tasks for your assigned hub"
+            action={
+              <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600 }}>Supervisor Panel</span>
+            }
+          />
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+            {supervisorQuickActions.map((action) => (
+              <QuickAction key={action.label} {...action} />
+            ))}
           </div>
-
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button
-              onClick={() => navigate("/biomass/collection")}
-              style={{
-                padding: "6px 12px",
-                fontSize: 11.5,
-                fontWeight: 700,
-                borderRadius: 8,
-                border: "1px solid #10B981",
-                background: "#ECFDF5",
-                color: "#047857",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <i className="fa-solid fa-truck" style={{ fontSize: 10 }} /> Collection Entry
-            </button>
-
-            <button
-              onClick={() => navigate("/weighment/new")}
-              style={{
-                padding: "6px 12px",
-                fontSize: 11.5,
-                fontWeight: 700,
-                borderRadius: 8,
-                border: "1px solid #BFDBFE",
-                background: "#EFF6FF",
-                color: "#1E40AF",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <i className="fa-solid fa-scale-balanced" style={{ fontSize: 10 }} /> Weighment Slip
-            </button>
-
-            <button
-              onClick={() => navigate("/biomass/storage")}
-              style={{
-                padding: "6px 12px",
-                fontSize: 11.5,
-                fontWeight: 700,
-                borderRadius: 8,
-                border: "1px solid #E9D5FF",
-                background: "#FAF5FF",
-                color: "#6B21A8",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <i className="fa-solid fa-warehouse" style={{ fontSize: 10 }} /> View Storage
-            </button>
-
-            <button
-              onClick={() => navigate("/biomass/dispatch")}
-              style={{
-                padding: "6px 12px",
-                fontSize: 11.5,
-                fontWeight: 700,
-                borderRadius: 8,
-                border: "1px solid #FED7AA",
-                background: "#FFF7ED",
-                color: "#C2410C",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <i className="fa-solid fa-truck-fast" style={{ fontSize: 10 }} /> Dispatch Log
-            </button>
-          </div>
-        </div>
+        </Card>
       )}
 
-      {/* ADMIN / SUPER-ADMIN QUICK ACTION TOOLBAR */}
+      {/* ADMIN QUICK ACTIONS */}
       {!isSupervisor && (
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--line)",
-            borderRadius: 12,
-            padding: "12px 16px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 10,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 14 }}>⚡</span>
-            <strong style={{ fontSize: 13, color: "var(--ink)" }}>Admin Quick Actions:</strong>
+        <Card hover={false}>
+          <SectionHeader
+            title="Quick Actions"
+            subtitle="Common administrative tasks"
+            action={
+              <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600 }}>Admin Panel</span>
+            }
+          />
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+            {adminQuickActions.map((action) => (
+              <QuickAction key={action.label} {...action} />
+            ))}
           </div>
-
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button
-              onClick={() => navigate("/warehouses/create")}
-              style={{
-                padding: "6px 12px",
-                fontSize: 11.5,
-                fontWeight: 700,
-                borderRadius: 8,
-                border: "1px solid #10B981",
-                background: "#ECFDF5",
-                color: "#047857",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <i className="fa-solid fa-plus" style={{ fontSize: 10 }} /> Create Warehouse
-            </button>
-
-            <button
-              onClick={() => navigate("/users")}
-              style={{
-                padding: "6px 12px",
-                fontSize: 11.5,
-                fontWeight: 700,
-                borderRadius: 8,
-                border: "1px solid #3B82F6",
-                background: "#EFF6FF",
-                color: "#1E40AF",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <i className="fa-solid fa-user-plus" style={{ fontSize: 10 }} /> Add User
-            </button>
-
-            <button
-              onClick={() => navigate("/employees/new")}
-              style={{
-                padding: "6px 12px",
-                fontSize: 11.5,
-                fontWeight: 700,
-                borderRadius: 8,
-                border: "1px solid #F59E0B",
-                background: "#FFFBEB",
-                color: "#92400E",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <i className="fa-solid fa-user-check" style={{ fontSize: 10 }} /> Add Employee
-            </button>
-
-            <button
-              onClick={() => navigate("/settings/audit-log")}
-              style={{
-                padding: "6px 12px",
-                fontSize: 11.5,
-                fontWeight: 700,
-                borderRadius: 8,
-                border: "1px solid #F59E0B",
-                background: "#FFFBEB",
-                color: "#92400E",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <i className="fa-solid fa-clipboard-list" style={{ fontSize: 10 }} /> Audit Log
-            </button>
-
-            <button
-              onClick={() => navigate("/warehouses")}
-              style={{
-                padding: "6px 12px",
-                fontSize: 11.5,
-                fontWeight: 700,
-                borderRadius: 8,
-                border: "1px solid var(--line-strong)",
-                background: "var(--canvas)",
-                color: "var(--ink)",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <i className="fa-solid fa-warehouse" style={{ fontSize: 10 }} /> View All Warehouses
-            </button>
-          </div>
-        </div>
+        </Card>
       )}
 
-      {/* BIOMASS SUPPLY CHAIN QUICK LAUNCH BANNER */}
-      <div
+      {/* BIOMASS SUPPLY CHAIN BANNER */}
+      <motion.div
         onClick={() => navigate("/biomass")}
         style={{
           background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
           color: "#FFFFFF",
-          borderRadius: 16,
-          padding: "16px 20px",
+          borderRadius: 14,
+          padding: "18px 20px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           cursor: "pointer",
           boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.3)",
           border: "1px solid #334155",
+          transition: "transform 0.2s ease, box-shadow 0.2s ease",
         }}
+        whileHover={{ y: -2, boxShadow: "0 14px 30px -5px rgba(15, 23, 42, 0.4)" }}
+        whileTap={{ scale: 0.995 }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div
             style={{
-              width: 50,
-              height: 50,
+              width: 48,
+              height: 48,
               borderRadius: 12,
               background: "rgba(16, 185, 129, 0.2)",
               color: "#34D399",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 24,
               border: "1px solid rgba(52, 211, 153, 0.3)",
+              flexShrink: 0,
             }}
           >
-            <i className="fa-solid fa-wheat-awn" />
+            <LucideIconRenderer size={22}><Wheat size={22} /></LucideIconRenderer>
           </div>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: "#FFFFFF" }}>
-                Biomass Supply Chain System (पराली एवं फसल अवशेष प्रबंधन)
+              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.01em" }}>
+                Biomass Supply Chain System
               </h3>
-              <span style={{ fontSize: 10.5, fontWeight: 800, background: "#10B981", color: "#FFFFFF", padding: "2px 8px", borderRadius: 10 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, background: "#10B981", color: "#FFFFFF", padding: "2px 8px", borderRadius: 10 }}>
                 NEW MODULE
               </span>
             </div>
             <p style={{ margin: "3px 0 0", fontSize: 12, color: "#94A3B8" }}>
-              Paddy Straw (धान की पराली) • Wheat Straw (गेहूं का भूसा) • Maize Stalk (मक्का का डंठल) — 4-Stage Live Tracking for {assignedHub}
+              Paddy Straw  • Wheat Straw  • Maize Stalk  — 4-Stage Live Tracking for {assignedHub}
             </p>
           </div>
         </div>
 
-        <button
+        <motion.button
           type="button"
           style={{
             padding: "8px 16px",
             fontSize: 12.5,
-            fontWeight: 800,
+            fontWeight: 700,
             borderRadius: 8,
             border: "none",
             background: "#10B981",
@@ -506,164 +347,116 @@ export default function Dashboard() {
             alignItems: "center",
             gap: 6,
             boxShadow: "0 4px 12px rgba(16, 185, 129, 0.4)",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
           }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
         >
-          Open Biomass Tracker →
-        </button>
-      </div>
+          Open Biomass Tracker <ArrowRight size={13} />
+        </motion.button>
+      </motion.div>
 
-      {/* KPI CARDS BAR */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="responsive-grid-2">
-        {kpiCards.map((cfg) => (
-          <div
-            key={cfg.label}
-            style={{
-              background: "var(--surface)",
-              border: `1px solid ${cfg.color}33`,
-              borderRadius: 16,
-              padding: "16px 18px",
-              boxShadow: "0 6px 20px -2px rgba(0,0,0,0.04)",
-              position: "relative",
-              overflow: "hidden",
-            }}
+      {/* KPI CARDS */}
+      <motion.div
+        style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}
+        className="responsive-grid-2"
+        variants={fadeIn}
+      >
+        <StaggerContainer>
+          {kpiCards.map((cfg) => (
+            <StatCard
+              key={cfg.label}
+              label={cfg.label}
+              value={cfg.value}
+              trend={cfg.trend}
+              icon={cfg.icon}
+              color={cfg.color}
+              progressPct={cfg.progressPct}
+            />
+          ))}
+        </StaggerContainer>
+      </motion.div>
+
+      {/* SUPERVISOR HUB DETAILS */}
+      {isSupervisor && myWarehouse && (
+        <Card hover={false}>
+          <SectionHeader
+            title={`Hub Profile: ${assignedHub}`}
+            subtitle="Operational status and capacity overview"
+          />
+          <motion.div
+            style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}
+            className="responsive-grid-2"
+            variants={slideUp}
           >
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: cfg.accentGradient, boxShadow: `0 2px 10px ${cfg.color}50` }} />
-
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
-                {cfg.label}
-              </span>
-              <span
-                style={{
-                  fontSize: 10.5,
-                  fontWeight: 700,
-                  padding: "2px 7px",
-                  borderRadius: 10,
-                  background: `${cfg.color}15`,
-                  color: cfg.color,
-                  border: `1px solid ${cfg.color}30`,
-                }}
-              >
-                {cfg.badge}
-              </span>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.02em" }}>
-                  {cfg.value}
-                </div>
-                <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{cfg.trend}</div>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: 0.4 }}>
+                Assigned Warehouse Profile
               </div>
-
-              <div
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 10,
-                  background: `${cfg.color}15`,
-                  color: cfg.color,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 16,
-                  border: `1px solid ${cfg.color}30`,
-                  boxShadow: `0 0 14px ${cfg.color}30`,
-                  flexShrink: 0,
-                }}
-              >
-                <i className={cfg.icon} />
+              <div style={{ fontSize: 14, fontWeight: 800, color: "#0F172A", marginTop: 2 }}>
+                {assignedHub} (Transit Hub-01)
+              </div>
+              <div style={{ fontSize: 11, color: "#2563EB", fontWeight: 600, marginTop: 2 }}>
+                Center Code: TCC-{assignedHub.toUpperCase().replace(/\s+/g, "-")}-01
+              </div>
+              <div style={{ fontSize: 11, color: "#475569", marginTop: 3 }}>
+                Sourcing Area: {DEFAULT_WAREHOUSE_TCC.sourcingArea}
               </div>
             </div>
 
-            {typeof cfg.progressPct === "number" && (
-              <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 12, overflow: "hidden" }}>
-                <div
-                  style={{
-                    width: `${cfg.progressPct}%`,
-                    height: "100%",
-                    background: cfg.accentGradient,
-                    borderRadius: 2,
-                    boxShadow: `0 0 8px ${cfg.color}80`,
-                  }}
+            <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 10, padding: 12 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#64748B", textTransform: "uppercase", letterSpacing: 0.3 }}>Storage Capacity</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                <span style={{ fontSize: 15, fontWeight: 800, color: "#059669" }}>{currentStockMt.toLocaleString()} MT</span>
+                <span style={{ fontSize: 11, color: "#64748B" }}>/ {hubCapacityMt.toLocaleString()} MT</span>
+              </div>
+              <div style={{ width: "100%", height: 5, background: "#E2E8F0", borderRadius: 3, marginTop: 6, overflow: "hidden" }}>
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${capacityUtilPct}%` }}
+                  transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+                  style={{ height: "100%", background: "#059669", borderRadius: 3 }}
                 />
               </div>
-            )}
-          </div>
-        ))}
-      </div>
+              <div style={{ fontSize: 10.5, color: "#059669", fontWeight: 700, marginTop: 4 }}>
+                {capacityUtilPct}% Utilized • {(hubCapacityMt - currentStockMt).toLocaleString()} MT Free
+              </div>
+            </div>
 
-      {/* SUPERVISOR ASSIGNED HUB DETAILS CARD */}
-      {isSupervisor && (
-        <div
-          style={{
-            background: "#FFFFFF",
-            border: "1.5px solid #0F172A",
-            borderRadius: 14,
-            padding: 16,
-            boxShadow: "0 4px 12px rgba(0,0,0,0.04)",
-            display: "grid",
-            gridTemplateColumns: "1.5fr 1fr 1fr",
-            gap: 16,
-            alignItems: "center",
-          }}
-          className="responsive-grid-1"
-        >
-          <div>
-            <div style={{ fontSize: 10.5, fontWeight: 800, color: "#64748B", textTransform: "uppercase" }}>
-              Assigned Warehouse Profile
+            <div style={{ background: "#ECFDF5", border: "1px solid #10B981", borderRadius: 10, padding: 12 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#065F46", textTransform: "uppercase", letterSpacing: 0.3 }}>Hub Fire Safety Status</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: "#047857", marginTop: 2 }}>
+                98.5% (Safe)
+              </div>
+              <div style={{ fontSize: 11, color: "#065F46", marginTop: 2 }}>
+                Thermal probes normal across Zone A, B, C
+              </div>
             </div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: "#0F172A", marginTop: 2 }}>
-              {assignedHub} (Transit Hub-01)
-            </div>
-            <div style={{ fontSize: 11.5, color: "#2563EB", fontWeight: 700, marginTop: 2 }}>
-              Center Code: TCC-{assignedHub.toUpperCase().replace(/\s+/g, "-")}-01
-            </div>
-            <div style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>
-              📍 Sourcing Area: {DEFAULT_WAREHOUSE_TCC.sourcingArea}
-            </div>
-          </div>
-
-          <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 10, padding: 12 }}>
-            <div style={{ fontSize: 10.5, fontWeight: 700, color: "#64748B" }}>STORAGE CAPACITY UTILIZATION</div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
-              <span style={{ fontSize: 15, fontWeight: 900, color: "#059669" }}>{currentStockMt.toLocaleString()} MT</span>
-              <span style={{ fontSize: 11, color: "#64748B" }}>/ {hubCapacityMt.toLocaleString()} MT</span>
-            </div>
-            <div style={{ width: "100%", height: 6, background: "#E2E8F0", borderRadius: 3, marginTop: 6, overflow: "hidden" }}>
-              <div style={{ width: `${capacityUtilPct}%`, height: "100%", background: "#059669", borderRadius: 3 }} />
-            </div>
-            <div style={{ fontSize: 10.5, color: "#059669", fontWeight: 700, marginTop: 4 }}>
-              {capacityUtilPct}% Utilized • {(hubCapacityMt - currentStockMt).toLocaleString()} MT Free Space
-            </div>
-          </div>
-
-          <div style={{ background: "#ECFDF5", border: "1px solid #10B981", borderRadius: 10, padding: 12 }}>
-            <div style={{ fontSize: 10.5, fontWeight: 800, color: "#065F46" }}>🛡️ HUB FIRE SAFETY STATUS</div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: "#047857", marginTop: 2 }}>
-              98.5% (Safe)
-            </div>
-            <div style={{ fontSize: 11, color: "#065F46", marginTop: 2 }}>
-              Thermal probes normal across Zone A, B, C
-            </div>
-          </div>
-        </div>
+          </motion.div>
+        </Card>
       )}
 
       {/* Main Grid: Warehouse Status Table & Moisture Snapshot */}
-      <div style={{ display: "grid", gridTemplateColumns: "2.1fr 1fr", gap: 18 }} className="responsive-grid-2">
-        <Card title={isSupervisor ? `Assigned Warehouse Status (${assignedHub})` : "Warehouse Operations & Stock Overview"}>
+      <motion.div
+        style={{ display: "grid", gridTemplateColumns: "2.1fr 1fr", gap: 14 }}
+        className="responsive-grid-2"
+        variants={fadeIn}
+      >
+        <Card
+          title={isSupervisor ? `Assigned Warehouse (${assignedHub})` : "Warehouse Operations & Stock Overview"}
+        >
           <WarehouseTable rows={displayWarehouses} />
         </Card>
         <Card title="Moisture Snapshot (Today)">
           {moistureSnapshot && <MoistureGauge {...moistureSnapshot} />}
         </Card>
-      </div>
+      </motion.div>
 
       {/* Bottom Grid: Operational Activity Feed */}
-      <Card title={isSupervisor ? `Operational Activity Feed — ${assignedHub}` : "Recent Activity Audit Feed"}>
+      <Card title={isSupervisor ? `Activity Feed — ${assignedHub}` : "Recent Activity Audit Feed"}>
         <RecentActivity items={supervisorRecentLogs} />
       </Card>
-    </div>
+    </motion.div>
   );
 }

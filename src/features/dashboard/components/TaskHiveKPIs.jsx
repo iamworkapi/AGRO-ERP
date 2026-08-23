@@ -1,3 +1,14 @@
+import { Tractor, ClipboardCheck, IndianRupee, Boxes } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
+
 export default function TaskHiveKPIs({
   totalInflowMt = 420.5,
   completedInflowMt = 280.0,
@@ -17,7 +28,7 @@ export default function TaskHiveKPIs({
       value: `${totalInflowMt.toFixed(1)} MT`,
       trend: "↑ 20%",
       trendColor: "#059669",
-      icon: "fa-solid fa-tractor",
+      Icon: Tractor,
       iconBg: "linear-gradient(135deg, #7C3AED 0%, #6366F1 100%)",
       iconShadow: "rgba(124, 58, 237, 0.3)",
       footers: [
@@ -31,7 +42,7 @@ export default function TaskHiveKPIs({
       value: totalSlips.toString(),
       trend: "↑ 18.4%",
       trendColor: "#059669",
-      icon: "fa-solid fa-clipboard-check",
+      Icon: ClipboardCheck,
       iconBg: "linear-gradient(135deg, #2563EB 0%, #38BDF8 100%)",
       iconShadow: "rgba(37, 99, 235, 0.3)",
       footers: [
@@ -45,7 +56,7 @@ export default function TaskHiveKPIs({
       value: `₹${totalRevenue.toLocaleString("en-IN")}`,
       trend: "↑ 15.2%",
       trendColor: "#059669",
-      icon: "fa-solid fa-indian-rupee-sign",
+      Icon: IndianRupee,
       iconBg: "linear-gradient(135deg, #059669 0%, #10B981 100%)",
       iconShadow: "rgba(5, 150, 105, 0.3)",
       comparison: `vs last week ₹${lastWeekRevenue.toLocaleString("en-IN")}`,
@@ -56,7 +67,7 @@ export default function TaskHiveKPIs({
       value: `${totalStockMt.toLocaleString("en-IN")} MT`,
       trend: "↑ 12.6%",
       trendColor: "#059669",
-      icon: "fa-solid fa-boxes-stacked",
+      Icon: Boxes,
       iconBg: "linear-gradient(135deg, #D97706 0%, #F59E0B 100%)",
       iconShadow: "rgba(217, 119, 6, 0.3)",
       comparison: `vs last week ${lastWeekStockMt.toLocaleString("en-IN")} MT`,
@@ -115,7 +126,9 @@ export default function TaskHiveKPIs({
                 flexShrink: 0,
               }}
             >
-              <i className={c.icon} />
+              <LucideIconWrapper size={14}>
+                <c.Icon size={14} />
+              </LucideIconWrapper>
             </div>
 
             {/* Title, Value and Trend Badge */}

@@ -1,4 +1,12 @@
 import { useMemo, useState } from "react";
+import {   Search, Users , UserX, List, GripHorizontal, Truck, FileText , IndianRupee } from "lucide-react";
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
@@ -144,7 +152,7 @@ export default function BiomassVendors() {
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="👥 Biomass Vendor Master & Directory (आपूर्तिकर्ता सूची)"
+        title="👥 Biomass Vendor Master & Directory ( )"
         subtitle="Stage 1 Collection Partners — Raw Biomass Suppliers, Village Aggregators, FPOs & Supply Contractors"
       />
 
@@ -152,7 +160,7 @@ export default function BiomassVendors() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-users" />
+            <LucideIconWrapper size={16}><Users size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Active Sourcing Vendors</p>
@@ -163,7 +171,7 @@ export default function BiomassVendors() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-file-contract" />
+            <LucideIconWrapper size={16}><FileText size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Contracted Tonnage</p>
@@ -174,7 +182,7 @@ export default function BiomassVendors() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-truck-ramp-box" />
+            <LucideIconWrapper size={16}><Truck size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Sourced to Date</p>
@@ -187,7 +195,7 @@ export default function BiomassVendors() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#F3E8FF", color: "#7E22CE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-indian-rupee-sign" />
+            <LucideIconWrapper size={16}><IndianRupee size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Procurement Spend</p>
@@ -215,10 +223,7 @@ export default function BiomassVendors() {
       >
         <div style={{ display: "flex", gap: 10, alignItems: "center", flex: 1, minWidth: 280 }}>
           <div style={{ position: "relative", width: "100%", maxWidth: 360 }}>
-            <i
-              className="fa-solid fa-magnifying-glass"
-              style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--muted)", fontSize: 12 }}
-            />
+            <LucideIconWrapper size={12}><Search size={12} /></LucideIconWrapper>
             <input
               type="text"
               placeholder="Search vendor name, GSTIN, contact, belt..."
@@ -273,7 +278,7 @@ export default function BiomassVendors() {
                 boxShadow: viewMode === "cards" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
               }}
             >
-              <i className="fa-solid fa-grip" style={{ marginRight: 4 }} /> Cards View
+              <LucideIconWrapper size={16}><GripHorizontal size={16} /></LucideIconWrapper> Cards View
             </button>
             <button
               type="button"
@@ -290,7 +295,7 @@ export default function BiomassVendors() {
                 boxShadow: viewMode === "table" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
               }}
             >
-              <i className="fa-solid fa-table-list" style={{ marginRight: 4 }} /> Table View
+              <LucideIconWrapper size={16}><List size={16} /></LucideIconWrapper> Table View
             </button>
           </div>
 
@@ -440,7 +445,7 @@ export default function BiomassVendors() {
 
           {filteredVendors.length === 0 && (
             <div style={{ gridColumn: "span 2", textAlign: "center", padding: "40px 20px", color: "var(--muted)" }}>
-              <i className="fa-solid fa-users-slash" style={{ fontSize: 32, marginBottom: 8, display: "block" }} />
+              <LucideIconWrapper size={32}><UserX size={32} /></LucideIconWrapper>
               No vendors found matching &ldquo;{searchTerm}&rdquo;
             </div>
           )}

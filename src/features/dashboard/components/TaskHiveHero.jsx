@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../.././components/common/Button";
+import { CalendarDays, ChevronDown, Download, Plus } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
 
 export default function TaskHiveHero({
   user,
@@ -72,9 +81,13 @@ export default function TaskHiveHero({
             boxShadow: "var(--shadow-sm)",
           }}
         >
-          <i className="fa-regular fa-calendar-days" style={{ color: "var(--primary)", fontSize: 13 }} />
+          <LucideIconWrapper size={13}>
+            <CalendarDays size={13} />
+          </LucideIconWrapper>
           <span>May 16 – May 22, 2026</span>
-          <i className="fa-solid fa-chevron-down" style={{ color: "var(--muted)", fontSize: 10 }} />
+          <LucideIconWrapper size={10}>
+            <ChevronDown size={10} />
+          </LucideIconWrapper>
         </div>
 
         {/* Export Report Button */}
@@ -105,7 +118,9 @@ export default function TaskHiveHero({
             e.currentTarget.style.borderColor = "var(--line-strong)";
           }}
         >
-          <i className="fa-solid fa-arrow-down-to-bracket" style={{ fontSize: 12, color: "var(--muted)" }} />
+          <LucideIconWrapper size={12}>
+            <Download size={12} />
+          </LucideIconWrapper>
           <span>Export Report</span>
         </button>
 
@@ -137,7 +152,9 @@ export default function TaskHiveHero({
             e.currentTarget.style.boxShadow = "0 4px 14px rgba(5, 31, 32, 0.25)";
           }}
         >
-          <i className="fa-solid fa-plus" style={{ fontSize: 11 }} />
+          <LucideIconWrapper size={11}>
+            <Plus size={11} />
+          </LucideIconWrapper>
           <span>New Procurement</span>
         </button>
       </div>

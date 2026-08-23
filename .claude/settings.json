@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit -m 'refactor\\(frontend\\): restructure components into 4-layer architecture \\(Pages/Features/Components/Layouts\\) *)"
+      "Bash(git commit -m 'refactor\\(frontend\\): restructure components into 4-layer architecture \\(Pages/Features/Components/Layouts\\) *)",
+      "Bash(node fix-hindi.js)",
+      "Bash(node fix-hindi.cjs)"
     ]
   }
 }

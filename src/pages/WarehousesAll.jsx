@@ -1,4 +1,13 @@
 import { useState } from "react";
+import { Wheat, Trash2, Pencil, Eye, Settings, Shield, Headphones, UserCheck, FileText, Warehouse, AlertTriangle } from "lucide-react";
+
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
@@ -85,7 +94,7 @@ export default function WarehousesAll() {
 
       {(missingAdmin.length > 0 || missingSupervisor.length > 0) && (
         <div style={{ background: "var(--primary-tint)", border: "1px solid var(--line)", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: "var(--ink)", display: "flex", gap: 8, alignItems: "center" }}>
-          <i className="fa-solid fa-triangle-exclamation" style={{ color: "var(--status-warning, #d97706)", fontSize: 14 }} />
+          <LucideIconWrapper size={14}><AlertTriangle size={14} /></LucideIconWrapper>
           <div>
             {missingAdmin.length > 0 && (
               <span>{missingAdmin.length} warehouse(s) have no Warehouse Admin assigned. </span>
@@ -112,7 +121,7 @@ export default function WarehousesAll() {
             render: (r) => (
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <span style={{ fontWeight: 700, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 13 }} />
+                  <LucideIconWrapper size={13}><Warehouse size={13} /></LucideIconWrapper>
                   {r.name}
                 </span>
                 <span style={{ fontSize: 10.5, color: "var(--muted)", fontWeight: 600 }}>
@@ -127,7 +136,7 @@ export default function WarehousesAll() {
             render: (r) => (
               <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 11 }}>
                 <span style={{ fontWeight: 700, color: "#0D3823", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-file-invoice" style={{ color: "var(--primary)", fontSize: 10 }} />
+                  <LucideIconWrapper size={10}><FileText size={10} /></LucideIconWrapper>
                   GST: {r.gstin || "09AALCK4355J1Z2"}
                 </span>
                 <span style={{ color: "var(--muted)", fontWeight: 600 }}>
@@ -142,11 +151,11 @@ export default function WarehousesAll() {
             render: (r) => (
               <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 11 }}>
                 <span style={{ fontWeight: 700, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-user-check" style={{ color: "#059669", fontSize: 10 }} />
+                  <LucideIconWrapper size={10}><UserCheck size={10} /></LucideIconWrapper>
                   {r.contactPerson || "Mr. Jagdeep Singh"} ({r.contactPhone || "7055000315"})
                 </span>
                 <span style={{ color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-headset" style={{ color: "var(--primary)", fontSize: 9.5 }} />
+                  <LucideIconWrapper size={9}><Headphones size={9} /></LucideIconWrapper>
                   Help Desk: {r.helpDeskPhone || "7905525983"} | {r.email || "kusumganga5@gmail.com"}
                 </span>
               </div>
@@ -158,7 +167,7 @@ export default function WarehousesAll() {
             render: (r) =>
               r.admin ? (
                 <span style={{ fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11.5 }}>
-                  <i className="fa-solid fa-user-shield" style={{ color: "var(--primary)", fontSize: 11 }} />
+                  <LucideIconWrapper size={11}><Shield size={11} /></LucideIconWrapper>
                   {r.admin}
                 </span>
               ) : (
@@ -171,7 +180,7 @@ export default function WarehousesAll() {
             render: (r) =>
               r.supervisor ? (
                 <span style={{ fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11.5 }}>
-                  <i className="fa-solid fa-user-gear" style={{ color: "var(--primary)", fontSize: 11 }} />
+                  <LucideIconWrapper size={11}><Settings size={11} /></LucideIconWrapper>
                   {r.supervisor}
                 </span>
               ) : (
@@ -212,7 +221,7 @@ export default function WarehousesAll() {
                     gap: 4,
                   }}
                 >
-                  <i className="fa-solid fa-eye" style={{ fontSize: 10 }} /> View
+                  <LucideIconWrapper size={10}><Eye size={10} /></LucideIconWrapper> View
                 </button>
 
                 {/* UPDATE / EDIT */}
@@ -234,7 +243,7 @@ export default function WarehousesAll() {
                     gap: 4,
                   }}
                 >
-                  <i className="fa-solid fa-pen-to-square" style={{ fontSize: 10, color: "#1B5E3A" }} /> Edit
+                  <LucideIconWrapper size={10}><Pencil size={10} /></LucideIconWrapper> Edit
                 </button>
 
                 {/* DELETE / DEACTIVATE */}
@@ -256,7 +265,7 @@ export default function WarehousesAll() {
                     gap: 4,
                   }}
                 >
-                  <i className="fa-solid fa-trash-can" style={{ fontSize: 10 }} />
+                  <LucideIconWrapper size={10}><Trash2 size={10} /></LucideIconWrapper>
                 </button>
               </div>
             ),
@@ -291,7 +300,7 @@ export default function WarehousesAll() {
               <div style={{ gridColumn: "1 / -1", margin: "6px 0 12px", background: "var(--canvas)", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--line)" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
                   <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 700, color: "#0D3823", margin: 0 }}>
-                    <i className="fa-solid fa-wheat-awn" style={{ color: "var(--primary)" }} />
+                    <LucideIconWrapper size={16}><Wheat size={16} /></LucideIconWrapper>
                     Handled Commodities (Check Multiple Boxes) *
                   </label>
                   <span style={{ fontSize: 10.5, fontWeight: 700, color: "#0D3823", background: "rgba(27, 94, 58, 0.12)", border: "1px solid rgba(27, 94, 58, 0.25)", padding: "2px 8px", borderRadius: 12 }}>

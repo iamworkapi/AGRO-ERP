@@ -14,3 +14,7 @@ export const create = asyncHandler(async (req, res) => {
 export const markPresent = asyncHandler(async (req, res) => {
   sendSuccess(res, await attendanceService.markPresent(req.user, req.params.id));
 });
+
+export const summary = asyncHandler(async (req, res) => {
+  sendSuccess(res, await attendanceService.getAttendanceSummary(req.user, req.query.warehouseId, req.query.month));
+});

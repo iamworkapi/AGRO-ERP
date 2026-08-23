@@ -1,4 +1,13 @@
 import { useMemo, useState } from "react";
+import { Boxes, Droplets, FileText, Scale } from "lucide-react";
+
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
@@ -24,13 +33,11 @@ export default function BiomassProcessing() {
   const [calcAgreedAsh, setCalcAgreedAsh] = useState("20.0");
 
   const liveGrnResult = useMemo(() => {
-    return calculateGrnInvoiceWeight(
-      parseFloat(calcNetWt) || 10,
+    return calculateGrnInvoiceWeight(parseFloat(calcNetWt) || 10,
       parseFloat(calcActualMoist) || 20,
       parseFloat(calcActualAsh) || 20,
       parseFloat(calcAgreedMoist) || 20,
-      parseFloat(calcAgreedAsh) || 20
-    );
+      parseFloat(calcAgreedAsh) || 20);
   }, [calcNetWt, calcActualMoist, calcActualAsh, calcAgreedMoist, calcAgreedAsh]);
 
   const filteredCollections = useMemo(() => {
@@ -38,29 +45,22 @@ export default function BiomassProcessing() {
     return collections.filter((c) => c.cropName?.toLowerCase().includes(selectedCrop.toLowerCase()));
   }, [collections, selectedCrop]);
 
-  const totalActualNetMt = useMemo(
-    () => collections.reduce((s, c) => s + (Number(c.actualNetWeightMt) || 0), 0),
-    [collections]
-  );
-  const totalInvoiceMt = useMemo(
-    () => collections.reduce((s, c) => s + (Number(c.invoiceWeightMt) || 0), 0),
-    [collections]
-  );
-  const totalBalesProduced = useMemo(
-    () => collections.reduce((s, c) => s + (Number(c.baleCountProduced) || 0), 0),
-    [collections]
-  );
+  const totalActualNetMt = useMemo(() => collections.reduce((s, c) => s + (Number(c.actualNetWeightMt) || 0), 0),
+    [collections]);
+  const totalInvoiceMt = useMemo(() => collections.reduce((s, c) => s + (Number(c.invoiceWeightMt) || 0), 0),
+    [collections]);
+  const totalBalesProduced = useMemo(() => collections.reduce((s, c) => s + (Number(c.baleCountProduced) || 0), 0),
+    [collections]);
   const avgMoisturePct = useMemo(() => {
     if (!collections.length) return 0;
     const sum = collections.reduce((s, c) => s + (Number(c.actualMoisturePct) || 0), 0);
     return (sum / collections.length).toFixed(1);
   }, [collections]);
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="⚙️ Stage 2: Process & Moisture Weight (प्रसंस्करण एवं नमी वजन)"
+        title="⚙️ Stage 2: Process & Moisture Weight "
         subtitle="Standard GRN Lorry Weight Formula, Moisture / Ash Deduction Testing & Baler Compressing Log"
       />
 
@@ -68,7 +68,7 @@ export default function BiomassProcessing() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-scale-balanced" />
+            <LucideIconWrapper size={16}><Scale size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Actual Net Weight</p>
@@ -79,7 +79,7 @@ export default function BiomassProcessing() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#ECFDF5", color: "#047857", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-file-invoice" />
+            <LucideIconWrapper size={16}><FileText size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Adjusted GRN Invoice</p>
@@ -90,7 +90,7 @@ export default function BiomassProcessing() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-droplet" />
+            <LucideIconWrapper size={16}><Droplets size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Average Moisture %</p>
@@ -101,7 +101,7 @@ export default function BiomassProcessing() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FAF5FF", color: "#7E22CE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-boxes-stacked" />
+            <LucideIconWrapper size={16}><Boxes size={16} /></LucideIconWrapper>
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Bales Produced</p>
@@ -116,7 +116,7 @@ export default function BiomassProcessing() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, borderBottom: "1.5px solid #E2E8F0", paddingBottom: 10 }}>
           <div>
             <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: "#0F172A", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 8 }}>
-              <span>⚖️</span> Processing GRN Lorry Weight Formula (मानकीकृत बिलिंग सूत्र)
+              <span>⚖️</span> Processing GRN Lorry Weight Formula 
             </h3>
             <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "#475569" }}>
               <strong>Formula:</strong> Actual Net Wt × (100% - Actual Moist% - Actual Ash%) / (100% - Agreed Moist% - Agreed Ash%)
@@ -152,20 +152,16 @@ export default function BiomassProcessing() {
 
         {/* Calculation Result Banner */}
         <div style={{ background: liveGrnResult.isRejected ? "#FEE2E2" : "#ECFDF5", border: liveGrnResult.isRejected ? "1.5px solid #EF4444" : "1.5px solid #10B981", borderRadius: 10, padding: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          {liveGrnResult.isRejected ? (
-            <div style={{ color: "#991B1B", fontWeight: 900, fontSize: 13.5 }}>
+          {liveGrnResult.isRejected ? (<div style={{ color: "#991B1B", fontWeight: 900, fontSize: 13.5 }}>
               🚨 REJECTION ALERT: {liveGrnResult.rejectionReason}
-            </div>
-          ) : (
-            <div>
+            </div>) : (<div>
               <div style={{ fontSize: 12, fontWeight: 700, color: "#065F46" }}>
                 Calculation: {calcNetWt} MT × (100% - {calcActualMoist}% - {calcActualAsh}%) / (100% - {calcAgreedMoist}% - {calcAgreedAsh}%) = <strong>{liveGrnResult.invoiceWeightMt} MT</strong>
               </div>
               <div style={{ fontSize: 15, fontWeight: 900, color: "#047857", marginTop: 4 }}>
                 Final Adjusted GRN Weight for Invoice: {liveGrnResult.invoiceWeightMt} MT (Deduction: {liveGrnResult.deductionMt} MT)
               </div>
-            </div>
-          )}
+            </div>)}
 
           <Button
             onClick={() => navigate("/weighment/new")}
@@ -223,14 +219,12 @@ export default function BiomassProcessing() {
             {
               key: "actions",
               label: "SLIP",
-              render: (r) => (
-                <button
+              render: (r) => (<button
                   onClick={() => setSelectedSlipForPrint(r)}
                   style={{ padding: "4px 10px", fontSize: 11, fontWeight: 700, background: "#EFF6FF", color: "#1E40AF", border: "1px solid #BFDBFE", borderRadius: 6, cursor: "pointer" }}
                 >
                   🖨️ RST Slip
-                </button>
-              ),
+                </button>),
             },
           ]}
         />
@@ -241,6 +235,5 @@ export default function BiomassProcessing() {
         slipData={selectedSlipForPrint}
         onClose={() => setSelectedSlipForPrint(null)}
       />
-    </div>
-  );
+    </div>);
 }

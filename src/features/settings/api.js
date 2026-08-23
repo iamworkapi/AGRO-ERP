@@ -1,29 +1,69 @@
-// Mock-backed for now - resolves from mockData.js with a fake delay instead
-// of calling apiClient. Swapping in the real backend later means restoring
-// the apiClient.get/post calls here only.
-import { roles, auditLog, orgProfile } from "./mockData";
+import { apiClient } from "../../services/apiClient";
 
-const resolveAfter = (value, ms = 300) => new Promise((resolve) => setTimeout(() => resolve(value), ms));
-
-export function fetchRoles() {
-  return resolveAfter([...roles]);
+function unwrapList(data) {
+  return Array.isArray(data?.data) ? data.data : [];
 }
 
-export function fetchAuditLog() {
-  return resolveAfter([...auditLog]);
+// Backend returns: { key, label, permissions[] } for roles
+// Frontend expects: { role, permissions, users }
+function adaptRole(r) {
+  if (!r) return r;
+  return {
+    role: r.label || r.role,
+    permissions: Array.isArray(r.permissions) ? r.permissions.join(", ") : r.permissions || "",
+    users: 0,
+  };
 }
 
-export function fetchOrgProfile() {
-  return resolveAfter({ ...orgProfile });
+// Backend returns: { action, actor: { profile: { fullName } }, createdAt }
+// Frontend expects: { action, user, time }
+function adaptLogEntry(entry) {
+  if (!entry) return entry;
+  const userName = entry.actor?.profile?.fullName || entry.actorName || "Unknown";
+  const time = entry.createdAt ? new Date(entry.createdAt).toLocaleString("en-IN") : "";
+  return {
+    action: entry.action || entry.description || "",
+    user: userName,
+    time,
+  };
 }
 
-export function createRole(payload) {
-  const record = { users: 0, ...payload };
-  roles.push(record); // mock "write" - becomes a real POST later
-  return resolveAfter(record);
+function adaptOrgProfile(p) {
+  if (!p) return p;
+  return {
+    name: p.orgName || p.name || "",
+    address: p.address || "",
+    centres: 0,
+    commodity: "",
+    plan: "",
+  };
 }
 
-export function updateOrgProfile(payload) {
-  Object.assign(orgProfile, payload); // mock "write" - becomes a real PUT later
-  return resolveAfter({ ...orgProfile });
+export async function fetchRoles() {
+  const { data } = await apiClient.get("/settings/roles");
+  return unwrapList(data).map(adaptRole);
+}
+
+export async function fetchAuditLog() {
+  const { data } = await apiClient.get("/settings/audit-log");
+  const logs = unwrapList(data);
+  return logs.map(adaptLogEntry);
+}
+
+export async function fetchOrgProfile() {
+  const { data } = await apiClient.get("/settings/org-profile");
+  return adaptOrgProfile(data.data || data);
+}
+
+export async function createRole(payload) {
+  const { data } = await apiClient.post("/settings/roles", {
+    role: payload.role,
+    permissions: typeof payload.permissions === "string" ? payload.permissions.split(",").map((s) => s.trim()) : payload.permissions || [],
+  });
+  return adaptRole(data.data || data);
+}
+
+export async function updateOrgProfile(payload) {
+  const { data } = await apiClient.put("/settings/org-profile", payload);
+  return adaptOrgProfile(data.data || data);
 }

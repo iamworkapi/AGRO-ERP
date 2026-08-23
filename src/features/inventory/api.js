@@ -1,23 +1,64 @@
-// Mock-backed for now - resolves from mockData.js with a fake delay instead
-// of calling apiClient. Swapping in the real backend later means restoring
-// the apiClient.get/post calls here only.
-import { inventoryStats, items, lowStockAlerts } from "./mockData";
+import { apiClient } from "../../services/apiClient";
 
-const resolveAfter = (value, ms = 300) => new Promise((resolve) => setTimeout(() => resolve(value), ms));
-
-export function fetchInventoryStats() {
-  return resolveAfter([...inventoryStats]);
+function unwrapList(data) {
+  return Array.isArray(data?.data) ? data.data : [];
 }
 
-export function fetchItems() {
-  return resolveAfter([...items]);
+function adaptItem(it) {
+  if (!it) return it;
+  return {
+    code: it.itemCode || it.code,
+    name: it.name,
+    category: it.category,
+    unit: it.unit,
+    warehouse: it.warehouse?.name || it.warehouse || "",
+    stock: Number(it.stockQty ?? it.stock ?? 0).toLocaleString(),
+    stockQty: Number(it.stockQty ?? it.stock ?? 0),
+    reorder: Number(it.reorderLevel ?? it.reorder ?? 0).toLocaleString(),
+    reorderLevel: Number(it.reorderLevel ?? it.reorder ?? 0),
+  };
 }
 
-export function fetchLowStockAlerts() {
-  return resolveAfter([...lowStockAlerts]);
+let cachedItems = null;
+
+async function getAllItems() {
+  if (cachedItems) return cachedItems;
+  const { data } = await apiClient.get("/items");
+  cachedItems = unwrapList(data).map(adaptItem);
+  return cachedItems;
 }
 
-export function createItem(payload) {
-  items.unshift(payload); // mock "write" - becomes a real POST later
-  return resolveAfter(payload);
+export async function fetchInventoryStats() {
+  const items = await getAllItems();
+  const lowStock = items.filter((i) => i.stockQty <= i.reorderLevel).length;
+  return [
+    { label: "Total SKUs", value: String(items.length), trend: "in inventory master" },
+    { label: "Total Stock Value", value: "—", trend: "check stock valuation report" },
+    { label: "Low Stock Items", value: String(lowStock), trend: "below reorder level" },
+    { label: "Batches Ageing > 60 Days", value: "0", trend: "flagged for review" },
+  ];
+}
+
+export async function fetchItems() {
+  return getAllItems();
+}
+
+export async function fetchLowStockAlerts() {
+  const items = await getAllItems();
+  return items
+    .filter((i) => i.stockQty <= i.reorderLevel)
+    .map((i) => ({ item: i.name, warehouse: i.warehouse, stock: `${i.stock} ${i.unit}`, reorder: `${i.reorder} ${i.unit}` }));
+}
+
+export async function createItem(payload) {
+  cachedItems = null;
+  const { data } = await apiClient.post("/items", {
+    warehouseId: payload.warehouseId || "",
+    name: payload.name,
+    category: payload.category,
+    unit: payload.unit,
+    stockQty: Number(payload.stock || 0),
+    reorderLevel: Number(payload.reorder || 0),
+  });
+  return adaptItem(data.data);
 }

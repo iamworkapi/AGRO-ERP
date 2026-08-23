@@ -1,4 +1,14 @@
 import { useNavigate } from "react-router-dom";
+import { Tractor, Scale, Warehouse, Truck, Workflow, ArrowRight, ExternalLink } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
 
 export default function BiomassPipelineTracker({
   totalCollectedMt = 420.5,
@@ -18,7 +28,7 @@ export default function BiomassPipelineTracker({
       label: "Village Sourcing Inflow",
       metric: `${totalCollectedMt.toFixed(1)} MT`,
       subtext: "Direct Farm-gate Harvest",
-      icon: "fa-solid fa-tractor",
+      Icon: Tractor,
       color: "#D97706",
       tint: "#FEF3C7",
       border: "#FDE68A",
@@ -31,7 +41,7 @@ export default function BiomassPipelineTracker({
       label: "Weighbridge GRN & Baling",
       metric: `${totalProcessedMt.toFixed(1)} MT`,
       subtext: "Moisture Tested & Baled",
-      icon: "fa-solid fa-scale-balanced",
+      Icon: Scale,
       color: "#2563EB",
       tint: "#EFF6FF",
       border: "#BFDBFE",
@@ -44,7 +54,7 @@ export default function BiomassPipelineTracker({
       label: "Yard Stacking & Probes",
       metric: `${totalStoredMt.toLocaleString("en-IN")} MT`,
       subtext: `${activeStacksCount} Active Yard Stacks`,
-      icon: "fa-solid fa-warehouse",
+      Icon: Warehouse,
       color: "#059669",
       tint: "#ECFDF5",
       border: "#A7F3D0",
@@ -57,7 +67,7 @@ export default function BiomassPipelineTracker({
       label: "Factory Deliveries & Off-take",
       metric: `${totalDispatchedMt.toFixed(1)} MT`,
       subtext: "Reliance / Power Units",
-      icon: "fa-solid fa-truck-fast",
+      Icon: Truck,
       color: "#7E22CE",
       tint: "#FAF5FF",
       border: "#E9D5FF",
@@ -101,7 +111,9 @@ export default function BiomassPipelineTracker({
                 fontSize: 13,
               }}
             >
-              <i className="fa-solid fa-diagram-project" />
+              <LucideIconWrapper size={13}>
+                <Workflow size={13} />
+              </LucideIconWrapper>
             </span>
             <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: "var(--ink)" }}>
               Biomass Supply Chain 4-Stage Operational Pipeline
@@ -152,7 +164,9 @@ export default function BiomassPipelineTracker({
           }}
         >
           <span>Open Full 4-Stage Tracker</span>
-          <i className="fa-solid fa-arrow-right" style={{ fontSize: 11 }} />
+          <LucideIconWrapper size={11}>
+            <ArrowRight size={11} />
+          </LucideIconWrapper>
         </button>
       </div>
 
@@ -227,7 +241,9 @@ export default function BiomassPipelineTracker({
                   border: `1px solid ${stg.border}`,
                 }}
               >
-                <i className={stg.icon} />
+                <LucideIconWrapper size={14}>
+                  <stg.Icon size={14} />
+                </LucideIconWrapper>
               </div>
             </div>
 
@@ -255,7 +271,9 @@ export default function BiomassPipelineTracker({
               }}
             >
               <span>{stg.subtext}</span>
-              <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: 9, opacity: 0.6 }} />
+              <LucideIconWrapper size={9}>
+                <ExternalLink size={9} />
+              </LucideIconWrapper>
             </div>
           </div>
         ))}

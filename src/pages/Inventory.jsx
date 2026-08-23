@@ -1,4 +1,11 @@
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import {
+  FileText,
+  CheckCircle2,
+  Clock,
+  Boxes,
+} from "lucide-react";
 import PageHeader from "../components/common/PageHeader";
 import Card from "../components/common/Card";
 import StatCard from "../components/common/StatCard";
@@ -6,9 +13,12 @@ import DataTable from "../components/common/DataTable";
 import Badge from "../components/common/Badge";
 import Select from "../components/common/Select";
 import AsyncState from "../components/common/AsyncState";
+import { StaggerContainer } from "../components/design-system/index";
 import { useStockEntries } from "../features/stockEntries/useStockEntries";
 import { useWarehouses } from "../features/warehouses/useWarehouses";
 import { useAuth } from "../hooks/useAuth";
+
+const slideUp = { hidden: { opacity: 0, y: 12 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] } }) };
 
 export default function Inventory() {
   const { user } = useAuth();
@@ -30,10 +40,10 @@ export default function Inventory() {
     const pending = entries.filter((e) => e.status === "pending");
     const totalNetKg = approved.reduce((sum, e) => sum + (e.netWeightKg || 0), 0);
     return [
-      { label: "Total Entries", value: String(entries.length), trend: "Weighment slips logged", icon: "fa-solid fa-file-lines", iconColor: "#3B82F6" },
-      { label: "Approved Slips", value: String(approved.length), trend: "Verified by Admin", icon: "fa-solid fa-circle-check", iconColor: "#10B981" },
-      { label: "Pending Review", value: String(pending.length), trend: pending.length ? "Awaiting approval" : "All clear", icon: "fa-solid fa-hourglass-half", iconColor: "#F59E0B" },
-      { label: "Net Stock (Approved)", value: `${totalNetKg.toLocaleString()} kg`, trend: "Inward - outward, approved only", icon: "fa-solid fa-boxes-stacked", iconColor: "#059669" },
+      { label: "Total Entries", value: String(entries.length), trend: "Weighment slips logged", icon: FileText, iconColor: "#3B82F6" },
+      { label: "Approved Slips", value: String(approved.length), trend: "Verified by Admin", icon: CheckCircle2, iconColor: "#10B981" },
+      { label: "Pending Review", value: String(pending.length), trend: pending.length ? "Awaiting approval" : "All clear", icon: Clock, iconColor: "#F59E0B" },
+      { label: "Net Stock (Approved)", value: `${totalNetKg.toLocaleString()} kg`, trend: "Inward - outward, approved only", icon: Boxes, iconColor: "#059669" },
     ];
   }, [entries]);
 
@@ -50,11 +60,15 @@ export default function Inventory() {
 
       <AsyncState status={status} error={error} loadingLabel="Loading stock ledger…" />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="responsive-grid-2">
-        {stats.map((s) => (
-          <StatCard key={s.label} {...s} />
-        ))}
-      </div>
+      <StaggerContainer>
+        <motion.div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="responsive-grid-2">
+          {stats.map((s, i) => (
+            <motion.div key={s.label} variants={slideUp} custom={i}>
+              <StatCard {...s} />
+            </motion.div>
+          ))}
+        </motion.div>
+      </StaggerContainer>
 
       <Card
         title="Stock Entry Ledger"

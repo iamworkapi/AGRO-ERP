@@ -1,0 +1,1 @@
+export { default as alertRoutes } from "./routes/alert.routes.js";

@@ -1,21 +1,28 @@
-// Mock-backed for now - resolves from mockData.js with a fake delay instead
-// of calling apiClient. Swapping in the real backend later means restoring
-// the apiClient.get/post calls here only.
-import { exceptions } from "./mockData";
+import { apiClient } from "../../services/apiClient";
 
-const resolveAfter = (value, ms = 300) => new Promise((resolve) => setTimeout(() => resolve(value), ms));
-
-export function fetchExceptions() {
-  return resolveAfter([...exceptions]);
+function unwrapList(data) {
+  return Array.isArray(data?.data) ? data.data : [];
 }
 
-export function resolveException(description) {
-  const idx = exceptions.findIndex((e) => e.description === description);
-  if (idx === -1) return resolveAfter(null);
-  // Replace the element rather than mutating it in place - the previous
-  // fetch's payload shares this object reference and Redux/Immer deep-freezes
-  // fulfilled payloads, so mutating a field on it would throw.
-  const updated = { ...exceptions[idx], status: "Resolved" };
-  exceptions[idx] = updated;
-  return resolveAfter(updated);
+// Backend Alert shape → what Alerts page expects (description as key, status for badge)
+function adaptAlert(a) {
+  if (!a) return a;
+  return {
+    type: a.type || "",
+    severity: a.severity || "Medium",
+    description: a.title || "",
+    status: a.status || "Open",
+    warehouse: typeof a.warehouseId === "string" ? a.warehouseId : a.warehouseId?.name || "",
+  };
+}
+
+export async function fetchExceptions() {
+  const { data } = await apiClient.get("/alerts");
+  return unwrapList(data).map(adaptAlert);
+}
+
+export async function resolveException(id) {
+  const { data } = await apiClient.post(`/alerts/${id}/resolve`);
+  const resolved = data.data || data;
+  return adaptAlert(resolved);
 }

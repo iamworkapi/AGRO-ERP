@@ -1,4 +1,12 @@
 import { useState } from "react";
+import {  Send, X, CheckCircle, Check, Warehouse, Plus, Loader, CheckSquare, AlertTriangle, MessageSquare, Calendar, User, ClipboardList , Clock, Layers, CalendarCheck, Tractor, Boxes, Scale, ClipboardCheck } from "lucide-react";
+function LucideIconWrapper({ children, size = 16 }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
 import Badge from "../components/common/Badge";
@@ -13,10 +21,10 @@ import { useDisclosure } from "../hooks/useDisclosure";
 import { toast } from "../utils/toast";
 
 const CATEGORY_ICONS = {
-  Field: "fa-solid fa-tractor",
-  Inventory: "fa-solid fa-boxes-stacked",
-  Weighment: "fa-solid fa-scale-balanced",
-  General: "fa-solid fa-clipboard-check",
+  Field: <LucideIconWrapper size={12}><Tractor size={12} /></LucideIconWrapper>,
+  Inventory: <LucideIconWrapper size={12}><Boxes size={12} /></LucideIconWrapper>,
+  Weighment: <LucideIconWrapper size={12}><Scale size={12} /></LucideIconWrapper>,
+  General: <LucideIconWrapper size={12}><ClipboardCheck size={12} /></LucideIconWrapper>,
 };
 
 const PRIORITY_TONES = {
@@ -185,7 +193,7 @@ export default function TaskAssignment() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Ongoing Operations</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-spinner spin" />
+              <LucideIconWrapper size={14}><Loader size={14} /></LucideIconWrapper>
             </div>
           </div>
 
@@ -225,7 +233,7 @@ export default function TaskAssignment() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Verified Finished Tasks</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-circle-check" />
+              <LucideIconWrapper size={16}><CheckCircle size={16} /></LucideIconWrapper>
             </div>
           </div>
 
@@ -265,7 +273,7 @@ export default function TaskAssignment() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>High Priority Items</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(239,68,68,0.3)", boxShadow: "0 0 14px rgba(239,68,68,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-triangle-exclamation" />
+              <LucideIconWrapper size={16}><AlertTriangle size={16} /></LucideIconWrapper>
             </div>
           </div>
 
@@ -305,7 +313,7 @@ export default function TaskAssignment() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Task Register</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-list-check" />
+              <LucideIconWrapper size={16}><CheckSquare size={16} /></LucideIconWrapper>
             </div>
           </div>
 
@@ -326,7 +334,7 @@ export default function TaskAssignment() {
               onClick={() => setStatusFilter("all")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-list-check" style={{ fontSize: 11 }} /> All Tasks ({scopedTasks.length})
+              <LucideIconWrapper size={11}><CheckSquare size={11} /></LucideIconWrapper> All Tasks ({scopedTasks.length})
             </button>
             <button
               type="button"
@@ -334,7 +342,7 @@ export default function TaskAssignment() {
               onClick={() => setStatusFilter("In Progress")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-spinner" style={{ fontSize: 11 }} /> In Progress ({inProgressCount})
+              <LucideIconWrapper size={11}><Loader size={11} /></LucideIconWrapper> In Progress ({inProgressCount})
             </button>
             <button
               type="button"
@@ -342,7 +350,7 @@ export default function TaskAssignment() {
               onClick={() => setStatusFilter("Not Started")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-hourglass-start" style={{ fontSize: 11 }} /> Not Started ({notStartedCount})
+              <LucideIconWrapper size={11}><Clock size={11} /></LucideIconWrapper> Not Started ({notStartedCount})
             </button>
             <button
               type="button"
@@ -350,7 +358,7 @@ export default function TaskAssignment() {
               onClick={() => setStatusFilter("Completed")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-circle-check" style={{ fontSize: 11 }} /> Completed ({completedCount})
+              <LucideIconWrapper size={11}><CheckCircle size={11} /></LucideIconWrapper> Completed ({completedCount})
             </button>
           </div>
         </div>
@@ -372,7 +380,7 @@ export default function TaskAssignment() {
                 boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)",
               }}
             >
-              <i className="fa-solid fa-plus" /> Assign New Task
+              <LucideIconWrapper size={16}><Plus size={16} /></LucideIconWrapper> Assign New Task
             </Button>
           }
           searchable
@@ -388,7 +396,7 @@ export default function TaskAssignment() {
               render: (r) => (
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   <span style={{ fontWeight: 700, color: "var(--ink)", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <i className={CATEGORY_ICONS[r.category] || "fa-solid fa-clipboard-list"} style={{ color: "var(--primary)", fontSize: 12 }} />
+                    {CATEGORY_ICONS[r.category] || <LucideIconWrapper size={12}><ClipboardList size={12} /></LucideIconWrapper>}
                     {r.task}
                   </span>
                   {r.description && (
@@ -409,7 +417,7 @@ export default function TaskAssignment() {
               label: "Warehouse Hub",
               render: (r) => (
                 <span style={{ fontWeight: 600, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-warehouse" style={{ fontSize: 11 }} />
+                  <LucideIconWrapper size={11}><Warehouse size={11} /></LucideIconWrapper>
                   {r.warehouse || assignedHub}
                 </span>
               ),
@@ -428,7 +436,7 @@ export default function TaskAssignment() {
               label: "Deadline",
               render: (r) => (
                 <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-regular fa-calendar-check" style={{ color: "var(--muted)", fontSize: 11 }} />
+                  <LucideIconWrapper size={11}><CalendarCheck size={11} /></LucideIconWrapper>
                   {r.due}
                 </span>
               ),
@@ -454,11 +462,11 @@ export default function TaskAssignment() {
                     onClick={() => handleComplete(r)}
                     style={{ padding: "4px 10px", fontSize: 11.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, background: "var(--primary-tint)", color: "var(--primary-deep)", borderColor: "var(--primary)" }}
                   >
-                    <i className="fa-solid fa-check" /> Complete
+                    <LucideIconWrapper size={16}><Check size={16} /></LucideIconWrapper> Complete
                   </Button>
                 ) : (
                   <span style={{ fontSize: 11.5, color: "#059669", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                    <i className="fa-solid fa-circle-check" /> Finished
+                    <LucideIconWrapper size={16}><CheckCircle size={16} /></LucideIconWrapper> Finished
                   </span>
                 ),
             },
@@ -477,7 +485,7 @@ export default function TaskAssignment() {
           <FormField
             label="Task Title"
             required
-            icon="fa-solid fa-clipboard-list"
+            icon={<LucideIconWrapper size={16}><ClipboardList size={16} /></LucideIconWrapper>}
             value={form.task}
             onChange={set("task")}
             placeholder="e.g. Moisture Verification & Grain Sampling — Lot 40"
@@ -489,7 +497,7 @@ export default function TaskAssignment() {
             label="Assigned Staff Member"
             type="select"
             required
-            icon="fa-solid fa-user"
+            icon={<LucideIconWrapper size={16}><User size={16} /></LucideIconWrapper>}
             value={form.assignedTo}
             onChange={set("assignedTo")}
             options={staffOptions}
@@ -503,7 +511,7 @@ export default function TaskAssignment() {
             type="select"
             required
             disabled={isSupervisor}
-            icon="fa-solid fa-warehouse"
+            icon={<LucideIconWrapper size={16}><Warehouse size={16} /></LucideIconWrapper>}
             value={isSupervisor ? assignedHub : form.warehouse}
             onChange={set("warehouse")}
             options={isSupervisor ? [assignedHub] : ["Manimau Centre", "Betiya Hata Store", "Sai Complex Yard", "Gorakhpur North"]}
@@ -516,7 +524,7 @@ export default function TaskAssignment() {
               label="Priority Level"
               type="select"
               required
-              icon="fa-solid fa-triangle-exclamation"
+              icon={<LucideIconWrapper size={16}><AlertTriangle size={16} /></LucideIconWrapper>}
               value={form.priority}
               onChange={set("priority")}
               options={["High", "Medium", "Normal"]}
@@ -528,7 +536,7 @@ export default function TaskAssignment() {
               label="Task Category"
               type="select"
               required
-              icon="fa-solid fa-layer-group"
+              icon={<LucideIconWrapper size={16}><Layers size={16} /></LucideIconWrapper>}
               value={form.category}
               onChange={set("category")}
               options={["Field", "Inventory", "Weighment", "General"]}
@@ -540,7 +548,7 @@ export default function TaskAssignment() {
           <FormField
             label="Due Date / Deadline"
             type="date"
-            icon="fa-solid fa-calendar-day"
+            icon={<LucideIconWrapper size={16}><Calendar size={16} /></LucideIconWrapper>}
             value={form.dueDate}
             onChange={set("dueDate")}
             compact
@@ -550,7 +558,7 @@ export default function TaskAssignment() {
           <FormField
             label="Task Instructions & Notes"
             type="textarea"
-            icon="fa-solid fa-comment-dots"
+            icon={<LucideIconWrapper size={16}><MessageSquare size={16} /></LucideIconWrapper>}
             value={form.description}
             onChange={set("description")}
             placeholder="Provide specific instructions or field location notes..."
@@ -560,7 +568,7 @@ export default function TaskAssignment() {
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
             <Button variant="secondary" type="button" onClick={() => closeModal()} style={{ padding: "7px 14px", fontSize: 12.5 }}>
-              <i className="fa-solid fa-xmark" /> Cancel
+              <LucideIconWrapper size={16}><X size={16} /></LucideIconWrapper> Cancel
             </Button>
             <Button
               type="submit"
@@ -578,11 +586,11 @@ export default function TaskAssignment() {
             >
               {saving ? (
                 <>
-                  <i className="fa-solid fa-circle-notch spin" /> Dispatching…
+                  <LucideIconWrapper size={14}><Loader size={14} /></LucideIconWrapper> Dispatching…
                 </>
               ) : (
                 <>
-                  <i className="fa-solid fa-paper-plane" /> Dispatch Task
+                  <LucideIconWrapper size={16}><Send size={16} /></LucideIconWrapper> Dispatch Task
                 </>
               )}
             </Button>

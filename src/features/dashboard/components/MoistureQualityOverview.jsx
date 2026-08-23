@@ -1,4 +1,14 @@
 import { useNavigate } from "react-router-dom";
+import { ShieldCheck } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
 
 export default function MoistureQualityOverview({
   average = 18.2,
@@ -164,7 +174,9 @@ export default function MoistureQualityOverview({
                 gap: 5,
               }}
             >
-              <i className="fa-solid fa-shield-check" style={{ fontSize: 9 }} />
+              <LucideIconWrapper size={9}>
+                <ShieldCheck size={9} />
+              </LucideIconWrapper>
               {statusText}
             </span>
           </div>

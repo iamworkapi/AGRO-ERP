@@ -1,3 +1,13 @@
+import { Wheat, Network, Check, Shield } from "lucide-react";
+
+function iconWrapper(children, size) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
 const FEATURES = [
   "Real-time stock, moisture & weighment tracking",
   "Role-based access for Admins, Supervisors & Staff",
@@ -105,7 +115,7 @@ export default function AuthLayout({ children }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16, maxWidth: 460 }}>
             <div className="agro-glass-badge" style={{ borderRadius: 12, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 800, color: "#FFFFFF" }}>
-                <i className="fa-solid fa-wheat-awn" style={{ color: "#D4A373", fontSize: 13 }} />
+                {iconWrapper(<Wheat size={13} />, 13)}
                 Biomass Weighment
               </div>
               <span style={{ fontSize: 10.5, color: "rgba(255, 255, 255, 0.75)", lineHeight: 1.35 }}>
@@ -115,7 +125,7 @@ export default function AuthLayout({ children }) {
 
             <div className="agro-glass-badge" style={{ borderRadius: 12, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 800, color: "#FFFFFF" }}>
-                <i className="fa-solid fa-network-wired" style={{ color: "#9AE6B4", fontSize: 12 }} />
+                {iconWrapper(<Network size={12} />, 12)}
                 12 Live Hubs
               </div>
               <span style={{ fontSize: 10.5, color: "rgba(255, 255, 255, 0.75)", lineHeight: 1.35 }}>
@@ -144,7 +154,7 @@ export default function AuthLayout({ children }) {
                   fontSize: 10,
                 }}
               >
-                <i className="fa-solid fa-check" />
+                {iconWrapper(<Check size={10} />, 10)}
               </span>
               <span style={{ fontSize: 13, color: "rgba(255, 255, 255, 0.95)", fontWeight: 500 }}>{feature}</span>
             </div>
@@ -157,7 +167,7 @@ export default function AuthLayout({ children }) {
             &copy; {new Date().getFullYear()} Kusumganga Agro Solutions Pvt Ltd. All rights reserved.
           </p>
           <span style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 600, display: "flex", alignItems: "center", gap: 5 }}>
-            <i className="fa-solid fa-shield-halved" style={{ color: "#9AE6B4", fontSize: 11 }} /> AES-256 Encrypted
+            {iconWrapper(<Shield size={11} />, 11)} AES-256 Encrypted
           </span>
         </div>
       </div>

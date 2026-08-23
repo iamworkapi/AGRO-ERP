@@ -1,113 +1,177 @@
-function Icon({ children, size = 18, style, ...rest }) {
+import {
+  ChevronDown,
+  Search,
+  MoreVertical,
+  Bell,
+  Warehouse,
+  ChartPie,
+  ClipboardList,
+  Scale,
+  Boxes,
+  ShoppingCart,
+  Receipt,
+  Users,
+  ChartColumn,
+  TriangleAlert,
+  Sliders,
+  Users2,
+  Wheat,
+  Tractor,
+  Gauge,
+  Truck,
+  Package,
+  ArrowRight,
+  Plus,
+  UserPlus,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Info,
+  Clock,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  ExternalLink,
+  LogOut,
+  Building2,
+  Calendar,
+  Settings,
+  FileText,
+  BarChart3,
+  Shield,
+  Thermometer,
+  Droplets,
+  Zap,
+  Eye,
+  Pencil,
+  Trash2,
+  Filter,
+  Download,
+  Upload,
+  RefreshCw,
+  X,
+  Menu,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+} from "lucide-react";
+
+function LucideIcon({ children, size = 18, style = {} }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ display: "block", ...style }}
-      aria-hidden="true"
-      {...rest}
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: size,
+        height: size,
+        flexShrink: 0,
+        ...style,
+      }}
     >
       {children}
-    </svg>
+    </span>
   );
 }
 
-/* ---- Generic UI icons ---- */
+export { LucideIcon };
 
-export function Chevron({ size = 13, style = {}, className = "" }) {
-  return <i className={`fa-solid fa-chevron-down ${className}`} style={{ fontSize: size, ...style }} />;
+// Generic UI icons
+export function Chevron({ size = 13, style = {} }) {
+  return <LucideIcon size={size} style={style}><path d="m6 9 6 6 6-6" /></LucideIcon>;
 }
 
-export function SearchIcon({ size = 14, style = {}, className = "" }) {
-  return <i className={`fa-solid fa-magnifying-glass ${className}`} style={{ fontSize: size, ...style }} />;
+export function ChevronUp({ size = 13, style = {} }) {
+  return <LucideIcon size={size} style={style}><path d="m18 15-6-6-6 6" /></LucideIcon>;
 }
 
-export function ChevronsLeft({ size = 14, style = {}, className = "" }) {
-  return <i className={`fa-solid fa-angles-left ${className}`} style={{ fontSize: size, ...style }} />;
+export function SearchIcon({ size = 14, style = {} }) {
+  return <Search size={size} style={style} />;
 }
 
-export function ChevronsRight({ size = 14, style = {}, className = "" }) {
-  return <i className={`fa-solid fa-angles-right ${className}`} style={{ fontSize: size, ...style }} />;
+export function ChevronsLeft({ size = 14, style = {} }) {
+  return <ChevronsLeft size={size} style={style} />;
 }
 
-export function MoreIcon({ size = 14, style = {}, className = "" }) {
-  return <i className={`fa-solid fa-ellipsis-vertical ${className}`} style={{ fontSize: size, ...style }} />;
+export function ChevronsRight({ size = 14, style = {} }) {
+  return <ChevronsRight size={size} style={style} />;
 }
 
-/* ---- Navigation group icons ---- */
-
-function DashboardIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-chart-pie" style={{ fontSize: size, ...style }} />;
+export function MoreIcon({ size = 14, style = {} }) {
+  return <MoreVertical size={size} style={style} />;
 }
 
-function WarehouseIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-warehouse" style={{ fontSize: size, ...style }} />;
+export function MoreHIcon({ size = 14, style = {} }) {
+  return <MoreHorizontal size={size} style={style} />;
 }
 
-function AttendanceIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-clipboard-user" style={{ fontSize: size, ...style }} />;
+// Navigation icons
+export function DashboardIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><ChartPie size={size} /></LucideIcon>;
 }
 
-function WeighmentIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-scale-balanced" style={{ fontSize: size, ...style }} />;
+export function WarehouseIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Warehouse size={size} /></LucideIcon>;
 }
 
-function InventoryIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-boxes-stacked" style={{ fontSize: size, ...style }} />;
+export function AttendanceIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><ClipboardList size={size} /></LucideIcon>;
 }
 
-function PurchaseIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-cart-shopping" style={{ fontSize: size, ...style }} />;
+export function WeighmentIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Scale size={size} /></LucideIcon>;
 }
 
-function SalesIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-file-invoice-dollar" style={{ fontSize: size, ...style }} />;
+export function InventoryIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Boxes size={size} /></LucideIcon>;
 }
 
-function EmployeesIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-users" style={{ fontSize: size, ...style }} />;
+export function PurchaseIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><ShoppingCart size={size} /></LucideIcon>;
 }
 
-function ReportsIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-chart-column" style={{ fontSize: size, ...style }} />;
+export function SalesIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Receipt size={size} /></LucideIcon>;
 }
 
-function AlertsIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-triangle-exclamation" style={{ fontSize: size, ...style }} />;
+export function EmployeesIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Users size={size} /></LucideIcon>;
 }
 
-function SettingsIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-sliders" style={{ fontSize: size, ...style }} />;
+export function ReportsIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><ChartColumn size={size} /></LucideIcon>;
 }
 
-function UsersIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-user-group" style={{ fontSize: size, ...style }} />;
+export function AlertsIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><TriangleAlert size={size} /></LucideIcon>;
 }
 
-function BiomassIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-wheat-awn" style={{ fontSize: size, ...style }} />;
+export function SettingsIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Sliders size={size} /></LucideIcon>;
 }
 
-function Stage1Icon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-tractor" style={{ fontSize: size, ...style }} />;
+export function UsersIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Users2 size={size} /></LucideIcon>;
 }
 
-function Stage2Icon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-gears" style={{ fontSize: size, ...style }} />;
+export function BiomassIcon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Wheat size={size} /></LucideIcon>;
 }
 
-function Stage3Icon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-cubes-stacked" style={{ fontSize: size, ...style }} />;
+export function Stage1Icon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Tractor size={size} /></LucideIcon>;
 }
 
-function Stage4Icon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-truck-ramp-box" style={{ fontSize: size, ...style }} />;
+export function Stage2Icon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Gauge size={size} /></LucideIcon>;
+}
+
+export function Stage3Icon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Package size={size} /></LucideIcon>;
+}
+
+export function Stage4Icon({ size = 17, style = {} }) {
+  return <LucideIcon size={size} style={style}><Truck size={size} /></LucideIcon>;
 }
 
 export const NAV_ICONS = {
@@ -129,4 +193,3 @@ export const NAV_ICONS = {
   "/alerts": AlertsIcon,
   "/settings": SettingsIcon,
 };
-

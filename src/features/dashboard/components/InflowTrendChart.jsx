@@ -1,4 +1,14 @@
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+function LucideIconWrapper({ children, size }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: size, height: size, flexShrink: 0 }}>
+      {children}
+    </span>
+  );
+}
+
+
 
 export default function InflowTrendChart() {
   const [activePoint, setActivePoint] = useState(4); // Friday default
@@ -96,7 +106,9 @@ export default function InflowTrendChart() {
           }}
         >
           <span>{timePeriod}</span>
-          <i className="fa-solid fa-chevron-down" style={{ fontSize: 9, color: "var(--muted)" }} />
+          <LucideIconWrapper size={9}>
+            <ChevronDown size={9} />
+          </LucideIconWrapper>
         </div>
       </div>
 

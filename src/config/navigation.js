@@ -44,9 +44,9 @@ export const NAV_GROUPS = [
     label: "Stage 1: Collection & Vendors",
     path: "/biomass/collection",
     sections: [
-      { label: "Stage 1: Collection (ग्राम संग्रह)", path: "/biomass/collection" },
-      { label: "Biomass Vendor List (आपूर्तिकर्ता सूची)", path: "/biomass/vendors" },
-      { label: "Create Vendor (नया आपूर्तिकर्ता)", path: "/biomass/vendors/create" },
+      { label: "Stage 1: Collection", path: "/biomass/collection" },
+      { label: "Biomass Vendor Directory", path: "/biomass/vendors" },
+      { label: "Register New Vendor", path: "/biomass/vendors/create" },
     ],
     badge: true,
   },
@@ -62,7 +62,7 @@ export const NAV_GROUPS = [
     badge: true,
   },
   {
-    label: "Stage 3: Storage (सुरक्षित भंडारण)",
+    label: "Stage 3: Storage",
     path: "/biomass/storage",
     sections: [
       { label: "Yard Stacking & Probes", path: "/biomass/storage" },
@@ -74,8 +74,8 @@ export const NAV_GROUPS = [
     path: "/biomass/dispatch",
     sections: [
       { label: "Stage 4: Factory Dispatches", path: "/biomass/dispatch" },
-      { label: "Biomass Buyer List (क्रेता / फ़ैक्ट्री)", path: "/biomass/buyers" },
-      { label: "Create Buyer (नया खरीदार जोड़ें)", path: "/biomass/buyers/create" },
+      { label: "Biomass Buyer Directory", path: "/biomass/buyers" },
+      { label: "Register New Buyer", path: "/biomass/buyers/create" },
     ],
     badge: true,
   },
@@ -120,6 +120,7 @@ export const NAV_GROUPS = [
       { label: "Employee Directory", path: "/employees", roles: ["admin"] },
       { label: "Task Assignment", path: "/employees/tasks", roles: ["admin"] },
       { label: "Leave Requests", path: "/employees/leave-requests", roles: ["admin"] },
+      { label: "Payroll", path: "/reports/payroll", roles: ["admin"] },
     ],
   },
   {

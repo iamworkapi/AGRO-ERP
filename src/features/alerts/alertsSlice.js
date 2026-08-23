@@ -29,7 +29,7 @@ const alertsSlice = createSlice({
       })
       .addCase(resolveExceptionThunk.fulfilled, (state, action) => {
         if (!action.payload) return;
-        const idx = state.exceptions.findIndex((e) => e.description === action.payload.description);
+        const idx = state.exceptions.findIndex((e) => e._id === action.payload._id);
         if (idx !== -1) state.exceptions[idx] = action.payload;
       });
   },
