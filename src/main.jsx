@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { PrimeReactProvider } from "primereact/api";
 import { store } from "./app/store.js";
 import App from "./App.jsx";
+import { ErrorBoundary } from "./components/common/ErrorBoundary.jsx";
 
 // PrimeReact: structural CSS (layout, no colors) + a theme closest to the
 // app's existing green palette, so PrimeReact components (Toast, Dialog,
@@ -19,7 +20,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <PrimeReactProvider value={{ ripple: true }}>
       <Provider store={store}>
-        <App />
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
       </Provider>
     </PrimeReactProvider>
   </React.StrictMode>

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Warehouse, Users, Boxes, IndianRupee, Plus, UserPlus, UserCheck, ClipboardList, WarehouseIcon, Truck, Scale, ArrowRight, Wheat } from "lucide-react";
+import { Warehouse, Users, Boxes, IndianRupee, Plus, UserPlus, UserCheck, ClipboardList, Truck, Scale, ArrowRight, Wheat } from "lucide-react";
 import MoistureGauge from "../features/dashboard/components/MoistureGauge";
 import WarehouseTable from "../features/dashboard/components/WarehouseTable";
 import RecentActivity from "../features/dashboard/components/RecentActivity";
@@ -13,6 +13,8 @@ import {
   QuickAction,
   Card,
   StaggerContainer,
+  fadeIn,
+  slideUp,
 } from "../components/design-system/index";
 import { useDashboard } from "../features/dashboard/useDashboard";
 import { useAuth } from "../hooks/useAuth";
@@ -23,8 +25,6 @@ import {
   getStoredStacks,
   DEFAULT_WAREHOUSE_TCC,
 } from "../features/biomass/biomassService";
-
-const { slideUp, fadeIn } = { slideUp: { hidden: { opacity: 0, y: 12 }, visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] } }) } };
 
 function parseKg(display) {
   return Number(String(display || "0").replace(/[^0-9]/g, "")) || 0;
@@ -221,7 +221,7 @@ export default function Dashboard() {
     { label: "Add User", icon: <UserPlus size={13} />, onClick: () => navigate("/users"), color: "#3B82F6" },
     { label: "Add Employee", icon: <UserCheck size={13} />, onClick: () => navigate("/employees/new"), color: "#F59E0B" },
     { label: "Audit Log", icon: <ClipboardList size={13} />, onClick: () => navigate("/settings/audit-log"), color: "#F59E0B" },
-    { label: "View Warehouses", icon: <WarehouseIcon size={13} />, onClick: () => navigate("/warehouses"), color: "var(--primary)" },
+    { label: "View Warehouses", icon: <Warehouse size={13} />, onClick: () => navigate("/warehouses"), color: "var(--primary)" },
   ];
 
   const supervisorQuickActions = [

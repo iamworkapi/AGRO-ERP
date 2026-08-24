@@ -38,15 +38,10 @@ function findActiveAccordionGroup(pathname, groups) {
 
 export default function Sidebar({ mobileOpen = false, onCloseMobile }) {
   const { user } = useAuth();
-  const userRole =
-    user?.roleKey?.toLowerCase()?.includes("supervisor") ||
-    user?.role?.toLowerCase()?.includes("supervisor")
-      ? "supervisor"
-      : "admin";
+  const roleKey = user?.roleKey || "warehouse_admin";
+  const isSupervisor = roleKey === "supervisor";
 
-  // NAV_GROUPS is a static import - only recompute the filtered tree when
-  // the role actually changes, not on every keystroke/route change re-render.
-  const allowedNavGroups = useMemo(() => filterGroupsByRole(NAV_GROUPS, userRole), [userRole]);
+  const allowedNavGroups = useMemo(() => filterGroupsByRole(NAV_GROUPS, roleKey), [roleKey]);
 
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(getStoredCollapsed);

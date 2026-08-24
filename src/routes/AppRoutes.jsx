@@ -73,7 +73,14 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-        <Route path="warehouses/detail" element={<WarehouseDetail />} />
+        <Route
+          path="warehouses/detail"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <WarehouseDetail />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="warehouses/admin-management"
           element={
@@ -92,49 +99,287 @@ export default function AppRoutes() {
           }
         />
 
-        <Route path="attendance" element={<Attendance />} />
-        <Route path="attendance/exceptions" element={<ExceptionApprovals />} />
-        <Route path="attendance/location-map" element={<EmployeeLocationMap />} />
+        <Route
+          path="attendance"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Attendance />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="attendance/exceptions"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <ExceptionApprovals />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="attendance/location-map"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <EmployeeLocationMap />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="weighment" element={<Weighment />} />
-        <Route path="weighment/new" element={<CreateWeighmentSlip />} />
-        <Route path="weighment/machines" element={<WeightMachines />} />
-        <Route path="weighment/deduction-slabs" element={<DeductionSlabConfig />} />
+        <Route
+          path="weighment"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Weighment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="weighment/new"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <CreateWeighmentSlip />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="weighment/machines"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <WeightMachines />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="weighment/deduction-slabs"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <DeductionSlabConfig />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="biomass" element={<BiomassSupplyChain />} />
-        <Route path="biomass/collection" element={<BiomassCollection />} />
-        <Route path="biomass/vendors" element={<BiomassVendors />} />
-        <Route path="biomass/vendors/create" element={<CreateBiomassVendor />} />
-        <Route path="biomass/processing" element={<BiomassProcessing />} />
-        <Route path="biomass/storage" element={<BiomassStorage />} />
-        <Route path="biomass/dispatch" element={<BiomassDispatch />} />
-        <Route path="biomass/buyers" element={<BiomassBuyers />} />
-        <Route path="biomass/buyers/create" element={<CreateBiomassBuyer />} />
+        <Route
+          path="biomass"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <BiomassSupplyChain />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="biomass/collection"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <BiomassCollection />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="biomass/vendors"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <BiomassVendors />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="biomass/vendors/create"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <CreateBiomassVendor />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="biomass/processing"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <BiomassProcessing />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="biomass/storage"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <BiomassStorage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="biomass/dispatch"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <BiomassDispatch />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="biomass/buyers"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <BiomassBuyers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="biomass/buyers/create"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <CreateBiomassBuyer />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="inventory" element={<Inventory />} />
-        <Route path="inventory/items" element={<ItemPartsMaster />} />
-        <Route path="inventory/low-stock-alerts" element={<LowStockAlerts />} />
+        <Route
+          path="inventory"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Inventory />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/items"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <ItemPartsMaster />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/low-stock-alerts"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <LowStockAlerts />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="purchase" element={<Purchase />} />
-        <Route path="purchase/vendors" element={<VendorMasterLedger />} />
+        <Route
+          path="purchase"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Purchase />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="purchase/vendors"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <VendorMasterLedger />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="sales" element={<Sales />} />
-        <Route path="sales/customer-master-ledger" element={<Customers />} />
+        <Route
+          path="sales"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Sales />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="sales/customer-master-ledger"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Customers />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="employees" element={<Employees />} />
-        <Route path="employees/new" element={<AddEmployee />} />
-        <Route path="employees/:id/edit" element={<AddEmployee />} />
-        <Route path="employees/tasks" element={<TaskAssignment />} />
-        <Route path="employees/leave-requests" element={<LeaveRequests />} />
+        <Route
+          path="employees"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Employees />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="employees/new"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <AddEmployee />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="employees/:id/edit"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <AddEmployee />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="employees/tasks"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <TaskAssignment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="employees/leave-requests"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <LeaveRequests />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="reports" element={<Reports />} />
-        <Route path="reports/export" element={<ExportMISReports />} />
+        <Route
+          path="reports"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="reports/export"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <ExportMISReports />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="alerts" element={<Alerts />} />
+        <Route
+          path="alerts"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Alerts />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="settings" element={<Settings />} />
-        <Route path="settings/audit-log" element={<AuditLog />} />
-        <Route path="settings/organisation-profile" element={<OrganisationProfile />} />
+        <Route
+          path="settings"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin", "supervisor"]}>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="settings/audit-log"
+          element={
+            <ProtectedRoute roles={["super_admin"]}>
+              <AuditLog />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="settings/organisation-profile"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <OrganisationProfile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Suspense>
   );

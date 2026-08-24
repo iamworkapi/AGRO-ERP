@@ -144,9 +144,9 @@ export async function register({ fullName, email, phone, password, role }) {
   }
 }
 
-export async function getSessionProfile(user) {
-  const warehouseId = await getOwnWarehouseId(user.profile);
-  return { ...user.profile.toJSON(), warehouseId };
+export async function getSessionProfile(profile) {
+  const warehouseId = await getOwnWarehouseId(profile);
+  return { ...profile.toJSON(), warehouseId };
 }
 
 // Real logout: records this specific token's jti as revoked until it would

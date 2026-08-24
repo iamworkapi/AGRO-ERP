@@ -25,41 +25,17 @@ export default function Login() {
   const WAREHOUSES = [
     {
       id: "wh_1",
-      name: "Warehouse #1 — Kusumganga Central Hub (Nashik)",
+      name: "Warehouse #1 — Kusumganga Central Hub (Barabanki)",
       adminEmail: "admin@pralli.com",
+      adminPass: "admin@123",
       supervisorEmail: "supervisor@pralli.com",
-      adminPass: "Password@123",
-      supervisorPass: "Password@123",
-    },
-    {
-      id: "wh_2",
-      name: "Warehouse #2 — Satara Grain Processing Hub",
-      adminEmail: "admin.satara@kusumganga.com",
-      supervisorEmail: "supervisor.satara@kusumganga.com",
-      adminPass: "Password@123",
-      supervisorPass: "Password@123",
-    },
-    {
-      id: "wh_3",
-      name: "Warehouse #3 — Sangli Agri Storage & Bio-Hub",
-      adminEmail: "admin.sangli@kusumganga.com",
-      supervisorEmail: "supervisor.sangli@kusumganga.com",
-      adminPass: "Password@123",
-      supervisorPass: "Password@123",
-    },
-    {
-      id: "wh_4",
-      name: "Warehouse #4 — Kolhapur Biomass Distribution Centre",
-      adminEmail: "admin.kolhapur@kusumganga.com",
-      supervisorEmail: "supervisor.kolhapur@kusumganga.com",
-      adminPass: "Password@123",
-      supervisorPass: "Password@123",
+      supervisorPass: "supervisor12",
     },
   ];
 
   const [selectedWarehouseId, setSelectedWarehouseId] = useState("wh_1");
   const [selectedRole, setSelectedRole] = useState("super_admin");
-  const [form, setForm] = useState({ identifier: "superadmin@pralli.com", password: "Password@123" });
+  const [form, setForm] = useState({ identifier: "iamworkapi@gmail.com", password: "admin12" });
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -82,7 +58,7 @@ export default function Login() {
     setSelectedRole(roleKey);
     const wh = WAREHOUSES.find((w) => w.id === selectedWarehouseId) || WAREHOUSES[0];
     if (roleKey === "super_admin") {
-      setForm({ identifier: "superadmin@pralli.com", password: "Password@123" });
+      setForm({ identifier: "iamworkapi@gmail.com", password: "admin12" });
     } else if (roleKey === "admin") {
       setForm({ identifier: wh.adminEmail, password: wh.adminPass });
     } else if (roleKey === "supervisor") {
@@ -172,8 +148,8 @@ export default function Login() {
       label: "Super Admin",
       subLabel: "Full Access",
       icon: <LucideIconWrapper size={11.5}><Shield size={11.5} /></LucideIconWrapper>,
-      identifier: "superadmin@pralli.com",
-      password: "Password@123",
+      identifier: "iamworkapi@gmail.com",
+      password: "admin12",
       color: "#10B981",
     },
     {
@@ -182,7 +158,7 @@ export default function Login() {
       subLabel: "Warehouse Admin",
       icon: <LucideIconWrapper size={11.5}><UserCheck size={11.5} /></LucideIconWrapper>,
       identifier: "admin@pralli.com",
-      password: "Password@123",
+      password: "admin@123",
       color: "#059669",
     },
     {
@@ -191,7 +167,7 @@ export default function Login() {
       subLabel: "Floor Ops",
       icon: <LucideIconWrapper size={11.5}><Settings size={11.5} /></LucideIconWrapper>,
       identifier: "supervisor@pralli.com",
-      password: "Password@123",
+      password: "supervisor12",
       color: "#0D9488",
     },
   ];
@@ -240,7 +216,6 @@ export default function Login() {
             {selectedRole === "super_admin" && "Super Admin — Full Multi-Hub Access & Audit Logs"}
             {selectedRole === "admin" && "Admin — Warehouse Operations & Stock Ledger"}
             {selectedRole === "supervisor" && "Supervisor — Floor Weighbridge & Moisture Deductions"}
-            {!selectedRole && "Select a role above to pre-fill credentials"}
           </span>
         </div>
 

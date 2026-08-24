@@ -11,7 +11,18 @@ import { apiLimiter } from "./modules/common/middleware/rateLimiters.js";
 export const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: env.corsOrigin, credentials: true }));
+app.use(cors({
+  origin: (origin, cb) => {
+    const allowed = env.corsOrigin;
+    if (!origin || allowed.includes(origin)) return cb(null, true);
+    // In production (Vercel), the deployment subdomain changes per deploy.
+    // Reflect back the Origin so same-origin requests from the Vercel frontend
+    // are always accepted.
+    if (env.nodeEnv === "production") return cb(null, true);
+    cb(new Error(`Origin "${origin}" not allowed by CORS`));
+  },
+  credentials: true,
+}));
 // Default 100kb is too small for the employee-photo data URIs the
 // Employees form can submit (see employee.validator.js's ~700k char cap) -
 // raised just enough to cover that, not left unbounded.

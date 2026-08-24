@@ -14,7 +14,7 @@ export const register = asyncHandler(async (req, res) => {
 });
 
 export const me = asyncHandler(async (req, res) => {
-  const profile = await authService.getSessionProfile(req.user);
+  const profile = await authService.getSessionProfile(req.user.profile);
   sendSuccess(res, profile);
 });
 

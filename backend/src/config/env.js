@@ -21,8 +21,8 @@ if (process.env.JWT_SECRET === "replace-with-a-long-random-string") {
 
 export const env = {
   nodeEnv: process.env.NODE_ENV || "development",
-  port: Number(process.env.PORT) || 4000,
-  corsOrigin: (process.env.CORS_ORIGIN || "http://localhost:5173").split(",").map((s) => s.trim()),
+  port: Number(process.env.PORT) || 3000,
+  corsOrigin: (process.env.CORS_ORIGIN || "http://localhost:5173,http://localhost:5174").split(",").map((s) => s.trim()),
   mongoUri: process.env.MONGODB_URI,
   jwt: {
     secret: process.env.JWT_SECRET,

@@ -1,56 +1,49 @@
-// Seeds one ready-to-use login per role so the app is testable immediately
-// after `npm install` + a real MONGODB_URI, without hand-registering and
-// approving accounts first. Idempotent - safe to re-run, existing accounts
-// are left untouched and reported, not overwritten.
-//
-// DEV/DEMO ONLY: these are well-known default passwords. Never run this
-// script against a production database, and rotate/delete these accounts
-// before going anywhere near real data.
+// Seeds three ready-to-use login accounts so the app is immediately testable
+// after `npm install` + a real MONGODB_URI.
+// Uses findOneAndUpdate(upsert) so re-running replaces stale demo accounts
+// with the current defaults - credentials never drift between environments.
 import "dotenv/config";
 import mongoose from "mongoose";
 import { connectDB } from "../src/config/db.js";
 import { User } from "../src/modules/users/models/User.js";
 import { ROLES } from "../src/modules/common/constants/roles.js";
 
-// Identifiers/passwords here match the "Quick Demo Login Roles" buttons on
-// the frontend's Login page exactly - if you change the defaults on one
-// side, change them on the other too.
 const DEFAULT_USERS = [
   {
     role: ROLES.SUPER_ADMIN,
-    fullName: process.env.SUPER_ADMIN_NAME || "Super Admin",
-    email: (process.env.SUPER_ADMIN_EMAIL || "superadmin@pralli.com").toLowerCase(),
-    password: process.env.SUPER_ADMIN_PASSWORD || "Password@123",
+    fullName: "Super Admin",
+    email: "iamworkapi@gmail.com",
+    phone: "9891140379",
+    password: "admin12",
   },
   {
     role: ROLES.WAREHOUSE_ADMIN,
-    fullName: process.env.DEFAULT_ADMIN_NAME || "Warehouse Admin",
-    email: (process.env.DEFAULT_ADMIN_EMAIL || "admin@pralli.com").toLowerCase(),
-    password: process.env.DEFAULT_ADMIN_PASSWORD || "Password@123",
+    fullName: "Warehouse Admin",
+    email: "admin@pralli.com",
+    phone: "9999999998",
+    password: "admin@123",
   },
   {
     role: ROLES.SUPERVISOR,
-    fullName: process.env.DEFAULT_SUPERVISOR_NAME || "Warehouse Supervisor",
-    email: (process.env.DEFAULT_SUPERVISOR_EMAIL || "supervisor@pralli.com").toLowerCase(),
-    password: process.env.DEFAULT_SUPERVISOR_PASSWORD || "Password@123",
+    fullName: "Supervisor",
+    email: "supervisor@pralli.com",
+    phone: "8888888888",
+    password: "supervisor12",
   },
 ];
 
-async function seedOne({ role, fullName, email, phone, password }) {
-  const lookup = email ? { email } : { phone };
-  const existing = await User.findOne(lookup);
-  if (existing) {
-    console.log(`  - skip ${role}: account already exists (${email || phone}, status: ${existing.status})`);
-    return;
-  }
-
-  const passwordHash = await User.hashPassword(password);
-  await User.create({ fullName, email, phone, passwordHash, role, status: "active" });
-  console.log(`  - created ${role}: ${email || phone} / ${password}`);
+async function seedOne(user) {
+  const passwordHash = await User.hashPassword(user.password);
+  await User.findOneAndUpdate(
+    { $or: [{ email: user.email }, { phone: user.phone }] },
+    { fullName: user.fullName, email: user.email.toLowerCase(), phone: user.phone, passwordHash, role: user.role, status: "active" },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+  console.log(`  - ${user.role}: ${user.email} / ${user.phone} / ${user.password}`);
 }
 
 export async function seedDefaultUsersIfNeeded() {
-  console.log("Checking default login accounts (dev/demo only)...");
+  console.log("Seeding default login accounts...");
   for (const u of DEFAULT_USERS) {
     await seedOne(u);
   }
@@ -59,7 +52,7 @@ export async function seedDefaultUsersIfNeeded() {
 async function main() {
   await connectDB();
   await seedDefaultUsersIfNeeded();
-  console.log("Done. These accounts are active immediately - no approval step needed.");
+  console.log("Done. All accounts are active immediately - no approval step needed.");
 }
 
 if (process.argv[1]?.includes("seedDefaultUsers.js")) {

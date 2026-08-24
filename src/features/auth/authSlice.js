@@ -25,11 +25,15 @@ export const bootstrapAuthThunk = createAsyncThunk("auth/bootstrap", async (_, {
   const hadToken = Boolean(localStorage.getItem("accessToken"));
   if (!hadToken) return rejectWithValue(null);
   try {
-    return await fetchCurrentUser();
+    const profile = await fetchCurrentUser();
+    if (!profile) {
+      localStorage.removeItem("accessToken");
+      return rejectWithValue(null);
+    }
+    return profile;
   } catch (err) {
     localStorage.removeItem("accessToken");
-    toast.info("Your previous session has expired. Please sign in again.");
-    return rejectWithValue(err.message);
+    return rejectWithValue(err?.message || null);
   }
 });
 
@@ -44,7 +48,11 @@ const initialState = {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    setBootstrapped: (state) => {
+      state.bootstrapped = true;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(loginThunk.pending, (state) => {
@@ -80,4 +88,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { setBootstrapped } = authSlice.actions;
 export default authSlice.reducer;

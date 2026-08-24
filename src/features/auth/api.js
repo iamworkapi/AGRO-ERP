@@ -10,9 +10,10 @@ const ROLE_LABELS = {
 };
 
 function adaptProfile(profile, warehouseId) {
+  if (!profile) return null;
   return {
-    id: profile.id,
-    name: profile.fullName,
+    id: profile.id || profile._id,
+    name: profile.fullName || profile.name || "User",
     role: ROLE_LABELS[profile.role] || profile.role,
     roleKey: profile.role,
     identifier: profile.email || profile.phone,

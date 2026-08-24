@@ -7,6 +7,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Toaster from "./components/common/Toaster";
 import Loader from "./components/common/Loader";
+import { ErrorBoundary } from "./components/common/ErrorBoundary";
+import { useDispatch } from "react-redux";
+import { setBootstrapped } from "./features/auth/authSlice";
 import { useAuth } from "./hooks/useAuth";
 
 // Keeps an already-signed-in user from landing back on the login/register
@@ -27,12 +30,20 @@ function SplashScreen() {
 
 export default function App() {
   const { bootstrap, bootstrapped } = useAuth();
+  const dispatch = useDispatch();
 
   // Confirms any token left over from a previous visit is still valid
   // (GET /auth/me) before deciding whether to show the app or the login
   // screen - see authSlice.js bootstrapAuthThunk.
   useEffect(() => {
     bootstrap();
+
+    // Fallback: if network/backend check takes more than 2.5s, exit splash screen
+    const timer = setTimeout(() => {
+      dispatch(setBootstrapped());
+    }, 2500);
+
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -51,9 +62,11 @@ export default function App() {
           path="/*"
           element={
             <ProtectedRoute>
-              <DashboardLayout>
-                <AppRoutes />
-              </DashboardLayout>
+              <ErrorBoundary>
+                <DashboardLayout>
+                  <AppRoutes />
+                </DashboardLayout>
+              </ErrorBoundary>
             </ProtectedRoute>
           }
         />

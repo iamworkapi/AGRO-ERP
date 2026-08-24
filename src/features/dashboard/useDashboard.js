@@ -1,11 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchSummaryStatsThunk,
-  fetchWarehouseOverviewThunk,
-  fetchRecentActivityThunk,
-  fetchMoistureSnapshotThunk,
-} from "./dashboardSlice";
+import { loadDashboardThunk } from "./dashboardSlice";
 
 export function useDashboard() {
   const dispatch = useDispatch();
@@ -13,10 +8,7 @@ export function useDashboard() {
 
   useEffect(() => {
     if (state.status === "idle") {
-      dispatch(fetchSummaryStatsThunk());
-      dispatch(fetchWarehouseOverviewThunk());
-      dispatch(fetchRecentActivityThunk());
-      dispatch(fetchMoistureSnapshotThunk());
+      dispatch(loadDashboardThunk());
     }
   }, [state.status, dispatch]);
 
