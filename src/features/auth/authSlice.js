@@ -81,9 +81,15 @@ const authSlice = createSlice({
         state.bootstrapped = true;
       })
       .addCase(bootstrapAuthThunk.rejected, (state) => {
-        state.user = null;
-        state.isAuthenticated = false;
+        // Only clear auth state if not already authenticated (login may have
+        // succeeded after bootstrap started, and its fulfilled handler sets
+        // user/isAuthenticated — we mustn't clobber that).
+        if (!state.isAuthenticated) {
+          state.user = null;
+          state.isAuthenticated = false;
+        }
         state.bootstrapped = true;
+        state.status = "idle";
       });
   },
 });

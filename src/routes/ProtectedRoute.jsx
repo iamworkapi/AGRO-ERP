@@ -1,14 +1,16 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import Loader from "../components/common/Loader";
 
 // Two layers, same as the backend: is there a session at all (isAuthenticated),
 // and if `roles` is given, does this session's role match (mirrors the
 // backend's authorize(...roles) gate so the UI doesn't offer actions the
 // API would reject anyway).
 export default function ProtectedRoute({ children, roles }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, status } = useAuth();
   const location = useLocation();
 
+  if (status === "loading") return <Loader size={40} label="" />;
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }

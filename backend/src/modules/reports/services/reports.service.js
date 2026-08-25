@@ -16,7 +16,7 @@ import { recordAudit } from "../../audit/services/audit.service.js";
 // everyone else is scoped to their own warehouse.
 async function resolveWarehouseScope(actor, warehouseId) {
   if (actor.profile.role === ROLES.SUPER_ADMIN && !warehouseId) {
-    return { filter: {}, canAccess: () => {} };
+    return { filter: {}, effectiveId: null };
   }
   const effectiveId = actor.profile.role === ROLES.SUPER_ADMIN
     ? warehouseId

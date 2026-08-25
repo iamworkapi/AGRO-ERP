@@ -13,9 +13,12 @@ import { setBootstrapped } from "./features/auth/authSlice";
 import { useAuth } from "./hooks/useAuth";
 
 // Keeps an already-signed-in user from landing back on the login/register
-// screen (e.g. hitting back button, or a stale bookmark).
+// screen (e.g. hitting back button, or a stale bookmark). Must show a loader
+// while auth is still loading to avoid a race where navigate("/") triggers
+// this route before Redux has updated isAuthenticated from loginThunk.
 function PublicOnlyRoute({ children }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, status } = useAuth();
+  if (status === "loading") return <Loader size={40} label="" />;
   if (isAuthenticated) return <Navigate to="/" replace />;
   return children;
 }
