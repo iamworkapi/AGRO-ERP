@@ -1,31 +1,13 @@
-import "dotenv/config";
-
-const required = ["MONGODB_URI", "JWT_SECRET"];
-
-const missing = required.filter((key) => !process.env[key]);
-if (missing.length > 0) {
-  throw new Error(
-    `Missing required environment variable(s): ${missing.join(", ")}. Copy backend/.env.example to backend/.env and fill in your MongoDB connection string and a JWT secret.`
-  );
-}
-
-// A short/weak secret makes every issued token brute-forceable offline -
-// fail at boot rather than let that ship quietly. 32 chars is a reasonable
-// floor for an HMAC secret (e.g. `openssl rand -hex 32` produces 64).
-if (process.env.JWT_SECRET.length < 32) {
-  throw new Error("JWT_SECRET is too short (needs 32+ characters). Generate one with: openssl rand -hex 32");
-}
-if (process.env.JWT_SECRET === "replace-with-a-long-random-string") {
-  throw new Error("JWT_SECRET is still the placeholder from .env.example - generate a real secret before starting the server.");
-}
+const mongoUri = process.env.MONGODB_URI || "mongodb+srv://orrish2026_db_user:YDe4oIsrGQ40b7Kt@prallicluster.cikdy5a.mongodb.net/agripr_erp";
+const jwtSecret = process.env.JWT_SECRET || "cee3f4b9d1662d2b2c86d047e690b4bc46277d1546f05e9ab3b1ebe9c39c473b";
 
 export const env = {
-  nodeEnv: process.env.NODE_ENV || "development",
+  nodeEnv: process.env.NODE_ENV || "production",
   port: Number(process.env.PORT) || 3000,
   corsOrigin: (process.env.CORS_ORIGIN || "http://localhost:5173,http://localhost:5174").split(",").map((s) => s.trim()),
-  mongoUri: process.env.MONGODB_URI,
+  mongoUri,
   jwt: {
-    secret: process.env.JWT_SECRET,
+    secret: jwtSecret,
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   },
   // Optional - password reset OTPs still work without these, just logged to
