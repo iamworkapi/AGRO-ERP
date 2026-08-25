@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema(
     passwordHash: { type: String, required: true },
     role: { type: String, required: true, enum: ALL_ROLES },
     status: { type: String, required: true, enum: ["pending", "active", "inactive"], default: "pending" },
+    address: { type: String, trim: true },
     // Small photo stored inline as a data URI, same approach as
     // Employee.avatarUrl - no external object storage required.
     avatarUrl: { type: String },

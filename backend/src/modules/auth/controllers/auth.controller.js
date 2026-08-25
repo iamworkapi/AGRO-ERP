@@ -34,3 +34,10 @@ export const resetPassword = asyncHandler(async (req, res) => {
   const result = await passwordResetService.resetPassword(req.body);
   sendSuccess(res, result);
 });
+
+export const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const profileService = await import("../../users/services/profile.service.js");
+  const result = await profileService.changePassword(req.user, currentPassword, newPassword);
+  sendSuccess(res, result);
+});

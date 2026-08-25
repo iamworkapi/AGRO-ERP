@@ -21,3 +21,13 @@ export const updateStatus = asyncHandler(async (req, res) => {
   const profile = await profileService.updateProfileStatus(req.user, req.params.id, req.body.status);
   sendSuccess(res, profile);
 });
+
+export const updateOwnProfile = asyncHandler(async (req, res) => {
+  const profile = await profileService.updateOwnProfile(req.user, req.body);
+  sendSuccess(res, profile);
+});
+
+export const update = asyncHandler(async (req, res) => {
+  const profile = await profileService.updateProfileById(req.user, req.params.id, req.body);
+  sendSuccess(res, profile);
+});

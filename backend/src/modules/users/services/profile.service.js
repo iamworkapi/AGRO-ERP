@@ -12,8 +12,9 @@ import { recordAudit } from "../../audit/services/audit.service.js";
 //    one warehouse to staff, so there's no separate "assign" step for them.
 // Either way the account is active immediately - whoever created it *is*
 // the approval, unlike self-registration which starts pending.
-export async function createProfile(actor, { fullName, email, phone, password, role, avatarUrl }) {
+export async function createProfile(actor, { fullName, email, phone, password, role, avatarUrl, address, warehouseId }) {
   const isWarehouseAdmin = actor.profile.role === ROLES.WAREHOUSE_ADMIN;
+  const isSuperAdmin = actor.profile.role === ROLES.SUPER_ADMIN;
 
   let targetWarehouse = null;
   if (isWarehouseAdmin) {
@@ -26,6 +27,11 @@ export async function createProfile(actor, { fullName, email, phone, password, r
     }
     if (targetWarehouse.supervisor) {
       throw ApiError.conflict("Your warehouse already has a Supervisor assigned. Deactivate or reassign them first.");
+    }
+  } else if (isSuperAdmin && warehouseId) {
+    targetWarehouse = await Warehouse.findById(warehouseId);
+    if (!targetWarehouse) {
+      throw ApiError.notFound("Target warehouse not found.");
     }
   }
 
@@ -40,10 +46,15 @@ export async function createProfile(actor, { fullName, email, phone, password, r
       role,
       status: "active",
       avatarUrl,
+      address,
     });
 
     if (targetWarehouse) {
-      targetWarehouse.supervisor = user._id;
+      if (role === ROLES.WAREHOUSE_ADMIN) {
+        targetWarehouse.admin = user._id;
+      } else if (role === ROLES.SUPERVISOR) {
+        targetWarehouse.supervisor = user._id;
+      }
       await targetWarehouse.save();
     }
 
@@ -115,5 +126,106 @@ export async function updateProfileStatus(actor, profileId, status) {
   if (!user) throw ApiError.notFound("No profile found with that id.");
 
   await recordAudit({ actor, action: "profile.status_update", entityType: "profile", entityId: profileId, metadata: { status } });
+  return user;
+}
+
+export async function updateOwnProfile(actor, { fullName, email, phone, avatarUrl, address }) {
+  const updates = {};
+  if (fullName !== undefined) updates.fullName = fullName;
+  if (email !== undefined) {
+    const normalized = email.toLowerCase().trim();
+    if (normalized && normalized !== actor.profile.email) {
+      const existing = await User.findOne({ email: normalized, _id: { $ne: actor.profile._id } });
+      if (existing) throw ApiError.conflict("This email is already in use by another account.");
+    }
+    updates.email = normalized || undefined;
+  }
+  if (phone !== undefined) {
+    const trimmed = phone.trim();
+    if (trimmed && trimmed !== actor.profile.phone) {
+      const existing = await User.findOne({ phone: trimmed, _id: { $ne: actor.profile._id } });
+      if (existing) throw ApiError.conflict("This phone number is already in use by another account.");
+    }
+    updates.phone = trimmed || undefined;
+  }
+  if (avatarUrl !== undefined) updates.avatarUrl = avatarUrl || null;
+  if (address !== undefined) updates.address = address?.trim() || undefined;
+
+  if (!Object.keys(updates).length) {
+    throw ApiError.badRequest("No fields to update.");
+  }
+
+  const user = await User.findByIdAndUpdate(actor.profile._id, updates, { new: true });
+  await recordAudit({
+    actor,
+    action: "profile.self_update",
+    entityType: "profile",
+    entityId: actor.profile._id,
+    metadata: { changed: Object.keys(updates) },
+  });
+  return user;
+}
+
+export async function changePassword(actor, currentPassword, newPassword) {
+  const user = await User.findById(actor.profile._id);
+  if (!user) throw ApiError.notFound("Account not found.");
+
+  const valid = await user.comparePassword(currentPassword);
+  if (!valid) throw ApiError.badRequest("Current password is incorrect.");
+
+  user.passwordHash = await User.hashPassword(newPassword);
+  // Incrementing tokenVersion invalidates every existing JWT —
+  // the client gets a fresh token on next login.
+  user.tokenVersion += 1;
+  await user.save();
+
+  await recordAudit({
+    actor,
+    action: "auth.password_change",
+    entityType: "auth",
+    entityId: user._id,
+  });
+  return { message: "Password changed successfully. Please sign in again." };
+}
+
+// Super Admin updating an existing Admin or Supervisor profile
+export async function updateProfileById(actor, profileId, { fullName, email, phone, password, avatarUrl, address }) {
+  const user = await User.findById(profileId);
+  if (!user) throw ApiError.notFound("User profile not found.");
+
+  if (fullName !== undefined) user.fullName = fullName.trim();
+  if (email !== undefined) {
+    const normalized = email ? email.toLowerCase().trim() : "";
+    if (normalized && normalized !== user.email) {
+      const existing = await User.findOne({ email: normalized, _id: { $ne: profileId } });
+      if (existing) throw ApiError.conflict("This email is already in use by another account.");
+    }
+    user.email = normalized || undefined;
+  }
+  if (phone !== undefined) {
+    const trimmed = phone ? phone.trim() : "";
+    if (trimmed && trimmed !== user.phone) {
+      const existing = await User.findOne({ phone: trimmed, _id: { $ne: profileId } });
+      if (existing) throw ApiError.conflict("This phone number is already in use by another account.");
+    }
+    user.phone = trimmed || undefined;
+  }
+  if (password && password.length >= 6) {
+    user.passwordHash = await User.hashPassword(password);
+    user.tokenVersion += 1;
+  }
+  if (avatarUrl !== undefined) user.avatarUrl = avatarUrl || undefined;
+  if (address !== undefined) user.address = address?.trim() || undefined;
+
+  await user.save();
+
+  await recordAudit({
+    actor,
+    action: "profile.admin_update",
+    entityType: "profile",
+    entityId: user._id,
+    metadata: { updatedBy: actor.profile._id },
+  });
+
   return user;
 }

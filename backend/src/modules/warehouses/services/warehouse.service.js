@@ -21,7 +21,7 @@ function validateStaffPassword(password, label) {
   }
 }
 
-const STAFF_FIELDS = "fullName phone email";
+const STAFF_FIELDS = "fullName phone email avatarUrl address role status";
 
 // Attaches staffCount (active employees) and stockKg (sum of approved
 // stock-entry net weight) to each warehouse - two cheap aggregate queries

@@ -12,6 +12,19 @@ export const updateProfileStatusSchema = z.object({
   status: z.enum(["active", "inactive"]),
 });
 
+export const updateOwnProfileSchema = z.object({
+  fullName: z.string().min(2, "Full name must be at least 2 characters.").optional(),
+  email: z.string().email("Enter a valid email address.").optional().or(z.literal("")),
+  phone: z.string().min(6, "Enter a valid phone number.").optional().or(z.literal("")),
+  avatarUrl,
+  address: z.string().optional().or(z.literal("")),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required."),
+  newPassword: strongPassword,
+});
+
 // Super Admin creating a Warehouse Admin/Supervisor directly (as opposed to
 // self-registration) - same role restriction as registerSchema (Super Admin
 // itself is never grantable through an API call), but the account starts
@@ -19,13 +32,15 @@ export const updateProfileStatusSchema = z.object({
 export const createProfileSchema = z
   .object({
     fullName: z.string().min(2, "Full name is required."),
-    email: z.string().email("Enter a valid email address.").optional(),
-    phone: z.string().min(8, "Enter a valid phone number.").optional(),
-    password: strongPassword,
+    email: z.string().email("Enter a valid email address.").optional().or(z.literal("")).or(z.null()),
+    phone: z.string().min(6, "Enter a valid phone number.").optional().or(z.literal("")).or(z.null()),
+    password: z.string().min(6, "Password must be at least 6 characters."),
     role: z.enum([ROLES.WAREHOUSE_ADMIN, ROLES.SUPERVISOR]),
     avatarUrl,
+    address: z.string().optional().or(z.literal("")).or(z.null()),
+    warehouseId: z.string().optional().or(z.literal("")).or(z.null()),
   })
-  .refine((data) => data.email || data.phone, {
+  .refine((data) => (data.email && data.email.trim()) || (data.phone && data.phone.trim()), {
     message: "Either email or phone is required.",
     path: ["email"],
   });

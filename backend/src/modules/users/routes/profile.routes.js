@@ -3,7 +3,7 @@ import * as profileController from "../controllers/profile.controller.js";
 import { authenticate } from "../../common/middleware/authenticate.js";
 import { authorize } from "../../common/middleware/authorize.js";
 import { validate } from "../../common/middleware/validate.js";
-import { listProfilesQuerySchema, updateProfileStatusSchema, createProfileSchema } from "../validators/profile.validator.js";
+import { listProfilesQuerySchema, updateProfileStatusSchema, updateOwnProfileSchema, createProfileSchema } from "../validators/profile.validator.js";
 import { ROLES } from "../../common/constants/roles.js";
 
 const router = Router();
@@ -22,5 +22,11 @@ router.post("/", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN), validate(c
 // broader account-lifecycle control than "staff my own warehouse".
 router.patch("/:id/approve", authorize(ROLES.SUPER_ADMIN), profileController.approve);
 router.patch("/:id/status", authorize(ROLES.SUPER_ADMIN), validate(updateProfileStatusSchema), profileController.updateStatus);
+
+// Any logged-in user can update their own profile — name, contact, photo.
+router.patch("/me", validate(updateOwnProfileSchema), profileController.updateOwnProfile);
+
+// Super Admin updating any staff profile directly (including password, phone, email, avatar, address)
+router.patch("/:id", authorize(ROLES.SUPER_ADMIN), validate(updateOwnProfileSchema), profileController.update);
 
 export default router;

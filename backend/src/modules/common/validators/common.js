@@ -8,8 +8,14 @@ export const objectId = (label = "id") => z.string().regex(/^[0-9a-fA-F]{24}$/, 
 // User.avatarUrl) - capped well under MongoDB's document limit and
 // Express's JSON body limit; ~700k chars is roughly a 500KB image after
 // base64 overhead. Not a general file store, just a profile picture.
+// Profile photo: accepts Data URI (base64) up to 3MB, HTTP/HTTPS URL, or empty string.
 export const avatarUrl = z
   .string()
-  .max(700_000, "Photo is too large - please use an image under 500KB.")
-  .regex(/^data:image\/(png|jpe?g|webp|gif);base64,/, "Photo must be a PNG, JPEG, WEBP, or GIF.")
-  .optional();
+  .max(4_000_000, "Photo is too large - please use an image under 2MB.")
+  .refine(
+    (val) => !val || val.startsWith("http://") || val.startsWith("https://") || val.startsWith("data:image/"),
+    { message: "Photo must be a valid image URL or image file upload." }
+  )
+  .optional()
+  .or(z.literal(""))
+  .or(z.null());

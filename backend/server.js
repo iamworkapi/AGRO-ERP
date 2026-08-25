@@ -11,12 +11,15 @@ async function start() {
     console.error("Database initialization warning:", err.message);
   }
 
-  app.listen(env.port, () => {
+  const server = app.listen(env.port, () => {
     console.log(`🚀 AgriPrali ERP backend listening on http://localhost:${env.port} (${env.nodeEnv})`);
+  });
+
+  server.on("error", (err) => {
+    console.error("Server error:", err.message);
   });
 }
 
 start().catch((err) => {
   console.error("Failed to start server:", err);
 });
-
