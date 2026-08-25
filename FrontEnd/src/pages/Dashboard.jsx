@@ -15,59 +15,61 @@ import { useDashboard } from "../features/dashboard/useDashboard";
 import { useAuth } from "../hooks/useAuth";
 import Card from "../components/common/Card";
 import AsyncState from "../components/common/AsyncState";
-import Badge from "../components/common/Badge";
 import {
   DEFAULT_WAREHOUSE_TCC,
   getStoredCollections,
   getStoredStacks,
-  getStoredBuyers,
 } from "../features/biomass/biomassService";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const {
-    warehouses,
-    employees,
+    summaryStats,
+    warehouses = [],
     moistureSnapshot,
-    recentActivity,
+    recentActivity = [],
     status,
     error,
-  } = useDashboard();
+  } = useDashboard() || {};
 
   const [dateRange, setDateRange] = useState("TODAY");
   const [activeTab, setActiveTab] = useState("hubs");
 
-  const [collections] = useState(getStoredCollections);
-  const [stacks] = useState(getStoredStacks);
-  const [buyers] = useState(getStoredBuyers);
+  const [collections] = useState(() => getStoredCollections() || []);
+  const [stacks] = useState(() => getStoredStacks() || []);
 
   const isSupervisor = user?.role === "supervisor";
-  const isSuperAdmin = user?.role === "super_admin" || user?.role === "admin";
+
+  const safeWarehouses = Array.isArray(warehouses) ? warehouses : [];
+  const safeCollections = Array.isArray(collections) ? collections : [];
+  const safeStacks = Array.isArray(stacks) ? stacks : [];
+  const safeActivity = Array.isArray(recentActivity) ? recentActivity : [];
 
   const ownScopedWarehouses = useMemo(() => {
     if (!user || user.role === "admin" || user.role === "super_admin") {
-      return warehouses;
+      return safeWarehouses;
     }
     const myName = (user.name || user.fullName || "").toLowerCase();
-    return warehouses.filter(
+    return safeWarehouses.filter(
       (w) =>
         (w.admin && w.admin.toLowerCase() === myName) ||
         (w.supervisor && w.supervisor.toLowerCase() === myName)
     );
-  }, [warehouses, user]);
+  }, [safeWarehouses, user]);
 
-  const myWarehouse = ownScopedWarehouses[0] || warehouses[0];
+  const myWarehouse = ownScopedWarehouses[0] || safeWarehouses[0];
   const assignedHub = myWarehouse?.name || "Uttam Nagar Hub";
 
   // Aggregated Volumes
   const hubCapacityMt = myWarehouse?.capacity || 15000;
   const currentStockMt = 4820.5;
   const capacityUtilPct = Math.min(100, Math.round((currentStockMt / hubCapacityMt) * 100));
+
   const hubTotalBales = useMemo(() => {
-    const sum = stacks.reduce((s, st) => s + (Number(st.baleCount) || 0), 0);
+    const sum = safeStacks.reduce((s, st) => s + (Number(st.baleCount) || 0), 0);
     return sum > 0 ? sum : 16068;
-  }, [stacks]);
+  }, [safeStacks]);
 
   // Hourly Inflow Trend Data for Chart
   const hourlyInflowData = [
@@ -89,7 +91,21 @@ export default function Dashboard() {
   ];
 
   const displayWarehouses = useMemo(() => {
-    if (!isSupervisor) return ownScopedWarehouses;
+    if (!isSupervisor) {
+      return ownScopedWarehouses.length > 0
+        ? ownScopedWarehouses
+        : [
+            {
+              name: "Uttam Nagar Hub",
+              commodity: "Multi-Crop Biomass",
+              capacity: 15000,
+              stock: "4,820.5 MT",
+              attendance: "100% On-Duty",
+              status: "Active",
+              utilization: 68,
+            },
+          ];
+    }
     return myWarehouse
       ? [
           {
@@ -107,7 +123,7 @@ export default function Dashboard() {
 
   // Operational Activity Feed
   const supervisorRecentLogs = useMemo(() => {
-    if (!isSupervisor) return recentActivity;
+    if (!isSupervisor && safeActivity.length > 0) return safeActivity;
     return [
       {
         id: "ACT-01",
@@ -142,7 +158,11 @@ export default function Dashboard() {
         tag: "Shift Roster",
       },
     ];
-  }, [isSupervisor, recentActivity]);
+  }, [isSupervisor, safeActivity]);
+
+  const activeHubCount = safeWarehouses.filter((w) => w.status === "Active").length || 3;
+  const totalHubCount = safeWarehouses.length || 3;
+  const staffCount = summaryStats?.totalEmployees || 18;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -209,7 +229,7 @@ export default function Dashboard() {
           <div style={{ display: "flex", gap: 20, marginTop: 14, flexWrap: "wrap" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ color: "#38BDF8", fontSize: 13 }}><i className="fa-solid fa-network-wired" /></span>
-              <span style={{ fontSize: 12, color: "#CBD5E1" }}>Network: <strong>3 Active Hubs</strong></span>
+              <span style={{ fontSize: 12, color: "#CBD5E1" }}>Network: <strong>{totalHubCount} Active Hubs</strong></span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ color: "#34D399", fontSize: 13 }}><i className="fa-solid fa-boxes-stacked" /></span>
@@ -297,7 +317,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <AsyncState status={status} error={error} loadingLabel="Loading executive metrics…" />
+      {status && status !== "succeeded" && (
+        <AsyncState status={status} error={error} loadingLabel="Loading executive metrics…" />
+      )}
 
       {/* 2. SUPPLY CHAIN VELOCITY 4-STAGE PIPELINE TRACKER */}
       <div
@@ -422,9 +444,9 @@ export default function Dashboard() {
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3.5, background: "linear-gradient(90deg, #10B981, #059669)" }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 11, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase" }}>Active Storage Depots</span>
-            <span style={{ fontSize: 10, background: "#ECFDF5", color: "#059669", padding: "2px 6px", borderRadius: 4, fontWeight: 800 }}>100% Online</span>
+            <span style={{ fontSize: 10, background: "#ECFDF5", color: "#059669", padding: "2px 6px", borderRadius: 4, fontWeight: 800 }}>{activeHubCount} Active</span>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "var(--ink)", marginTop: 6 }}>{ownScopedWarehouses.length || 3} Hubs</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: "var(--ink)", marginTop: 6 }}>{totalHubCount} Hubs</div>
           <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 2 }}>Consolidated network capacity</div>
           <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 10, overflow: "hidden" }}>
             <div style={{ width: "100%", height: "100%", background: "#10B981" }} />
@@ -452,7 +474,7 @@ export default function Dashboard() {
             <span style={{ fontSize: 11, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase" }}>Quality Compliance</span>
             <span style={{ fontSize: 10, background: "#FEF3C7", color: "#D97706", padding: "2px 6px", borderRadius: 4, fontWeight: 800 }}>Optimal</span>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "var(--ink)", marginTop: 6 }}>13.4% Moisture</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: "var(--ink)", marginTop: 6 }}>{moistureSnapshot?.avgMoisture || "13.4"}% Moisture</div>
           <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 2 }}>Zero penalty on 96.8% intake</div>
           <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 10, overflow: "hidden" }}>
             <div style={{ width: "92%", height: "100%", background: "#F59E0B" }} />
@@ -466,7 +488,7 @@ export default function Dashboard() {
             <span style={{ fontSize: 11, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase" }}>Personnel On-Duty</span>
             <span style={{ fontSize: 10, background: "#FAF5FF", color: "#7C3AED", padding: "2px 6px", borderRadius: 4, fontWeight: 800 }}>Full Shift</span>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "var(--ink)", marginTop: 6 }}>{employees.length || 18} Active Staff</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: "var(--ink)", marginTop: 6 }}>{staffCount} Active Staff</div>
           <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 2 }}>Supervisors & Baler Operators</div>
           <div style={{ width: "100%", height: 4, background: "var(--line)", borderRadius: 2, marginTop: 10, overflow: "hidden" }}>
             <div style={{ width: "100%", height: "100%", background: "#7C3AED" }} />
@@ -488,10 +510,10 @@ export default function Dashboard() {
           }}
         >
           {[
-            { id: "hubs", label: "🏢 Procurement Hubs & Warehouses", icon: "fa-warehouse" },
-            { id: "trends", label: "📈 Live Inflow Velocity Chart", icon: "fa-chart-line" },
-            { id: "quality", label: "💧 Moisture & Lab Distribution", icon: "fa-droplet" },
-            { id: "activity", label: "📋 Operational Ground Audit Stream", icon: "fa-list-check" },
+            { id: "hubs", label: "🏢 Procurement Hubs & Warehouses" },
+            { id: "trends", label: "📈 Live Inflow Velocity Chart" },
+            { id: "quality", label: "💧 Moisture & Lab Distribution" },
+            { id: "activity", label: "📋 Operational Ground Audit Stream" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -547,7 +569,7 @@ export default function Dashboard() {
                       </td>
                       <td style={{ padding: "12px" }}>
                         <div style={{ fontSize: 12, fontWeight: 800, color: "#059669" }}>
-                          {w.stock || `${(w.capacity * 0.45).toFixed(0)} MT`} / {w.capacity || 15000} MT
+                          {w.stock || `${((w.capacity || 15000) * 0.45).toFixed(0)} MT`} / {w.capacity || 15000} MT
                         </div>
                         <div style={{ width: 140, height: 5, background: "var(--line)", borderRadius: 3, marginTop: 4, overflow: "hidden" }}>
                           <div style={{ width: `${w.utilization || 45}%`, height: "100%", background: "#059669" }} />
