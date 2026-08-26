@@ -13,3 +13,7 @@ export const create = asyncHandler(async (req, res) => {
 export const update = asyncHandler(async (req, res) => {
   sendSuccess(res, await weightMachineService.updateWeightMachine(req.user, req.params.id, req.body));
 });
+
+export const remove = asyncHandler(async (req, res) => {
+  sendSuccess(res, await weightMachineService.deleteWeightMachine(req.user, req.params.id));
+});

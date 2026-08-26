@@ -34,12 +34,12 @@ export default function WeightMachines() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isScopedRole = user?.roleKey === "supervisor" || user?.roleKey === "warehouse_admin";
-  const canAdd = user?.roleKey === "warehouse_admin" || user?.roleKey === "super_admin";
+  const canAdd = Boolean(user); // Super Admin, Warehouse Admin, Supervisor all have access
   
   const { warehouses } = useWarehouses();
   const myWarehouse = isScopedRole ? warehouses[0] : null;
 
-  const { machines, status, error, reload, addMachine, updateMachine } = useWeightMachines();
+  const { machines, status, error, reload, addMachine, updateMachine, deleteMachine } = useWeightMachines();
   const { isOpen: openAdd, open: openAddModal, close: closeAddModal } = useDisclosure();
   const { isOpen: openEdit, open: openEditModal, close: closeEditModal } = useDisclosure();
   const { isOpen: openCalib, open: openCalibModal, close: closeCalibModal } = useDisclosure();
@@ -56,6 +56,16 @@ export default function WeightMachines() {
       setForm((f) => (f.warehouseId ? f : { ...f, warehouseId: myWarehouse.id }));
     }
   }, [isScopedRole, myWarehouse?.id]);
+
+  async function handleDeleteMachine(id, code) {
+    if (!window.confirm(`Are you sure you want to remove scale ${code || ""}?`)) return;
+    try {
+      await deleteMachine(id);
+      toast.success(`Weight machine ${code || ""} deleted successfully.`);
+    } catch (err) {
+      toast.error(err?.response?.data?.error?.message || err.message || "Could not delete weight machine.");
+    }
+  }
 
   const set = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -383,12 +393,12 @@ export default function WeightMachines() {
                 </div>
 
                 {/* Card Action Buttons */}
-                <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
                   <button
                     onClick={() => navigate("/weighment/create")}
                     style={{
                       flex: 1,
-                      padding: "8px 12px",
+                      padding: "8px 10px",
                       borderRadius: 8,
                       border: "1px solid var(--primary)",
                       background: "var(--primary-tint)",
@@ -399,7 +409,7 @@ export default function WeightMachines() {
                       display: "inline-flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      gap: 6,
+                      gap: 4,
                     }}
                   >
                     <i className="ri-file-text-line" /> Weigh Slip
@@ -407,13 +417,13 @@ export default function WeightMachines() {
 
                   <button
                     onClick={() => handleOpenCalib(m)}
-                    title="Log Calibration & Service"
+                    title="Log Calibration"
                     style={{
-                      padding: "8px 12px",
+                      padding: "8px 10px",
                       borderRadius: 8,
                       border: "1px solid var(--line)",
                       background: "var(--canvas)",
-                      color: "var(--ink-secondary)",
+                      color: "var(--ink)",
                       fontWeight: 700,
                       fontSize: 11.5,
                       cursor: "pointer",
@@ -425,24 +435,39 @@ export default function WeightMachines() {
                     <i className="ri-tools-line" /> Calibrate
                   </button>
 
-                  {canAdd && (
-                    <button
-                      onClick={() => handleOpenEdit(m)}
-                      title="Edit Machine Settings"
-                      style={{
-                        padding: "8px 10px",
-                        borderRadius: 8,
-                        border: "1px solid var(--line)",
-                        background: "var(--canvas)",
-                        color: "var(--ink-secondary)",
-                        fontWeight: 700,
-                        fontSize: 12,
-                        cursor: "pointer",
-                      }}
-                    >
-                      <i className="ri-edit-line" />
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleOpenEdit(m)}
+                    title="Edit Machine Settings"
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      border: "1px solid var(--line)",
+                      background: "var(--canvas)",
+                      color: "var(--ink-secondary)",
+                      fontWeight: 700,
+                      fontSize: 12,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <i className="ri-edit-line" />
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteMachine(m.id || m._id, m.machineCode)}
+                    title="Delete Machine"
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      border: "1px solid rgba(239, 68, 68, 0.25)",
+                      background: "rgba(239, 68, 68, 0.08)",
+                      color: "var(--status-error)",
+                      fontWeight: 700,
+                      fontSize: 12,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <i className="ri-delete-bin-line" />
+                  </button>
                 </div>
               </div>
             );
@@ -453,15 +478,11 @@ export default function WeightMachines() {
               <i className="ri-scales-3-line" style={{ fontSize: 36, color: "var(--muted)", marginBottom: 10 }} />
               <h3 style={{ margin: "0 0 6px", color: "var(--ink)" }}>No Weight Machines Registered</h3>
               <p style={{ margin: "0 0 14px", fontSize: 13, color: "var(--muted)" }}>
-                {isScopedRole
-                  ? "No weight machines attached to your assigned warehouse. Contact your Warehouse Admin."
-                  : "Register your first electronic weighbridge or scale to begin automated stock weighing."}
+                Register your first electronic weighbridge or scale to begin automated PRALLI stock weighment.
               </p>
-              {canAdd && (
-                <Button onClick={() => openAddModal()}>
-                  <i className="ri-add-line" style={{ marginRight: 6 }} /> Add First Weight Machine
-                </Button>
-              )}
+              <Button onClick={() => openAddModal()}>
+                <i className="ri-add-line" style={{ marginRight: 6 }} /> Register Scale / Machine
+              </Button>
             </div>
           )}
         </div>
@@ -566,22 +587,35 @@ export default function WeightMachines() {
                     >
                       Calibrate
                     </button>
-                    {canAdd && (
-                      <button
-                        onClick={() => handleOpenEdit(m)}
-                        style={{
-                          padding: "4px 8px",
-                          borderRadius: 6,
-                          border: "1px solid var(--line)",
-                          background: "var(--canvas)",
-                          color: "var(--ink)",
-                          fontSize: 11,
-                          cursor: "pointer",
-                        }}
-                      >
-                        Edit
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleOpenEdit(m)}
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: 6,
+                        border: "1px solid var(--line)",
+                        background: "var(--canvas)",
+                        color: "var(--ink)",
+                        fontSize: 11,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMachine(m.id || m._id, m.machineCode)}
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: 6,
+                        border: "1px solid rgba(239, 68, 68, 0.25)",
+                        background: "rgba(239, 68, 68, 0.08)",
+                        color: "var(--status-error)",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Delete
+                    </button>
                   </div>
                 ),
               },

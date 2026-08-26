@@ -49,3 +49,8 @@ export async function updateWeightMachine(id, payload) {
   const { data } = await apiClient.patch(`/weight-machines/${id}`, payload);
   return adaptMachine(data.data);
 }
+
+export async function deleteWeightMachine(id) {
+  const { data } = await apiClient.delete(`/weight-machines/${id}`);
+  return data.data;
+}

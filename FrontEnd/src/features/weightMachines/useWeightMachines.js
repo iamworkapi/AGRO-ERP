@@ -36,5 +36,10 @@ export function useWeightMachines(warehouseId) {
     return updated;
   }
 
-  return { machines, status, error, reload, addMachine, updateMachine };
+  async function deleteMachine(id) {
+    await api.deleteWeightMachine(id);
+    setMachines((prev) => prev.filter((m) => m.id !== id));
+  }
+
+  return { machines, status, error, reload, addMachine, updateMachine, deleteMachine };
 }

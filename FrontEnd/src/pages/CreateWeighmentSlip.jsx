@@ -197,13 +197,11 @@ export default function CreateWeighmentSlip() {
         <div style={{ background: "var(--status-warning-bg, #fef3c7)", border: "1px solid rgba(217, 119, 6, 0.25)", borderRadius: 10, padding: "12px 16px", display: "flex", gap: 10, alignItems: "flex-start" }}>
           <i className="ri-alert-line" style={{ color: "#D97706", fontSize: 15, marginTop: 1 }} />
           <div>
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#92400e" }}>No active weight machine found</p>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#92400e" }}>No active weighbridge / scale found</p>
             <p style={{ margin: "2px 0 0", fontSize: 12, color: "#92400e" }}>
-              {isScopedRole
-                ? "Ask your Warehouse Admin to add a weight machine before logging a weighment slip."
-                : "Add a weight machine for this warehouse before logging a weighment slip."}{" "}
+              Please register or activate a weight machine for this warehouse to record gross and tare weights.{" "}
               <a href="/weighment/machines" onClick={(e) => { e.preventDefault(); navigate("/weighment/machines"); }} style={{ color: "#92400e", fontWeight: 700, textDecoration: "underline" }}>
-                Manage Weight Machines &rarr;
+                + Add / Manage Weight Machines &rarr;
               </a>
             </p>
           </div>

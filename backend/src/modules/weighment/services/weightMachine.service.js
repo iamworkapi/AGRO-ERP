@@ -22,15 +22,21 @@ export async function listWeightMachines(actor, { warehouseId }) {
   return WeightMachine.find({ warehouse: effectiveWarehouseId }).sort({ createdAt: -1 }).populate("warehouse", "name code");
 }
 
-// Provisioning a new physical machine is an admin-level action; day-to-day
-// maintenance (calibration, status) is the supervisor's job - see
-// weightMachine.routes.js for the role split.
+// Provisioning and managing physical weighbridge machines is accessible to
+// Super Admins, Warehouse Admins, and Floor Supervisors for their hub.
 export async function createWeightMachine(actor, payload) {
-  await assertCanAccessWarehouse(actor, payload.warehouseId);
+  let targetWarehouseId = payload.warehouseId;
+  if (!targetWarehouseId && actor.profile.role !== ROLES.SUPER_ADMIN) {
+    targetWarehouseId = await getOwnWarehouseId(actor.profile);
+  }
+  if (!targetWarehouseId) {
+    throw ApiError.badRequest("Warehouse is required to register a weight machine.");
+  }
+  await assertCanAccessWarehouse(actor, targetWarehouseId);
 
   try {
     const machine = await WeightMachine.create({
-      warehouse: payload.warehouseId,
+      warehouse: targetWarehouseId,
       machineCode: payload.machineCode,
       make: payload.make,
       model: payload.model,
@@ -64,4 +70,14 @@ export async function updateWeightMachine(actor, id, payload) {
 
   await recordAudit({ actor, action: "weight_machine.update", entityType: "weight_machine", entityId: id, warehouseId: existing.warehouse, metadata: patch });
   return machine;
+}
+
+export async function deleteWeightMachine(actor, id) {
+  const existing = await WeightMachine.findById(id);
+  if (!existing) throw ApiError.notFound("Weight machine not found.");
+  await assertCanAccessWarehouse(actor, existing.warehouse.toString());
+
+  await WeightMachine.findByIdAndDelete(id);
+  await recordAudit({ actor, action: "weight_machine.delete", entityType: "weight_machine", entityId: id, warehouseId: existing.warehouse });
+  return { id };
 }
