@@ -335,6 +335,99 @@ export default function WeightMachines() {
 
       <AsyncState status={status} error={error} loadingLabel="Connecting to weighbridge telemetry nodes…" />
 
+      {/* Action Bar Strip */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 12,
+          padding: "12px 18px",
+          background: "var(--surface)",
+          border: "1px solid var(--line)",
+          borderRadius: 14,
+          boxShadow: "var(--shadow-sm)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              background: "var(--primary-tint)",
+              color: "var(--primary-deep)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 16,
+            }}
+          >
+            <i className="ri-scales-3-line" />
+          </div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)" }}>
+              Weighbridge Terminal Units ({machines.length})
+            </h3>
+            <span style={{ fontSize: 11, color: "var(--muted)" }}>
+              {isScopedRole
+                ? `Hub: ${assignedWarehouse?.name || "Assigned Warehouse"}`
+                : "Active weighment telemetry across all enterprise hubs"}
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {/* View Mode Toggle */}
+          <div style={{ display: "flex", background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 8, padding: 3 }}>
+            <button
+              type="button"
+              onClick={() => setViewMode("grid")}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 6,
+                border: "none",
+                background: viewMode === "grid" ? "var(--primary)" : "transparent",
+                color: viewMode === "grid" ? "white" : "var(--ink-secondary)",
+                fontWeight: 700,
+                fontSize: 12,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <i className="ri-layout-grid-line" /> Cards
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("table")}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 6,
+                border: "none",
+                background: viewMode === "table" ? "var(--primary)" : "transparent",
+                color: viewMode === "table" ? "white" : "var(--ink-secondary)",
+                fontWeight: 700,
+                fontSize: 12,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <i className="ri-list-unordered" /> Table
+            </button>
+          </div>
+
+          {/* Prominent Create Machine Button */}
+          <Button onClick={() => handleOpenAdd()}>
+            <i className="ri-add-line" style={{ marginRight: 6 }} /> Register New Weight Machine
+          </Button>
+        </div>
+      </div>
+
       {/* VIEW MODE 1: INTERACTIVE ASSET CARDS GRID */}
       {viewMode === "grid" && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
@@ -504,6 +597,65 @@ export default function WeightMachines() {
               </div>
             );
           })}
+
+          {/* Quick Register Machine Card in Grid */}
+          <div
+            onClick={() => handleOpenAdd()}
+            className="app-card hover-card"
+            style={{
+              minHeight: 250,
+              borderRadius: 18,
+              border: "2px dashed var(--primary)",
+              background: "rgba(0, 245, 155, 0.04)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 12,
+              cursor: "pointer",
+              padding: "24px 20px",
+              textAlign: "center",
+              transition: "all 0.2s ease",
+            }}
+          >
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                background: "var(--primary-tint)",
+                color: "var(--primary-deep)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 24,
+                boxShadow: "0 0 12px rgba(0, 245, 155, 0.2)",
+              }}
+            >
+              <i className="ri-add-line" />
+            </div>
+            <div>
+              <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--ink)" }}>Register New Machine</h4>
+              <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--muted)" }}>
+                Add another weighbridge scale for this hub
+              </p>
+            </div>
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "var(--primary-deep)",
+                background: "var(--primary-tint)",
+                padding: "4px 12px",
+                borderRadius: 8,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              + Register Scale &rarr;
+            </span>
+          </div>
 
           {machines.length === 0 && (
             <div style={{ gridColumn: "1 / -1", padding: 32, textAlign: "center", background: "var(--surface)", borderRadius: 14, border: "1px solid var(--line)" }}>

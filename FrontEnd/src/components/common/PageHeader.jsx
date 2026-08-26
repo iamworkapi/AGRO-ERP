@@ -228,9 +228,14 @@ export default function PageHeader({
         </div>
       </div>
 
-      {/* Right: Breadcrumb / Location Trail */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap", position: "relative", zIndex: 1, marginLeft: "auto" }}>
+      {/* Right: Actions & Breadcrumb Trail */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, flexWrap: "wrap", position: "relative", zIndex: 1, marginLeft: "auto" }}>
         {trail && <Breadcrumb items={trail} />}
+        {actionContent && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {actionContent}
+          </div>
+        )}
       </div>
 
       {/* Optional Secondary Row: Mini Stats */}
