@@ -1,4 +1,5 @@
 import { User } from "../../users/models/User.js";
+import { Warehouse } from "../../warehouses/models/Warehouse.js";
 import { RevokedToken } from "../models/RevokedToken.js";
 import { LoginAttempt } from "../models/LoginAttempt.js";
 import { ApiError } from "../../common/utils/ApiError.js";
@@ -100,6 +101,11 @@ export async function login({ identifier, password }, req) {
   await clearFailedAttempts(identifier);
 
   const warehouseId = await getOwnWarehouseId(user);
+  let warehouse = null;
+  if (warehouseId) {
+    warehouse = await Warehouse.findById(warehouseId).select("name code address commodity status");
+  }
+
   await recordAudit({
     actor: buildAuditActor(user),
     action: "auth.login_success",
@@ -110,8 +116,9 @@ export async function login({ identifier, password }, req) {
 
   return {
     accessToken: signAccessToken(user),
-    profile: user,
+    profile: { ...user.toJSON(), warehouseId, warehouse },
     warehouseId,
+    warehouse,
   };
 }
 
@@ -146,7 +153,11 @@ export async function register({ fullName, email, phone, password, role }) {
 
 export async function getSessionProfile(profile) {
   const warehouseId = await getOwnWarehouseId(profile);
-  return { ...profile.toJSON(), warehouseId };
+  let warehouse = null;
+  if (warehouseId) {
+    warehouse = await Warehouse.findById(warehouseId).select("name code address commodity status");
+  }
+  return { ...profile.toJSON(), warehouseId, warehouse };
 }
 
 // Real logout: records this specific token's jti as revoked until it would

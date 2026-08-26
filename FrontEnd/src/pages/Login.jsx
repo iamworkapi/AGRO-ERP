@@ -15,8 +15,16 @@ export default function Login() {
 
   const WAREHOUSES = [
     {
+      id: "wh_bettiah",
+      name: "Bettiah Hub — West Champaran, Bihar",
+      adminEmail: "admin@pralli.com",
+      supervisorEmail: "rambabu@pralli.com",
+      adminPass: "admin@123",
+      supervisorPass: "supervisor12",
+    },
+    {
       id: "wh_1",
-      name: "Warehouse #1 — Kusumganga Central Hub (Nashik)",
+      name: "Kusumganga Central Hub (Nashik)",
       adminEmail: "admin@pralli.com",
       supervisorEmail: "supervisor@pralli.com",
       adminPass: "admin@123",
@@ -24,7 +32,7 @@ export default function Login() {
     },
     {
       id: "wh_2",
-      name: "Warehouse #2 — Satara Grain Processing Hub",
+      name: "Satara Grain Processing Hub",
       adminEmail: "admin.satara@kusumganga.com",
       supervisorEmail: "supervisor.satara@kusumganga.com",
       adminPass: "admin@123",
@@ -32,23 +40,15 @@ export default function Login() {
     },
     {
       id: "wh_3",
-      name: "Warehouse #3 — Sangli Agri Storage & Bio-Hub",
+      name: "Sangli Agri Storage & Bio-Hub",
       adminEmail: "admin.sangli@kusumganga.com",
       supervisorEmail: "supervisor.sangli@kusumganga.com",
       adminPass: "admin@123",
       supervisorPass: "supervisor12",
     },
-    {
-      id: "wh_4",
-      name: "Warehouse #4 — Kolhapur Biomass Distribution Centre",
-      adminEmail: "admin.kolhapur@kusumganga.com",
-      supervisorEmail: "supervisor.kolhapur@kusumganga.com",
-      adminPass: "admin@123",
-      supervisorPass: "supervisor12",
-    },
   ];
 
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState("wh_1");
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState("wh_bettiah");
   const [selectedRole, setSelectedRole] = useState("super_admin");
   const [form, setForm] = useState({ identifier: "iamworkapi@gmail.com", password: "admin12" });
   const [showPassword, setShowPassword] = useState(false);
