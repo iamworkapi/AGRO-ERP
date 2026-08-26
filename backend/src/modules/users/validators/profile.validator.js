@@ -20,6 +20,15 @@ export const updateOwnProfileSchema = z.object({
   address: z.string().optional().or(z.literal("")),
 });
 
+export const updateProfileByIdSchema = z.object({
+  fullName: z.string().min(2, "Full name must be at least 2 characters.").optional(),
+  email: z.string().email("Enter a valid email address.").optional().or(z.literal("")).or(z.null()),
+  phone: z.string().min(6, "Enter a valid phone number.").optional().or(z.literal("")).or(z.null()),
+  password: z.string().min(6, "Password must be at least 6 characters.").optional().or(z.literal("")).or(z.null()),
+  avatarUrl,
+  address: z.string().optional().or(z.literal("")).or(z.null()),
+});
+
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required."),
   newPassword: strongPassword,
@@ -44,3 +53,4 @@ export const createProfileSchema = z
     message: "Either email or phone is required.",
     path: ["email"],
   });
+

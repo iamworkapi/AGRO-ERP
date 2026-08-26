@@ -145,6 +145,8 @@ export async function createWarehouse(actor, payload) {
       passwordHash,
       role: ROLES.WAREHOUSE_ADMIN,
       status: "active",
+      address: payload.newAdmin.address || undefined,
+      avatarUrl: payload.newAdmin.avatarUrl || undefined,
     });
     finalAdminId = createdAdmin._id;
   }
@@ -164,6 +166,8 @@ export async function createWarehouse(actor, payload) {
       passwordHash,
       role: ROLES.SUPERVISOR,
       status: "active",
+      address: payload.newSupervisor.address || undefined,
+      avatarUrl: payload.newSupervisor.avatarUrl || undefined,
     });
     finalSupervisorId = createdSupervisor._id;
   }

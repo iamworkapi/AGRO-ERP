@@ -93,7 +93,7 @@ export default function BiomassCollection() {
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="🚜 Stage 1: Biomass Collection (ग्राम संग्रह)"
+        title="Stage 1: Biomass Collection"
         subtitle="Raw Biomass & Parali Inflow Tracking — 50–100 Villages Procurement Network, Weighbridge Slips & Vendor Mapping"
       />
 
@@ -101,7 +101,7 @@ export default function BiomassCollection() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-tractor" />
+            <i className="ri-truck-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Raw Inflow (MT)</p>
@@ -112,7 +112,7 @@ export default function BiomassCollection() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-tree-city" />
+            <i className="ri-community-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Village Network</p>
@@ -123,7 +123,7 @@ export default function BiomassCollection() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#DBEAFE", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-receipt" />
+            <i className="ri-file-text-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Slips & Bales</p>
@@ -134,7 +134,7 @@ export default function BiomassCollection() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#F3E8FF", color: "#7E22CE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-indian-rupee-sign" />
+            <i className="ri-money-rupee-circle-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Collection Payout (₹)</p>
@@ -144,7 +144,7 @@ export default function BiomassCollection() {
         </div>
       </div>
 
-      {/* VILLAGE NETWORK CLUSTERS (50-100 VILLAGES INFLOW STATUS) */}
+      {/* VILLAGE NETWORK CLUSTERS */}
       <div
         style={{
           background: "var(--surface)",
@@ -159,8 +159,9 @@ export default function BiomassCollection() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <span style={{ fontSize: 13, fontWeight: 900, color: "var(--ink)", textTransform: "uppercase" }}>
-              🌾 Sourcing Villages & Clusters Network (ग्राम संकलन क्लस्टर)
+              Sourcing Villages & Clusters Network
             </span>
+
             <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
               Direct farm-gate aggregation covering 50–100 villages across Unnao, Hardoi, and Shahjahanpur
             </p>
@@ -287,7 +288,7 @@ export default function BiomassCollection() {
                 onClick={() => setIsCollectionModalOpen(true)}
                 style={{ padding: "7px 14px", fontSize: 12, fontWeight: 800, background: "var(--gradient-primary)", display: "inline-flex", alignItems: "center", gap: 6 }}
               >
-                ➕ New Raw Entry Slip
+                New Raw Entry Slip
               </Button>
             </div>
           </div>
@@ -363,7 +364,7 @@ export default function BiomassCollection() {
                       title="Print Weighbridge Slip"
                       style={{ padding: "4px 8px", fontSize: 11, fontWeight: 700, background: "#0F172A", color: "#fff", border: "none", borderRadius: 4, cursor: "pointer" }}
                     >
-                      🖨️ Print
+                      Print
                     </button>
                     <button
                       onClick={() => handleDeleteSlip(r.id, r.slipNo)}
@@ -401,7 +402,7 @@ export default function BiomassCollection() {
                 onClick={() => setIsNewVendorModalOpen(true)}
                 style={{ fontSize: 11, fontWeight: 700, color: "#2563EB", background: "#EFF6FF", border: "1px solid #BFDBFE", padding: "3px 8px", borderRadius: 4, cursor: "pointer" }}
               >
-                ➕ Add Vendor
+                Add Vendor
               </button>
             </div>
 
@@ -436,7 +437,7 @@ export default function BiomassCollection() {
                   <div>👤 Rep: <strong>{currentVendor.representative}</strong></div>
                   <div>📞 Mobile: <strong>{currentVendor.contactNo}</strong></div>
                   <div style={{ gridColumn: "span 2" }}>📧 Email: <strong>{currentVendor.email}</strong></div>
-                  <div style={{ gridColumn: "span 2" }}>📍 Address: {currentVendor.address}</div>
+                  <div style={{ gridColumn: "span 2" }}>Address: {currentVendor.address}</div>
                 </div>
 
                 <div style={{ background: "#FEF3C7", border: "1px solid #F59E0B", padding: "10px", borderRadius: 8 }}>

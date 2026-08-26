@@ -50,7 +50,7 @@ export default function ExceptionApprovals() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-user-clock" />
+            <i className="ri-user-3-line-clock" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Pending Exceptions</p>
@@ -60,7 +60,7 @@ export default function ExceptionApprovals() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-circle-check" />
+            <i className="ri-checkbox-circle-fill" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Approval Policy</p>
@@ -70,7 +70,7 @@ export default function ExceptionApprovals() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-shield-halved" />
+            <i className="ri-shield-check-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Audit Logging</p>
@@ -93,7 +93,7 @@ export default function ExceptionApprovals() {
             label: "Warehouse Hub",
             render: (r) => (
               <span style={{ fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 11 }} />
+                <i className="ri-building-line" style={{ color: "var(--primary)", fontSize: 11 }} />
                 {r.warehouse}
               </span>
             ),
@@ -104,7 +104,7 @@ export default function ExceptionApprovals() {
             label: "Check-in",
             render: (r) => (
               <span style={{ fontWeight: 600, color: "#D97706", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <i className="fa-solid fa-right-to-bracket" style={{ fontSize: 11 }} />
+                <i className="ri-login-box-line" style={{ fontSize: 11 }} />
                 {r.checkIn}
               </span>
             ),
@@ -132,7 +132,7 @@ export default function ExceptionApprovals() {
                 }}
                 onClick={() => handleMarkPresent(r)}
               >
-                <i className="fa-solid fa-check" /> Mark Present
+                <i className="ri-check-line" /> Mark Present
               </Button>
             ),
           },

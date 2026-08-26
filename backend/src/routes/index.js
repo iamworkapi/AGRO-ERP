@@ -15,8 +15,11 @@ import { purchaseRoutes } from "../modules/purchase/index.js";
 import { salesRoutes } from "../modules/sales/index.js";
 import { customerRoutes, vendorRoutes } from "../modules/customers/index.js";
 import { alertRoutes } from "../modules/alerts/index.js";
+import { dashboardRoutes } from "../modules/dashboard/index.js";
 
 const router = Router();
+
+router.use("/dashboard", dashboardRoutes);
 
 router.use("/auth", authRoutes);
 router.use("/profiles", profileRoutes);

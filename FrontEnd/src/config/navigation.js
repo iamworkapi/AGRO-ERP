@@ -3,59 +3,56 @@
 export const NAV_GROUPS = [
   { label: "Overview", path: "/", sections: ["Dashboard"] },
   {
-    label: "Warehouses",
-    path: "/warehouses",
-    roles: ["admin"],
+    label: "Biomass Vendors",
+    path: "/biomass/vendors",
     sections: [
-      { label: "All Warehouses", path: "/warehouses", roles: ["admin"] },
-      { label: "Add Warehouse", path: "/warehouses/create", roles: ["admin"] },
-      { label: "Warehouse Detail", path: "/warehouses/detail", roles: ["admin"] },
-      { label: "Warehouse Admin Management", path: "/warehouses/admin-management", roles: ["admin"] },
+      { label: "Vendor Directory", path: "/biomass/vendors" },
+      { label: "Add Biomass Vendor", path: "/biomass/vendors/create" },
     ],
+    badge: true,
   },
   {
-    label: "Weighment & Moisture",
+    label: "Weighment Slips",
     path: "/weighment",
     sections: [
       { label: "Weighment Slips", path: "/weighment" },
       { label: "New Weighment Slip", path: "/weighment/new" },
       { label: "Weight Machines", path: "/weighment/machines" },
-      { label: "Deduction Slab Config", path: "/weighment/deduction-slabs", roles: ["admin"] },
+      { label: "Deduction Slabs", path: "/weighment/deduction-slabs", roles: ["admin"] },
     ],
     badge: true,
   },
   {
-    label: "Biomass 4-Stage Master",
-    path: "/biomass",
-    sections: ["4-Stage Master Tracker"],
-    badge: true,
-  },
-  {
-    label: "Raw Material Buyers",
-    path: "/biomass/vendors",
-    sections: [
-      { label: "Buyer List", path: "/biomass/vendors" },
-      { label: "Create New Buyer", path: "/biomass/vendors/create" },
-    ],
-    badge: true,
-  },
-  {
-    label: "Stage 3: Storage & Stacking",
+    label: "Storage & Stacks",
     path: "/biomass/storage",
     sections: [
-      { label: "Yard Stacking & Probes", path: "/biomass/storage" },
-      { label: "Warehouse Operations Detail", path: "/warehouses/detail", roles: ["admin"] },
+      { label: "Yard Stacks & Probes", path: "/biomass/storage" },
+      { label: "Storage Rooms & Godowns", path: "/warehouses/rooms" },
+      { label: "Allocate New Stack", path: "/biomass/storage/create" },
+      { label: "Warehouse Operations", path: "/warehouses/detail", roles: ["admin"] },
     ],
   },
   {
-    label: "Stage 4: Dispatch & Offtake",
+    label: "Factory Dispatch",
     path: "/biomass/dispatch",
     sections: [
-      { label: "Stage 4: Factory Dispatches", path: "/biomass/dispatch" },
-      { label: "Industrial Buyer Directory", path: "/biomass/buyers" },
-      { label: "Create Industrial Buyer", path: "/biomass/buyers/create" },
+      { label: "Gate Pass & Dispatches", path: "/biomass/dispatch" },
+      { label: "Industrial Buyers", path: "/biomass/buyers" },
+      { label: "Add Industrial Buyer", path: "/biomass/buyers/create" },
     ],
     badge: true,
+  },
+  {
+    label: "Warehouses",
+    path: "/warehouses",
+    roles: ["admin"],
+    sections: [
+      { label: "All Warehouses", path: "/warehouses", roles: ["admin"] },
+      { label: "Storage Rooms & Godowns", path: "/warehouses/rooms" },
+      { label: "Add Warehouse", path: "/warehouses/create", roles: ["admin"] },
+      { label: "Warehouse Detail", path: "/warehouses/detail", roles: ["admin"] },
+      { label: "Admin Management", path: "/warehouses/admin-management", roles: ["admin"] },
+    ],
   },
   {
     label: "Inventory",
@@ -63,7 +60,7 @@ export const NAV_GROUPS = [
     roles: ["admin"],
     sections: [
       { label: "Stock Overview", path: "/inventory", roles: ["admin"] },
-      { label: "Item / Parts Master", path: "/inventory/items", roles: ["admin"] },
+      { label: "Parts Master", path: "/inventory/items", roles: ["admin"] },
       { label: "Low Stock Alerts", path: "/inventory/low-stock-alerts", roles: ["admin"] },
     ],
     badge: true,
@@ -75,8 +72,8 @@ export const NAV_GROUPS = [
     sections: [
       { label: "Purchase Orders", path: "/purchase", roles: ["admin"] },
       { label: "Vendor Master & Ledger", path: "/purchase/vendors", roles: ["admin"] },
-      { label: "Biomass Vendor Directory", path: "/biomass/vendors", roles: ["admin"] },
-      { label: "Create Biomass Vendor", path: "/biomass/vendors/create", roles: ["admin"] },
+      { label: "Biomass Vendors", path: "/biomass/vendors", roles: ["admin"] },
+      { label: "Add Biomass Vendor", path: "/biomass/vendors/create", roles: ["admin"] },
     ],
   },
   {
@@ -86,8 +83,8 @@ export const NAV_GROUPS = [
     sections: [
       { label: "Invoices", path: "/sales", roles: ["admin"] },
       { label: "Customer Master & Ledger", path: "/sales/customer-master-ledger", roles: ["admin"] },
-      { label: "Industrial Buyer Directory", path: "/biomass/buyers", roles: ["admin"] },
-      { label: "Create Industrial Buyer", path: "/biomass/buyers/create", roles: ["admin"] },
+      { label: "Industrial Buyers", path: "/biomass/buyers", roles: ["admin"] },
+      { label: "Add Industrial Buyer", path: "/biomass/buyers/create", roles: ["admin"] },
     ],
   },
   {
@@ -110,7 +107,7 @@ export const NAV_GROUPS = [
     ],
   },
   {
-    label: "Alerts & Exceptions",
+    label: "Alerts & Events",
     path: "/alerts",
     roles: ["admin"],
     sections: ["All Exceptions"],

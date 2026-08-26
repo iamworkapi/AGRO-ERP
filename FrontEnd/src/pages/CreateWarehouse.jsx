@@ -95,7 +95,7 @@ export default function CreateWarehouse() {
             {/* Section: Official Company & Warehouse Information */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-building-flag" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <i className="ri-building-line-flag" style={{ color: "var(--primary)", fontSize: 14 }} />
                 <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
                   Official Company & Location Details
                 </h3>
@@ -105,7 +105,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Company Name"
                   required
-                  icon="fa-solid fa-building"
+                  icon="ri-building-line"
                   value={form.companyName}
                   onChange={set("companyName")}
                   placeholder="e.g. Kusumganga Agro Solutions Pvt. Ltd."
@@ -116,7 +116,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Warehouse Hub Name"
                   required
-                  icon="fa-solid fa-warehouse"
+                  icon="ri-building-line"
                   value={form.name}
                   onChange={set("name")}
                   placeholder="e.g. Kusumganga Agro Central Hub - Gorakhpur"
@@ -128,7 +128,7 @@ export default function CreateWarehouse() {
                 <div style={{ gridColumn: "1 / -1", marginBottom: 16, background: "var(--canvas)", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 6 }}>
                     <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 700, color: "#0D3823", margin: 0 }}>
-                      <i className="fa-solid fa-wheat-awn" style={{ color: "var(--primary)" }} />
+                      <i className="ri-plant-line" style={{ color: "var(--primary)" }} />
                       Select Handled Commodities (Check Multiple Boxes) <span style={{ color: "var(--status-error)" }}>*</span>
                     </label>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -212,7 +212,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="GSTIN / Unique ID"
                   required
-                  icon="fa-solid fa-file-invoice"
+                  icon="ri-file-line-invoice"
                   value={form.gstin}
                   onChange={set("gstin")}
                   placeholder="e.g. 09AALCK4355J1Z2"
@@ -223,7 +223,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="PAN NO"
                   required
-                  icon="fa-solid fa-id-card"
+                  icon="ri-id-card-line"
                   value={form.pan}
                   onChange={set("pan")}
                   placeholder="e.g. AALCK4355J"
@@ -234,7 +234,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Primary Contact Person"
                   required
-                  icon="fa-solid fa-user"
+                  icon="ri-user-3-line"
                   value={form.contactPerson}
                   onChange={set("contactPerson")}
                   placeholder="e.g. Mr. Jagdeep Singh"
@@ -245,7 +245,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Contact Phone"
                   required
-                  icon="fa-solid fa-phone"
+                  icon="ri-phone-line"
                   value={form.contactPhone}
                   onChange={set("contactPhone")}
                   placeholder="e.g. 7055000315"
@@ -256,7 +256,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Official Mail ID"
                   required
-                  icon="fa-solid fa-envelope"
+                  icon="ri-mail-line"
                   value={form.email}
                   onChange={set("email")}
                   placeholder="e.g. kusumganga5@gmail.com"
@@ -267,7 +267,7 @@ export default function CreateWarehouse() {
                 <FormField
                   label="Help Desk Number"
                   required
-                  icon="fa-solid fa-headset"
+                  icon="ri-customer-service-2-line"
                   value={form.helpDeskPhone}
                   onChange={set("helpDeskPhone")}
                   placeholder="e.g. 7905525983"
@@ -298,7 +298,7 @@ export default function CreateWarehouse() {
                 onClick={() => navigate("/warehouses")}
                 style={{ padding: "8px 16px", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}
               >
-                <i className="fa-solid fa-xmark" /> Cancel
+                <i className="ri-close-line" /> Cancel
               </Button>
               <Button
                 type="submit"
@@ -317,11 +317,11 @@ export default function CreateWarehouse() {
               >
                 {saving ? (
                   <>
-                    <i className="fa-solid fa-circle-notch spin" /> Saving…
+                    <i className="ri-loader-4-line spin" /> Saving…
                   </>
                 ) : (
                   <>
-                    <i className="fa-solid fa-check" /> Save Warehouse
+                    <i className="ri-check-line" /> Save Warehouse
                   </>
                 )}
               </Button>
@@ -341,7 +341,7 @@ export default function CreateWarehouse() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
-              <i className="fa-solid fa-eye" style={{ color: "var(--primary)", fontSize: 13 }} />
+              <i className="ri-eye-line" style={{ color: "var(--primary)", fontSize: 13 }} />
               <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>Live Card Preview</h4>
             </div>
 
@@ -362,7 +362,7 @@ export default function CreateWarehouse() {
                     flexShrink: 0,
                   }}
                 >
-                  <i className="fa-solid fa-warehouse" />
+                  <i className="ri-building-line" />
                 </div>
                 <div>
                   <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", display: "block" }}>
@@ -414,7 +414,7 @@ export default function CreateWarehouse() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              <i className="fa-solid fa-circle-info" style={{ color: "#33C689", fontSize: 14 }} />
+              <i className="ri-information-line" style={{ color: "#33C689", fontSize: 14 }} />
               <span style={{ fontSize: 12.5, fontWeight: 700, color: "white" }}>Setup Guidelines</span>
             </div>
             <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.72)", margin: 0, lineHeight: 1.45 }}>

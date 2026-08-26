@@ -29,7 +29,7 @@ export default function Breadcrumb({ items = [] }) {
         return (
           <span key={idx} style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
             {!isFirst && (
-              <i className="fa-solid fa-chevron-right" style={{ fontSize: 8, color: "var(--primary-deep)", opacity: 0.5 }} />
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 8, color: "var(--primary-deep)", opacity: 0.5 }} />
             )}
 
             {item.path && !isLast ? (
@@ -52,7 +52,8 @@ export default function Breadcrumb({ items = [] }) {
                 onMouseOver={(e) => (e.currentTarget.style.color = "var(--primary-deep)")}
                 onMouseOut={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
               >
-                {isHome && <i className="fa-solid fa-house-chimney" style={{ fontSize: 10, color: "var(--primary-deep)" }} />}
+                {isHome && <i className="ri-home-4-line" style={{ fontSize: 11, color: "var(--primary-deep)" }} />}
+
                 {item.label}
               </button>
             ) : (
@@ -66,7 +67,8 @@ export default function Breadcrumb({ items = [] }) {
                   gap: 4,
                 }}
               >
-                {isHome && <i className="fa-solid fa-house-chimney" style={{ fontSize: 10, color: "var(--primary-deep)" }} />}
+                {isHome && <i className="ri-home-4-line" style={{ fontSize: 11, color: "var(--primary-deep)" }} />}
+
                 {item.label}
               </span>
             )}

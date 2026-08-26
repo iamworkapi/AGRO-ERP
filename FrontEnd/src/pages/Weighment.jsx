@@ -394,7 +394,7 @@ export default function Weighment() {
 </head>
 <body onload="setTimeout(function(){ window.print(); }, 250)">
   <div class="toolbar">
-    <button class="btn" onclick="window.print()">🖨️ Print Bill / Save PDF</button>
+    <button class="btn" onclick="window.print()">Print Bill / Save PDF</button>
     <button class="btn btn-close" onclick="window.close()">✕ Close</button>
   </div>
 
@@ -546,22 +546,22 @@ export default function Weighment() {
     const totalAmt = r.totalAmountRs || 0;
 
     const text =
-      `🌾 *KUSUMGANGA AGRO SOLUTIONS PVT. LTD.* 🌾\n` +
-      `🏢 *Center:* ${r.warehouse || "Gorakhpur Center"}\n` +
+      `*KUSUMGANGA AGRO SOLUTIONS PVT. LTD.* \n` +
+      `*Center:* ${r.warehouse || "Gorakhpur Center"}\n` +
       `📜 *Slip No:* ${r.slipNo}\n` +
       `📅 *Date:* ${r.createdAt}\n` +
-      `🌾 *Commodity:* ${r.commodity}\n` +
+      `*Commodity:* ${r.commodity}\n` +
       `👤 *Party:* ${r.partyName || "—"}\n` +
       `🚛 *Vehicle No:* ${r.vehicleNo || "—"}\n` +
       `-----------------------------------\n` +
-      `⚖️ *Gross Weight:* ${grossMt} MT\n` +
-      `⚖️ *Tare Weight:* ${tareMt} MT\n` +
-      `⚖️ *Net Weight:* ${netMt} MT\n` +
+      `*Gross Weight:* ${grossMt} MT\n` +
+      `*Tare Weight:* ${tareMt} MT\n` +
+      `*Net Weight:* ${netMt} MT\n` +
       `💧 *Moisture:* ${r.moisturePct || 20}% (Allowed: ${r.allowedMoisturePct || 20}%)\n` +
       `✂️ *Deduction:* ${r.deductionPct || 0}%\n` +
-      `⚖️ *Actual Payable Weight:* ${actualMt} MT\n` +
-      `💰 *Rate:* ₹${rate.toLocaleString("en-IN")} / MT\n` +
-      `💵 *TOTAL AMOUNT:* ₹${totalAmt.toLocaleString("en-IN")}\n` +
+      `*Actual Payable Weight:* ${actualMt} MT\n` +
+      `*Rate:* ₹${rate.toLocaleString("en-IN")} / MT\n` +
+      `*TOTAL AMOUNT:* ₹${totalAmt.toLocaleString("en-IN")}\n` +
       `-----------------------------------\n` +
       `Automated Weighbridge Token - Kusumganga Agro Solutions.`;
 
@@ -578,177 +578,137 @@ export default function Weighment() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+      {/* ================================================================== */}
+      {/* 1. HERO COMMAND HEADER                                             */}
+      {/* ================================================================== */}
       <PageHeader
-        title={isScopedRole ? `PRALLI Weighment Slips — ${myWarehouseName || "your warehouse"}` : "PRALLI Daily Weight Register & Procurement Ledger"}
-        subtitle={
-          isScopedRole
-            ? `Digitised PRALLI weighment slips & daily purchase register for ${myWarehouseName || "your assigned warehouse"}`
-            : "Digitised PRALLI weighment slips & daily procurement register with moisture cut, auto bill calculation and print studio"
-        }
+        title={`PRALLI Weighment Slips — ${myWarehouseName || "Betia Hata Gorakhpur"}`}
+        badge="WEIGHBRIDGE WB-01 ONLINE"
+        location="Betia Hata, Gorakhpur, Uttar Pradesh"
+        subtitle="Automated Load Cells Active • Digitised Purchase Register & Auto QC Deductions"
+        icon="ri-scales-3-line"
       />
 
       <AsyncState status={status} error={error} loadingLabel="Loading weighment slips…" />
 
-      {/* COMPACT STAT METRICS BAR */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-file-invoice" />
-          </div>
+      {/* ================================================================== */}
+      {/* 2. TOP METRIC STAT CARDS (4-UP GRID)                               */}
+      {/* ================================================================== */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 16,
+            padding: "16px 18px",
+            boxShadow: "var(--shadow-sm)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <div>
-            <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Total Slips</p>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "var(--ink)", marginTop: 2 }}>{filteredEntries.length} Slips</div>
-          </div>
-        </div>
-
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-circle-check" />
-          </div>
-          <div>
-            <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Approved Slips</p>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "var(--ink)", marginTop: 2 }}>{approvedCount}</div>
-          </div>
-        </div>
-
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-scale-balanced" />
-          </div>
-          <div>
-            <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Actual Net Weight</p>
-            <div style={{ fontSize: 15, fontWeight: 800, color: "var(--ink)", marginTop: 2 }}>{totalNetMt.toFixed(2)} MT</div>
-          </div>
-        </div>
-
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-indian-rupee-sign" />
-          </div>
-          <div>
-            <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Total Purchase Bill</p>
-            <div style={{ fontSize: 15, fontWeight: 800, color: "var(--primary-deep)", marginTop: 2 }}>
-              ₹{totalAmountSum.toLocaleString("en-IN")}
+            <div style={{ fontSize: 20, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.02em" }}>
+              {filteredEntries.length} Slips
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
+              Total Slips Logged
             </div>
           </div>
+          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(93, 214, 44, 0.15)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+            <i className="ri-file-list-3-line" />
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 16,
+            padding: "16px 18px",
+            boxShadow: "var(--shadow-sm)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.02em" }}>
+              {approvedCount} Slips
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
+              Approved QC Passes
+            </div>
+          </div>
+          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(0, 210, 255, 0.15)", color: "#00D2FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+            <i className="ri-checkbox-circle-line" />
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 16,
+            padding: "16px 18px",
+            boxShadow: "var(--shadow-sm)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: "var(--primary)", letterSpacing: "-0.02em" }}>
+              {totalNetMt.toFixed(2)} MT
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
+              Actual Net Biomass
+            </div>
+          </div>
+          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(255, 184, 0, 0.15)", color: "#FFB800", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+            <i className="ri-scales-3-line" />
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 16,
+            padding: "16px 18px",
+            boxShadow: "var(--shadow-sm)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.02em" }}>
+              ₹{totalAmountSum.toLocaleString("en-IN")}
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
+              Total Purchase Value
+            </div>
+          </div>
+          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(168, 85, 247, 0.15)", color: "#A855F7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+            <i className="ri-money-rupee-circle-line" />
+          </div>
         </div>
       </div>
 
-      {/* VIEW SELECTION TAB BAR, COMMODITY FILTER & ACTIONS */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line)", paddingBottom: 8, flexWrap: "wrap", gap: 10 }}>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <button
-            type="button"
-            onClick={() => setActiveTab("register")}
-            style={{
-              padding: "7px 14px",
-              fontSize: 12.5,
-              fontWeight: 700,
-              borderRadius: 8,
-              border: activeTab === "register" ? "1px solid var(--primary)" : "1px solid var(--line)",
-              background: activeTab === "register" ? "var(--primary-tint)" : "var(--surface)",
-              color: activeTab === "register" ? "var(--primary-deep)" : "var(--ink-secondary)",
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <i className="fa-solid fa-table-cells" /> Daily Weight Register (Ledger View)
-          </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("list")}
-            style={{
-              padding: "7px 14px",
-              fontSize: 12.5,
-              fontWeight: 700,
-              borderRadius: 8,
-              border: activeTab === "list" ? "1px solid var(--primary)" : "1px solid var(--line)",
-              background: activeTab === "list" ? "var(--primary-tint)" : "var(--surface)",
-              color: activeTab === "list" ? "var(--primary-deep)" : "var(--ink-secondary)",
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <i className="fa-solid fa-list-check" /> Slips Cards View
-          </button>
 
-          {/* Commodity Filter dropdown */}
-          <select
-            value={commodityFilter}
-            onChange={(e) => setCommodityFilter(e.target.value)}
-            style={{
-              padding: "6px 10px",
-              fontSize: 12,
-              fontWeight: 600,
-              borderRadius: 8,
-              border: "1px solid var(--line-strong)",
-              background: "var(--surface)",
-              color: "var(--ink)",
-              outline: "none"
-            }}
-          >
-            <option value="ALL">All Commodities</option>
-            <option value="Maize">Maize</option>
-            <option value="Wheat">Wheat</option>
-            <option value="Paddy">Paddy</option>
-            <option value="PRALLI">PRALLI</option>
-            <option value="Mustard">Mustard</option>
-            <option value="Seeds">Seeds</option>
-          </select>
-        </div>
-
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            type="button"
-            onClick={handleExportCSV}
-            style={{
-              padding: "7px 12px",
-              fontSize: 12,
-              fontWeight: 700,
-              borderRadius: 8,
-              border: "1px solid #16a34a",
-              background: "#f0fdf4",
-              color: "#16a34a",
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <i className="fa-solid fa-file-excel" /> Export Excel / CSV
-          </button>
-
-          <Button
-            className="btn-glow"
-            onClick={() => navigate("/weighment/new")}
-            style={{
-              padding: "7px 14px",
-              fontSize: 12.5,
-              fontWeight: 700,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              background: "var(--gradient-primary)",
-              boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)",
-            }}
-          >
-            <i className="fa-solid fa-plus" /> New Weighment Slip
-          </Button>
-        </div>
-      </div>
-
+      {/* ================================================================== */}
+      {/* 4. MAIN WEIGHT REGISTER / SLIPS TABLE                              */}
+      {/* ================================================================== */}
       {activeTab === "register" ? (
-        /* Image 2 Style Daily Weight Register Table */
         <DataTable
           title="Daily Purchase & Weight Register (KUSUMGANGA AGRO SOLUTIONS)"
           searchable
-          searchPlaceholder="Search slip no, party, vehicle, commodity..."
+          exportable
+          exportFilename="daily_weight_register"
+          searchPlaceholder="Search slip #, vehicle, party..."
           keyField="id"
           rows={filteredEntries}
           emptyMessage="No weight register entries recorded yet."
@@ -756,15 +716,15 @@ export default function Weighment() {
             {
               key: "srNo",
               label: "SR.",
-              render: (_, options) => <span style={{ color: "var(--muted)", fontWeight: 600 }}>{(options?.rowIndex !== undefined ? options.rowIndex + 1 : 1)}</span>,
+              render: (_, options) => <span style={{ color: "var(--muted)", fontWeight: 700, fontSize: 12 }}>{(options?.rowIndex !== undefined ? options.rowIndex + 1 : 1)}</span>,
             },
             {
               key: "slipNo",
               label: "R.S.T SLIP NO.",
               emphasize: true,
               render: (r) => (
-                <span style={{ fontWeight: 800, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-hashtag" style={{ fontSize: 10 }} />
+                <span style={{ fontWeight: 800, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12.5 }}>
+                  <i className="ri-hashtag" style={{ color: "var(--primary)", fontSize: 11 }} />
                   {r.slipNo}
                 </span>
               ),
@@ -773,28 +733,42 @@ export default function Weighment() {
               key: "vehicleNo",
               label: "VEHICLE NO.",
               render: (r) => (
-                <span style={{ fontWeight: 700, fontFamily: "monospace", color: "var(--ink)", letterSpacing: 0.3 }}>{r.vehicleNo || "—"}</span>
+                <span
+                  style={{
+                    fontWeight: 800,
+                    fontFamily: "monospace",
+                    color: "var(--ink)",
+                    background: "var(--canvas)",
+                    padding: "2px 6px",
+                    borderRadius: 6,
+                    border: "1px solid var(--line)",
+                    fontSize: 11.5,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {r.vehicleNo || "—"}
+                </span>
               ),
             },
             {
               key: "createdAt",
               label: "DATE",
-              render: (r) => <span style={{ fontSize: 11.5, color: "var(--ink-secondary)" }}>{r.createdAt || "—"}</span>,
+              render: (r) => <span style={{ fontSize: 11.5, color: "var(--muted)" }}>{r.createdAt || "Today"}</span>,
             },
             {
               key: "grossWeightKg",
               label: "GROSS (MT)",
-              render: (r) => (r.grossWeightKg / 1000).toFixed(3),
+              render: (r) => <span style={{ fontSize: 12 }}>{(r.grossWeightKg / 1000).toFixed(3)}</span>,
             },
             {
               key: "tareWeightKg",
               label: "TARE (MT)",
-              render: (r) => (r.tareWeightKg / 1000).toFixed(3),
+              render: (r) => <span style={{ fontSize: 12 }}>{(r.tareWeightKg / 1000).toFixed(3)}</span>,
             },
             {
               key: "netWeightKg",
               label: "NET (MT)",
-              render: (r) => <strong style={{ color: "var(--ink)" }}>{(r.netWeightKg / 1000).toFixed(3)}</strong>,
+              render: (r) => <strong style={{ color: "var(--ink)", fontSize: 12.5 }}>{(r.netWeightKg / 1000).toFixed(3)}</strong>,
             },
             {
               key: "moisturePct",
@@ -804,18 +778,19 @@ export default function Weighment() {
                 return (
                   <span
                     style={{
-                      background: isHigh ? "#FEF3C7" : "#D1FAE5",
-                      color: isHigh ? "#D97706" : "#059669",
+                      background: isHigh ? "rgba(255, 184, 0, 0.15)" : "rgba(93, 214, 44, 0.15)",
+                      color: isHigh ? "#D97706" : "var(--primary)",
+                      border: `1px solid ${isHigh ? "rgba(255, 184, 0, 0.3)" : "rgba(93, 214, 44, 0.3)"}`,
                       padding: "2px 7px",
                       borderRadius: 6,
-                      fontWeight: 700,
-                      fontSize: 11.5,
+                      fontWeight: 800,
+                      fontSize: 11,
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 4
+                      gap: 3,
                     }}
                   >
-                    <i className="fa-solid fa-droplet" style={{ fontSize: 9 }} />
+                    <i className="ri-drop-line" style={{ fontSize: 10 }} />
                     {r.moisturePct != null ? `${r.moisturePct}%` : "20%"}
                   </span>
                 );
@@ -824,20 +799,20 @@ export default function Weighment() {
             {
               key: "allowedMoisturePct",
               label: "ALLOWED %",
-              render: (r) => `${r.allowedMoisturePct || 20}%`,
+              render: (r) => <span style={{ fontSize: 12 }}>{r.allowedMoisturePct || 20}%</span>,
             },
             {
               key: "diffPct",
               label: "DIFF %",
               render: (r) => {
                 const diff = Math.max(0, (r.moisturePct || 20) - (r.allowedMoisturePct || 20));
-                return <span style={{ color: diff > 0 ? "#dc2626" : "var(--muted)", fontWeight: diff > 0 ? 700 : 500 }}>{diff}%</span>;
+                return <span style={{ color: diff > 0 ? "#DC2626" : "var(--muted)", fontWeight: diff > 0 ? 800 : 500, fontSize: 12 }}>{diff}%</span>;
               },
             },
             {
               key: "totalDeductionMt",
               label: "DED. (MT)",
-              render: (r) => (r.totalDeductionMt || 0).toFixed(3),
+              render: (r) => <span style={{ fontSize: 12 }}>{(r.totalDeductionMt || 0).toFixed(3)}</span>,
             },
             {
               key: "actualWeightMt",
@@ -846,11 +821,12 @@ export default function Weighment() {
                 <span
                   style={{
                     background: "var(--primary-tint)",
-                    color: "var(--primary-deep)",
+                    color: "var(--primary)",
+                    border: "1px solid var(--primary-tint)",
                     padding: "3px 8px",
                     borderRadius: 6,
                     fontWeight: 800,
-                    fontSize: 12
+                    fontSize: 12,
                   }}
                 >
                   {(r.actualWeightMt || (r.netWeightKg / 1000)).toFixed(3)} MT
@@ -859,14 +835,14 @@ export default function Weighment() {
             },
             {
               key: "ratePerMt",
-              label: "RATE (RS.)",
-              render: (r) => `₹${(r.ratePerMt || 1900).toLocaleString("en-IN")}`,
+              label: "RATE (₹)",
+              render: (r) => <span style={{ fontSize: 12 }}>₹{(r.ratePerMt || 1900).toLocaleString("en-IN")}</span>,
             },
             {
               key: "totalAmountRs",
-              label: "TOTAL AMOUNT (RS.)",
+              label: "TOTAL AMOUNT (₹)",
               render: (r) => (
-                <strong style={{ color: "#047857", fontSize: 13 }}>
+                <strong style={{ color: "var(--primary)", fontSize: 13 }}>
                   ₹{(r.totalAmountRs || 0).toLocaleString("en-IN")}
                 </strong>
               ),
@@ -876,46 +852,35 @@ export default function Weighment() {
               label: "ACTIONS",
               render: (r) => (
                 <div style={{ display: "flex", gap: 6 }}>
-                  <button
-                    type="button"
+                  <Button
+                    size="sm"
+                    variant="outline"
                     title="Print Receipt Slip PDF"
                     onClick={() => triggerDirectPrint(r)}
-                    style={{
-                      padding: "4px 9px",
-                      fontSize: 11.5,
-                      fontWeight: 700,
-                      borderRadius: 6,
-                      border: "1px solid var(--primary)",
-                      background: "var(--primary-tint)",
-                      color: "var(--primary-deep)",
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
+                    style={{ height: 28, fontSize: 11, padding: "0 8px" }}
                   >
-                    <i className="fa-solid fa-print" /> Print PDF
-                  </button>
+                    <i className="ri-printer-line" style={{ marginRight: 3 }} /> Print
+                  </Button>
 
                   <button
                     type="button"
                     title="Share via WhatsApp"
                     onClick={() => handleShareWhatsApp(r)}
                     style={{
-                      padding: "4px 8px",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      borderRadius: 6,
-                      border: "1px solid #16a34a",
+                      width: 28,
+                      height: 28,
+                      borderRadius: 8,
+                      border: "none",
                       background: "#25D366",
-                      color: "#fff",
+                      color: "#FFFFFF",
                       cursor: "pointer",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 4,
+                      justifyContent: "center",
+                      fontSize: 14,
                     }}
                   >
-                    <i className="fa-brands fa-whatsapp" />
+                    <i className="ri-whatsapp-line" />
                   </button>
                 </div>
               ),
@@ -923,6 +888,7 @@ export default function Weighment() {
           ]}
         />
       ) : (
+
         /* Standard Cards / Directory Table */
         <DataTable
           title={isScopedRole ? `Weighment Slips (${myWarehouseName || "your warehouse"})` : "Weighment Slips Directory"}
@@ -938,7 +904,7 @@ export default function Weighment() {
               emphasize: true,
               render: (r) => (
                 <span style={{ fontWeight: 800, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-hashtag" style={{ fontSize: 10 }} />
+                  <i className="ri-hashtag" style={{ fontSize: 10 }} />
                   {r.slipNo}
                 </span>
               ),
@@ -948,7 +914,7 @@ export default function Weighment() {
               label: "Centre",
               render: (r) => (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontWeight: 600 }}>
-                  <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 11 }} />
+                  <i className="ri-building-line" style={{ color: "var(--primary)", fontSize: 11 }} />
                   {r.warehouse}
                 </span>
               ),
@@ -958,7 +924,7 @@ export default function Weighment() {
               label: "Party / Supplier",
               render: (r) => (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-building-user" style={{ color: "var(--muted)", fontSize: 11 }} />
+                  <i className="ri-building-line-user" style={{ color: "var(--muted)", fontSize: 11 }} />
                   {r.partyName || "—"}
                 </span>
               ),
@@ -973,7 +939,7 @@ export default function Weighment() {
               label: "Commodity",
               render: (r) => (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-wheat-awn" style={{ color: "var(--muted)", fontSize: 11 }} />
+                  <i className="ri-plant-line" style={{ color: "var(--muted)", fontSize: 11 }} />
                   {r.commodity}
                 </span>
               ),
@@ -983,7 +949,7 @@ export default function Weighment() {
               label: "Moisture",
               render: (r) => (
                 <span style={{ fontWeight: 600, color: "#2563EB", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-droplet" style={{ fontSize: 10 }} />
+                  <i className="ri-drop-line" style={{ fontSize: 10 }} />
                   {r.moisturePct != null ? `${r.moisturePct}%` : "—"}
                 </span>
               ),
@@ -1005,46 +971,35 @@ export default function Weighment() {
               label: "Actions",
               render: (r) => (
                 <div style={{ display: "flex", gap: 6 }}>
-                  <button
-                    type="button"
+                  <Button
+                    size="sm"
+                    variant="outline"
                     title="Print Receipt Slip"
                     onClick={() => triggerDirectPrint(r)}
-                    style={{
-                      padding: "4px 8px",
-                      fontSize: 11,
-                      fontWeight: 600,
-                      borderRadius: 6,
-                      border: "1px solid var(--line)",
-                      background: "var(--surface)",
-                      color: "var(--primary-deep)",
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
+                    style={{ height: 28, fontSize: 11, padding: "0 8px" }}
                   >
-                    <i className="fa-solid fa-print" /> Print
-                  </button>
+                    <i className="ri-printer-line" style={{ marginRight: 3 }} /> Print
+                  </Button>
 
                   <button
                     type="button"
                     title="Share via WhatsApp"
                     onClick={() => handleShareWhatsApp(r)}
                     style={{
-                      padding: "4px 8px",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      borderRadius: 6,
-                      border: "1px solid #16a34a",
+                      width: 28,
+                      height: 28,
+                      borderRadius: 8,
+                      border: "none",
                       background: "#25D366",
-                      color: "#fff",
+                      color: "#FFFFFF",
                       cursor: "pointer",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 4,
+                      justifyContent: "center",
+                      fontSize: 14,
                     }}
                   >
-                    <i className="fa-brands fa-whatsapp" /> WhatsApp
+                    <i className="ri-whatsapp-line" />
                   </button>
                 </div>
               ),

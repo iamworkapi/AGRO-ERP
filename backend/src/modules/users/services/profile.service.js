@@ -188,8 +188,17 @@ export async function changePassword(actor, currentPassword, newPassword) {
   return { message: "Password changed successfully. Please sign in again." };
 }
 
-// Super Admin updating an existing Admin or Supervisor profile
+// Super Admin or Warehouse Admin updating an existing Admin or Supervisor profile
 export async function updateProfileById(actor, profileId, { fullName, email, phone, password, avatarUrl, address }) {
+  if (actor.profile.role === ROLES.WAREHOUSE_ADMIN) {
+    const ownWarehouse = await Warehouse.findOne({ admin: actor.profile._id });
+    const isSelf = String(actor.profile._id) === String(profileId);
+    const isOwnSupervisor = ownWarehouse?.supervisor && String(ownWarehouse.supervisor) === String(profileId);
+    if (!isSelf && !isOwnSupervisor) {
+      throw ApiError.forbidden("Warehouse Admins can only update their own profile or their assigned supervisor.");
+    }
+  }
+
   const user = await User.findById(profileId);
   if (!user) throw ApiError.notFound("User profile not found.");
 
@@ -200,7 +209,11 @@ export async function updateProfileById(actor, profileId, { fullName, email, pho
       const existing = await User.findOne({ email: normalized, _id: { $ne: profileId } });
       if (existing) throw ApiError.conflict("This email is already in use by another account.");
     }
-    user.email = normalized || undefined;
+    if (normalized) {
+      user.email = normalized;
+    } else {
+      user.set("email", undefined);
+    }
   }
   if (phone !== undefined) {
     const trimmed = phone ? phone.trim() : "";
@@ -208,14 +221,31 @@ export async function updateProfileById(actor, profileId, { fullName, email, pho
       const existing = await User.findOne({ phone: trimmed, _id: { $ne: profileId } });
       if (existing) throw ApiError.conflict("This phone number is already in use by another account.");
     }
-    user.phone = trimmed || undefined;
+    if (trimmed) {
+      user.phone = trimmed;
+    } else {
+      user.set("phone", undefined);
+    }
   }
   if (password && password.length >= 6) {
     user.passwordHash = await User.hashPassword(password);
     user.tokenVersion += 1;
   }
-  if (avatarUrl !== undefined) user.avatarUrl = avatarUrl || undefined;
-  if (address !== undefined) user.address = address?.trim() || undefined;
+  if (avatarUrl !== undefined) {
+    if (avatarUrl) {
+      user.avatarUrl = avatarUrl;
+    } else {
+      user.set("avatarUrl", undefined);
+    }
+  }
+  if (address !== undefined) {
+    const trimmed = address ? address.trim() : "";
+    if (trimmed) {
+      user.address = trimmed;
+    } else {
+      user.set("address", undefined);
+    }
+  }
 
   await user.save();
 

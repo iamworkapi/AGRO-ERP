@@ -2,10 +2,10 @@ export default function RecentActivity({ items = [] }) {
   const getIcon = (rawText) => {
     const text = String(rawText || "").toLowerCase();
     if (text.includes("approved") || text.includes("weighment") || text.includes("slip")) return { icon: "📝", bg: "#E5F8F0", color: "#00B86B" };
-    if (text.includes("dispatched") || text.includes("stock") || text.includes("truck")) return { icon: "🚚", bg: "#EFF6FF", color: "#3B82F6" };
+    if (text.includes("dispatched") || text.includes("stock") || text.includes("truck")) return { icon: "", bg: "#EFF6FF", color: "#3B82F6" };
     if (text.includes("moisture") || text.includes("deduction") || text.includes("temp") || text.includes("probe")) return { icon: "💧", bg: "#FEF3C7", color: "#D97706" };
     if (text.includes("shift") || text.includes("attendance") || text.includes("staff")) return { icon: "👤", bg: "#F3E8FF", color: "#8B5CF6" };
-    return { icon: "⚡", bg: "#EFF6FF", color: "#2563EB" };
+    return { icon: "", bg: "#EFF6FF", color: "#2563EB" };
   };
 
   const safeItems = Array.isArray(items) ? items : [];

@@ -242,11 +242,15 @@ export default function WarehouseAdminManagement() {
                 adminName: form.fullName.trim(),
                 adminPhone: form.phone ? form.phone.trim() : undefined,
                 adminEmail: form.email ? form.email.trim().toLowerCase() : undefined,
+                adminAddress: form.address ? form.address.trim() : undefined,
+                adminAvatarUrl: form.avatarUrl || undefined,
               }
             : {
                 supervisorName: form.fullName.trim(),
                 supervisorPhone: form.phone ? form.phone.trim() : undefined,
                 supervisorEmail: form.email ? form.email.trim().toLowerCase() : undefined,
+                supervisorAddress: form.address ? form.address.trim() : undefined,
+                supervisorAvatarUrl: form.avatarUrl || undefined,
               };
           await updateWarehouse(selectedWarehouse.id, patch);
         }
@@ -307,7 +311,7 @@ export default function WarehouseAdminManagement() {
               flexShrink: 0,
             }}
           >
-            <i className="fa-solid fa-warehouse" />
+            <i className="ri-building-line" />
           </div>
           <div style={{ flex: 1 }}>
             <label style={{ fontSize: 11.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", display: "block", marginBottom: 4 }}>
@@ -342,7 +346,7 @@ export default function WarehouseAdminManagement() {
                 gap: 8,
               }}
             >
-              <i className="fa-solid fa-user-shield" style={{ color: currentAdmin ? "var(--primary)" : "var(--status-error)", fontSize: 13 }} />
+              <i className="ri-user-settings-line" style={{ color: currentAdmin ? "var(--primary)" : "var(--status-error)", fontSize: 13 }} />
               <div>
                 <span style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", display: "block" }}>Admin</span>
                 <strong style={{ fontSize: 12.5, color: currentAdmin ? "var(--ink)" : "var(--status-error)" }}>
@@ -362,7 +366,7 @@ export default function WarehouseAdminManagement() {
                 gap: 8,
               }}
             >
-              <i className="fa-solid fa-user-gear" style={{ color: currentSupervisor ? "var(--primary)" : "#D97706", fontSize: 13 }} />
+              <i className="ri-user-settings-line" style={{ color: currentSupervisor ? "var(--primary)" : "#D97706", fontSize: 13 }} />
               <div>
                 <span style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", display: "block" }}>Supervisor</span>
                 <strong style={{ fontSize: 12.5, color: currentSupervisor?.name ? "var(--ink)" : "#D97706" }}>
@@ -407,7 +411,7 @@ export default function WarehouseAdminManagement() {
                     gap: 6,
                   }}
                 >
-                  <i className="fa-solid fa-user-shield" /> Warehouse Admin
+                  <i className="ri-user-settings-line" /> Warehouse Admin
                 </button>
 
                 <button
@@ -427,7 +431,7 @@ export default function WarehouseAdminManagement() {
                     gap: 6,
                   }}
                 >
-                  <i className="fa-solid fa-user-gear" /> Warehouse Supervisor
+                  <i className="ri-user-settings-line" /> Warehouse Supervisor
                 </button>
               </div>
 
@@ -451,11 +455,11 @@ export default function WarehouseAdminManagement() {
 
             <form onSubmit={handleSaveStaff} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {/* Photo & Avatar Section */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "var(--canvas)", borderRadius: 8, border: "1px solid var(--line)", opacity: isReadOnly ? 0.8 : 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 14px", background: "var(--canvas)", borderRadius: 10, border: "1px solid var(--line)" }}>
                 <div
                   style={{
-                    width: 46,
-                    height: 46,
+                    width: 52,
+                    height: 52,
                     borderRadius: "50%",
                     background: currentForm.avatarUrl ? `url(${currentForm.avatarUrl}) center/cover no-repeat` : "var(--gradient-primary)",
                     display: "flex",
@@ -463,65 +467,92 @@ export default function WarehouseAdminManagement() {
                     justifyContent: "center",
                     color: "white",
                     fontWeight: 800,
-                    fontSize: 16,
+                    fontSize: 18,
                     flexShrink: 0,
                     overflow: "hidden",
+                    border: currentForm.avatarUrl ? "2px solid var(--primary)" : "none",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                   }}
                 >
                   {!currentForm.avatarUrl && (currentForm.fullName || "AD").slice(0, 2).toUpperCase()}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     <input
                       type="file"
                       ref={fileInputRef}
                       accept="image/*"
-                      disabled={isReadOnly}
                       onChange={(e) => handleFileUpload(e.target.files?.[0])}
                       style={{ display: "none" }}
                     />
-                    <button
-                      type="button"
-                      disabled={isReadOnly}
-                      onClick={() => fileInputRef.current?.click()}
-                      style={{
-                        padding: "4px 10px",
-                        borderRadius: 6,
-                        border: "1px solid var(--line-strong)",
-                        background: isReadOnly ? "var(--canvas)" : "var(--surface)",
-                        fontSize: 11.5,
-                        fontWeight: 600,
-                        cursor: isReadOnly ? "not-allowed" : "pointer",
-                        color: isReadOnly ? "var(--muted)" : "var(--ink)",
-                      }}
-                    >
-                      Upload Photo
-                    </button>
-                    {currentForm.avatarUrl && !isReadOnly && (
+                    {isReadOnly ? (
                       <button
                         type="button"
-                        onClick={() => setFormKey("avatarUrl", "")}
-                        style={{ border: "none", background: "none", color: "var(--status-error)", fontSize: 11, cursor: "pointer", textDecoration: "underline" }}
+                        onClick={() => setIsEditing(true)}
+                        style={{
+                          padding: "5px 12px",
+                          borderRadius: 6,
+                          border: "1px solid var(--primary)",
+                          background: "var(--primary-tint)",
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          color: "var(--primary-deep)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
                       >
-                        Remove
+                        <i className="ri-camera-line" /> {currentForm.avatarUrl ? "Change Photo" : "Upload Photo"}
                       </button>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          style={{
+                            padding: "5px 12px",
+                            borderRadius: 6,
+                            border: "1px solid var(--line-strong)",
+                            background: "var(--surface)",
+                            fontSize: 11.5,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            color: "var(--ink)",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                          }}
+                        >
+                          <i className="ri-upload-2-line" /> Upload Photo
+                        </button>
+                        {currentForm.avatarUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setFormKey("avatarUrl", "")}
+                            style={{ border: "none", background: "none", color: "var(--status-error)", fontSize: 11, cursor: "pointer", textDecoration: "underline" }}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                   {/* Preset Avatars */}
                   {!isReadOnly && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
                       <span style={{ fontSize: 10.5, color: "var(--muted)" }}>Presets:</span>
                       {PRESET_AVATARS.map((url, i) => (
                         <div
                           key={i}
                           onClick={() => setFormKey("avatarUrl", url)}
                           style={{
-                            width: 20,
-                            height: 20,
+                            width: 22,
+                            height: 22,
                             borderRadius: "50%",
                             background: `url(${url}) center/cover no-repeat`,
                             cursor: "pointer",
-                            border: currentForm.avatarUrl === url ? "2px solid var(--primary)" : "1px solid transparent",
+                            border: currentForm.avatarUrl === url ? "2px solid var(--primary)" : "1px solid var(--line-strong)",
                           }}
                         />
                       ))}
@@ -537,7 +568,7 @@ export default function WarehouseAdminManagement() {
                     label="Full Name"
                     required
                     disabled={isReadOnly}
-                    icon="fa-solid fa-user"
+                    icon="ri-user-3-line"
                     value={currentForm.fullName}
                     onChange={(val) => setFormKey("fullName", val)}
                     placeholder={activeRole === "admin" ? "e.g. Manoj Kumar" : "e.g. Ramesh Singh"}
@@ -550,10 +581,10 @@ export default function WarehouseAdminManagement() {
                   label="Contact Phone (Login ID)"
                   required={!isAssigned}
                   disabled={isReadOnly}
-                  icon="fa-solid fa-phone"
+                  icon="ri-phone-line"
                   value={currentForm.phone}
                   onChange={(val) => setFormKey("phone", val)}
-                  placeholder="e.g. 9876543210"
+                  placeholder={isReadOnly ? (currentForm.phone || "Not specified") : "e.g. 9876543210"}
                   compact
                   marginBottom={10}
                 />
@@ -563,10 +594,10 @@ export default function WarehouseAdminManagement() {
                   type="email"
                   required={!isAssigned}
                   disabled={isReadOnly}
-                  icon="fa-solid fa-envelope"
+                  icon="ri-mail-line"
                   value={currentForm.email}
                   onChange={(val) => setFormKey("email", val)}
-                  placeholder={activeRole === "admin" ? "e.g. manoj@kusumganga.com" : "e.g. ramesh@kusumganga.com"}
+                  placeholder={isReadOnly ? (currentForm.email ? currentForm.email : "Not specified (Click 'Edit Details' to add)") : (activeRole === "admin" ? "e.g. manoj@kusumganga.com" : "e.g. ramesh@kusumganga.com")}
                   compact
                   marginBottom={10}
                 />
@@ -629,10 +660,10 @@ export default function WarehouseAdminManagement() {
                     label="Residential / Office Address"
                     type="textarea"
                     disabled={isReadOnly}
-                    icon="fa-solid fa-location-dot"
+                    icon="ri-map-pin-line"
                     value={currentForm.address}
                     onChange={(val) => setFormKey("address", val)}
-                    placeholder="e.g. Village Betiyahata, Block Sadar, Gorakhpur, UP"
+                    placeholder={isReadOnly ? (currentForm.address ? currentForm.address : "Not specified (Click 'Edit Details' to add address)") : "e.g. Village Betiyahata, Block Sadar, Gorakhpur, UP"}
                     compact
                     marginBottom={10}
                   />
@@ -655,7 +686,7 @@ export default function WarehouseAdminManagement() {
                       gap: 6,
                     }}
                   >
-                    <i className="fa-solid fa-pen-to-square" /> Edit Details
+                    <i className="ri-edit-line" /> Edit Details
                   </Button>
                 ) : isAssigned ? (
                   /* Editable Mode for Existing Staff: Show Cancel & Save Changes */
@@ -828,7 +859,7 @@ export default function WarehouseAdminManagement() {
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <h4 style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: "var(--ink)" }}>
-            <i className="fa-solid fa-table-list" style={{ color: "var(--primary)", marginRight: 8 }} />
+            <i className="ri-table-list-line" style={{ color: "var(--primary)", marginRight: 8 }} />
             All Warehouses & Assigned Staff
           </h4>
           <span style={{ fontSize: 11.5, color: "var(--muted)" }}>{warehouses.length} Total Warehouses</span>
@@ -862,9 +893,32 @@ export default function WarehouseAdminManagement() {
                     </td>
                     <td style={{ padding: "12px" }}>
                       {w.admin ? (
-                        <div>
-                          <strong style={{ color: "var(--ink)" }}>{w.admin}</strong>
-                          <span style={{ display: "block", fontSize: 11, color: "var(--muted)" }}>📞 {w.adminPhone || "—"}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div
+                            style={{
+                              width: 34,
+                              height: 34,
+                              borderRadius: "50%",
+                              background: w.adminAvatarUrl ? `url(${w.adminAvatarUrl}) center/cover no-repeat` : "var(--gradient-primary)",
+                              color: "white",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontWeight: 700,
+                              fontSize: 12,
+                              flexShrink: 0,
+                              border: w.adminAvatarUrl ? "1.5px solid var(--primary)" : "none",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {!w.adminAvatarUrl && (w.admin || "A").slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <strong style={{ color: "var(--ink)", display: "block" }}>{w.admin}</strong>
+                            <span style={{ display: "block", fontSize: 11, color: "var(--muted)" }}>📞 {w.adminPhone || "—"}</span>
+                            {w.adminEmail && <span style={{ display: "block", fontSize: 10.5, color: "var(--primary-deep)" }}>✉️ {w.adminEmail}</span>}
+                            {w.adminAddress && <span style={{ display: "block", fontSize: 10.5, color: "var(--muted)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={w.adminAddress}>{w.adminAddress}</span>}
+                          </div>
                         </div>
                       ) : (
                         <span style={{ color: "var(--status-error)", fontSize: 11.5, fontWeight: 600 }}>● Unassigned</span>
@@ -872,9 +926,32 @@ export default function WarehouseAdminManagement() {
                     </td>
                     <td style={{ padding: "12px" }}>
                       {w.supervisor ? (
-                        <div>
-                          <strong style={{ color: "var(--ink)" }}>{w.supervisor}</strong>
-                          <span style={{ display: "block", fontSize: 11, color: "var(--muted)" }}>📞 {w.supervisorPhone || "—"}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div
+                            style={{
+                              width: 34,
+                              height: 34,
+                              borderRadius: "50%",
+                              background: w.supervisorAvatarUrl ? `url(${w.supervisorAvatarUrl}) center/cover no-repeat` : "linear-gradient(135deg, #0284C7, #38BDF8)",
+                              color: "white",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontWeight: 700,
+                              fontSize: 12,
+                              flexShrink: 0,
+                              border: w.supervisorAvatarUrl ? "1.5px solid #0284C7" : "none",
+                              overflow: "hidden",
+                            }}
+                          >
+                            {!w.supervisorAvatarUrl && (w.supervisor || "S").slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <strong style={{ color: "var(--ink)", display: "block" }}>{w.supervisor}</strong>
+                            <span style={{ display: "block", fontSize: 11, color: "var(--muted)" }}>📞 {w.supervisorPhone || "—"}</span>
+                            {w.supervisorEmail && <span style={{ display: "block", fontSize: 10.5, color: "var(--primary-deep)" }}>✉️ {w.supervisorEmail}</span>}
+                            {w.supervisorAddress && <span style={{ display: "block", fontSize: 10.5, color: "var(--muted)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={w.supervisorAddress}>{w.supervisorAddress}</span>}
+                          </div>
                         </div>
                       ) : (
                         <span style={{ color: "#D97706", fontSize: 11.5, fontWeight: 600 }}>● Unassigned</span>
@@ -892,14 +969,14 @@ export default function WarehouseAdminManagement() {
                           onClick={() => handleSelectFromTable(w, "admin")}
                           style={{ padding: "4px 10px", fontSize: 11.5, display: "inline-flex", alignItems: "center", gap: 4 }}
                         >
-                          <i className="fa-solid fa-user-shield" /> Manage Admin
+                          <i className="ri-user-settings-line" /> Manage Admin
                         </Button>
                         <Button
                           variant={isSelected && activeRole === "supervisor" ? "primary" : "secondary"}
                           onClick={() => handleSelectFromTable(w, "supervisor")}
                           style={{ padding: "4px 10px", fontSize: 11.5, display: "inline-flex", alignItems: "center", gap: 4 }}
                         >
-                          <i className="fa-solid fa-user-gear" /> Manage Supervisor
+                          <i className="ri-user-settings-line" /> Manage Supervisor
                         </Button>
                       </div>
                     </td>

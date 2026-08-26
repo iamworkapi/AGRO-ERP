@@ -20,7 +20,7 @@ export default function DeductionSlabConfig() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-wheat-awn" />
+            <i className="ri-plant-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Configured Commodities</p>
@@ -30,7 +30,7 @@ export default function DeductionSlabConfig() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-droplet" />
+            <i className="ri-drop-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Standard Thresholds</p>
@@ -40,7 +40,7 @@ export default function DeductionSlabConfig() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-sliders" />
+            <i className="ri-settings-3-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Calculation Engine</p>
@@ -63,7 +63,7 @@ export default function DeductionSlabConfig() {
             emphasize: true,
             render: (r) => (
               <span style={{ fontWeight: 700, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                <i className="fa-solid fa-wheat-awn" style={{ color: "var(--primary)", fontSize: 13 }} />
+                <i className="ri-plant-line" style={{ color: "var(--primary)", fontSize: 13 }} />
                 {r.commodity}
               </span>
             ),
@@ -73,7 +73,7 @@ export default function DeductionSlabConfig() {
             label: "Standard Moisture Threshold",
             render: (r) => (
               <span style={{ fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <i className="fa-solid fa-droplet" style={{ color: "#3B82F6", fontSize: 11 }} />
+                <i className="ri-drop-line" style={{ color: "#3B82F6", fontSize: 11 }} />
                 <strong>{r.threshold}</strong>
               </span>
             ),
@@ -83,7 +83,7 @@ export default function DeductionSlabConfig() {
             label: "Deduction Rule",
             render: (r) => (
               <span style={{ fontSize: 12, color: "var(--ink-secondary)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <i className="fa-solid fa-scale-unbalanced" style={{ color: "var(--muted)", fontSize: 11 }} />
+                <i className="ri-scales-line" style={{ color: "var(--muted)", fontSize: 11 }} />
                 Deduct <strong>{r.deductionPerPercent}</strong> per 1% excess moisture
               </span>
             ),

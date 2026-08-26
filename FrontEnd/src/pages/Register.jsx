@@ -60,7 +60,7 @@ export default function Register() {
       {success ? (
         <div style={{ textAlign: "center", padding: "28px 16px", background: "var(--primary-tint)", border: "1px solid var(--line)", borderRadius: 12 }} className="animate-fade-in">
           <div style={{ fontSize: 32, marginBottom: 8, color: "var(--primary-deep)" }}>
-            <i className="fa-solid fa-circle-check" />
+            <i className="ri-checkbox-circle-fill" />
           </div>
           <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--primary-deep)", margin: "0 0 4px" }}>
             Account Request Submitted!
@@ -82,14 +82,14 @@ export default function Register() {
                 className={`role-picker-option ${form.role === "Warehouse Admin" ? "active" : ""}`}
                 onClick={() => set("role")("Warehouse Admin")}
               >
-                <i className="fa-solid fa-user-shield" /> Warehouse Admin
+                <i className="ri-user-settings-line" /> Warehouse Admin
               </button>
               <button
                 type="button"
                 className={`role-picker-option ${form.role === "Supervisor" ? "active" : ""}`}
                 onClick={() => set("role")("Supervisor")}
               >
-                <i className="fa-solid fa-user-gear" /> Supervisor
+                <i className="ri-user-settings-line" /> Supervisor
               </button>
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function Register() {
           <FormField
             label="Full Name"
             required
-            icon="fa-solid fa-user"
+            icon="ri-user-3-line"
             value={form.fullName}
             onChange={set("fullName")}
             placeholder="e.g. Manoj Kumar"
@@ -110,7 +110,7 @@ export default function Register() {
               label="Phone Number"
               type="tel"
               required
-              icon="fa-solid fa-phone"
+              icon="ri-phone-line"
               value={form.phone}
               onChange={set("phone")}
               placeholder="98xxxxxxxx"
@@ -120,7 +120,7 @@ export default function Register() {
             <FormField
               label="Email (optional)"
               type="email"
-              icon="fa-solid fa-envelope"
+              icon="ri-mail-line"
               value={form.email}
               onChange={set("email")}
               placeholder="you@company.com"
@@ -134,7 +134,7 @@ export default function Register() {
               label="Password"
               type="password"
               required
-              icon="fa-solid fa-lock"
+              icon="ri-lock-line"
               value={form.password}
               onChange={set("password")}
               placeholder="••••••••"
@@ -145,7 +145,7 @@ export default function Register() {
               label="Confirm Password"
               type="password"
               required
-              icon="fa-solid fa-lock"
+              icon="ri-lock-line"
               value={form.confirmPassword}
               onChange={set("confirmPassword")}
               placeholder="••••••••"
@@ -155,7 +155,7 @@ export default function Register() {
           </div>
 
           <div style={{ background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 8, padding: "8px 10px", margin: "2px 0 14px", display: "flex", gap: 8, alignItems: "flex-start" }}>
-            <i className="fa-solid fa-shield-halved" style={{ color: "var(--primary)", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
+            <i className="ri-shield-check-line" style={{ color: "var(--primary)", fontSize: 13, marginTop: 2, flexShrink: 0 }} />
             <p style={{ fontSize: 11, color: "var(--muted)", margin: 0, lineHeight: 1.35 }}>
               <strong>Note:</strong> Super Admin reviews and activates accounts. Supervisors add staff & field employees to warehouse rosters after logging in.
             </p>
@@ -181,11 +181,11 @@ export default function Register() {
           >
             {isLoading ? (
               <>
-                <i className="fa-solid fa-circle-notch spin" style={{ fontSize: 14 }} /> Submitting…
+                <i className="ri-loader-4-line spin" style={{ fontSize: 14 }} /> Submitting…
               </>
             ) : (
               <>
-                Submit Registration Request <i className="fa-solid fa-user-plus" style={{ fontSize: 13 }} />
+                Submit Registration Request <i className="ri-user-add-line" style={{ fontSize: 13 }} />
               </>
             )}
           </Button>

@@ -110,7 +110,7 @@ export default function CreateBiomassVendor() {
             >
               <div style={{ paddingBottom: 10, borderBottom: "1px solid var(--line)", marginBottom: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
-                  <i className="fa-solid fa-building" style={{ color: "var(--primary)" }} />
+                  <i className="ri-building-line" style={{ color: "var(--primary)" }} />
                   1. Business Entity & Legal Compliance
                 </h3>
                 <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
@@ -123,7 +123,7 @@ export default function CreateBiomassVendor() {
                   <FormField
                     label="Buyer / Vendor Name"
                     required
-                    icon="fa-solid fa-industry"
+                    icon="ri-industry-line"
                     placeholder="e.g. SHREE RAM BIOMASS CONTRACTORS"
                     value={companyName}
                     onChange={setCompanyName}
@@ -134,7 +134,7 @@ export default function CreateBiomassVendor() {
 
                 <FormField
                   label="GSTIN Identification"
-                  icon="fa-solid fa-file-invoice"
+                  icon="ri-file-line-invoice"
                   placeholder="e.g. 09IYZPS0291E1ZK"
                   value={gstin}
                   onChange={setGstin}
@@ -144,7 +144,7 @@ export default function CreateBiomassVendor() {
 
                 <FormField
                   label="Permanent Account Number (PAN)"
-                  icon="fa-solid fa-id-card"
+                  icon="ri-id-card-line"
                   placeholder="e.g. IYZPS0291E"
                   value={panNo}
                   onChange={setPanNo}
@@ -154,7 +154,7 @@ export default function CreateBiomassVendor() {
 
                 <FormField
                   label="Sourcing Belt / Origin Network"
-                  icon="fa-solid fa-map-location-dot"
+                  icon="ri-map-pin-user-line"
                   placeholder="e.g. Unnao & Shahjahanpur Belt (35 Villages)"
                   value={sourcingArea}
                   onChange={setSourcingArea}
@@ -164,7 +164,7 @@ export default function CreateBiomassVendor() {
 
                 <FormField
                   label="Primary Raw Material Commodity"
-                  icon="fa-solid fa-boxes-stacked"
+                  icon="ri-stack-line"
                   placeholder="e.g. Biomass / Mustard Husk / PRALLI"
                   value={commodity}
                   onChange={setCommodity}
@@ -186,7 +186,7 @@ export default function CreateBiomassVendor() {
             >
               <div style={{ paddingBottom: 10, borderBottom: "1px solid var(--line)", marginBottom: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
-                  <i className="fa-solid fa-user-tie" style={{ color: "var(--primary)" }} />
+                  <i className="ri-user-3-line-tie" style={{ color: "var(--primary)" }} />
                   2. Authorized Representative & Contact Desk
                 </h3>
                 <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
@@ -197,7 +197,7 @@ export default function CreateBiomassVendor() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }} className="responsive-grid-2">
                 <FormField
                   label="Representative Full Name"
-                  icon="fa-solid fa-user"
+                  icon="ri-user-3-line"
                   placeholder="e.g. Mr. Bhanu Pratap Singh"
                   value={representative}
                   onChange={setRepresentative}
@@ -208,7 +208,7 @@ export default function CreateBiomassVendor() {
                 <FormField
                   label="Contact Phone Number"
                   required
-                  icon="fa-solid fa-phone"
+                  icon="ri-phone-line"
                   placeholder="e.g. 9876543210"
                   value={contactNo}
                   onChange={setContactNo}
@@ -220,7 +220,7 @@ export default function CreateBiomassVendor() {
                   <FormField
                     label="Official Email Address"
                     type="email"
-                    icon="fa-solid fa-envelope"
+                    icon="ri-mail-line"
                     placeholder="e.g. vendor.contact@shreerambiomass.com"
                     value={email}
                     onChange={setEmail}
@@ -233,7 +233,7 @@ export default function CreateBiomassVendor() {
                   <FormField
                     label="Full Operational / Registered Address"
                     type="textarea"
-                    icon="fa-solid fa-location-dot"
+                    icon="ri-map-pin-line"
                     placeholder="Enter complete office address, district, state, and pin code"
                     value={address}
                     onChange={setAddress}
@@ -257,7 +257,7 @@ export default function CreateBiomassVendor() {
               <div style={{ paddingBottom: 10, borderBottom: "1px solid var(--line)", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
                   <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
-                    <i className="fa-solid fa-file-signature" style={{ color: "var(--primary)" }} />
+                    <i className="ri-file-line-signature" style={{ color: "var(--primary)" }} />
                     3. Commercial PO Term Sheet & Rate Agreement
                   </h3>
                   <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
@@ -270,7 +270,7 @@ export default function CreateBiomassVendor() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
                 <FormField
                   label="PO Reference Number"
-                  icon="fa-solid fa-hashtag"
+                  icon="ri-hashtag"
                   placeholder="PO-2026-XXXX"
                   value={poNo}
                   onChange={setPoNo}
@@ -280,7 +280,7 @@ export default function CreateBiomassVendor() {
 
                 <FormField
                   label="Agreement Tenure"
-                  icon="fa-solid fa-calendar-days"
+                  icon="ri-calendar-event-line"
                   placeholder="e.g. 01.06.2026 to 31.10.2026"
                   value={tenure}
                   onChange={setTenure}
@@ -291,7 +291,7 @@ export default function CreateBiomassVendor() {
                 <FormField
                   label="Contracted Volume (MT)"
                   type="number"
-                  icon="fa-solid fa-weight-hanging"
+                  icon="ri-weight-hanging-line"
                   placeholder="1000"
                   value={contractedQtyMt}
                   onChange={setContractedQtyMt}
@@ -302,7 +302,7 @@ export default function CreateBiomassVendor() {
                 <FormField
                   label="Agreed Sourcing Rate (₹/MT)"
                   type="number"
-                  icon="fa-solid fa-indian-rupee-sign"
+                  icon="ri-money-rupee-circle-line"
                   placeholder="1400"
                   value={agreedPricePerMt}
                   onChange={setAgreedPricePerMt}
@@ -325,7 +325,7 @@ export default function CreateBiomassVendor() {
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <i className="fa-solid fa-calculator" style={{ color: "var(--primary-deep)", fontSize: 14 }} />
+                  <i className="ri-calculator-line" style={{ color: "var(--primary-deep)", fontSize: 14 }} />
                   <span style={{ fontSize: 12, fontWeight: 600, color: "var(--ink)" }}>
                     Estimated Total Sourcing Value:
                   </span>
@@ -348,7 +348,7 @@ export default function CreateBiomassVendor() {
             >
               <div style={{ paddingBottom: 10, borderBottom: "1px solid var(--line)", marginBottom: 14 }}>
                 <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
-                  <i className="fa-solid fa-building-columns" style={{ color: "var(--primary)" }} />
+                  <i className="ri-bank-line" style={{ color: "var(--primary)" }} />
                   4. Bank Settlement & Disbursement Details
                 </h3>
                 <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
@@ -359,7 +359,7 @@ export default function CreateBiomassVendor() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
                 <FormField
                   label="Bank Name"
-                  icon="fa-solid fa-landmark"
+                  icon="ri-landmark-line"
                   placeholder="e.g. State Bank of India"
                   value={bankName}
                   onChange={setBankName}
@@ -369,7 +369,7 @@ export default function CreateBiomassVendor() {
 
                 <FormField
                   label="Account Number"
-                  icon="fa-solid fa-money-check"
+                  icon="ri-money-check-line"
                   placeholder="e.g. 39182746192"
                   value={accountNo}
                   onChange={setAccountNo}
@@ -379,7 +379,7 @@ export default function CreateBiomassVendor() {
 
                 <FormField
                   label="IFSC Code"
-                  icon="fa-solid fa-shield"
+                  icon="ri-shield-line"
                   placeholder="e.g. SBIN0001234"
                   value={ifscCode}
                   onChange={setIfscCode}
@@ -499,19 +499,19 @@ export default function CreateBiomassVendor() {
             {/* Compliance Checklist */}
             <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 11 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: companyName ? "var(--primary-deep)" : "var(--muted)" }}>
-                <i className={companyName ? "fa-solid fa-circle-check" : "fa-regular fa-circle"} />
+                <i className={companyName ? "ri-checkbox-circle-fill" : "ri-circle-line"} />
                 Entity Profile Setup
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: contactNo ? "var(--primary-deep)" : "var(--muted)" }}>
-                <i className={contactNo ? "fa-solid fa-circle-check" : "fa-regular fa-circle"} />
+                <i className={contactNo ? "ri-checkbox-circle-fill" : "ri-circle-line"} />
                 Contact Verification
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: gstin ? "var(--primary-deep)" : "var(--muted)" }}>
-                <i className={gstin ? "fa-solid fa-circle-check" : "fa-regular fa-circle"} />
+                <i className={gstin ? "ri-checkbox-circle-fill" : "ri-circle-line"} />
                 GST Compliance
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: bankName && accountNo ? "var(--primary-deep)" : "var(--muted)" }}>
-                <i className={bankName && accountNo ? "fa-solid fa-circle-check" : "fa-regular fa-circle"} />
+                <i className={bankName && accountNo ? "ri-checkbox-circle-fill" : "ri-circle-line"} />
                 Banking & Settlement
               </div>
             </div>

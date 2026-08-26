@@ -17,18 +17,18 @@ const PRESET_AVATARS = [
 ];
 
 const TABS = [
-  { key: "profile", label: "Executive Profile", icon: "fa-solid fa-id-card-clip" },
-  { key: "security", label: "Master Security & Credentials", icon: "fa-solid fa-shield-halved" },
-  { key: "access", label: "Master Access & Governance", icon: "fa-solid fa-network-wired" },
+  { key: "profile", label: "Executive Profile", icon: "ri-id-card-line" },
+  { key: "security", label: "Master Security & Credentials", icon: "ri-shield-check-line" },
+  { key: "access", label: "Master Access & Governance", icon: "ri-node-tree" },
 ];
 
 const ROOT_PERMISSIONS_MAP = [
-  { module: "All Multi-Warehouse Hubs", desc: "Unconstrained management across all locations & supervisor staffing", icon: "fa-solid fa-warehouse", active: true },
-  { module: "Biomass 4-Stage Supply Chain", desc: "Full authority over collection, moisture testing, yard storage & dispatches", icon: "fa-solid fa-fire-burner", active: true },
-  { module: "Weighbridge Infrastructure", desc: "Gross/tare weighment override, weight machine calibrations & moisture slabs", icon: "fa-solid fa-scale-balanced", active: true },
-  { module: "Inventory & Spare Parts Master", desc: "Centralized stock ledger, multi-hub transfers & low stock approvals", icon: "fa-solid fa-boxes-stacked", active: true },
-  { module: "Purchase & Vendor Financials", desc: "Vendor registration, purchase orders & ledger balances", icon: "fa-solid fa-cart-flatbed", active: true },
-  { module: "Sales, Billing & Tax Invoicing", desc: "Buyer directory, GSTIN billing, payment tracking & factory dispatch gate passes", icon: "fa-solid fa-file-invoice-dollar", active: true },
+  { module: "All Multi-Warehouse Hubs", desc: "Unconstrained management across all locations & supervisor staffing", icon: "ri-building-line", active: true },
+  { module: "Biomass 4-Stage Supply Chain", desc: "Full authority over collection, moisture testing, yard storage & dispatches", icon: "ri-fire-line-burner", active: true },
+  { module: "Weighbridge Infrastructure", desc: "Gross/tare weighment override, weight machine calibrations & moisture slabs", icon: "ri-scales-3-line", active: true },
+  { module: "Inventory & Spare Parts Master", desc: "Centralized stock ledger, multi-hub transfers & low stock approvals", icon: "ri-stack-line", active: true },
+  { module: "Purchase & Vendor Financials", desc: "Vendor registration, purchase orders & ledger balances", icon: "ri-shopping-bag-3-line", active: true },
+  { module: "Sales, Billing & Tax Invoicing", desc: "Buyer directory, GSTIN billing, payment tracking & factory dispatch gate passes", icon: "ri-file-list-3-line", active: true },
 ];
 
 export default function SuperAdminProfile() {
@@ -178,7 +178,7 @@ export default function SuperAdminProfile() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(0, 184, 107, 0.12)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="fa-solid fa-crown" style={{ color: "#FBBF24" }} />
+            <i className="ri-vip-crown-line" style={{ color: "#FBBF24" }} />
           </div>
           <div>
             <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Authority Level</span>
@@ -188,7 +188,7 @@ export default function SuperAdminProfile() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(3, 105, 161, 0.12)", color: "#0369A1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="fa-solid fa-building-circle-check" />
+            <i className="ri-building-2-line" />
           </div>
           <div>
             <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Governance</span>
@@ -198,7 +198,7 @@ export default function SuperAdminProfile() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(217, 119, 6, 0.12)", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="fa-solid fa-receipt" />
+            <i className="ri-file-text-line" />
           </div>
           <div>
             <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Audit Tracing</span>
@@ -208,7 +208,7 @@ export default function SuperAdminProfile() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(16, 185, 129, 0.12)", color: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="fa-solid fa-shield-halved" />
+            <i className="ri-shield-check-line" />
           </div>
           <div>
             <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Clearance Tier</span>
@@ -262,7 +262,7 @@ export default function SuperAdminProfile() {
                 gap: 6,
               }}
             >
-              <i className="fa-solid fa-crown" style={{ color: "#FBBF24" }} /> Super Admin Tier 0 Account
+              <i className="ri-vip-crown-line" style={{ color: "#FBBF24" }} /> Super Admin Tier 0 Account
             </span>
           </div>
         </div>
@@ -327,8 +327,8 @@ export default function SuperAdminProfile() {
                 <Badge tone="success">SUPER ADMINISTRATOR</Badge>
               </div>
               <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--muted)" }}>
-                <i className="fa-solid fa-envelope" style={{ marginRight: 5, color: "var(--primary)" }} /> {formData.email || "No email configured"} &bull;{" "}
-                <i className="fa-solid fa-phone" style={{ marginRight: 5, marginLeft: 6, color: "var(--primary)" }} /> {formData.phone || "No phone configured"}
+                <i className="ri-mail-line" style={{ marginRight: 5, color: "var(--primary)" }} /> {formData.email || "No email configured"} &bull;{" "}
+                <i className="ri-phone-line" style={{ marginRight: 5, marginLeft: 6, color: "var(--primary)" }} /> {formData.phone || "No phone configured"}
               </p>
             </div>
           </div>
@@ -347,7 +347,7 @@ export default function SuperAdminProfile() {
               onClick={() => fileInputRef.current?.click()}
               style={{ padding: "7px 15px", fontSize: 12.5, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-camera" /> Change Photo
+              <i className="ri-camera-line" /> Change Photo
             </Button>
             {formData.avatarUrl && (
               <Button
@@ -470,7 +470,7 @@ export default function SuperAdminProfile() {
                     <FormField
                       label="Full Legal Name"
                       required
-                      icon="fa-solid fa-user-tie"
+                      icon="ri-user-3-line-tie"
                       value={formData.fullName}
                       onChange={(val) => setFormData((prev) => ({ ...prev, fullName: val }))}
                       placeholder="Super Administrator Name"
@@ -482,7 +482,7 @@ export default function SuperAdminProfile() {
                   <FormField
                     label="Official Email Address"
                     type="email"
-                    icon="fa-solid fa-envelope"
+                    icon="ri-mail-line"
                     value={formData.email}
                     onChange={(val) => setFormData((prev) => ({ ...prev, email: val }))}
                     placeholder="admin@kusumganga.com"
@@ -492,7 +492,7 @@ export default function SuperAdminProfile() {
 
                   <FormField
                     label="Mobile Phone (Primary Login ID)"
-                    icon="fa-solid fa-phone"
+                    icon="ri-phone-line"
                     value={formData.phone}
                     onChange={(val) => setFormData((prev) => ({ ...prev, phone: val }))}
                     placeholder="e.g. 9876543210"
@@ -504,7 +504,7 @@ export default function SuperAdminProfile() {
                     <FormField
                       label="Administrative Headquarters Address"
                       type="textarea"
-                      icon="fa-solid fa-location-dot"
+                      icon="ri-map-pin-line"
                       value={formData.address}
                       onChange={(val) => setFormData((prev) => ({ ...prev, address: val }))}
                       placeholder="e.g. 24-A, Sai Complex Betiyahata, Gorakhpur Uttar Pradesh, 273001"
@@ -646,16 +646,16 @@ export default function SuperAdminProfile() {
                       {/* Checklist badges */}
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, fontSize: 11 }}>
                         <span style={{ color: hasMinLen ? "var(--primary-deep)" : "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <i className={hasMinLen ? "fa-solid fa-circle-check" : "fa-regular fa-circle"} /> 6+ Chars
+                          <i className={hasMinLen ? "ri-checkbox-circle-fill" : "ri-circle-line"} /> 6+ Chars
                         </span>
                         <span style={{ color: hasUppercase ? "var(--primary-deep)" : "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <i className={hasUppercase ? "fa-solid fa-circle-check" : "fa-regular fa-circle"} /> Uppercase
+                          <i className={hasUppercase ? "ri-checkbox-circle-fill" : "ri-circle-line"} /> Uppercase
                         </span>
                         <span style={{ color: hasNumber ? "var(--primary-deep)" : "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <i className={hasNumber ? "fa-solid fa-circle-check" : "fa-regular fa-circle"} /> Number
+                          <i className={hasNumber ? "ri-checkbox-circle-fill" : "ri-circle-line"} /> Number
                         </span>
                         <span style={{ color: hasSpecial ? "var(--primary-deep)" : "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <i className={hasSpecial ? "fa-solid fa-circle-check" : "fa-regular fa-circle"} /> Symbol
+                          <i className={hasSpecial ? "ri-checkbox-circle-fill" : "ri-circle-line"} /> Symbol
                         </span>
                       </div>
                     </div>
@@ -921,7 +921,7 @@ export default function SuperAdminProfile() {
                 gap: 6,
               }}
             >
-              <i className={copiedId ? "fa-solid fa-check" : "fa-solid fa-copy"} />
+              <i className={copiedId ? "ri-check-line" : "ri-file-copy-line"} />
               {copiedId ? "ID Details Copied!" : "Copy Digital ID"}
             </Button>
           </div>

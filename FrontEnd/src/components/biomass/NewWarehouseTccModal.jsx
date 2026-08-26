@@ -81,7 +81,7 @@ export default function NewWarehouseTccModal({ isOpen, onClose, onSaved }) {
         >
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
-              🏢 Register New Warehouse / Transit Collection Centre (TCC Hub)
+              Register New Warehouse / Transit Collection Centre (TCC Hub)
             </h3>
             <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
               Admin task — Add a new storage yard, assign supervisor, and set capacity

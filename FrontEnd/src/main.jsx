@@ -11,9 +11,10 @@ import App from "./App.jsx";
 // globals.css loads last so our --primary/--surface tokens still win on
 // anything we explicitly override.
 import "primereact/resources/primereact.min.css";
-import "primeicons/primeicons.css";
 import "primereact/resources/themes/lara-light-green/theme.css";
+import "remixicon/fonts/remixicon.css";
 import "./styles/globals.css";
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

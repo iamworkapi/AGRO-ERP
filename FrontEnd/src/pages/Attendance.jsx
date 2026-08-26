@@ -125,7 +125,7 @@ export default function Attendance() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>All Logged Entries</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
-              <i className="fa-solid fa-users" />
+              <i className="ri-group-line" />
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function Attendance() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Verified</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
-              <i className="fa-solid fa-circle-check" />
+              <i className="ri-checkbox-circle-fill" />
             </div>
           </div>
         </div>
@@ -159,7 +159,7 @@ export default function Attendance() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Requires Approval</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
-              <i className="fa-solid fa-user-clock" />
+              <i className="ri-user-3-line-clock" />
             </div>
           </div>
         </div>
@@ -176,7 +176,7 @@ export default function Attendance() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Action Needed</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
-              <i className="fa-solid fa-triangle-exclamation" />
+              <i className="ri-alert-line" />
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@ export default function Attendance() {
             onClick={() => openModal()}
             style={{ padding: "7px 14px", fontSize: 12.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6, background: "var(--gradient-primary)", boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)" }}
           >
-            <i className="fa-solid fa-pen-to-square" /> Manual Correction
+            <i className="ri-edit-line" /> Manual Correction
           </Button>
         }
         searchable
@@ -221,7 +221,7 @@ export default function Attendance() {
             label: "Warehouse Hub",
             render: (r) => (
               <span style={{ fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 11 }} />
+                <i className="ri-building-line" style={{ color: "var(--primary)", fontSize: 11 }} />
                 {r.warehouse}
               </span>
             ),
@@ -232,7 +232,7 @@ export default function Attendance() {
             label: "Check-in Time",
             render: (r) => (
               <span style={{ fontWeight: 600, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <i className="fa-solid fa-right-to-bracket" style={{ fontSize: 11 }} />
+                <i className="ri-login-box-line" style={{ fontSize: 11 }} />
                 {r.checkIn}
               </span>
             ),
@@ -242,7 +242,7 @@ export default function Attendance() {
             label: "Check-out Time",
             render: (r) => (
               <span style={{ fontSize: 12, color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                <i className="fa-solid fa-right-from-bracket" style={{ fontSize: 11 }} />
+                <i className="ri-right-from-bracket-line" style={{ fontSize: 11 }} />
                 {r.checkOut}
               </span>
             ),
@@ -259,7 +259,7 @@ export default function Attendance() {
             type="select"
             required
             disabled={isScopedRole}
-            icon="fa-solid fa-warehouse"
+            icon="ri-building-line"
             value={form.warehouseId}
             onChange={set("warehouseId")}
             options={warehouses.map((w) => ({ value: w.id, label: w.name }))}
@@ -270,7 +270,7 @@ export default function Attendance() {
             label="Employee"
             type="select"
             required
-            icon="fa-solid fa-user"
+            icon="ri-user-3-line"
             value={form.employeeId}
             onChange={set("employeeId")}
             options={employeeOptions}
@@ -280,13 +280,13 @@ export default function Attendance() {
           />
           <FormField label="Date" type="date" required value={form.date} onChange={set("date")} compact marginBottom={10} />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
-            <FormField label="Check-in Time" type="time" icon="fa-solid fa-right-to-bracket" value={form.checkInTime} onChange={set("checkInTime")} compact marginBottom={10} />
-            <FormField label="Check-out Time" type="time" icon="fa-solid fa-right-from-bracket" value={form.checkOutTime} onChange={set("checkOutTime")} compact marginBottom={10} />
+            <FormField label="Check-in Time" type="time" icon="ri-login-box-line" value={form.checkInTime} onChange={set("checkInTime")} compact marginBottom={10} />
+            <FormField label="Check-out Time" type="time" icon="ri-right-from-bracket-line" value={form.checkOutTime} onChange={set("checkOutTime")} compact marginBottom={10} />
           </div>
           <FormField
             label="Reason for Correction"
             type="textarea"
-            icon="fa-solid fa-comment-dots"
+            icon="ri-chat-3-line"
             value={form.reason}
             onChange={set("reason")}
             placeholder="e.g. Device offline at check-in, confirmed present by warehouse admin"
@@ -295,16 +295,16 @@ export default function Attendance() {
           />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
             <Button variant="secondary" type="button" onClick={() => closeModal()} style={{ padding: "7px 14px", fontSize: 12.5 }}>
-              <i className="fa-solid fa-xmark" /> Cancel
+              <i className="ri-close-line" /> Cancel
             </Button>
             <Button type="submit" disabled={saving} className="btn-glow" style={{ padding: "7px 16px", fontSize: 12.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6, background: "var(--gradient-primary)" }}>
               {saving ? (
                 <>
-                  <i className="fa-solid fa-circle-notch spin" /> Submitting…
+                  <i className="ri-loader-4-line spin" /> Submitting…
                 </>
               ) : (
                 <>
-                  <i className="fa-solid fa-paper-plane" /> Submit for Approval
+                  <i className="ri-send-plane-line" /> Submit for Approval
                 </>
               )}
             </Button>

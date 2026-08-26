@@ -1,9 +1,94 @@
-// Biomass Supply Chain Data Service
-
 const LOCAL_STORAGE_KEY_BUYERS = "agro_biomass_buyers_v1";
 const LOCAL_STORAGE_KEY_VENDORS = "agro_biomass_vendors_v1";
 const LOCAL_STORAGE_KEY_COLLECTIONS = "agro_biomass_collections_v1";
 const LOCAL_STORAGE_KEY_DISPATCHES = "agro_biomass_dispatches_v1";
+const LOCAL_STORAGE_KEY_STACKS = "agro_biomass_stacks_v1";
+const LOCAL_STORAGE_KEY_ROOMS = "agro_storage_rooms_v1";
+
+// DEFAULT STORAGE ROOMS & GODOWNS MASTER
+export const DEFAULT_STORAGE_ROOMS = [
+  {
+    id: "ROOM-GDW-01",
+    roomCode: "GDW-01",
+    name: "Godown 01 - High Density Baler Bay",
+    roomType: "Covered Steel Godown",
+    warehouseCode: "TCC-UNNAO-MAIN",
+    warehouseName: "Manimau Central Biomass Yard & Hub",
+    zone: "Zone A",
+    capacityMt: 3500,
+    currentStockMt: 2850.0,
+    currentCommodity: "Paddy Straw (Parali Bales)",
+    ambientTempC: 27,
+    maxTempThresholdC: 32,
+    humidityPct: 15.0,
+    maxHumidityPct: 18.0,
+    supervisorName: "Ramesh Chandra",
+    contactMobile: "9876543210",
+    status: "ACTIVE / OPERATIONAL",
+    notes: "Main covered steel godown equipped with industrial exhaust ventilation and wireless thermal probes.",
+  },
+  {
+    id: "ROOM-GDW-02",
+    roomCode: "GDW-02",
+    name: "Godown 02 - Standard Bale Storage Shed",
+    roomType: "Covered Steel Godown",
+    warehouseCode: "TCC-UNNAO-MAIN",
+    warehouseName: "Manimau Central Biomass Yard & Hub",
+    zone: "Zone B",
+    capacityMt: 2500,
+    currentStockMt: 1620.5,
+    currentCommodity: "Maize Stem / Stalks",
+    ambientTempC: 28,
+    maxTempThresholdC: 32,
+    humidityPct: 16.5,
+    maxHumidityPct: 18.0,
+    supervisorName: "Ramesh Chandra",
+    contactMobile: "9876543210",
+    status: "ACTIVE / OPERATIONAL",
+    notes: "Secondary covered shed for seasonal crop residue and baled biomass.",
+  },
+  {
+    id: "ROOM-CHM-101",
+    roomCode: "CHM-101",
+    name: "Room A-101 - Controlled Atmosphere Chamber",
+    roomType: "Controlled Atmosphere Cold Chamber",
+    warehouseCode: "TCC-UNNAO-MAIN",
+    warehouseName: "Manimau Central Biomass Yard & Hub",
+    zone: "Zone C",
+    capacityMt: 1200,
+    currentStockMt: 450.0,
+    currentCommodity: "High-Grade Seed & Grain Bags",
+    ambientTempC: 18,
+    maxTempThresholdC: 22,
+    humidityPct: 11.5,
+    maxHumidityPct: 14.0,
+    supervisorName: "Anil Kumar Verma",
+    contactMobile: "9415009988",
+    status: "ACTIVE / OPERATIONAL",
+    notes: "Insulated cold storage chamber for certified seeds, pulses, and moisture-sensitive grains.",
+  },
+  {
+    id: "ROOM-SILO-01",
+    roomCode: "SILO-01",
+    name: "Grain Silo Complex North",
+    roomType: "Corrugated Metal Silo Tower",
+    warehouseCode: "TCC-UNNAO-MAIN",
+    warehouseName: "Manimau Central Biomass Yard & Hub",
+    zone: "Zone D",
+    capacityMt: 5000,
+    currentStockMt: 3750.0,
+    currentCommodity: "Wheat & Grain Bulk",
+    ambientTempC: 24,
+    maxTempThresholdC: 30,
+    humidityPct: 12.0,
+    maxHumidityPct: 14.0,
+    supervisorName: "Anil Kumar Verma",
+    contactMobile: "9415009988",
+    status: "ACTIVE / OPERATIONAL",
+    notes: "Aerated automated grain discharge silo with bottom auger loader.",
+  },
+];
+
 
 // 1. PRE-SAVED BUYERS (jise hum maal detay hai - Stage 4)
 export const DEFAULT_BUYERS = [
@@ -285,9 +370,8 @@ export const DEFAULT_STACKS = [
   },
 ];
 
-const LOCAL_STORAGE_KEY_STACKS = "agro_biomass_stacks_v1";
-
 export function getStoredStacks() {
+
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY_STACKS);
     if (raw) return JSON.parse(raw);
@@ -738,3 +822,41 @@ export function saveNewDispatch(dispatch) {
   localStorage.setItem(LOCAL_STORAGE_KEY_DISPATCHES, JSON.stringify(updated));
   return updated;
 }
+
+// STORAGE ROOMS & GODOWNS CRUD HELPERS
+export function getStoredStorageRooms() {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY_ROOMS);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return DEFAULT_STORAGE_ROOMS;
+}
+
+export function saveNewStorageRoom(room) {
+  const rooms = getStoredStorageRooms();
+  const newObj = {
+    id: `ROOM-${Date.now()}`,
+    roomCode: room.roomCode || `RM-${Math.floor(100 + Math.random() * 900)}`,
+    status: "ACTIVE / OPERATIONAL",
+    currentStockMt: 0,
+    ...room,
+  };
+  const updated = [newObj, ...rooms];
+  localStorage.setItem(LOCAL_STORAGE_KEY_ROOMS, JSON.stringify(updated));
+  return updated;
+}
+
+export function updateStorageRoom(id, patch) {
+  const rooms = getStoredStorageRooms();
+  const updated = rooms.map((r) => (r.id === id ? { ...r, ...patch } : r));
+  localStorage.setItem(LOCAL_STORAGE_KEY_ROOMS, JSON.stringify(updated));
+  return updated;
+}
+
+export function deleteStorageRoom(id) {
+  const rooms = getStoredStorageRooms();
+  const updated = rooms.filter((r) => r.id !== id);
+  localStorage.setItem(LOCAL_STORAGE_KEY_ROOMS, JSON.stringify(updated));
+  return updated;
+}
+

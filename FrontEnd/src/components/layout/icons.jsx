@@ -1,113 +1,97 @@
-function Icon({ children, size = 18, style, ...rest }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ display: "block", ...style }}
-      aria-hidden="true"
-      {...rest}
-    >
-      {children}
-    </svg>
-  );
+/* ---- Generic UI icons using Remix Icon ---- */
+
+export function Chevron({ size = 16, style = {}, className = "" }) {
+  return <i className={`ri-arrow-down-s-line ${className}`} style={{ fontSize: size, ...style }} />;
 }
 
-/* ---- Generic UI icons ---- */
-
-export function Chevron({ size = 13, style = {}, className = "" }) {
-  return <i className={`fa-solid fa-chevron-down ${className}`} style={{ fontSize: size, ...style }} />;
+export function SearchIcon({ size = 16, style = {}, className = "" }) {
+  return <i className={`ri-search-line ${className}`} style={{ fontSize: size, ...style }} />;
 }
 
-export function SearchIcon({ size = 14, style = {}, className = "" }) {
-  return <i className={`fa-solid fa-magnifying-glass ${className}`} style={{ fontSize: size, ...style }} />;
+export function ChevronsLeft({ size = 16, style = {}, className = "" }) {
+  return <i className={`ri-arrow-left-double-line ${className}`} style={{ fontSize: size, ...style }} />;
 }
 
-export function ChevronsLeft({ size = 14, style = {}, className = "" }) {
-  return <i className={`fa-solid fa-angles-left ${className}`} style={{ fontSize: size, ...style }} />;
+export function ChevronsRight({ size = 16, style = {}, className = "" }) {
+  return <i className={`ri-arrow-right-double-line ${className}`} style={{ fontSize: size, ...style }} />;
 }
 
-export function ChevronsRight({ size = 14, style = {}, className = "" }) {
-  return <i className={`fa-solid fa-angles-right ${className}`} style={{ fontSize: size, ...style }} />;
+export function MoreIcon({ size = 16, style = {}, className = "" }) {
+  return <i className={`ri-more-2-fill ${className}`} style={{ fontSize: size, ...style }} />;
 }
 
-export function MoreIcon({ size = 14, style = {}, className = "" }) {
-  return <i className={`fa-solid fa-ellipsis-vertical ${className}`} style={{ fontSize: size, ...style }} />;
+/* ---- Navigation group icons (Large Remix Icons) ---- */
+
+export function DashboardIcon({ size = 20, style = {} }) {
+  return <i className="ri-dashboard-3-line" style={{ fontSize: size, ...style }} />;
 }
 
-/* ---- Navigation group icons ---- */
-
-function DashboardIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-chart-pie" style={{ fontSize: size, ...style }} />;
+export function WarehouseIcon({ size = 20, style = {} }) {
+  return <i className="ri-building-line" style={{ fontSize: size, ...style }} />;
 }
 
-function WarehouseIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-warehouse" style={{ fontSize: size, ...style }} />;
+export function AttendanceIcon({ size = 20, style = {} }) {
+  return <i className="ri-calendar-check-line" style={{ fontSize: size, ...style }} />;
 }
 
-function AttendanceIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-clipboard-user" style={{ fontSize: size, ...style }} />;
+export function WeighmentIcon({ size = 20, style = {} }) {
+  return <i className="ri-scales-3-line" style={{ fontSize: size, ...style }} />;
 }
 
-function WeighmentIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-scale-balanced" style={{ fontSize: size, ...style }} />;
+export function BuyersIcon({ size = 20, style = {} }) {
+  return <i className="ri-building-4-line" style={{ fontSize: size, ...style }} />;
 }
 
-function InventoryIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-boxes-stacked" style={{ fontSize: size, ...style }} />;
+export function InventoryIcon({ size = 20, style = {} }) {
+  return <i className="ri-archive-line" style={{ fontSize: size, ...style }} />;
 }
 
-function PurchaseIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-cart-shopping" style={{ fontSize: size, ...style }} />;
+export function PurchaseIcon({ size = 20, style = {} }) {
+  return <i className="ri-shopping-cart-line" style={{ fontSize: size, ...style }} />;
 }
 
-function SalesIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-file-invoice-dollar" style={{ fontSize: size, ...style }} />;
+export function SalesIcon({ size = 20, style = {} }) {
+  return <i className="ri-file-list-3-line" style={{ fontSize: size, ...style }} />;
 }
 
-function EmployeesIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-users" style={{ fontSize: size, ...style }} />;
+export function EmployeesIcon({ size = 20, style = {} }) {
+  return <i className="ri-team-line" style={{ fontSize: size, ...style }} />;
 }
 
-function ReportsIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-chart-column" style={{ fontSize: size, ...style }} />;
+export function ReportsIcon({ size = 20, style = {} }) {
+  return <i className="ri-bar-chart-box-line" style={{ fontSize: size, ...style }} />;
 }
 
-function AlertsIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-triangle-exclamation" style={{ fontSize: size, ...style }} />;
+export function AlertsIcon({ size = 20, style = {} }) {
+  return <i className="ri-alert-line" style={{ fontSize: size, ...style }} />;
 }
 
-function SettingsIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-sliders" style={{ fontSize: size, ...style }} />;
+export function SettingsIcon({ size = 20, style = {} }) {
+  return <i className="ri-settings-3-line" style={{ fontSize: size, ...style }} />;
 }
 
-function UsersIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-user-group" style={{ fontSize: size, ...style }} />;
+export function UsersIcon({ size = 20, style = {} }) {
+  return <i className="ri-user-shared-line" style={{ fontSize: size, ...style }} />;
 }
 
-function BiomassIcon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-wheat-awn" style={{ fontSize: size, ...style }} />;
+export function BiomassIcon({ size = 20, style = {} }) {
+  return <i className="ri-plant-line" style={{ fontSize: size, ...style }} />;
 }
 
-function Stage1Icon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-tractor" style={{ fontSize: size, ...style }} />;
+export function Stage1Icon({ size = 20, style = {} }) {
+  return <i className="ri-truck-line" style={{ fontSize: size, ...style }} />;
 }
 
-function Stage2Icon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-gears" style={{ fontSize: size, ...style }} />;
+export function Stage2Icon({ size = 20, style = {} }) {
+  return <i className="ri-settings-line" style={{ fontSize: size, ...style }} />;
 }
 
-function Stage3Icon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-cubes-stacked" style={{ fontSize: size, ...style }} />;
+export function Stage3Icon({ size = 20, style = {} }) {
+  return <i className="ri-stack-line" style={{ fontSize: size, ...style }} />;
 }
 
-function Stage4Icon({ size = 17, style = {} }) {
-  return <i className="fa-solid fa-truck-ramp-box" style={{ fontSize: size, ...style }} />;
+export function Stage4Icon({ size = 20, style = {} }) {
+  return <i className="ri-truck-line" style={{ fontSize: size, ...style }} />;
 }
 
 export const NAV_ICONS = {
@@ -116,6 +100,7 @@ export const NAV_ICONS = {
   "/users": UsersIcon,
   "/attendance": AttendanceIcon,
   "/weighment": WeighmentIcon,
+  "/biomass/vendors": BuyersIcon,
   "/biomass": BiomassIcon,
   "/biomass/collection": Stage1Icon,
   "/biomass/processing": Stage2Icon,
@@ -128,5 +113,5 @@ export const NAV_ICONS = {
   "/reports": ReportsIcon,
   "/alerts": AlertsIcon,
   "/settings": SettingsIcon,
+  "/settings/my-profile": SettingsIcon,
 };
-

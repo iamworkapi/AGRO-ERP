@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useTheme } from "../../hooks/useTheme";
 import { useAlerts } from "../../features/alerts/useAlerts";
 import { useWarehouses } from "../../features/warehouses/useWarehouses";
 
+
 function BellIcon() {
-  return <i className="fa-solid fa-bell" style={{ fontSize: 16 }} />;
+  return <i className="ri-notification-3-line" style={{ fontSize: 18 }} />;
 }
 
 function ChevronDownIcon(props) {
-  return <i className="fa-solid fa-chevron-down" style={{ fontSize: 11, ...props?.style }} />;
+  return <i className="ri-arrow-down-s-line" style={{ fontSize: 14, ...props?.style }} />;
 }
 
 const toneByType = {
@@ -21,6 +23,7 @@ const toneByType = {
 
 export default function Topbar({ onToggleMobileSidebar }) {
   const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const { exceptions } = useAlerts();
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState(null); // "bell" | "account" | null
@@ -82,18 +85,18 @@ export default function Topbar({ onToggleMobileSidebar }) {
             color: "var(--ink)",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: 16,
+            fontSize: 18,
             cursor: "pointer",
           }}
         >
-          <i className="fa-solid fa-bars" />
+          <i className="ri-menu-line" />
         </button>
         <h2 className="topbar-greeting" style={{ fontSize: 17, fontWeight: 700, color: "var(--ink)", margin: 0, letterSpacing: "-0.01em" }}>
           Hello, {userName}
         </h2>
       </div>
 
-      {/* Right: Live Status Pill, Notifications & Account Menu */}
+      {/* Right: Live Status Pill, Theme Toggle, Notifications & Account Menu */}
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         <div
           style={{
@@ -111,12 +114,36 @@ export default function Topbar({ onToggleMobileSidebar }) {
         >
           <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--primary)" }} />
           <span>
-            <i className="fa-solid fa-warehouse" style={{ fontSize: 11, color: "var(--primary)", marginRight: 4 }} />
+            <i className="ri-building-line" style={{ fontSize: 13, color: "var(--primary)", marginRight: 4, verticalAlign: "-1px" }} />
             {hubStatusLabel}
           </span>
           <span style={{ color: "var(--faint)" }}>|</span>
-          <span style={{ color: "var(--muted)" }}><i className="fa-regular fa-calendar" style={{ fontSize: 11, marginRight: 4 }} />{todayStr}</span>
+          <span style={{ color: "var(--muted)" }}><i className="ri-calendar-line" style={{ fontSize: 12, marginRight: 4, verticalAlign: "-1px" }} />{todayStr}</span>
         </div>
+
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          aria-label="Toggle Light / Dark Mode"
+          title={isDark ? "Switch to Light Mode" : "Switch to Spatial Dark Mode"}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: "50%",
+            border: "1px solid var(--line)",
+            background: "var(--surface)",
+            color: isDark ? "#5DD62C" : "#337418",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            fontSize: 17,
+            transition: "all var(--transition-fast)",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <i className={isDark ? "ri-sun-line" : "ri-moon-line"} />
+        </button>
 
         {/* Notifications */}
         <div style={{ position: "relative" }}>
@@ -143,6 +170,7 @@ export default function Topbar({ onToggleMobileSidebar }) {
           </button>
 
           {openMenu === "bell" && (
+
             <>
               <div onClick={() => setOpenMenu(null)} style={{ position: "fixed", inset: 0, zIndex: 100 }} />
               <div
@@ -153,7 +181,7 @@ export default function Topbar({ onToggleMobileSidebar }) {
                 }}
               >
                 <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}><i className="fa-solid fa-bell" style={{ marginRight: 6, color: "var(--primary)" }} />Notifications</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}><i className="ri-notification-3-line" style={{ marginRight: 6, color: "var(--primary)" }} />Notifications</span>
                   <span style={{ fontSize: 11.5, color: "var(--muted)" }}>{openExceptions.length} open</span>
                 </div>
                 <div style={{ maxHeight: 280, overflowY: "auto" }}>
@@ -230,16 +258,16 @@ export default function Topbar({ onToggleMobileSidebar }) {
                   <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>{userRole}</p>
                 </div>
                 <MenuLink to="/settings/super-admin" onClick={() => setOpenMenu(null)}>
-                  <i className="fa-solid fa-user-shield" style={{ marginRight: 8, width: 14, color: "var(--primary)" }} /> Super Admin Profile
+                  <i className="ri-user-settings-line" style={{ marginRight: 8, width: 14, color: "var(--primary)" }} /> Super Admin Profile
                 </MenuLink>
                 <MenuLink to="/settings/my-profile" onClick={() => setOpenMenu(null)}>
-                  <i className="fa-solid fa-user" style={{ marginRight: 8, width: 14, color: "var(--muted)" }} /> My Profile
+                  <i className="ri-user-3-line" style={{ marginRight: 8, width: 14, color: "var(--muted)" }} /> My Profile
                 </MenuLink>
                 <MenuLink to="/settings/organisation-profile" onClick={() => setOpenMenu(null)}>
-                  <i className="fa-solid fa-building" style={{ marginRight: 8, width: 14, color: "var(--muted)" }} /> Organisation Profile
+                  <i className="ri-building-line" style={{ marginRight: 8, width: 14, color: "var(--muted)" }} /> Organisation Profile
                 </MenuLink>
                 <MenuLink to="/settings" onClick={() => setOpenMenu(null)}>
-                  <i className="fa-solid fa-sliders" style={{ marginRight: 8, width: 14, color: "var(--muted)" }} /> Settings
+                  <i className="ri-settings-3-line" style={{ marginRight: 8, width: 14, color: "var(--muted)" }} /> Settings
                 </MenuLink>
                 <button
                   onClick={() => { setOpenMenu(null); logout(); navigate("/login"); }}
@@ -251,7 +279,7 @@ export default function Topbar({ onToggleMobileSidebar }) {
                   onMouseEnter={(e) => (e.currentTarget.style.background = "var(--status-error-bg)")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
-                  <i className="fa-solid fa-right-from-bracket" style={{ marginRight: 8, width: 14 }} /> Log out
+                  <i className="ri-right-from-bracket-line" style={{ marginRight: 8, width: 14 }} /> Log out
                 </button>
               </div>
             </>

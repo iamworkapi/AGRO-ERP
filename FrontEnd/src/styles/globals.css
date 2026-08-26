@@ -4,36 +4,39 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* --- Brand / Accent (Kusumganga Agro Logo Theme) --- */
-  --primary: #1B5E3A;        /* Rich Agriculture Emerald Green */
-  --primary-deep: #0D3823;   /* Deep Forest Emerald */
-  --primary-light: #2E8B57;  /* Vibrant Organic Leaf Green */
-  --primary-tint: #E8F5EE;   /* Light Mint for badges/chips */
+  /* ============================================================
+     OSCILLATE BIO-PALETTE (LIGHT MODE)
+     #0F0F0F | #202020 | #5DD62C | #337418 | #F8F8F8
+     ============================================================ */
+  --primary: #337418;        /* Deep Forest Green (Palette) */
+  --primary-deep: #1F490E;   /* Ultra Deep Green */
+  --primary-light: #5DD62C;  /* Vibrant Bio-Lime Green (Palette) */
+  --primary-tint: #EBF8E7;   /* Bio-Mint tint for badges/chips */
   --accent-gold: #D4A373;    /* Harvest Gold Accent */
 
   /* --- Neutrals --- */
-  --ink: #12241A;            /* Deep Forest Slate text */
-  --ink-secondary: #3D5245;  /* Softer text */
-  --muted: #789082;          /* Muted text */
-  --faint: #C3D4CB;          /* Borders */
+  --ink: #0F0F0F;            /* Deep Obsidian Slate text (Palette) */
+  --ink-secondary: #202020;  /* Elevated Dark text (Palette) */
+  --muted: #6B7A68;          /* Muted text */
+  --faint: #D0DDD0;          /* Subtle Borders */
   
   /* --- Sidebar Theme --- */
-  --sidebar-bg: #082115;     /* Very Dark Pine Green from Agro Logo */
-  --sidebar-ink: #FFFFFF;    /* White text */
-  --sidebar-muted: #8FA89B;  /* Muted text in sidebar */
-  --sidebar-hover: #0F3320;  /* Hover background */
-  --sidebar-active: #17472D; /* Active background */
+  --sidebar-bg: #0F0F0F;     /* Pitch Obsidian Dark (Palette) */
+  --sidebar-ink: #F8F8F8;    /* Chalk White (Palette) */
+  --sidebar-muted: #8E9E8B;  /* Muted text in sidebar */
+  --sidebar-hover: #202020;  /* Hover Dark (Palette) */
+  --sidebar-active: #337418; /* Active Deep Green (Palette) */
 
   /* --- Backgrounds & Surfaces --- */
-  --line: #E1EBE5;           
-  --line-strong: #C3D4CB;    
+  --line: #E2E8E0;           
+  --line-strong: #C4D3C0;    
   --surface: #FFFFFF;        
-  --surface-hover: #F2F7F4;  
-  --canvas: #F4F7F5;         /* Crisp organic page background */
+  --surface-hover: #F2F7F0;  
+  --canvas: #F8F8F8;         /* Crisp Canvas (Palette) */
 
   /* --- Status Colors --- */
-  --status-success: #1B5E3A;
-  --status-success-bg: #E8F5EE;
+  --status-success: #337418;
+  --status-success-bg: #EBF8E7;
   --status-warning: #D97706;
   --status-warning-bg: #FEF3C7;
   --status-error: #DC2626;
@@ -42,14 +45,14 @@
   --status-info-bg: #DBEAFE;
 
   /* --- Gradients --- */
-  --gradient-primary: linear-gradient(135deg, #0D3823 0%, #1B5E3A 50%, #2E8B57 100%);
-  --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #F4F7F5 100%);
+  --gradient-primary: linear-gradient(135deg, #1F490E 0%, #337418 50%, #5DD62C 100%);
+  --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #F8F8F8 100%);
 
   /* --- Shadows --- */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
-  --shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+  --shadow-hover: 0 20px 25px -5px rgba(51, 116, 24, 0.12), 0 8px 10px -6px rgba(51, 116, 24, 0.08);
 
   --radius-sm: 6px;
   --radius: 10px;
@@ -58,20 +61,74 @@
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* --- Typography scale - reuse these instead of one-off inline font-sizes --- */
-  --font-size-xs: 11px;    /* table headers, captions, badges */
-  --font-size-sm: 12.5px;  /* table cells, helper/meta text */
-  --font-size-base: 14px;  /* body text, inputs */
-  --font-size-md: 15px;    /* section sub-headings */
-  --font-size-lg: 18px;    /* card / panel headings */
-  --font-size-xl: 21px;    /* page titles (PageHeader) */
-  --font-size-2xl: 28px;   /* dashboard stat values */
+  /* --- Typography scale --- */
+  --font-size-xs: 11px;
+  --font-size-sm: 12.5px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
+  --font-size-xl: 21px;
+  --font-size-2xl: 28px;
 
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 }
+
+[data-theme="dark"], body.dark-theme {
+  /* ============================================================
+     OSCILLATE BIO-PALETTE (DARK MODE)
+     #0F0F0F | #202020 | #5DD62C | #337418 | #F8F8F8
+     ============================================================ */
+  --primary: #5DD62C;        /* Vibrant Bio-Lime Green (Palette) */
+  --primary-deep: #337418;   /* Deep Forest Green (Palette) */
+  --primary-light: #7DF050;  /* Electric Lime highlight */
+  --primary-tint: rgba(93, 214, 44, 0.16);
+  --accent-gold: #FFB800;    /* Cyber Gold */
+
+  /* --- Neutrals --- */
+  --ink: #F8F8F8;            /* Crisp Chalk White text (Palette) */
+  --ink-secondary: #D4DCD2;  /* Soft text */
+  --muted: #8C998B;          /* Muted text */
+  --faint: rgba(248, 248, 248, 0.1);
+
+  /* --- Sidebar Theme --- */
+  --sidebar-bg: #0F0F0F;     /* Pitch Obsidian Dark (Palette) */
+  --sidebar-ink: #F8F8F8;    /* Chalk White (Palette) */
+  --sidebar-muted: #8C998B;  /* Muted text in sidebar */
+  --sidebar-hover: #202020;  /* Elevated Charcoal (Palette) */
+  --sidebar-active: rgba(93, 214, 44, 0.18);
+
+  /* --- Backgrounds & Surfaces --- */
+  --line: rgba(248, 248, 248, 0.1);
+  --line-strong: rgba(248, 248, 248, 0.18);
+  --surface: #202020;        /* Elevated Dark Charcoal Surface (Palette) */
+  --surface-hover: #292929;  
+  --canvas: #0F0F0F;         /* Pitch Obsidian Canvas (Palette) */
+
+  /* --- Status Colors --- */
+  --status-success: #5DD62C;
+  --status-success-bg: rgba(93, 214, 44, 0.16);
+  --status-warning: #FFB800;
+  --status-warning-bg: rgba(255, 184, 0, 0.15);
+  --status-error: #FF3B56;
+  --status-error-bg: rgba(255, 59, 86, 0.15);
+  --status-info: #00D2FF;
+  --status-info-bg: rgba(0, 210, 255, 0.15);
+
+  /* --- Gradients --- */
+  --gradient-primary: linear-gradient(135deg, #0F0F0F 0%, #337418 50%, #5DD62C 100%);
+  --gradient-surface: linear-gradient(180deg, #202020 0%, #171717 100%);
+
+  /* --- Shadows --- */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --shadow-hover: 0 15px 35px rgba(93, 214, 44, 0.16);
+}
+
+
 
 * { box-sizing: border-box; }
 
@@ -294,20 +351,17 @@ td { padding: 10px 6px; color: var(--ink); border-top: 1px solid var(--line); }
 }
 
 /* ============================================================
-   GLOBAL ICON ALIGNMENT & CENTERING FIXES
+   GLOBAL ICON ALIGNMENT & CENTERING FIXES (REMIX ICON)
    ============================================================ */
-i.fa-solid,
-i.fa-regular,
-i.fa-brands,
-.fa-solid,
-.fa-regular,
-.fa-brands {
+i[class*="ri-"],
+[class*="ri-"] {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   vertical-align: middle !important;
   line-height: 1 !important;
 }
+
 
 /* ============================================================
    ADVANCED CARD DESIGN SYSTEM
@@ -794,12 +848,19 @@ i.fa-brands,
   .responsive-grid-4 {
     grid-template-columns: repeat(2, 1fr) !important;
   }
+  .responsive-grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .responsive-grid-1 {
+    grid-template-columns: 1fr 1fr !important;
+  }
 }
 
 @media (max-width: 640px) {
   .responsive-grid-4,
   .responsive-grid-3,
-  .responsive-grid-2 {
+  .responsive-grid-2,
+  .responsive-grid-1 {
     grid-template-columns: 1fr !important;
   }
 

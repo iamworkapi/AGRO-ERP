@@ -50,22 +50,22 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
   const commodity = data.commodity || "PRALLI";
 
   const whatsappMessageText =
-    `🌾 *KUSUMGANGA AGRO SOLUTIONS PVT. LTD.* 🌾\n` +
-    `🏢 *Center:* ${centerName}\n` +
+    `*KUSUMGANGA AGRO SOLUTIONS PVT. LTD.* \n` +
+    `*Center:* ${centerName}\n` +
     `📜 *RST / Slip No:* ${slipNo}\n` +
     `📅 *Date:* ${dateStr}\n` +
-    `🌾 *Commodity:* ${commodity}\n` +
+    `*Commodity:* ${commodity}\n` +
     `👤 *Party / Farmer:* ${partyName}\n` +
     `🚛 *Vehicle No:* ${vehicleNo}\n` +
     `-----------------------------------\n` +
-    `⚖️ *Gross Weight:* ${grossMt} MT (${grossKg.toLocaleString()} kg)\n` +
-    `⚖️ *Tare Weight:* ${tareMt} MT (${tareKg.toLocaleString()} kg)\n` +
-    `⚖️ *Net Weight:* ${netMt} MT (${netKg.toLocaleString()} kg)\n` +
+    `*Gross Weight:* ${grossMt} MT (${grossKg.toLocaleString()} kg)\n` +
+    `*Tare Weight:* ${tareMt} MT (${tareKg.toLocaleString()} kg)\n` +
+    `*Net Weight:* ${netMt} MT (${netKg.toLocaleString()} kg)\n` +
     `💧 *Moisture:* ${moisture}% (Allowed: ${allowedMoisture}%)\n` +
     `✂️ *Moisture Cut:* ${dedPct}% (${deductionMt} MT)\n` +
-    `⚖️ *Actual Payable Wt:* ${actualMt} MT (${actualKg.toLocaleString()} kg)\n` +
-    `💰 *Purchase Rate:* ₹${rate.toLocaleString("en-IN")} / MT\n` +
-    `💵 *TOTAL PAYABLE:* ₹${totalAmount.toLocaleString("en-IN")}\n` +
+    `*Actual Payable Wt:* ${actualMt} MT (${actualKg.toLocaleString()} kg)\n` +
+    `*Purchase Rate:* ₹${rate.toLocaleString("en-IN")} / MT\n` +
+    `*TOTAL PAYABLE:* ₹${totalAmount.toLocaleString("en-IN")}\n` +
     `-----------------------------------\n` +
     `Automated Weighbridge Token - Kusumganga Agro Solutions.`;
 
@@ -335,7 +335,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
 </head>
 <body onload="setTimeout(function(){ window.print(); }, 250)">
   <div class="toolbar">
-    <button class="btn" onclick="window.print()">🖨️ Print Bill / Save PDF</button>
+    <button class="btn" onclick="window.print()">Print Bill / Save PDF</button>
     <button class="btn btn-close" onclick="window.close()">✕ Close</button>
   </div>
 
@@ -740,7 +740,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
                 gap: 4
               }}
             >
-              <i className={copied ? "fa-solid fa-check" : "fa-solid fa-copy"} /> {copied ? "Copied!" : "Copy Message Text"}
+              <i className={copied ? "ri-check-line" : "ri-file-copy-line"} /> {copied ? "Copied!" : "Copy Message Text"}
             </button>
           </div>
 
@@ -828,7 +828,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
                 gap: 6
               }}
             >
-              <i className="fa-solid fa-file-arrow-down" style={{ color: "#059669" }} /> Download Token HTML
+              <i className="ri-file-line-arrow-down" style={{ color: "#059669" }} /> Download Token HTML
             </button>
 
             <Button
@@ -844,7 +844,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
                 boxShadow: "0 4px 12px rgba(0, 184, 107, 0.3)"
               }}
             >
-              <i className="fa-solid fa-print" /> Print Receipt / Save as PDF
+              <i className="ri-printer-line" /> Print Receipt / Save as PDF
             </Button>
           </div>
         </div>

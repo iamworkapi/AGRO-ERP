@@ -185,7 +185,7 @@ export default function Users() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Org-Wide Directory</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(0,184,107,0.3)", boxShadow: "0 0 14px rgba(0,184,107,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-users" />
+              <i className="ri-group-line" />
             </div>
           </div>
 
@@ -225,7 +225,7 @@ export default function Users() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Enabled Accounts</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-circle-check" />
+              <i className="ri-checkbox-circle-fill" />
             </div>
           </div>
 
@@ -265,7 +265,7 @@ export default function Users() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Awaiting Action</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-user-clock" />
+              <i className="ri-user-3-line-clock" />
             </div>
           </div>
 
@@ -305,7 +305,7 @@ export default function Users() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Hub Managers</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-user-shield" />
+              <i className="ri-user-settings-line" />
             </div>
           </div>
 
@@ -326,7 +326,7 @@ export default function Users() {
               onClick={() => setFilterTab("all")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-users" style={{ fontSize: 11 }} /> All Users ({profiles.length})
+              <i className="ri-group-line" style={{ fontSize: 11 }} /> All Users ({profiles.length})
             </button>
             <button
               type="button"
@@ -334,7 +334,7 @@ export default function Users() {
               onClick={() => setFilterTab("active")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-circle-check" style={{ fontSize: 11 }} /> Active ({activeCount})
+              <i className="ri-checkbox-circle-fill" style={{ fontSize: 11 }} /> Active ({activeCount})
             </button>
             <button
               type="button"
@@ -342,7 +342,7 @@ export default function Users() {
               onClick={() => setFilterTab("pending")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-user-clock" style={{ fontSize: 11 }} /> Pending ({pendingCount})
+              <i className="ri-user-3-line-clock" style={{ fontSize: 11 }} /> Pending ({pendingCount})
             </button>
             <button
               type="button"
@@ -350,7 +350,7 @@ export default function Users() {
               onClick={() => setFilterTab("admin")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-user-shield" style={{ fontSize: 11 }} /> Admins ({adminCount})
+              <i className="ri-user-settings-line" style={{ fontSize: 11 }} /> Admins ({adminCount})
             </button>
           </div>
         </div>
@@ -372,7 +372,7 @@ export default function Users() {
                 boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)",
               }}
             >
-              <i className="fa-solid fa-user-plus" /> Create User
+              <i className="ri-user-add-line" /> Create User
             </Button>
           }
           searchable
@@ -405,7 +405,7 @@ export default function Users() {
                     gap: 6,
                   }}
                 >
-                  <i className={p.role?.includes("Admin") ? "fa-solid fa-user-shield" : "fa-solid fa-user-gear"} style={{ fontSize: 11 }} />
+                  <i className={p.role?.includes("Admin") ? "ri-user-settings-line" : "ri-user-settings-line"} style={{ fontSize: 11 }} />
                   {p.role}
                 </span>
               ),
@@ -418,13 +418,13 @@ export default function Users() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 11.5 }}>
                   {p.email && (
                     <a href={`mailto:${p.email}`} style={{ color: "var(--ink)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-envelope" style={{ color: "var(--muted)", fontSize: 10 }} />
+                      <i className="ri-mail-line" style={{ color: "var(--muted)", fontSize: 10 }} />
                       {p.email}
                     </a>
                   )}
                   {p.phone && (
                     <a href={`tel:${p.phone}`} style={{ color: "var(--muted)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-phone" style={{ color: "var(--primary)", fontSize: 9.5 }} />
+                      <i className="ri-phone-line" style={{ color: "var(--primary)", fontSize: 9.5 }} />
                       {p.phone}
                     </a>
                   )}
@@ -452,7 +452,7 @@ export default function Users() {
                       gap: 5,
                     }}
                   >
-                    <i className="fa-solid fa-warehouse" style={{ fontSize: 10.5 }} />
+                    <i className="ri-building-line" style={{ fontSize: 10.5 }} />
                     {p.warehouse}
                   </Link>
                 ) : (
@@ -473,7 +473,7 @@ export default function Users() {
               label: "Joined",
               render: (p) => (
                 <span style={{ fontSize: 11.5, color: "var(--muted)" }}>
-                  <i className="fa-solid fa-calendar-day" style={{ fontSize: 10, marginRight: 4 }} />
+                  <i className="ri-calendar-line-day" style={{ fontSize: 10, marginRight: 4 }} />
                   {p.createdAt || "Recent"}
                 </span>
               ),
@@ -491,7 +491,7 @@ export default function Users() {
                       onClick={() => handleApprove(p)}
                       style={{ padding: "4px 10px", fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, background: "var(--primary-tint)", color: "var(--primary-deep)", borderColor: "var(--primary)" }}
                     >
-                      <i className="fa-solid fa-check" /> Approve
+                      <i className="ri-check-line" /> Approve
                     </Button>
                   )}
                   {p.status !== "pending" && (
@@ -545,7 +545,7 @@ export default function Users() {
           <FormField
             label="Full Name"
             required
-            icon="fa-solid fa-user"
+            icon="ri-user-3-line"
             value={form.fullName}
             onChange={set("fullName")}
             placeholder="e.g. Manoj Kumar"
@@ -556,7 +556,7 @@ export default function Users() {
             <FormField
               label="Phone Number"
               type="tel"
-              icon="fa-solid fa-phone"
+              icon="ri-phone-line"
               value={form.phone}
               onChange={set("phone")}
               placeholder="98xxxxxxxx"
@@ -566,7 +566,7 @@ export default function Users() {
             <FormField
               label="Email Address"
               type="email"
-              icon="fa-solid fa-envelope"
+              icon="ri-mail-line"
               value={form.email}
               onChange={set("email")}
               placeholder="you@company.com"
@@ -578,7 +578,7 @@ export default function Users() {
             label="Temporary Password"
             type="password"
             required
-            icon="fa-solid fa-lock"
+            icon="ri-lock-line"
             value={form.password}
             onChange={set("password")}
             placeholder="At least 8 characters"
@@ -601,7 +601,7 @@ export default function Users() {
             label="Confirm Password"
             type="password"
             required
-            icon="fa-solid fa-lock"
+            icon="ri-lock-line"
             value={form.confirmPassword}
             onChange={set("confirmPassword")}
             placeholder="Re-type the password"
@@ -611,7 +611,7 @@ export default function Users() {
           />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
             <Button variant="secondary" type="button" onClick={() => closeModal()} style={{ padding: "7px 14px", fontSize: 12.5 }}>
-              <i className="fa-solid fa-xmark" /> Cancel
+              <i className="ri-close-line" /> Cancel
             </Button>
             <Button
               type="submit"
@@ -629,11 +629,11 @@ export default function Users() {
             >
               {saving ? (
                 <>
-                  <i className="fa-solid fa-circle-notch spin" /> Creating…
+                  <i className="ri-loader-4-line spin" /> Creating…
                 </>
               ) : (
                 <>
-                  <i className="fa-solid fa-check" /> Create User
+                  <i className="ri-check-line" /> Create User
                 </>
               )}
             </Button>

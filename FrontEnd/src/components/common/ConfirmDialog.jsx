@@ -78,7 +78,7 @@ export default function ConfirmDialog({
           }}
         >
           <i
-            className="fa-solid fa-triangle-exclamation"
+            className="ri-alert-line"
             style={{ fontSize: 18, color: palette.icon, flexShrink: 0, marginTop: 1 }}
           />
           <div style={{ lineHeight: 1.55 }}>{message}</div>
@@ -102,7 +102,7 @@ export default function ConfirmDialog({
           >
             {loading ? (
               <>
-                <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: 6 }} />
+                <i className="ri-loader-4-line ri-spin" style={{ marginRight: 6 }} />
                 Processing…
               </>
             ) : (

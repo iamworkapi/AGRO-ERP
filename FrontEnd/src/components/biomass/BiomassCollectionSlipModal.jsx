@@ -131,7 +131,7 @@ export default function BiomassCollectionSlipModal({ slipData, onClose }) {
         <div class="ticket-container">
           <div class="header">
             <div>
-              <div class="company-title">🌾 KUSUMGANGA AGRO PRIVATE LIMITED</div>
+              <div class="company-title">KUSUMGANGA AGRO PRIVATE LIMITED</div>
               <div class="subtitle">Transit Collection Centre (TCC) — Biomass Sourcing & Weighbridge Slip (Stage 1)</div>
             </div>
             <div style="text-align: right;">
@@ -142,7 +142,7 @@ export default function BiomassCollectionSlipModal({ slipData, onClose }) {
 
           <div class="grid-2">
             <div class="section-box">
-              <div class="section-title">🚜 Village & Farmer Procurement (ग्राम एवं किसान)</div>
+              <div class="section-title">Village & Farmer Procurement (ग्राम एवं किसान)</div>
               <div class="data-row"><span class="label">Sourcing Village:</span> <span class="val">${slipData.villageName}</span></div>
               <div class="data-row"><span class="label">Farmer Name:</span> <span class="val">${slipData.farmerName}</span></div>
               <div class="data-row"><span class="label">Farmer Mobile:</span> <span class="val">${slipData.farmerMobile}</span></div>
@@ -247,7 +247,7 @@ export default function BiomassCollectionSlipModal({ slipData, onClose }) {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 18 }}>🌾</span>
+            <span style={{ fontSize: 18 }}></span>
             <div>
               <div style={{ fontSize: 14, fontWeight: 900, letterSpacing: 0.3 }}>
                 WEIGHBRIDGE RAW COLLECTION SLIP #{slipData.slipNo}
@@ -277,7 +277,7 @@ export default function BiomassCollectionSlipModal({ slipData, onClose }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div style={{ background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 8, padding: 12 }}>
               <div style={{ fontSize: 10.5, fontWeight: 800, color: "#64748B", textTransform: "uppercase", marginBottom: 6 }}>
-                🌾 Village & Farmer Sourcing
+                Village & Farmer Sourcing
               </div>
               <div style={{ fontSize: 13, fontWeight: 800, color: "#0F172A" }}>{slipData.villageName}</div>
               <div style={{ fontSize: 12, color: "#334155", marginTop: 2 }}>
@@ -387,7 +387,7 @@ export default function BiomassCollectionSlipModal({ slipData, onClose }) {
                 gap: 6,
               }}
             >
-              🖨️ Print Slip / Gate Pass
+              Print Slip / Gate Pass
             </button>
           </div>
         </div>

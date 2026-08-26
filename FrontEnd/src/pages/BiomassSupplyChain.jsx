@@ -134,7 +134,7 @@ export default function BiomassSupplyChain() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-wheat-awn" />
+            <i className="ri-plant-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Collected & Baled</p>
@@ -145,7 +145,7 @@ export default function BiomassSupplyChain() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-warehouse" />
+            <i className="ri-building-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Active Yard Stock (Unnao TCC)</p>
@@ -156,7 +156,7 @@ export default function BiomassSupplyChain() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#DBEAFE", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-truck-fast" />
+            <i className="ri-truck-fast-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Factory Dispatched</p>
@@ -167,7 +167,7 @@ export default function BiomassSupplyChain() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 42, height: 42, borderRadius: 10, background: "#F3E8FF", color: "#7E22CE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-file-invoice-dollar" />
+            <i className="ri-file-list-3-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Dispatch Commercial Revenue</p>
@@ -194,7 +194,7 @@ export default function BiomassSupplyChain() {
               cursor: "pointer",
             }}
           >
-            🚜 Stage 1: Collection
+            Stage 1: Collection
           </button>
 
           <button
@@ -210,7 +210,7 @@ export default function BiomassSupplyChain() {
               cursor: "pointer",
             }}
           >
-            ⚖️ Stage 2: Processing & Baling
+            Stage 2: Processing & Baling
           </button>
 
           <button
@@ -226,7 +226,7 @@ export default function BiomassSupplyChain() {
               cursor: "pointer",
             }}
           >
-            🏢 Stage 3: Storage & Stacking
+            Stage 3: Storage & Stacking
           </button>
 
           <button
@@ -242,7 +242,7 @@ export default function BiomassSupplyChain() {
               cursor: "pointer",
             }}
           >
-            🚚 Stage 4: Factory Dispatches
+            Stage 4: Factory Dispatches
           </button>
         </div>
 
@@ -300,7 +300,7 @@ export default function BiomassSupplyChain() {
                 cursor: "pointer",
               }}
             >
-              🏬 + New Buyer
+              + New Buyer
             </button>
 
             <button
@@ -317,7 +317,7 @@ export default function BiomassSupplyChain() {
                 cursor: "pointer",
               }}
             >
-              🏢 + New Warehouse
+              + New Warehouse
             </button>
           </div>
 
@@ -325,14 +325,14 @@ export default function BiomassSupplyChain() {
             onClick={() => setIsCollectionModalOpen(true)}
             style={{ padding: "7px 14px", fontSize: 12.5, fontWeight: 700, background: "var(--gradient-primary)" }}
           >
-            ➕ New Raw Entry (Stage 1)
+            New Raw Entry (Stage 1)
           </Button>
 
           <Button
             onClick={() => setIsDispatchModalOpen(true)}
             style={{ padding: "7px 14px", fontSize: 12.5, fontWeight: 700, background: "#2563EB" }}
           >
-            🚚 New Factory Dispatch (Stage 4)
+            New Factory Dispatch (Stage 4)
           </Button>
         </div>
       </div>
@@ -366,13 +366,13 @@ export default function BiomassSupplyChain() {
             <div style={{ background: "#FFFFFF", border: "2px solid #0F172A", borderRadius: 12, padding: 14, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #E2E8F0", paddingBottom: 8, marginBottom: 10 }}>
                 <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", color: "#0F172A" }}>
-                  <i className="fa-solid fa-user" /> Sourcing Partner / Contractor
+                  <i className="ri-user-3-line" /> Sourcing Partner / Contractor
                 </span>
                 <button
                   onClick={() => setShowAddVendorForm(!showAddVendorForm)}
                   style={{ fontSize: 11, fontWeight: 700, color: "#2563EB", background: "#EFF6FF", border: "1px solid #BFDBFE", padding: "3px 8px", borderRadius: 4, cursor: "pointer" }}
                 >
-                  {showAddVendorForm ? "✕ Cancel" : "➕ Add Vendor"}
+                  {showAddVendorForm ? "✕ Cancel" : "Add Vendor"}
                 </button>
               </div>
 
@@ -405,7 +405,7 @@ export default function BiomassSupplyChain() {
                         <div>👤 Representative: <strong>{currentVendor.representative}</strong></div>
                         <div>📞 Contact: <strong>{currentVendor.contactNo}</strong></div>
                         <div style={{ gridColumn: "span 2" }}>📧 Email: <strong>{currentVendor.email}</strong></div>
-                        <div style={{ gridColumn: "span 2" }}>📍 Address: {currentVendor.address}</div>
+                        <div style={{ gridColumn: "span 2" }}>Address: {currentVendor.address}</div>
                       </div>
 
                       <div style={{ background: "#FEF3C7", border: "1px solid #F59E0B", padding: "8px 10px", borderRadius: 6, marginTop: 4 }}>
@@ -466,7 +466,7 @@ export default function BiomassSupplyChain() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: "#0F172A", textTransform: "uppercase" }}>
-                  ⚖️ Processing GRN Lorry Weight Formula (Image 2 & PDF Page 2)
+                  Processing GRN Lorry Weight Formula (Image 2 & PDF Page 2)
                 </h3>
                 <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "#475569" }}>
                   Formula: Actual Wt × (100% - Actual Moist% - Actual Ash%) / (100% - Agreed Moist% - Agreed Ash%)
@@ -548,7 +548,7 @@ export default function BiomassSupplyChain() {
           <div style={{ background: "#FFFFFF", border: "2px solid #0F172A", borderRadius: 12, padding: 16, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
             <div style={{ borderBottom: "2px solid #0F172A", paddingBottom: 8, marginBottom: 12 }}>
               <span style={{ fontSize: 14, fontWeight: 900, textTransform: "uppercase", color: "#0F172A" }}>
-                🏢 Warehouse & TCC Details (Left Side Panel)
+                Warehouse & TCC Details (Left Side Panel)
               </span>
             </div>
 
@@ -566,7 +566,7 @@ export default function BiomassSupplyChain() {
               </div>
 
               <div style={{ background: "#ECFDF5", border: "1px solid #10B981", padding: 10, borderRadius: 8 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#065F46" }}>🛡️ Fire Safety Audit Probes:</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#065F46" }}>Fire Safety Audit Probes:</div>
                 <div style={{ fontSize: 15, fontWeight: 900, color: "#047857", marginTop: 2 }}>{DEFAULT_WAREHOUSE_TCC.fireSafetyScore}</div>
                 <div style={{ fontSize: 10.5, color: "#065F46" }}>Spontaneous combustion risk control active</div>
               </div>
@@ -580,7 +580,7 @@ export default function BiomassSupplyChain() {
               {/* ADMIN, WAREHOUSE ADMIN & SUPERVISOR HIERARCHY PANEL */}
               <div style={{ marginTop: 10, background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 8, padding: 10 }}>
                 <div style={{ fontSize: 11.5, fontWeight: 800, color: "#1E40AF", display: "flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-user-gear" /> Governance, Monitoring & Operations Hierarchy
+                  <i className="ri-user-settings-line" /> Governance, Monitoring & Operations Hierarchy
                 </div>
                 <div style={{ fontSize: 10.5, color: "#1E3A8A", marginTop: 4, lineHeight: 1.4 }}>
                   • <strong>Super Admin / Admin:</strong> Creates new warehouses/TCC hubs & assigns Admins/Supervisors.<br />
@@ -593,7 +593,7 @@ export default function BiomassSupplyChain() {
                     onClick={() => navigate("/warehouses/create")}
                     style={{ padding: "6px 10px", fontSize: 11, fontWeight: 700, background: "#2563EB", color: "#FFFFFF", border: "none", borderRadius: 6, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}
                   >
-                    🏢 Create New Warehouse / Hub (Admin Only)
+                    Create New Warehouse / Hub (Admin Only)
                   </button>
                   <button
                     type="button"
@@ -610,7 +610,7 @@ export default function BiomassSupplyChain() {
           {/* Right Side: Stack IDs & Yard Storage Grid */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--ink)" }}>
-              📦 Yard Stacking & Storage Volume (Tons & Bales)
+              Yard Stacking & Storage Volume (Tons & Bales)
             </h3>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
@@ -661,10 +661,10 @@ export default function BiomassSupplyChain() {
           <div style={{ background: "#FFFFFF", border: "2px solid #0F172A", borderRadius: 12, padding: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: "#0F172A", textTransform: "uppercase" }}>
-                🏬 Industrial Offtake Buyers
+                Industrial Offtake Buyers
               </h3>
               <Button onClick={() => setIsDispatchModalOpen(true)} style={{ padding: "6px 12px", fontSize: 12, fontWeight: 700 }}>
-                ➕ Create Dispatch Gate Pass
+                Create Dispatch Gate Pass
               </Button>
             </div>
 
@@ -704,7 +704,7 @@ export default function BiomassSupplyChain() {
                     onClick={() => setSelectedGatePassForPrint(r)}
                     style={{ padding: "4px 10px", fontSize: 11, fontWeight: 700, background: "#0F172A", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}
                   >
-                    🖨️ View & Print Pass
+                    View & Print Pass
                   </button>
                 ),
               },

@@ -33,7 +33,7 @@ function AccessDenied() {
         textAlign: "center",
       }}
     >
-      <div style={{ fontSize: 32 }}>🔒</div>
+      <div style={{ fontSize: 32 }}></div>
       <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--ink)", margin: 0 }}>Access Denied</h2>
       <p style={{ fontSize: 13, color: "var(--muted)", margin: 0, maxWidth: 360 }}>
         Your account doesn&rsquo;t have permission to view this page. Contact a Super Admin if you believe this is a mistake.

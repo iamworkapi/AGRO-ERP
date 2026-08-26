@@ -1,22 +1,9 @@
-// Mock-backed for now - resolves from mockData.js with a fake delay instead
-// of calling apiClient. Swapping in the real backend later means restoring
-// the apiClient.get calls here only.
-import { summaryStats, warehouses, recentActivity, moistureSnapshot } from "./mockData";
+import { apiClient } from "../../services/apiClient";
 
-const resolveAfter = (value, ms = 300) => new Promise((resolve) => setTimeout(() => resolve(value), ms));
-
-export function fetchSummaryStats() {
-  return resolveAfter([...summaryStats]);
+export async function fetchOverview(warehouseId) {
+  const { data } = await apiClient.get("/dashboard/overview", {
+    params: warehouseId && warehouseId !== "all" ? { warehouseId } : undefined,
+  });
+  return data.data;
 }
 
-export function fetchWarehouseOverview() {
-  return resolveAfter([...warehouses]);
-}
-
-export function fetchRecentActivity() {
-  return resolveAfter([...recentActivity]);
-}
-
-export function fetchMoistureSnapshot() {
-  return resolveAfter({ ...moistureSnapshot });
-}

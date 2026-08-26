@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import Loader from "../components/common/Loader";
 
@@ -11,19 +11,23 @@ const WarehousesAll = lazy(() => import("../pages/WarehousesAll"));
 const CreateWarehouse = lazy(() => import("../pages/CreateWarehouse"));
 const WarehouseDetail = lazy(() => import("../pages/WarehouseDetail"));
 const WarehouseAdminManagement = lazy(() => import("../pages/WarehouseAdminManagement"));
+const StorageRooms = lazy(() => import("../pages/StorageRooms"));
 const Users = lazy(() => import("../pages/Users"));
+
 const Attendance = lazy(() => import("../pages/Attendance"));
 const ExceptionApprovals = lazy(() => import("../pages/ExceptionApprovals"));
 const EmployeeLocationMap = lazy(() => import("../pages/EmployeeLocationMap"));
 const Weighment = lazy(() => import("../pages/Weighment"));
 const CreateWeighmentSlip = lazy(() => import("../pages/CreateWeighmentSlip"));
-const BiomassSupplyChain = lazy(() => import("../pages/BiomassSupplyChain"));
 const BiomassCollection = lazy(() => import("../pages/BiomassCollection"));
 const BiomassVendors = lazy(() => import("../pages/BiomassVendors"));
+
 const CreateBiomassVendor = lazy(() => import("../pages/CreateBiomassVendor"));
 const BiomassProcessing = lazy(() => import("../pages/BiomassProcessing"));
 const BiomassStorage = lazy(() => import("../pages/BiomassStorage"));
+const CreateStorageStack = lazy(() => import("../pages/CreateStorageStack"));
 const BiomassDispatch = lazy(() => import("../pages/BiomassDispatch"));
+
 const BiomassBuyers = lazy(() => import("../pages/BiomassBuyers"));
 const CreateBiomassBuyer = lazy(() => import("../pages/CreateBiomassBuyer"));
 const DeductionSlabConfig = lazy(() => import("../pages/DeductionSlabConfig"));
@@ -84,6 +88,9 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="warehouses/rooms" element={<StorageRooms />} />
+        <Route path="biomass/rooms" element={<StorageRooms />} />
+
 
         <Route
           path="users"
@@ -103,12 +110,15 @@ export default function AppRoutes() {
         <Route path="weighment/machines" element={<WeightMachines />} />
         <Route path="weighment/deduction-slabs" element={<DeductionSlabConfig />} />
 
-        <Route path="biomass" element={<BiomassSupplyChain />} />
+        <Route path="biomass" element={<Navigate to="/biomass/storage" replace />} />
         <Route path="biomass/vendors" element={<BiomassVendors />} />
+
         <Route path="biomass/vendors/create" element={<CreateBiomassVendor />} />
         <Route path="biomass/processing" element={<BiomassProcessing />} />
         <Route path="biomass/storage" element={<BiomassStorage />} />
+        <Route path="biomass/storage/create" element={<CreateStorageStack />} />
         <Route path="biomass/dispatch" element={<BiomassDispatch />} />
+
         <Route path="biomass/buyers" element={<BiomassBuyers />} />
         <Route path="biomass/buyers/create" element={<CreateBiomassBuyer />} />
 

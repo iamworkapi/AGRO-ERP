@@ -148,7 +148,7 @@ export default function BiomassBuyers() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-industry" />
+            <i className="ri-industry-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Industrial Off-takers</p>
@@ -159,7 +159,7 @@ export default function BiomassBuyers() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-bullseye" />
+            <i className="ri-bullseye-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Contract Target</p>
@@ -170,7 +170,7 @@ export default function BiomassBuyers() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-truck-fast" />
+            <i className="ri-truck-fast-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Dispatched Volume</p>
@@ -183,7 +183,7 @@ export default function BiomassBuyers() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#F3E8FF", color: "#7E22CE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-file-invoice-dollar" />
+            <i className="ri-file-list-3-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Commercial Billing</p>
@@ -212,7 +212,7 @@ export default function BiomassBuyers() {
         <div style={{ display: "flex", gap: 10, alignItems: "center", flex: 1, minWidth: 280 }}>
           <div style={{ position: "relative", width: "100%", maxWidth: 360 }}>
             <i
-              className="fa-solid fa-magnifying-glass"
+              className="ri-search-line"
               style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--muted)", fontSize: 12 }}
             />
             <input
@@ -270,7 +270,7 @@ export default function BiomassBuyers() {
                 boxShadow: viewMode === "cards" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
               }}
             >
-              <i className="fa-solid fa-grip" style={{ marginRight: 4 }} /> Cards View
+              <i className="ri-grip-line" style={{ marginRight: 4 }} /> Cards View
             </button>
             <button
               type="button"
@@ -287,7 +287,7 @@ export default function BiomassBuyers() {
                 boxShadow: viewMode === "table" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
               }}
             >
-              <i className="fa-solid fa-table-list" style={{ marginRight: 4 }} /> Table View
+              <i className="ri-table-list-line" style={{ marginRight: 4 }} /> Table View
             </button>
           </div>
 
@@ -297,7 +297,7 @@ export default function BiomassBuyers() {
               className="btn-glow"
               style={{ padding: "8px 16px", fontSize: 12.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-plus" /> Create Buyer
+              <i className="ri-add-line" /> Create Buyer
             </Button>
           </div>
         </div>
@@ -331,7 +331,7 @@ export default function BiomassBuyers() {
                     </span>
                   </div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: "var(--primary)", marginTop: 2 }}>
-                    🏭 {buyer.division}
+                    {buyer.division}
                   </div>
                 </div>
 
@@ -358,7 +358,7 @@ export default function BiomassBuyers() {
 
               {/* Delivery Address & GSTIN Box */}
               <div style={{ background: "var(--surface-tint)", padding: 10, borderRadius: 8, fontSize: 12, display: "flex", flexDirection: "column", gap: 4 }}>
-                <div>📍 <strong>Delivery Plant Address:</strong></div>
+                <div><strong>Delivery Plant Address:</strong></div>
                 <div style={{ fontSize: 11, color: "var(--muted)", textTransform: "uppercase" }}>{buyer.address}</div>
                 <div style={{ fontSize: 11.5, fontWeight: 700, color: "#059669", marginTop: 2 }}>
                   GSTIN: <span style={{ fontFamily: "monospace" }}>{buyer.gstin}</span>
@@ -425,7 +425,7 @@ export default function BiomassBuyers() {
                     gap: 4,
                   }}
                 >
-                  🚚 View Dispatch Ledger
+                  View Dispatch Ledger
                 </button>
               </div>
             </div>
@@ -433,7 +433,7 @@ export default function BiomassBuyers() {
 
           {filteredBuyers.length === 0 && (
             <div style={{ gridColumn: "span 2", textAlign: "center", padding: "40px 20px", color: "var(--muted)" }}>
-              <i className="fa-solid fa-industry" style={{ fontSize: 32, marginBottom: 8, display: "block" }} />
+              <i className="ri-industry-line" style={{ fontSize: 32, marginBottom: 8, display: "block" }} />
               No buyers found matching &ldquo;{searchTerm}&rdquo;
             </div>
           )}
@@ -566,7 +566,7 @@ export default function BiomassBuyers() {
             >
               <div>
                 <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: "var(--ink)" }}>
-                  🏬 {selectedBuyerForDetails.name}
+                  {selectedBuyerForDetails.name}
                 </h3>
                 <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
                   {selectedBuyerForDetails.division} — Industrial Delivery & Gate Pass Ledger
@@ -615,7 +615,7 @@ export default function BiomassBuyers() {
               {/* Delivery History Table */}
               <div>
                 <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 800, color: "var(--ink)" }}>
-                  🚚 Outbound Industrial Heavy Trailer Dispatches
+                  Outbound Industrial Heavy Trailer Dispatches
                 </h4>
                 {selectedBuyerForDetails.dispatchesList?.length > 0 ? (
                   <div style={{ border: "1px solid var(--line)", borderRadius: 8, overflow: "hidden" }}>
@@ -645,8 +645,7 @@ export default function BiomassBuyers() {
                                 onClick={() => setSelectedGatePassForPrint(disp)}
                                 style={{ padding: "3px 6px", fontSize: 11, background: "#0F172A", color: "#fff", border: "none", borderRadius: 4, cursor: "pointer" }}
                               >
-                                🖨️
-                              </button>
+                                </button>
                             </td>
                           </tr>
                         ))}

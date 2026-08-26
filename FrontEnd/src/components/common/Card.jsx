@@ -1,32 +1,112 @@
-export default function Card({ title, subtitle, icon, right, children, style, className = "" }) {
-  const titleNode =
-    title || right || subtitle ? (
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {icon && (
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flexShrink: 0 }}>
-              <i className={icon} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 14, height: 14 }} />
-            </div>
-          )}
-          <div>
-            {title && <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)", letterSpacing: 0.1, display: "block" }}>{title}</span>}
-            {subtitle && <span style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 400 }}>{subtitle}</span>}
-          </div>
-        </div>
-        {right}
-      </div>
-    ) : null;
+export default function Card({
+  title,
+  subtitle,
+  icon,
+  right,
+  footer,
+  accent, // Optional top border accent color e.g. "#5DD62C", "#FFB800", "#00D2FF"
+  hover = false,
+  children,
+  style = {},
+  className = "",
+  bodyStyle = {},
+  headerStyle = {},
+}) {
+  const hasHeader = Boolean(title || subtitle || right || icon);
 
   return (
-    <div className={`app-card ${className}`} style={style}>
-      {titleNode && (
-        <div style={{ padding: "14px 18px 12px", borderBottom: "1px solid var(--line)" }}>
-          {titleNode}
+    <div
+      className={`app-card ${hover ? "hover-card" : ""} ${className}`}
+      style={{
+        background: "var(--surface)",
+        border: "1px solid var(--line)",
+        borderRadius: 18,
+        boxShadow: "var(--shadow-sm)",
+        position: "relative",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        ...(accent ? { borderTop: `3px solid ${accent}` } : {}),
+        ...style,
+      }}
+    >
+      {hasHeader && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "16px 20px 14px",
+            borderBottom: "1px solid var(--line)",
+            gap: 12,
+            flexWrap: "wrap",
+            ...headerStyle,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {icon && (
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 10,
+                  background: "var(--primary-tint)",
+                  color: "var(--primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 16,
+                  flexShrink: 0,
+                }}
+              >
+                {typeof icon === "string" ? <i className={icon} /> : icon}
+              </div>
+            )}
+            <div>
+              {title && (
+                <h3
+                  style={{
+                    margin: 0,
+                    fontSize: 14.5,
+                    fontWeight: 800,
+                    color: "var(--ink)",
+                    letterSpacing: 0.1,
+                  }}
+                >
+                  {title}
+                </h3>
+              )}
+              {subtitle && (
+                <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)", lineHeight: 1.3 }}>
+                  {subtitle}
+                </p>
+              )}
+            </div>
+          </div>
+          {right && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>{right}</div>}
         </div>
       )}
-      <div style={{ padding: "16px 18px" }}>
+
+      {/* Card Body */}
+      <div style={{ padding: "18px 20px", flex: 1, ...bodyStyle }}>
         {children}
       </div>
+
+      {/* Card Footer */}
+      {footer && (
+        <div
+          style={{
+            padding: "12px 20px",
+            borderTop: "1px solid var(--line)",
+            background: "var(--canvas)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          {footer}
+        </div>
+      )}
     </div>
   );
 }

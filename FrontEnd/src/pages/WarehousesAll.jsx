@@ -120,7 +120,7 @@ export default function WarehousesAll() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
           <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(0, 184, 107, 0.12)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17 }}>
-            <i className="fa-solid fa-warehouse" />
+            <i className="ri-building-line" />
           </div>
           <div>
             <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Total Depots</span>
@@ -130,7 +130,7 @@ export default function WarehousesAll() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
           <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(3, 105, 161, 0.12)", color: "#0369A1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17 }}>
-            <i className="fa-solid fa-user-shield" />
+            <i className="ri-user-settings-line" />
           </div>
           <div>
             <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Fully Staffed</span>
@@ -140,7 +140,7 @@ export default function WarehousesAll() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
           <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(217, 119, 6, 0.12)", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17 }}>
-            <i className="fa-solid fa-users" />
+            <i className="ri-group-line" />
           </div>
           <div>
             <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Active Workforce</span>
@@ -150,7 +150,7 @@ export default function WarehousesAll() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
           <div style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(16, 185, 129, 0.12)", color: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17 }}>
-            <i className="fa-solid fa-boxes-stacked" />
+            <i className="ri-stack-line" />
           </div>
           <div>
             <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Stored Biomass</span>
@@ -181,7 +181,7 @@ export default function WarehousesAll() {
                 boxShadow: viewMode === "grid" ? "var(--shadow-xs)" : "none",
               }}
             >
-              <i className="fa-solid fa-grid-2" /> Grid Cards
+              <i className="ri-layout-grid-line" /> Grid Cards
             </button>
             <button
               type="button"
@@ -201,7 +201,7 @@ export default function WarehousesAll() {
                 boxShadow: viewMode === "table" ? "var(--shadow-xs)" : "none",
               }}
             >
-              <i className="fa-solid fa-table-list" /> Data Table
+              <i className="ri-table-list-line" /> Data Table
             </button>
           </div>
         );
@@ -242,7 +242,7 @@ export default function WarehousesAll() {
                 {/* Search Input */}
                 <div style={{ position: "relative", width: 260 }}>
                   <i
-                    className="fa-solid fa-magnifying-glass"
+                    className="ri-search-line"
                     style={{
                       position: "absolute",
                       left: 10,
@@ -301,7 +301,7 @@ export default function WarehousesAll() {
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <div style={{ width: 28, height: 28, borderRadius: 6, background: "rgba(255, 255, 255, 0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>
-                        <i className="fa-solid fa-warehouse" />
+                        <i className="ri-building-line" />
                       </div>
                       <span style={{ fontWeight: 800, fontSize: 13.5, letterSpacing: "-0.01em" }}>
                         {w.name}
@@ -376,10 +376,10 @@ export default function WarehousesAll() {
                     {/* Mini Stats Ribbon */}
                     <div style={{ display: "flex", justifyContent: "space-between", background: "rgba(0, 184, 107, 0.08)", padding: "6px 10px", borderRadius: 6, fontSize: 11 }}>
                       <span style={{ color: "var(--primary-deep)", fontWeight: 600 }}>
-                        <i className="fa-solid fa-users" style={{ marginRight: 4 }} /> {w.staff || 0} Staff Deployed
+                        <i className="ri-group-line" style={{ marginRight: 4 }} /> {w.staff || 0} Staff Deployed
                       </span>
                       <strong style={{ color: "var(--primary-deep)" }}>
-                        <i className="fa-solid fa-scale-balanced" style={{ marginRight: 4 }} /> {w.stock || "0 kg"}
+                        <i className="ri-scales-3-line" style={{ marginRight: 4 }} /> {w.stock || "0 kg"}
                       </strong>
                     </div>
                   </div>
@@ -401,7 +401,7 @@ export default function WarehousesAll() {
                       onClick={() => navigate(`/warehouses/detail?id=${w.id || ''}`)}
                       style={{ padding: "5px 10px", fontSize: 11, fontWeight: 700, flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 4 }}
                     >
-                      <i className="fa-solid fa-chart-line" /> View Hub
+                      <i className="ri-line-chart-line" /> View Hub
                     </Button>
 
                     <Button
@@ -409,7 +409,7 @@ export default function WarehousesAll() {
                       onClick={() => openEditModal(w)}
                       style={{ padding: "5px 10px", fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}
                     >
-                      <i className="fa-solid fa-pen-to-square" /> Edit
+                      <i className="ri-edit-line" /> Edit
                     </Button>
 
                     <button
@@ -427,7 +427,7 @@ export default function WarehousesAll() {
                         cursor: "pointer",
                       }}
                     >
-                      <i className="fa-solid fa-trash-can" />
+                      <i className="ri-delete-bin-line" />
                     </button>
                   </div>
                 </div>
@@ -451,7 +451,7 @@ export default function WarehousesAll() {
                 render: (r) => (
                   <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                     <span style={{ fontWeight: 700, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                      <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 13 }} />
+                      <i className="ri-building-line" style={{ color: "var(--primary)", fontSize: 13 }} />
                       {r.name}
                     </span>
                     <span style={{ fontSize: 10.5, color: "var(--muted)", fontWeight: 600 }}>
@@ -466,7 +466,7 @@ export default function WarehousesAll() {
                 render: (r) => (
                   <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 11 }}>
                     <span style={{ fontWeight: 700, color: "#0D3823", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-file-invoice" style={{ color: "var(--primary)", fontSize: 10 }} />
+                      <i className="ri-file-line-invoice" style={{ color: "var(--primary)", fontSize: 10 }} />
                       GST: {r.gstin || "09AALCK4355J1Z2"}
                     </span>
                     <span style={{ color: "var(--muted)", fontWeight: 600 }}>
@@ -481,11 +481,11 @@ export default function WarehousesAll() {
                 render: (r) => (
                   <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 11 }}>
                     <span style={{ fontWeight: 700, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-user-check" style={{ color: "#059669", fontSize: 10 }} />
+                      <i className="ri-user-follow-line" style={{ color: "#059669", fontSize: 10 }} />
                       {r.contactPerson || "Mr. Jagdeep Singh"} ({r.contactPhone || "7055000315"})
                     </span>
                     <span style={{ color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-headset" style={{ color: "var(--primary)", fontSize: 9.5 }} />
+                      <i className="ri-customer-service-2-line" style={{ color: "var(--primary)", fontSize: 9.5 }} />
                       Help Desk: {r.helpDeskPhone || "7905525983"}
                     </span>
                   </div>
@@ -497,7 +497,7 @@ export default function WarehousesAll() {
                 render: (r) =>
                   r.admin ? (
                     <span style={{ fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11.5 }}>
-                      <i className="fa-solid fa-user-shield" style={{ color: "var(--primary)", fontSize: 11 }} />
+                      <i className="ri-user-settings-line" style={{ color: "var(--primary)", fontSize: 11 }} />
                       {r.admin}
                     </span>
                   ) : (
@@ -510,7 +510,7 @@ export default function WarehousesAll() {
                 render: (r) =>
                   r.supervisor ? (
                     <span style={{ fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11.5 }}>
-                      <i className="fa-solid fa-user-gear" style={{ color: "#0369A1", fontSize: 11 }} />
+                      <i className="ri-user-settings-line" style={{ color: "#0369A1", fontSize: 11 }} />
                       {r.supervisor}
                     </span>
                   ) : (
@@ -551,7 +551,7 @@ export default function WarehousesAll() {
                         gap: 4,
                       }}
                     >
-                      <i className="fa-solid fa-eye" style={{ fontSize: 10 }} /> View
+                      <i className="ri-eye-line" style={{ fontSize: 10 }} /> View
                     </button>
 
                     {/* UPDATE / EDIT */}
@@ -573,7 +573,7 @@ export default function WarehousesAll() {
                         gap: 4,
                       }}
                     >
-                      <i className="fa-solid fa-pen-to-square" style={{ fontSize: 10, color: "#1B5E3A" }} /> Edit
+                      <i className="ri-edit-line" style={{ fontSize: 10, color: "#1B5E3A" }} /> Edit
                     </button>
 
                     {/* DELETE / DEACTIVATE */}
@@ -595,7 +595,7 @@ export default function WarehousesAll() {
                         gap: 4,
                       }}
                     >
-                      <i className="fa-solid fa-trash-can" style={{ fontSize: 10 }} />
+                      <i className="ri-delete-bin-line" style={{ fontSize: 10 }} />
                     </button>
                   </div>
                 ),

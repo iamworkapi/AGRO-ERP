@@ -1,31 +1,40 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchSummaryStatsThunk,
-  fetchWarehouseOverviewThunk,
-  fetchRecentActivityThunk,
-  fetchMoistureSnapshotThunk,
-} from "./dashboardSlice";
+import { fetchOverviewThunk } from "./dashboardSlice";
 
-export function useDashboard() {
+export function useDashboard(warehouseId) {
   const dispatch = useDispatch();
   const state = useSelector((s) => s.dashboard);
 
   useEffect(() => {
-    if (state.status === "idle") {
-      dispatch(fetchSummaryStatsThunk());
-      dispatch(fetchWarehouseOverviewThunk());
-      dispatch(fetchRecentActivityThunk());
-      dispatch(fetchMoistureSnapshotThunk());
-    }
-  }, [state.status, dispatch]);
+    dispatch(fetchOverviewThunk(warehouseId));
+  }, [warehouseId, dispatch]);
+
+  const reload = useCallback(
+    (whId) => dispatch(fetchOverviewThunk(whId !== undefined ? whId : warehouseId)),
+    [dispatch, warehouseId]
+  );
 
   return {
-    summaryStats: state.summaryStats,
-    warehouses: state.warehouses,
+    isWarehouseScoped: state.isWarehouseScoped,
+    currentWarehouse: state.currentWarehouse,
+    allWarehouses: state.allWarehouses,
+    kpis: state.kpis,
+    buyerStockTable: state.buyerStockTable,
+    buyerFulfillment: state.buyerFulfillment,
+    vendorSummary: state.vendorSummary,
+    warehouseDetails: state.warehouseDetails,
     recentActivity: state.recentActivity,
-    moistureSnapshot: state.moistureSnapshot,
+    recentDispatches: state.recentDispatches,
+    recentCollections: state.recentCollections,
+    staffOnDuty: state.staffOnDuty,
+    godownsList: state.godownsList,
+    inflowTrend: state.inflowTrend,
+    commodityBreakdown: state.commodityBreakdown,
+    alertSummary: state.alertSummary,
     status: state.status,
     error: state.error,
+    reload,
   };
 }
+

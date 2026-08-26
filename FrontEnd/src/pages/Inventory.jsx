@@ -30,10 +30,10 @@ export default function Inventory() {
     const pending = entries.filter((e) => e.status === "pending");
     const totalNetKg = approved.reduce((sum, e) => sum + (e.netWeightKg || 0), 0);
     return [
-      { label: "Total Entries", value: String(entries.length), trend: "Weighment slips logged", icon: "fa-solid fa-file-lines", iconColor: "#3B82F6" },
-      { label: "Approved Slips", value: String(approved.length), trend: "Verified by Admin", icon: "fa-solid fa-circle-check", iconColor: "#10B981" },
-      { label: "Pending Review", value: String(pending.length), trend: pending.length ? "Awaiting approval" : "All clear", icon: "fa-solid fa-hourglass-half", iconColor: "#F59E0B" },
-      { label: "Net Stock (Approved)", value: `${totalNetKg.toLocaleString()} kg`, trend: "Inward - outward, approved only", icon: "fa-solid fa-boxes-stacked", iconColor: "#059669" },
+      { label: "Total Entries", value: String(entries.length), trend: "Weighment slips logged", icon: "ri-file-list-line", iconColor: "#3B82F6" },
+      { label: "Approved Slips", value: String(approved.length), trend: "Verified by Admin", icon: "ri-checkbox-circle-fill", iconColor: "#10B981" },
+      { label: "Pending Review", value: String(pending.length), trend: pending.length ? "Awaiting approval" : "All clear", icon: "ri-hourglass-line", iconColor: "#F59E0B" },
+      { label: "Net Stock (Approved)", value: `${totalNetKg.toLocaleString()} kg`, trend: "Inward - outward, approved only", icon: "ri-stack-line", iconColor: "#059669" },
     ];
   }, [entries]);
 

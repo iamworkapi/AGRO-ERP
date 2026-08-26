@@ -56,7 +56,7 @@ export default function BiomassGatePassModal({ passData, onClose }) {
 </head>
 <body onload="setTimeout(function(){ window.print(); }, 250)">
   <div class="toolbar">
-    <button class="btn" onclick="window.print()">🖨️ Print Pass / Save PDF</button>
+    <button class="btn" onclick="window.print()">Print Pass / Save PDF</button>
     <button class="btn btn-close" onclick="window.close()">✕ Close</button>
   </div>
 
@@ -140,19 +140,19 @@ export default function BiomassGatePassModal({ passData, onClose }) {
 
   function handleShareWhatsApp() {
     const text =
-      `🚚 *KUSUMGANGA AGRO SOLUTIONS PVT. LTD.* 🚚\n` +
+      `*KUSUMGANGA AGRO SOLUTIONS PVT. LTD.* \n` +
       `📜 *DISPATCH GATE PASS:* ${passData.gatePassNo}\n` +
       `📅 *Date:* ${passData.date}\n` +
-      `🏢 *Consignee (Bill To):* ${passData.buyerName}\n` +
-      `📍 *Destination:* ${passData.address || passData.destination}\n` +
+      `*Consignee (Bill To):* ${passData.buyerName}\n` +
+      `*Destination:* ${passData.address || passData.destination}\n` +
       `🆔 *GSTIN:* ${passData.gstin}\n` +
       `-----------------------------------\n` +
       `🚛 *Vehicle No:* ${passData.vehicleNo}\n` +
-      `🌾 *Commodity:* ${passData.cropName}\n` +
-      `📦 *Bales Count:* ${passData.baleCount} Bales\n` +
-      `⚖️ *Dispatched Net Weight:* ${passData.dispatchedTonnageMt} MT\n` +
-      `💰 *Agreed Rate:* ₹${passData.agreedPriceMt} / MT\n` +
-      `💵 *TOTAL VALUE:* ₹${(passData.totalInvoiceAmount || 0).toLocaleString("en-IN")}\n` +
+      `*Commodity:* ${passData.cropName}\n` +
+      `*Bales Count:* ${passData.baleCount} Bales\n` +
+      `*Dispatched Net Weight:* ${passData.dispatchedTonnageMt} MT\n` +
+      `*Agreed Rate:* ₹${passData.agreedPriceMt} / MT\n` +
+      `*TOTAL VALUE:* ₹${(passData.totalInvoiceAmount || 0).toLocaleString("en-IN")}\n` +
       `📑 *E-Way Bill:* ${passData.ewayBillNo || "—"}\n` +
       `-----------------------------------\n` +
       `Consignment in transit for industrial bio-energy supply.`;
@@ -218,10 +218,10 @@ export default function BiomassGatePassModal({ passData, onClose }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: 12, color: "#334155" }}>
             <div>📅 Date: <strong>{passData.date}</strong></div>
             <div>🚛 Vehicle No: <strong style={{ fontFamily: "monospace" }}>{passData.vehicleNo}</strong></div>
-            <div>🌾 Commodity: <strong>{passData.cropName}</strong></div>
-            <div>📦 Bales: <strong>{passData.baleCount} Bales</strong></div>
-            <div>⚖️ Tonnage: <strong>{passData.dispatchedTonnageMt} MT</strong></div>
-            <div>💰 Rate: <strong>₹{passData.agreedPriceMt}/MT</strong></div>
+            <div>Commodity: <strong>{passData.cropName}</strong></div>
+            <div>Bales: <strong>{passData.baleCount} Bales</strong></div>
+            <div>Tonnage: <strong>{passData.dispatchedTonnageMt} MT</strong></div>
+            <div>Rate: <strong>₹{passData.agreedPriceMt}/MT</strong></div>
           </div>
 
           <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px dashed #CBD5E1", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -267,7 +267,7 @@ export default function BiomassGatePassModal({ passData, onClose }) {
               gap: 6,
             }}
           >
-            🖨️ Print Official Gate Pass
+            Print Official Gate Pass
           </button>
         </div>
       </div>

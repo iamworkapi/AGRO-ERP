@@ -1,47 +1,60 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as api from "./api";
 
-export const fetchSummaryStatsThunk = createAsyncThunk("dashboard/fetchSummaryStats", api.fetchSummaryStats);
-export const fetchWarehouseOverviewThunk = createAsyncThunk("dashboard/fetchWarehouseOverview", api.fetchWarehouseOverview);
-export const fetchRecentActivityThunk = createAsyncThunk("dashboard/fetchRecentActivity", api.fetchRecentActivity);
-export const fetchMoistureSnapshotThunk = createAsyncThunk("dashboard/fetchMoistureSnapshot", api.fetchMoistureSnapshot);
+export const fetchOverviewThunk = createAsyncThunk("dashboard/fetchOverview", async (warehouseId, { rejectWithValue }) => {
+  try {
+    return await api.fetchOverview(warehouseId);
+  } catch (err) {
+    return rejectWithValue(err?.response?.data?.error?.message || err.message || "Failed to load dashboard overview");
+  }
+});
 
 const initialState = {
-  summaryStats: [],
-  warehouses: [],
+  isWarehouseScoped: false,
+  currentWarehouse: null,
+  allWarehouses: [],
+  kpis: {},
+  buyerStockTable: [],
+  buyerFulfillment: [],
+  vendorSummary: [],
+  warehouseDetails: [],
   recentActivity: [],
-  moistureSnapshot: null,
-  status: "idle", // "idle" | "loading" | "succeeded" | "failed"
+  recentDispatches: [],
+  recentCollections: [],
+  staffOnDuty: [],
+  godownsList: [],
+  inflowTrend: [],
+  commodityBreakdown: [],
+  alertSummary: [],
+  status: "idle",
   error: null,
 };
 
 const dashboardSlice = createSlice({
   name: "dashboard",
   initialState,
-  reducers: {},
+  reducers: {
+    resetDashboardStatus: (state) => {
+      state.status = "idle";
+    },
+  },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchSummaryStatsThunk.pending, (state) => {
+      .addCase(fetchOverviewThunk.pending, (state) => {
         state.status = "loading";
+        state.error = null;
       })
-      .addCase(fetchSummaryStatsThunk.fulfilled, (state, action) => {
+      .addCase(fetchOverviewThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.summaryStats = action.payload;
+        Object.assign(state, action.payload);
       })
-      .addCase(fetchSummaryStatsThunk.rejected, (state, action) => {
+      .addCase(fetchOverviewThunk.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
-      })
-      .addCase(fetchWarehouseOverviewThunk.fulfilled, (state, action) => {
-        state.warehouses = action.payload;
-      })
-      .addCase(fetchRecentActivityThunk.fulfilled, (state, action) => {
-        state.recentActivity = action.payload;
-      })
-      .addCase(fetchMoistureSnapshotThunk.fulfilled, (state, action) => {
-        state.moistureSnapshot = action.payload;
+        state.error = action.payload || action.error.message;
       });
   },
 });
 
+export const { resetDashboardStatus } = dashboardSlice.actions;
 export default dashboardSlice.reducer;
+

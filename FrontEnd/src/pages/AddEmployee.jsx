@@ -197,7 +197,7 @@ export default function AddEmployee() {
             {/* Section 1: Profile Photo */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-camera" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <i className="ri-camera-line" style={{ color: "var(--primary)", fontSize: 14 }} />
                 <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>Profile Photo</h3>
               </div>
               <PhotoPicker value={form.avatarUrl} onChange={set("avatarUrl")} name={form.fullName} />
@@ -206,7 +206,7 @@ export default function AddEmployee() {
             {/* Section 2: Basic Information */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-id-card" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <i className="ri-id-card-line" style={{ color: "var(--primary)", fontSize: 14 }} />
                 <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>Basic Information</h3>
               </div>
 
@@ -214,7 +214,7 @@ export default function AddEmployee() {
                 <FormField
                   label="Full Name"
                   required
-                  icon="fa-solid fa-user"
+                  icon="ri-user-3-line"
                   value={form.fullName}
                   onChange={set("fullName")}
                   placeholder="e.g. Manoj Kumar"
@@ -224,7 +224,7 @@ export default function AddEmployee() {
                 <FormField
                   label="Designation"
                   required
-                  icon="fa-solid fa-briefcase"
+                  icon="ri-briefcase-line"
                   value={form.designation}
                   onChange={set("designation")}
                   placeholder="e.g. Warehouse Staff"
@@ -268,7 +268,7 @@ export default function AddEmployee() {
             {/* Section 3: Contact Details */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-address-book" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <i className="ri-contacts-book-line" style={{ color: "var(--primary)", fontSize: 14 }} />
                 <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>Contact Details</h3>
               </div>
 
@@ -276,7 +276,7 @@ export default function AddEmployee() {
                 <FormField
                   label="Phone"
                   type="tel"
-                  icon="fa-solid fa-phone"
+                  icon="ri-phone-line"
                   value={form.phone}
                   onChange={set("phone")}
                   placeholder="98xxxxxxxx"
@@ -286,7 +286,7 @@ export default function AddEmployee() {
                 <FormField
                   label="Email"
                   type="email"
-                  icon="fa-solid fa-envelope"
+                  icon="ri-mail-line"
                   value={form.email}
                   onChange={set("email")}
                   placeholder="you@company.com"
@@ -309,14 +309,14 @@ export default function AddEmployee() {
             {/* Section 4: Employment Details */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-calendar-day" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <i className="ri-calendar-line-day" style={{ color: "var(--primary)", fontSize: 14 }} />
                 <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>Employment Details</h3>
               </div>
 
               <FormField
                 label="Date of Joining"
                 type="date"
-                icon="fa-solid fa-calendar"
+                icon="ri-calendar-line"
                 value={form.dateOfJoining}
                 onChange={set("dateOfJoining")}
                 compact
@@ -327,14 +327,14 @@ export default function AddEmployee() {
             {/* Section 5: Emergency Contact */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
-                <i className="fa-solid fa-kit-medical" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <i className="ri-first-aid-kit-line" style={{ color: "var(--primary)", fontSize: 14 }} />
                 <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>Emergency Contact</h3>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
                 <FormField
                   label="Contact Name"
-                  icon="fa-solid fa-user-shield"
+                  icon="ri-user-settings-line"
                   value={form.emergencyContactName}
                   onChange={set("emergencyContactName")}
                   placeholder="e.g. Sunita Devi"
@@ -344,7 +344,7 @@ export default function AddEmployee() {
                 <FormField
                   label="Contact Phone"
                   type="tel"
-                  icon="fa-solid fa-phone-volume"
+                  icon="ri-phone-line-volume"
                   value={form.emergencyContactPhone}
                   onChange={set("emergencyContactPhone")}
                   placeholder="98xxxxxxxx"
@@ -362,7 +362,7 @@ export default function AddEmployee() {
                 onClick={() => navigate("/employees")}
                 style={{ padding: "8px 16px", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}
               >
-                <i className="fa-solid fa-xmark" /> Cancel
+                <i className="ri-close-line" /> Cancel
               </Button>
               <Button
                 type="submit"
@@ -381,15 +381,15 @@ export default function AddEmployee() {
               >
                 {saving ? (
                   <>
-                    <i className="fa-solid fa-circle-notch spin" /> Saving…
+                    <i className="ri-loader-4-line spin" /> Saving…
                   </>
                 ) : isEditMode ? (
                   <>
-                    <i className="fa-solid fa-check" /> Update Employee
+                    <i className="ri-check-line" /> Update Employee
                   </>
                 ) : (
                   <>
-                    <i className="fa-solid fa-check" /> Save Employee
+                    <i className="ri-check-line" /> Save Employee
                   </>
                 )}
               </Button>
@@ -409,7 +409,7 @@ export default function AddEmployee() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
-              <i className="fa-solid fa-eye" style={{ color: "var(--primary)", fontSize: 13 }} />
+              <i className="ri-eye-line" style={{ color: "var(--primary)", fontSize: 13 }} />
               <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>Live Card Preview</h4>
             </div>
 
@@ -453,7 +453,7 @@ export default function AddEmployee() {
               <div style={{ background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 8, padding: "10px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}>
                   <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                    <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 11 }} /> Warehouse:
+                    <i className="ri-building-line" style={{ color: "var(--primary)", fontSize: 11 }} /> Warehouse:
                   </span>
                   <span style={{ fontWeight: 600, color: "var(--ink)" }}>
                     {selectedWarehouse ? selectedWarehouse.name : "Not selected"}
@@ -461,13 +461,13 @@ export default function AddEmployee() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}>
                   <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                    <i className="fa-solid fa-phone" style={{ color: "var(--primary)", fontSize: 11 }} /> Phone:
+                    <i className="ri-phone-line" style={{ color: "var(--primary)", fontSize: 11 }} /> Phone:
                   </span>
                   <span style={{ fontWeight: 600, color: "var(--ink)" }}>{form.phone || "—"}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}>
                   <span style={{ color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-                    <i className="fa-solid fa-users" style={{ color: "var(--primary)", fontSize: 11 }} /> Current Roster:
+                    <i className="ri-group-line" style={{ color: "var(--primary)", fontSize: 11 }} /> Current Roster:
                   </span>
                   <span style={{ fontWeight: 600, color: "var(--ink)" }}>
                     {selectedWarehouse ? `${perWarehouseCount} ${perWarehouseCount === 1 ? "employee" : "employees"}` : "—"}
@@ -493,7 +493,7 @@ export default function AddEmployee() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              <i className="fa-solid fa-circle-info" style={{ color: "#33C689", fontSize: 14 }} />
+              <i className="ri-information-line" style={{ color: "#33C689", fontSize: 14 }} />
               <span style={{ fontSize: 12.5, fontWeight: 700, color: "white" }}>{isEditMode ? "Update Guidelines" : "Enrolment Guidelines"}</span>
             </div>
             <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.72)", margin: 0, lineHeight: 1.45 }}>

@@ -135,7 +135,7 @@ export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
         >
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
-              🌾 New Raw Biomass Entry & Weighbridge Slip (Stage 1 & 2)
+              New Raw Biomass Entry & Weighbridge Slip (Stage 1 & 2)
             </h3>
             <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
               Record collection gate entry, calculate GRN moisture/ash invoice weight & assign baling
@@ -270,7 +270,7 @@ export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
           <div style={{ background: "#F8FAFC", border: "1px solid #CBD5E1", borderRadius: 10, padding: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
               <span style={{ fontSize: 12.5, fontWeight: 800, color: "#0F172A", textTransform: "uppercase", letterSpacing: 0.5 }}>
-                ⚖️ Stage 2: Weighbridge & Lab Quality Test (Image 2 GRN Formula)
+                Stage 2: Weighbridge & Lab Quality Test (Image 2 GRN Formula)
               </span>
               <span style={{ fontSize: 11, fontWeight: 600, color: "#64748B" }}>
                 Formula: Actual Weight × (100% - Moist% - Ash%) / (100% - AgreedMoist% - AgreedAsh%)

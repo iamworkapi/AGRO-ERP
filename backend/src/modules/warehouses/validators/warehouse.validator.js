@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { objectId } from "../../common/validators/common.js";
+import { objectId, avatarUrl } from "../../common/validators/common.js";
 
 const profileId = objectId("profile id");
 
@@ -20,15 +20,19 @@ export const createWarehouseSchema = z.object({
   supervisorId: profileId.optional().or(z.literal("")),
   newAdmin: z.object({
     fullName: z.string().min(2),
-    email: z.string().email(),
+    email: z.string().email().optional().or(z.literal("")).or(z.null()),
     phone: z.string().optional(),
     password: z.string().min(6).optional(),
+    address: z.string().optional().or(z.literal("")).or(z.null()),
+    avatarUrl: avatarUrl.optional(),
   }).optional(),
   newSupervisor: z.object({
     fullName: z.string().min(2),
-    email: z.string().email(),
+    email: z.string().email().optional().or(z.literal("")).or(z.null()),
     phone: z.string().optional(),
     password: z.string().min(6).optional(),
+    address: z.string().optional().or(z.literal("")).or(z.null()),
+    avatarUrl: avatarUrl.optional(),
   }).optional(),
 });
 

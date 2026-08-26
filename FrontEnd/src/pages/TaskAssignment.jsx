@@ -13,10 +13,10 @@ import { useDisclosure } from "../hooks/useDisclosure";
 import { toast } from "../utils/toast";
 
 const CATEGORY_ICONS = {
-  Field: "fa-solid fa-tractor",
-  Inventory: "fa-solid fa-boxes-stacked",
-  Weighment: "fa-solid fa-scale-balanced",
-  General: "fa-solid fa-clipboard-check",
+  Field: "ri-truck-line",
+  Inventory: "ri-stack-line",
+  Weighment: "ri-scales-3-line",
+  General: "ri-clipboard-check-line",
 };
 
 const PRIORITY_TONES = {
@@ -185,7 +185,7 @@ export default function TaskAssignment() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Ongoing Operations</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-spinner spin" />
+              <i className="ri-spinner-line spin" />
             </div>
           </div>
 
@@ -225,7 +225,7 @@ export default function TaskAssignment() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Verified Finished Tasks</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-circle-check" />
+              <i className="ri-checkbox-circle-fill" />
             </div>
           </div>
 
@@ -265,7 +265,7 @@ export default function TaskAssignment() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>High Priority Items</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(239,68,68,0.3)", boxShadow: "0 0 14px rgba(239,68,68,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-triangle-exclamation" />
+              <i className="ri-alert-line" />
             </div>
           </div>
 
@@ -305,7 +305,7 @@ export default function TaskAssignment() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Task Register</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-list-check" />
+              <i className="ri-list-check" />
             </div>
           </div>
 
@@ -326,7 +326,7 @@ export default function TaskAssignment() {
               onClick={() => setStatusFilter("all")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-list-check" style={{ fontSize: 11 }} /> All Tasks ({scopedTasks.length})
+              <i className="ri-list-check" style={{ fontSize: 11 }} /> All Tasks ({scopedTasks.length})
             </button>
             <button
               type="button"
@@ -334,7 +334,7 @@ export default function TaskAssignment() {
               onClick={() => setStatusFilter("In Progress")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-spinner" style={{ fontSize: 11 }} /> In Progress ({inProgressCount})
+              <i className="ri-spinner-line" style={{ fontSize: 11 }} /> In Progress ({inProgressCount})
             </button>
             <button
               type="button"
@@ -342,7 +342,7 @@ export default function TaskAssignment() {
               onClick={() => setStatusFilter("Not Started")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-hourglass-start" style={{ fontSize: 11 }} /> Not Started ({notStartedCount})
+              <i className="ri-hourglass-start-line" style={{ fontSize: 11 }} /> Not Started ({notStartedCount})
             </button>
             <button
               type="button"
@@ -350,7 +350,7 @@ export default function TaskAssignment() {
               onClick={() => setStatusFilter("Completed")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-circle-check" style={{ fontSize: 11 }} /> Completed ({completedCount})
+              <i className="ri-checkbox-circle-fill" style={{ fontSize: 11 }} /> Completed ({completedCount})
             </button>
           </div>
         </div>
@@ -372,7 +372,7 @@ export default function TaskAssignment() {
                 boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)",
               }}
             >
-              <i className="fa-solid fa-plus" /> Assign New Task
+              <i className="ri-add-line" /> Assign New Task
             </Button>
           }
           searchable
@@ -388,7 +388,7 @@ export default function TaskAssignment() {
               render: (r) => (
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   <span style={{ fontWeight: 700, color: "var(--ink)", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <i className={CATEGORY_ICONS[r.category] || "fa-solid fa-clipboard-list"} style={{ color: "var(--primary)", fontSize: 12 }} />
+                    <i className={CATEGORY_ICONS[r.category] || "ri-clipboard-list-line"} style={{ color: "var(--primary)", fontSize: 12 }} />
                     {r.task}
                   </span>
                   {r.description && (
@@ -409,7 +409,7 @@ export default function TaskAssignment() {
               label: "Warehouse Hub",
               render: (r) => (
                 <span style={{ fontWeight: 600, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-warehouse" style={{ fontSize: 11 }} />
+                  <i className="ri-building-line" style={{ fontSize: 11 }} />
                   {r.warehouse || assignedHub}
                 </span>
               ),
@@ -428,7 +428,7 @@ export default function TaskAssignment() {
               label: "Deadline",
               render: (r) => (
                 <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-regular fa-calendar-check" style={{ color: "var(--muted)", fontSize: 11 }} />
+                  <i className="ri-calendar-line-check" style={{ color: "var(--muted)", fontSize: 11 }} />
                   {r.due}
                 </span>
               ),
@@ -454,11 +454,11 @@ export default function TaskAssignment() {
                     onClick={() => handleComplete(r)}
                     style={{ padding: "4px 10px", fontSize: 11.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, background: "var(--primary-tint)", color: "var(--primary-deep)", borderColor: "var(--primary)" }}
                   >
-                    <i className="fa-solid fa-check" /> Complete
+                    <i className="ri-check-line" /> Complete
                   </Button>
                 ) : (
                   <span style={{ fontSize: 11.5, color: "#059669", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                    <i className="fa-solid fa-circle-check" /> Finished
+                    <i className="ri-checkbox-circle-fill" /> Finished
                   </span>
                 ),
             },
@@ -477,7 +477,7 @@ export default function TaskAssignment() {
           <FormField
             label="Task Title"
             required
-            icon="fa-solid fa-clipboard-list"
+            icon="ri-clipboard-list-line"
             value={form.task}
             onChange={set("task")}
             placeholder="e.g. Moisture Verification & Grain Sampling — Lot 40"
@@ -489,7 +489,7 @@ export default function TaskAssignment() {
             label="Assigned Staff Member"
             type="select"
             required
-            icon="fa-solid fa-user"
+            icon="ri-user-3-line"
             value={form.assignedTo}
             onChange={set("assignedTo")}
             options={staffOptions}
@@ -503,7 +503,7 @@ export default function TaskAssignment() {
             type="select"
             required
             disabled={isSupervisor}
-            icon="fa-solid fa-warehouse"
+            icon="ri-building-line"
             value={isSupervisor ? assignedHub : form.warehouse}
             onChange={set("warehouse")}
             options={isSupervisor ? [assignedHub] : ["Manimau Centre", "Betiya Hata Store", "Sai Complex Yard", "Gorakhpur North"]}
@@ -516,7 +516,7 @@ export default function TaskAssignment() {
               label="Priority Level"
               type="select"
               required
-              icon="fa-solid fa-triangle-exclamation"
+              icon="ri-alert-line"
               value={form.priority}
               onChange={set("priority")}
               options={["High", "Medium", "Normal"]}
@@ -528,7 +528,7 @@ export default function TaskAssignment() {
               label="Task Category"
               type="select"
               required
-              icon="fa-solid fa-layer-group"
+              icon="ri-stack-line"
               value={form.category}
               onChange={set("category")}
               options={["Field", "Inventory", "Weighment", "General"]}
@@ -540,7 +540,7 @@ export default function TaskAssignment() {
           <FormField
             label="Due Date / Deadline"
             type="date"
-            icon="fa-solid fa-calendar-day"
+            icon="ri-calendar-line-day"
             value={form.dueDate}
             onChange={set("dueDate")}
             compact
@@ -550,7 +550,7 @@ export default function TaskAssignment() {
           <FormField
             label="Task Instructions & Notes"
             type="textarea"
-            icon="fa-solid fa-comment-dots"
+            icon="ri-chat-3-line"
             value={form.description}
             onChange={set("description")}
             placeholder="Provide specific instructions or field location notes..."
@@ -560,7 +560,7 @@ export default function TaskAssignment() {
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
             <Button variant="secondary" type="button" onClick={() => closeModal()} style={{ padding: "7px 14px", fontSize: 12.5 }}>
-              <i className="fa-solid fa-xmark" /> Cancel
+              <i className="ri-close-line" /> Cancel
             </Button>
             <Button
               type="submit"
@@ -578,11 +578,11 @@ export default function TaskAssignment() {
             >
               {saving ? (
                 <>
-                  <i className="fa-solid fa-circle-notch spin" /> Dispatching…
+                  <i className="ri-loader-4-line spin" /> Dispatching…
                 </>
               ) : (
                 <>
-                  <i className="fa-solid fa-paper-plane" /> Dispatch Task
+                  <i className="ri-send-plane-line" /> Dispatch Task
                 </>
               )}
             </Button>

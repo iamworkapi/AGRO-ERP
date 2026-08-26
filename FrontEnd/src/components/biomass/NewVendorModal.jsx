@@ -86,7 +86,7 @@ export default function NewVendorModal({ isOpen, onClose, onSaved }) {
         >
           <div>
             <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
-              <i className="fa-solid fa-user-plus" style={{ color: "var(--primary)" }} />
+              <i className="ri-user-add-line" style={{ color: "var(--primary)" }} />
               Register New Raw Material Vendor
             </h3>
             <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>

@@ -54,13 +54,13 @@ export default function EmployeeLocationMap() {
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <i className="fa-solid fa-map-location-dot" style={{ color: "var(--primary)", fontSize: 14 }} />
+            <i className="ri-map-pin-user-line" style={{ color: "var(--primary)", fontSize: 14 }} />
             <h3 style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: "var(--ink)" }}>
               Warehouse Field Overview
             </h3>
           </div>
           <span style={{ fontSize: 11, color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-            <i className="fa-solid fa-circle-info" style={{ color: "var(--primary)" }} /> Illustrative positions, not live GPS
+            <i className="ri-information-line" style={{ color: "var(--primary)" }} /> Illustrative positions, not live GPS
           </span>
         </div>
 
@@ -146,7 +146,7 @@ export default function EmployeeLocationMap() {
                     gap: 4,
                   }}
                 >
-                  <i className="fa-solid fa-user" style={{ fontSize: 9, color: "#10B981" }} />
+                  <i className="ri-user-3-line" style={{ fontSize: 9, color: "#10B981" }} />
                   {loc.employee.split(" ")[0]} ({loc.warehouse})
                 </span>
               </div>
@@ -155,7 +155,7 @@ export default function EmployeeLocationMap() {
         </div>
 
         <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "var(--muted)", display: "flex", alignItems: "center", gap: 5 }}>
-          <i className="fa-solid fa-circle-info" style={{ color: "var(--primary)" }} />
+          <i className="ri-information-line" style={{ color: "var(--primary)" }} />
           Positions on the map are illustrative only - there is no GPS hardware integration yet. The list below reflects real attendance data.
         </p>
       </div>
@@ -171,7 +171,7 @@ export default function EmployeeLocationMap() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
-          <i className="fa-solid fa-location-dot" style={{ color: "var(--primary)", fontSize: 14 }} />
+          <i className="ri-map-pin-line" style={{ color: "var(--primary)", fontSize: 14 }} />
           <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--ink)" }}>
             Last Logged Check-In per Employee
           </h3>
@@ -204,14 +204,14 @@ export default function EmployeeLocationMap() {
                     <div>
                       <strong style={{ fontSize: 13, color: "var(--ink)" }}>{loc.employee}</strong>
                       <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                        <i className="fa-solid fa-warehouse" style={{ color: "var(--primary)", fontSize: 10 }} />
+                        <i className="ri-building-line" style={{ color: "var(--primary)", fontSize: 10 }} />
                         {loc.warehouse}
                       </p>
                     </div>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <span style={{ fontSize: 11.5, fontWeight: 700, color: "var(--primary-deep)", display: "block" }}>
-                      <i className="fa-solid fa-clock" style={{ fontSize: 10, marginRight: 4 }} />
+                      <i className="ri-time-line" style={{ fontSize: 10, marginRight: 4 }} />
                       {loc.lastSeen}
                     </span>
                     <Badge tone="success">{loc.accuracy}</Badge>

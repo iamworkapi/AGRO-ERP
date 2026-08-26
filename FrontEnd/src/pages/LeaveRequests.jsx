@@ -13,10 +13,10 @@ import { useDisclosure } from "../hooks/useDisclosure";
 import { toast } from "../utils/toast";
 
 const LEAVE_ICONS = {
-  "Casual Leave": "fa-solid fa-umbrella-beach",
-  "Sick Leave": "fa-solid fa-notes-medical",
-  "Earned Leave": "fa-solid fa-plane-departure",
-  "Emergency Leave": "fa-solid fa-kit-medical",
+  "Casual Leave": "ri-sun-cloudy-line",
+  "Sick Leave": "ri-nurse-line",
+  "Earned Leave": "ri-flight-takeoff-line",
+  "Emergency Leave": "ri-first-aid-kit-line",
 };
 
 const LEAVE_TONES = {
@@ -189,7 +189,7 @@ export default function LeaveRequests() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Awaiting Approval</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-clock-rotate-left" />
+              <i className="ri-time-line-rotate-left" />
             </div>
           </div>
 
@@ -229,7 +229,7 @@ export default function LeaveRequests() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Verified Leave Sanctions</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-circle-check" />
+              <i className="ri-checkbox-circle-fill" />
             </div>
           </div>
 
@@ -269,7 +269,7 @@ export default function LeaveRequests() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Declined Applications</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(239,68,68,0.3)", boxShadow: "0 0 14px rgba(239,68,68,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-circle-xmark" />
+              <i className="ri-close-circle-line" />
             </div>
           </div>
 
@@ -309,7 +309,7 @@ export default function LeaveRequests() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Leave Quota Register</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-calendar-minus" />
+              <i className="ri-calendar-line-minus" />
             </div>
           </div>
 
@@ -330,7 +330,7 @@ export default function LeaveRequests() {
               onClick={() => setStatusFilter("all")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-list-check" style={{ fontSize: 11 }} /> All Applications ({scopedRequests.length})
+              <i className="ri-list-check" style={{ fontSize: 11 }} /> All Applications ({scopedRequests.length})
             </button>
             <button
               type="button"
@@ -338,7 +338,7 @@ export default function LeaveRequests() {
               onClick={() => setStatusFilter("Pending")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-clock-rotate-left" style={{ fontSize: 11 }} /> Pending ({pendingCount})
+              <i className="ri-time-line-rotate-left" style={{ fontSize: 11 }} /> Pending ({pendingCount})
             </button>
             <button
               type="button"
@@ -346,7 +346,7 @@ export default function LeaveRequests() {
               onClick={() => setStatusFilter("Approved")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-circle-check" style={{ fontSize: 11 }} /> Approved ({approvedCount})
+              <i className="ri-checkbox-circle-fill" style={{ fontSize: 11 }} /> Approved ({approvedCount})
             </button>
             <button
               type="button"
@@ -354,7 +354,7 @@ export default function LeaveRequests() {
               onClick={() => setStatusFilter("Rejected")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-circle-xmark" style={{ fontSize: 11 }} /> Rejected ({rejectedCount})
+              <i className="ri-close-circle-line" style={{ fontSize: 11 }} /> Rejected ({rejectedCount})
             </button>
           </div>
         </div>
@@ -376,7 +376,7 @@ export default function LeaveRequests() {
                 boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)",
               }}
             >
-              <i className="fa-solid fa-calendar-plus" /> Apply for Leave
+              <i className="ri-calendar-line-plus" /> Apply for Leave
             </Button>
           }
           searchable
@@ -396,7 +396,7 @@ export default function LeaveRequests() {
               label: "Leave Category",
               render: (r) => (
                 <span style={{ fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <i className={LEAVE_ICONS[r.type] || "fa-solid fa-calendar-day"} style={{ color: "var(--primary)", fontSize: 11 }} />
+                  <i className={LEAVE_ICONS[r.type] || "ri-calendar-line-day"} style={{ color: "var(--primary)", fontSize: 11 }} />
                   {r.type}
                 </span>
               ),
@@ -406,7 +406,7 @@ export default function LeaveRequests() {
               label: "Warehouse Hub",
               render: (r) => (
                 <span style={{ fontWeight: 600, color: "var(--primary-deep)", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <i className="fa-solid fa-warehouse" style={{ fontSize: 11 }} />
+                  <i className="ri-building-line" style={{ fontSize: 11 }} />
                   {r.warehouse || assignedHub}
                 </span>
               ),
@@ -417,7 +417,7 @@ export default function LeaveRequests() {
               render: (r) => (
                 <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                   <span style={{ fontSize: 12.5, fontWeight: 700, color: "var(--ink)" }}>
-                    <i className="fa-regular fa-calendar" style={{ fontSize: 11, marginRight: 5, color: "var(--muted)" }} />
+                    <i className="ri-calendar-line" style={{ fontSize: 11, marginRight: 5, color: "var(--muted)" }} />
                     {r.dates}
                   </span>
                   {r.days && (
@@ -461,7 +461,7 @@ export default function LeaveRequests() {
                         onClick={() => handleApprove(r)}
                         style={{ padding: "4px 10px", fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, background: "var(--primary-tint)", color: "var(--primary-deep)", borderColor: "var(--primary)" }}
                       >
-                        <i className="fa-solid fa-check" /> Approve
+                        <i className="ri-check-line" /> Approve
                       </Button>
                       <Button
                         variant="secondary"
@@ -469,7 +469,7 @@ export default function LeaveRequests() {
                         onClick={() => handleReject(r)}
                         style={{ padding: "4px 10px", fontSize: 11, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4, color: "#EF4444", borderColor: "#FEE2E2", background: "#FEF2F2" }}
                       >
-                        <i className="fa-solid fa-xmark" /> Reject
+                        <i className="ri-close-line" /> Reject
                       </Button>
                     </>
                   ) : (
@@ -494,7 +494,7 @@ export default function LeaveRequests() {
             label="Employee Name"
             type="select"
             required
-            icon="fa-solid fa-user"
+            icon="ri-user-3-line"
             value={form.employee}
             onChange={set("employee")}
             options={employeeOptions}
@@ -508,7 +508,7 @@ export default function LeaveRequests() {
             type="select"
             required
             disabled={isSupervisor}
-            icon="fa-solid fa-warehouse"
+            icon="ri-building-line"
             value={isSupervisor ? assignedHub : form.warehouse}
             onChange={set("warehouse")}
             options={isSupervisor ? [assignedHub] : ["Manimau Centre", "Betiya Hata Store", "Sai Complex Yard", "Gorakhpur North"]}
@@ -520,7 +520,7 @@ export default function LeaveRequests() {
             label="Leave Category"
             type="select"
             required
-            icon="fa-solid fa-layer-group"
+            icon="ri-stack-line"
             value={form.type}
             onChange={set("type")}
             options={["Casual Leave", "Sick Leave", "Earned Leave", "Emergency Leave"]}
@@ -532,7 +532,7 @@ export default function LeaveRequests() {
             <FormField
               label="Start Date"
               type="date"
-              icon="fa-solid fa-calendar-day"
+              icon="ri-calendar-line-day"
               value={form.startDate}
               onChange={set("startDate")}
               compact
@@ -541,7 +541,7 @@ export default function LeaveRequests() {
             <FormField
               label="End Date"
               type="date"
-              icon="fa-solid fa-calendar-day"
+              icon="ri-calendar-line-day"
               value={form.endDate}
               onChange={set("endDate")}
               compact
@@ -553,7 +553,7 @@ export default function LeaveRequests() {
             label="Reason for Leave"
             type="textarea"
             required
-            icon="fa-solid fa-comment-dots"
+            icon="ri-chat-3-line"
             value={form.reason}
             onChange={set("reason")}
             placeholder="Provide brief details regarding reason for leave application..."
@@ -563,7 +563,7 @@ export default function LeaveRequests() {
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
             <Button variant="secondary" type="button" onClick={() => closeModal()} style={{ padding: "7px 14px", fontSize: 12.5 }}>
-              <i className="fa-solid fa-xmark" /> Cancel
+              <i className="ri-close-line" /> Cancel
             </Button>
             <Button
               type="submit"
@@ -581,11 +581,11 @@ export default function LeaveRequests() {
             >
               {saving ? (
                 <>
-                  <i className="fa-solid fa-circle-notch spin" /> Submitting…
+                  <i className="ri-loader-4-line spin" /> Submitting…
                 </>
               ) : (
                 <>
-                  <i className="fa-solid fa-paper-plane" /> Submit Request
+                  <i className="ri-send-plane-line" /> Submit Request
                 </>
               )}
             </Button>

@@ -148,63 +148,56 @@ export default function BiomassVendors() {
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="Buyer List"
+        title="Biomass Vendors & Suppliers"
         subtitle="Master directory for biomass procurement partners, supply contractors, and farmer collectives"
-        action={
-          <Button
-            onClick={() => navigate("/biomass/vendors/create")}
-            className="btn-glow"
-            style={{ padding: "7px 16px", fontSize: 12.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
-          >
-            <i className="fa-solid fa-plus" /> Create New Buyer
-          </Button>
-        }
+        icon="ri-store-2-line"
+        badge="VENDOR REPOSITORY"
       />
 
       {/* TOP KPI METRICS BAR */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }} className="responsive-grid-2">
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(37, 99, 235, 0.1)", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="fa-solid fa-users" />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(93, 214, 44, 0.15)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
+            <i className="ri-store-2-line" />
           </div>
           <div>
-            <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Active Buyers</span>
-            <strong style={{ fontSize: 15, color: "var(--ink)", display: "block", letterSpacing: "-0.02em" }}>{vendors.length} Partners</strong>
-            <span style={{ fontSize: 11, color: "#2563EB", fontWeight: 700 }}>100% Verified</span>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Active Vendors</span>
+            <strong style={{ fontSize: 16, color: "var(--ink)", display: "block", letterSpacing: "-0.02em" }}>{vendors.length} Partners</strong>
+            <span style={{ fontSize: 11, color: "var(--primary)", fontWeight: 700 }}>100% Verified</span>
           </div>
         </div>
 
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(217, 119, 6, 0.1)", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="fa-solid fa-file-contract" />
+        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(217, 119, 6, 0.12)", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
+            <i className="ri-file-line" />
           </div>
           <div>
             <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Contracted Volume</span>
-            <strong style={{ fontSize: 15, color: "#D97706", display: "block", letterSpacing: "-0.02em" }}>{totalContracted.toLocaleString("en-IN")} MT</strong>
+            <strong style={{ fontSize: 16, color: "#D97706", display: "block", letterSpacing: "-0.02em" }}>{totalContracted.toLocaleString("en-IN")} MT</strong>
             <span style={{ fontSize: 11, color: "var(--muted)" }}>Under Active Term Sheets</span>
           </div>
         </div>
 
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(16, 185, 129, 0.1)", color: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="fa-solid fa-truck-ramp-box" />
+        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(0, 210, 255, 0.12)", color: "#00D2FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
+            <i className="ri-truck-line" />
           </div>
           <div>
             <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Sourced to Date</span>
-            <strong style={{ fontSize: 15, color: "#10B981", display: "block", letterSpacing: "-0.02em" }}>{totalFulfilled.toFixed(2)} MT</strong>
-            <span style={{ fontSize: 11, color: "#10B981", fontWeight: 700 }}>
+            <strong style={{ fontSize: 16, color: "var(--ink)", display: "block", letterSpacing: "-0.02em" }}>{totalFulfilled.toFixed(2)} MT</strong>
+            <span style={{ fontSize: 11, color: "var(--primary)", fontWeight: 700 }}>
               {totalContracted > 0 ? Math.round((totalFulfilled / totalContracted) * 100) : 0}% Target Fulfilled
             </span>
           </div>
         </div>
 
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(126, 34, 206, 0.1)", color: "#7E22CE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="fa-solid fa-indian-rupee-sign" />
+        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, boxShadow: "var(--shadow-xs)" }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(168, 85, 247, 0.12)", color: "#A855F7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
+            <i className="ri-money-rupee-circle-line" />
           </div>
           <div>
             <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Procurement Spend</span>
-            <strong style={{ fontSize: 15, color: "#7E22CE", display: "block", letterSpacing: "-0.02em" }}>
+            <strong style={{ fontSize: 16, color: "var(--ink)", display: "block", letterSpacing: "-0.02em" }}>
               ₹{(totalSpend || 70949).toLocaleString("en-IN")}
             </strong>
             <span style={{ fontSize: 11, color: "var(--muted)" }}>Direct Inflow Disbursals</span>
@@ -214,29 +207,42 @@ export default function BiomassVendors() {
 
       {/* DATA TABLE VIEW */}
       <DataTable
-        title="Buyer List"
+        title="Biomass Vendor Directory"
         keyField="id"
         rows={filteredVendors}
         searchable
-        searchPlaceholder="Search buyer name, GSTIN, contact, belt..."
+        searchPlaceholder="Search vendor name, GSTIN, contact, belt..."
         right={
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={{
-              padding: "5px 10px",
-              fontSize: 12,
-              fontWeight: 700,
-              borderRadius: 6,
-              border: "1px solid var(--line-strong)",
-              background: "var(--surface)",
-              color: "var(--ink)",
-            }}
-          >
-            <option value="ALL">All Statuses</option>
-            <option value="ACTIVE">Active Buyers</option>
-            <option value="COMPLETED">Contract Completed</option>
-          </select>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{
+                height: 32,
+                padding: "0 10px",
+                fontSize: 12,
+                fontWeight: 700,
+                borderRadius: 8,
+                border: "1px solid var(--line-strong)",
+                background: "var(--surface)",
+                color: "var(--ink)",
+              }}
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="ACTIVE">Active Vendors</option>
+              <option value="COMPLETED">Contract Completed</option>
+            </select>
+
+            <Button
+              size="sm"
+              variant="primary"
+              icon="ri-add-line"
+              onClick={() => navigate("/biomass/vendors/create")}
+              style={{ height: 32, fontSize: 11.5, padding: "0 10px" }}
+            >
+              Add Vendor
+            </Button>
+          </div>
         }
         emptyMessage="No buyers match the search criteria."
         columns={[
@@ -247,7 +253,7 @@ export default function BiomassVendors() {
             render: (r) => (
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                 <span style={{ fontWeight: 700, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-building" style={{ color: "var(--primary)", fontSize: 12 }} />
+                  <i className="ri-building-line" style={{ color: "var(--primary)", fontSize: 12 }} />
                   {r.companyName}
                 </span>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, color: "var(--muted)" }}>
@@ -264,7 +270,7 @@ export default function BiomassVendors() {
             render: (r) => (
               <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 11 }}>
                 <span style={{ fontWeight: 700, color: "#0D3823", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-file-invoice" style={{ color: "var(--primary)", fontSize: 10 }} />
+                  <i className="ri-file-line-invoice" style={{ color: "var(--primary)", fontSize: 10 }} />
                   GST: {r.gstin || "09AAAAA0000A1Z5"}
                 </span>
                 <span style={{ color: "var(--muted)", fontWeight: 600 }}>
@@ -279,11 +285,11 @@ export default function BiomassVendors() {
             render: (r) => (
               <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 11 }}>
                 <span style={{ fontWeight: 700, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-user-check" style={{ color: "#059669", fontSize: 10 }} />
+                  <i className="ri-user-follow-line" style={{ color: "#059669", fontSize: 10 }} />
                   {r.representative || "Representative"}
                 </span>
                 <span style={{ color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-phone" style={{ color: "var(--primary)", fontSize: 9.5 }} />
+                  <i className="ri-phone-line" style={{ color: "var(--primary)", fontSize: 9.5 }} />
                   {r.contactNo}
                 </span>
               </div>
@@ -358,7 +364,7 @@ export default function BiomassVendors() {
                     gap: 4,
                   }}
                 >
-                  <i className="fa-solid fa-eye" style={{ fontSize: 10 }} /> View
+                  <i className="ri-eye-line" style={{ fontSize: 10 }} /> View
                 </button>
 
                 {/* Edit */}
@@ -380,7 +386,7 @@ export default function BiomassVendors() {
                     gap: 4,
                   }}
                 >
-                  <i className="fa-solid fa-pen-to-square" style={{ fontSize: 10, color: "#1B5E3A" }} /> Edit
+                  <i className="ri-edit-line" style={{ fontSize: 10, color: "#1B5E3A" }} /> Edit
                 </button>
 
                 {/* Delete */}
@@ -402,7 +408,7 @@ export default function BiomassVendors() {
                     gap: 4,
                   }}
                 >
-                  <i className="fa-solid fa-trash-can" style={{ fontSize: 10 }} />
+                  <i className="ri-delete-bin-line" style={{ fontSize: 10 }} />
                 </button>
               </div>
             ),

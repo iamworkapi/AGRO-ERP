@@ -60,7 +60,7 @@ export default function BiomassProcessing() {
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       {/* PAGE HEADER */}
       <PageHeader
-        title="⚙️ Stage 2: Process & Moisture Weight (प्रसंस्करण एवं नमी वजन)"
+        title="Stage 2: Process & Moisture Weight"
         subtitle="Standard GRN Lorry Weight Formula, Moisture / Ash Deduction Testing & Baler Compressing Log"
       />
 
@@ -68,7 +68,7 @@ export default function BiomassProcessing() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }} className="responsive-grid-2">
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-scale-balanced" />
+            <i className="ri-scales-3-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Actual Net Weight</p>
@@ -79,7 +79,7 @@ export default function BiomassProcessing() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#ECFDF5", color: "#047857", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-file-invoice" />
+            <i className="ri-file-line-invoice" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Adjusted GRN Invoice</p>
@@ -90,7 +90,7 @@ export default function BiomassProcessing() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-droplet" />
+            <i className="ri-drop-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Average Moisture %</p>
@@ -101,7 +101,7 @@ export default function BiomassProcessing() {
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: "#FAF5FF", color: "#7E22CE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="fa-solid fa-boxes-stacked" />
+            <i className="ri-stack-line" />
           </div>
           <div>
             <p style={{ margin: 0, fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Total Bales Produced</p>
@@ -111,13 +111,14 @@ export default function BiomassProcessing() {
         </div>
       </div>
 
-      {/* LIVE FORMULA CALCULATOR (IMAGE 2 SPECIFICATION) */}
-      <div style={{ background: "#FFFFFF", border: "2px solid #0F172A", borderRadius: 14, padding: 18, boxShadow: "0 4px 14px rgba(0,0,0,0.06)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, borderBottom: "1.5px solid #E2E8F0", paddingBottom: 10 }}>
+      {/* LIVE FORMULA CALCULATOR */}
+      <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 14, padding: 18, boxShadow: "var(--shadow-sm)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, borderBottom: "1.5px solid var(--line)", paddingBottom: 10 }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: "#0F172A", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 8 }}>
-              <span>⚖️</span> Processing GRN Lorry Weight Formula (मानकीकृत बिलिंग सूत्र)
+            <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: "var(--ink)", textTransform: "uppercase", display: "flex", alignItems: "center", gap: 8 }}>
+              <span></span> Processing GRN Lorry Weight Formula
             </h3>
+
             <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "#475569" }}>
               <strong>Formula:</strong> Actual Net Wt × (100% - Actual Moist% - Actual Ash%) / (100% - Agreed Moist% - Agreed Ash%)
             </p>
@@ -171,7 +172,7 @@ export default function BiomassProcessing() {
             onClick={() => navigate("/weighment/new")}
             style={{ padding: "8px 16px", fontSize: 12, fontWeight: 800, background: "#0F172A" }}
           >
-            ⚖️ Create New Weighbridge Entry
+            Create New Weighbridge Entry
           </Button>
         </div>
       </div>
@@ -180,7 +181,7 @@ export default function BiomassProcessing() {
       <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <h3 style={{ margin: 0, fontSize: 15, fontWeight: 900, color: "var(--ink)" }}>
-            📋 Stage 2: Weighbridge & Baler Compressing Log
+            Stage 2: Weighbridge & Baler Compressing Log
           </h3>
           <div style={{ display: "flex", gap: 10 }}>
             <select
@@ -228,7 +229,7 @@ export default function BiomassProcessing() {
                   onClick={() => setSelectedSlipForPrint(r)}
                   style={{ padding: "4px 10px", fontSize: 11, fontWeight: 700, background: "#EFF6FF", color: "#1E40AF", border: "1px solid #BFDBFE", borderRadius: 6, cursor: "pointer" }}
                 >
-                  🖨️ RST Slip
+                  RST Slip
                 </button>
               ),
             },

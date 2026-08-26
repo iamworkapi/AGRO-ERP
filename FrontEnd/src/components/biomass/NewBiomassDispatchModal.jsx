@@ -138,7 +138,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
         >
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
-              🚚 Stage 4: New Industrial Dispatch Gate Pass (आगे फ़ैक्ट्री भेजना)
+              Stage 4: New Industrial Dispatch Gate Pass (आगे फ़ैक्ट्री भेजना)
             </h3>
             <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
               Select saved buyer (Reliance / Balrampur) or create a new buyer company & issue Gate Pass
@@ -170,7 +170,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
                   cursor: "pointer",
                 }}
               >
-                {showAddBuyerForm ? "✕ Close New Buyer Form" : "➕ Add / Save Another Buyer"}
+                {showAddBuyerForm ? "✕ Close New Buyer Form" : "Add / Save Another Buyer"}
               </button>
             </div>
 
@@ -200,7 +200,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
                 {selectedBuyer && (
                   <div style={{ marginTop: 10, background: "#FFFFFF", padding: 10, borderRadius: 6, border: "1px solid #E2E8F0", fontSize: 11.5, color: "#334155" }}>
                     <div style={{ fontWeight: 800, color: "#0F172A" }}>{selectedBuyer.name} ({selectedBuyer.division})</div>
-                    <div style={{ color: "#475569", marginTop: 2 }}>📍 {selectedBuyer.address}</div>
+                    <div style={{ color: "#475569", marginTop: 2 }}>{selectedBuyer.address}</div>
                     <div style={{ fontWeight: 700, color: "#2563EB", marginTop: 2 }}>GSTIN: {selectedBuyer.gstin}</div>
                   </div>
                 )}
@@ -427,7 +427,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
                   boxShadow: "0 4px 12px rgba(0, 184, 107, 0.3)",
                 }}
               >
-                🚚 Generate Factory Gate Pass
+                Generate Factory Gate Pass
               </button>
             </div>
           </form>

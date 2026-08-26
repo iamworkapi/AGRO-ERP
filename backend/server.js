@@ -8,7 +8,8 @@ async function start() {
     await connectDB();
     await seedDefaultUsersIfNeeded();
   } catch (err) {
-    console.error("Database initialization warning:", err.message);
+    console.error("FATAL: Database initialization failed — server will NOT start.", err.message);
+    process.exit(1);
   }
 
   const server = app.listen(env.port, () => {

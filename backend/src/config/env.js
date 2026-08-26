@@ -2,7 +2,7 @@ const mongoUri = process.env.MONGODB_URI || "mongodb+srv://orrish2026_db_user:YD
 const jwtSecret = process.env.JWT_SECRET || "cee3f4b9d1662d2b2c86d047e690b4bc46277d1546f05e9ab3b1ebe9c39c473b";
 
 export const env = {
-  nodeEnv: process.env.NODE_ENV || "production",
+  nodeEnv: process.env.NODE_ENV || "development",
   port: Number(process.env.PORT) || 3000,
   corsOrigin: (process.env.CORS_ORIGIN || "http://localhost:5173,http://localhost:5174").split(",").map((s) => s.trim()),
   mongoUri,

@@ -31,7 +31,7 @@ function employeeCell(employee, index) {
         <span style={{ fontWeight: 700, color: "var(--ink)", fontSize: 13 }}>{employee.name}</span>
         {employee.employeeCode && (
           <span style={{ fontSize: 11, color: "var(--primary-deep)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-            <i className="fa-solid fa-id-card" style={{ fontSize: 10 }} />
+            <i className="ri-id-card-line" style={{ fontSize: 10 }} />
             {employee.employeeCode}
           </span>
         )}
@@ -152,7 +152,7 @@ export default function Employees() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Verified Active Duty</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#D1FAE5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(16,185,129,0.3)", boxShadow: "0 0 14px rgba(16,185,129,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-user-check" />
+              <i className="ri-user-follow-line" />
             </div>
           </div>
 
@@ -189,7 +189,7 @@ export default function Employees() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Sanctioned Leave</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEF3C7", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 14px rgba(245,158,11,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-umbrella-beach" />
+              <i className="ri-sun-cloudy-line" />
             </div>
           </div>
 
@@ -226,7 +226,7 @@ export default function Employees() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Deactivated Accounts</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#FEE2E2", color: "#EF4444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(239,68,68,0.3)", boxShadow: "0 0 14px rgba(239,68,68,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-user-xmark" />
+              <i className="ri-user-3-line-xmark" />
             </div>
           </div>
 
@@ -263,7 +263,7 @@ export default function Employees() {
               <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>Registered Personnel</div>
             </div>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: "#EFF6FF", color: "#2563EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, border: "1px solid rgba(59,130,246,0.3)", boxShadow: "0 0 14px rgba(59,130,246,0.35)", flexShrink: 0 }}>
-              <i className="fa-solid fa-users" />
+              <i className="ri-group-line" />
             </div>
           </div>
 
@@ -284,7 +284,7 @@ export default function Employees() {
               onClick={() => setFilterTab("all")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-list-check" style={{ fontSize: 11 }} /> All Staff ({scopedEmployees.length})
+              <i className="ri-list-check" style={{ fontSize: 11 }} /> All Staff ({scopedEmployees.length})
             </button>
             <button
               type="button"
@@ -292,7 +292,7 @@ export default function Employees() {
               onClick={() => setFilterTab("Active")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-user-check" style={{ fontSize: 11 }} /> Active ({activeCount})
+              <i className="ri-user-follow-line" style={{ fontSize: 11 }} /> Active ({activeCount})
             </button>
             <button
               type="button"
@@ -300,7 +300,7 @@ export default function Employees() {
               onClick={() => setFilterTab("On Leave")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-umbrella-beach" style={{ fontSize: 11 }} /> On Leave ({onLeaveCount})
+              <i className="ri-sun-cloudy-line" style={{ fontSize: 11 }} /> On Leave ({onLeaveCount})
             </button>
             <button
               type="button"
@@ -308,7 +308,7 @@ export default function Employees() {
               onClick={() => setFilterTab("Inactive")}
               style={{ padding: "6px 14px", fontSize: 12, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}
             >
-              <i className="fa-solid fa-user-xmark" style={{ fontSize: 11 }} /> Inactive ({inactiveCount})
+              <i className="ri-user-3-line-xmark" style={{ fontSize: 11 }} /> Inactive ({inactiveCount})
             </button>
           </div>
         </div>
@@ -330,7 +330,7 @@ export default function Employees() {
                 boxShadow: "0 3px 10px rgba(0, 184, 107, 0.3)",
               }}
             >
-              <i className="fa-solid fa-user-plus" /> Add Employee
+              <i className="ri-user-add-line" /> Add Employee
             </Button>
           }
           searchable
@@ -350,7 +350,7 @@ export default function Employees() {
               label: "Designation",
               render: (e) => (
                 <span style={{ fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  <i className="fa-solid fa-briefcase" style={{ color: "var(--primary)", fontSize: 11 }} />
+                  <i className="ri-briefcase-line" style={{ color: "var(--primary)", fontSize: 11 }} />
                   {e.designation || e.role || "Staff Member"}
                 </span>
               ),
@@ -360,7 +360,7 @@ export default function Employees() {
               label: "Warehouse Hub",
               render: (e) => (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontWeight: 600, color: "var(--primary-deep)" }}>
-                  <i className="fa-solid fa-warehouse" style={{ fontSize: 11 }} />
+                  <i className="ri-building-line" style={{ fontSize: 11 }} />
                   {e.warehouseId ? (
                     <Link to={`/warehouses/detail?id=${e.warehouseId}`} style={{ color: "var(--primary-deep)", textDecoration: "none" }}>
                       {e.warehouse}
@@ -379,13 +379,13 @@ export default function Employees() {
                 <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 12 }}>
                   {e.phone && (
                     <a href={`tel:${e.phone}`} style={{ color: "var(--ink)", textDecoration: "none", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-phone" style={{ fontSize: 10, color: "var(--muted)" }} />
+                      <i className="ri-phone-line" style={{ fontSize: 10, color: "var(--muted)" }} />
                       {e.phone}
                     </a>
                   )}
                   {e.email && (
                     <a href={`mailto:${e.email}`} style={{ color: "var(--muted)", textDecoration: "none", fontSize: 11.5, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="fa-solid fa-envelope" style={{ fontSize: 10, color: "var(--muted)" }} />
+                      <i className="ri-mail-line" style={{ fontSize: 10, color: "var(--muted)" }} />
                       {e.email}
                     </a>
                   )}
@@ -397,7 +397,7 @@ export default function Employees() {
               label: "Joined",
               render: (e) => (
                 <span style={{ fontSize: 12, color: "var(--ink-secondary)", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className="fa-solid fa-calendar-day" style={{ fontSize: 10, color: "var(--muted)" }} />
+                  <i className="ri-calendar-line-day" style={{ fontSize: 10, color: "var(--muted)" }} />
                   {e.dateOfJoining || "Recently"}
                 </span>
               ),
@@ -422,7 +422,7 @@ export default function Employees() {
                     onClick={() => navigate(`/employees/${e.id}/edit`)}
                     style={{ padding: "4px 10px", fontSize: 11.5, fontWeight: 600 }}
                   >
-                    <i className="fa-solid fa-pen" style={{ marginRight: 4 }} /> Edit
+                    <i className="ri-pen-line" style={{ marginRight: 4 }} /> Edit
                   </Button>
                   {e.status !== "Inactive" ? (
                     <Button
@@ -431,7 +431,7 @@ export default function Employees() {
                       onClick={() => handleDeactivate(e)}
                       style={{ padding: "4px 10px", fontSize: 11.5, fontWeight: 600, color: "#EF4444", borderColor: "#FEE2E2", background: "#FEF2F2" }}
                     >
-                      <i className="fa-solid fa-user-xmark" style={{ marginRight: 4 }} /> Deactivate
+                      <i className="ri-user-3-line-xmark" style={{ marginRight: 4 }} /> Deactivate
                     </Button>
                   ) : (
                     <span style={{ fontSize: 11.5, color: "var(--muted)", fontStyle: "italic", alignSelf: "center" }}>Off-Roster</span>
