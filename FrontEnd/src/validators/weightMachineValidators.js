@@ -10,7 +10,7 @@ const optionalPositiveNumber = z.preprocess(
 
 // Client-side mirror of backend/src/validators/weightMachine.validator.js.
 export const createWeightMachineSchema = z.object({
-  warehouseId: z.string().min(1, "Select a warehouse."),
+  warehouseId: z.string().optional(),
   machineCode: z.string().trim().min(2, "Machine code is required."),
   make: z.string().optional(),
   model: z.string().optional(),

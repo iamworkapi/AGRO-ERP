@@ -37,7 +37,27 @@ export default function WeightMachines() {
   const canAdd = Boolean(user); // Super Admin, Warehouse Admin, Supervisor all have access
   
   const { warehouses } = useWarehouses();
-  const myWarehouse = isScopedRole ? warehouses[0] : null;
+  
+  // Resolve assigned warehouse from user profile, localStorage or first available hub
+  const assignedWarehouse = useMemo(() => {
+    if (user?.warehouseId) {
+      const found = warehouses.find((w) => (w.id || w._id) === user.warehouseId);
+      if (found) return found;
+    }
+    if (user?.warehouse) {
+      if (typeof user.warehouse === "object") return user.warehouse;
+      const found = warehouses.find((w) => (w.id || w._id) === user.warehouse);
+      if (found) return found;
+    }
+    const storedWh = localStorage.getItem("active_warehouse_id") || localStorage.getItem("selectedWarehouseId");
+    if (storedWh) {
+      const found = warehouses.find((w) => (w.id || w._id) === storedWh);
+      if (found) return found;
+    }
+    return warehouses[0] || null;
+  }, [user, warehouses]);
+
+  const myWarehouse = isScopedRole ? assignedWarehouse : null;
 
   const { machines, status, error, reload, addMachine, updateMachine, deleteMachine } = useWeightMachines();
   const { isOpen: openAdd, open: openAddModal, close: closeAddModal } = useDisclosure();
@@ -52,10 +72,17 @@ export default function WeightMachines() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (isScopedRole && myWarehouse?.id) {
-      setForm((f) => (f.warehouseId ? f : { ...f, warehouseId: myWarehouse.id }));
+    const defaultWhId = assignedWarehouse?.id || assignedWarehouse?._id || warehouses[0]?.id || warehouses[0]?._id || "";
+    if (defaultWhId) {
+      setForm((f) => (f.warehouseId ? f : { ...f, warehouseId: defaultWhId }));
     }
-  }, [isScopedRole, myWarehouse?.id]);
+  }, [assignedWarehouse, warehouses]);
+
+  function handleOpenAdd() {
+    const defaultWhId = assignedWarehouse?.id || assignedWarehouse?._id || warehouses[0]?.id || warehouses[0]?._id || "";
+    setForm(emptyForm(defaultWhId));
+    openAddModal();
+  }
 
   async function handleDeleteMachine(id, code) {
     if (!window.confirm(`Are you sure you want to remove scale ${code || ""}?`)) return;
@@ -82,14 +109,19 @@ export default function WeightMachines() {
 
   async function handleAddSubmit(e) {
     e.preventDefault();
-    const parsed = validateOrToast(createWeightMachineSchema, form);
+    const effectiveWarehouseId = form.warehouseId || assignedWarehouse?.id || assignedWarehouse?._id || warehouses[0]?.id || warehouses[0]?._id || undefined;
+    const submissionData = {
+      ...form,
+      warehouseId: effectiveWarehouseId,
+    };
+    const parsed = validateOrToast(createWeightMachineSchema, submissionData);
     if (!parsed) return;
 
     setSaving(true);
     try {
       const created = await addMachine(parsed);
       toast.success(`Weight Machine ${created.machineCode} registered successfully.`);
-      setForm(emptyForm(myWarehouse?.id || ""));
+      setForm(emptyForm(effectiveWarehouseId || ""));
       closeAddModal();
     } catch (err) {
       toast.error(err?.response?.data?.error?.message || err.message || "Could not add this weight machine.");
@@ -224,7 +256,7 @@ export default function WeightMachines() {
             </div>
 
             {canAdd && (
-              <Button onClick={() => openAddModal()}>
+              <Button onClick={() => handleOpenAdd()}>
                 <i className="ri-add-line" style={{ marginRight: 6 }} /> Register Scale
               </Button>
             )}
@@ -480,7 +512,7 @@ export default function WeightMachines() {
               <p style={{ margin: "0 0 14px", fontSize: 13, color: "var(--muted)" }}>
                 Register your first electronic weighbridge or scale to begin automated PRALLI stock weighment.
               </p>
-              <Button onClick={() => openAddModal()}>
+              <Button onClick={() => handleOpenAdd()}>
                 <i className="ri-add-line" style={{ marginRight: 6 }} /> Register Scale / Machine
               </Button>
             </div>
@@ -642,20 +674,52 @@ export default function WeightMachines() {
             <FormField label="Capacity (kg)" type="number" value={form.capacityKg} onChange={set("capacityKg")} placeholder="60000" />
             <FormField label="Installed On" type="date" value={form.installedOn} onChange={set("installedOn")} />
           </div>
-          <FormField
-            label="Warehouse Hub Assignment"
-            type="select"
-            required
-            disabled={isScopedRole}
-            value={form.warehouseId}
-            onChange={set("warehouseId")}
-            options={warehouses.map((w) => ({ value: w.id || w._id, label: `${w.name} (${w.code})` }))}
-          />
-          {isScopedRole && (
-            <p style={{ fontSize: 11, color: "var(--muted)", margin: "-8px 0 12px" }}>
-              Locked to your assigned warehouse.
-            </p>
+          
+          {/* Warehouse Hub Display / Selector */}
+          {isScopedRole ? (
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 6 }}>
+                Warehouse Hub Assignment <span style={{ color: "var(--status-error)" }}>*</span>
+              </label>
+              <div
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: 10,
+                  background: "var(--canvas)",
+                  border: "1px solid var(--line)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: "var(--ink)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <i className="ri-building-2-line" style={{ color: "var(--primary)", fontSize: 16 }} />
+                  <span>{assignedWarehouse?.name || "Main Regional Warehouse Hub"}</span>
+                  {assignedWarehouse?.code && (
+                    <span style={{ fontSize: 11, background: "var(--primary-tint)", color: "var(--primary-deep)", padding: "2px 8px", borderRadius: 6 }}>
+                      {assignedWarehouse.code}
+                    </span>
+                  )}
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                  <i className="ri-lock-line" /> Auto-Bound (Read-Only)
+                </span>
+              </div>
+            </div>
+          ) : (
+            <FormField
+              label="Warehouse Hub Assignment"
+              type="select"
+              required
+              value={form.warehouseId || assignedWarehouse?.id || assignedWarehouse?._id || ""}
+              onChange={set("warehouseId")}
+              options={warehouses.map((w) => ({ value: w.id || w._id, label: `${w.name} (${w.code})` }))}
+            />
           )}
+
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
             <Button variant="secondary" type="button" onClick={() => closeAddModal()}>Cancel</Button>
             <Button type="submit" disabled={saving}>{saving ? "Registering…" : "Register Scale"}</Button>

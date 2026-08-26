@@ -7,7 +7,7 @@ const optionalPositiveNumber = z.preprocess(
 );
 
 export const createWeightMachineSchema = z.object({
-  warehouseId: objectId("warehouseId"),
+  warehouseId: objectId("warehouseId").optional(),
   machineCode: z.string().min(2, "Machine code is required."),
   make: z.string().optional(),
   model: z.string().optional(),

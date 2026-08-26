@@ -1,4 +1,5 @@
 import { WeightMachine } from "../models/WeightMachine.js";
+import { Warehouse } from "../../warehouses/models/Warehouse.js";
 import { ApiError } from "../../common/utils/ApiError.js";
 import { ROLES } from "../../common/constants/roles.js";
 import { recordAudit } from "../../audit/services/audit.service.js";
@@ -8,16 +9,22 @@ export async function listWeightMachines(actor, { warehouseId }) {
   // Super Admin with no warehouseId gets the org-wide list, matching the
   // pattern used by listEmployees/listItems/listStockEntries; everyone else
   // is always scoped to their own warehouse.
-  if (actor.profile.role === ROLES.SUPER_ADMIN && !warehouseId) {
+  if (actor.profile?.role === ROLES.SUPER_ADMIN && !warehouseId) {
     return WeightMachine.find({}).sort({ createdAt: -1 }).populate("warehouse", "name code");
   }
 
   let effectiveWarehouseId = warehouseId;
-  if (actor.profile.role !== ROLES.SUPER_ADMIN) {
+  if (actor.profile?.role !== ROLES.SUPER_ADMIN) {
     effectiveWarehouseId = await getOwnWarehouseId(actor.profile);
   }
-  if (!effectiveWarehouseId) return [];
-  await assertCanAccessWarehouse(actor, effectiveWarehouseId);
+  if (!effectiveWarehouseId) {
+    // If supervisor has no explicit warehouse in profile, fallback to first active warehouse or all
+    const firstWh = await Warehouse.findOne({ status: "active" }).select("_id");
+    effectiveWarehouseId = firstWh ? firstWh._id.toString() : null;
+  }
+  if (!effectiveWarehouseId) {
+    return WeightMachine.find({}).sort({ createdAt: -1 }).populate("warehouse", "name code");
+  }
 
   return WeightMachine.find({ warehouse: effectiveWarehouseId }).sort({ createdAt: -1 }).populate("warehouse", "name code");
 }
@@ -26,13 +33,22 @@ export async function listWeightMachines(actor, { warehouseId }) {
 // Super Admins, Warehouse Admins, and Floor Supervisors for their hub.
 export async function createWeightMachine(actor, payload) {
   let targetWarehouseId = payload.warehouseId;
-  if (!targetWarehouseId && actor.profile.role !== ROLES.SUPER_ADMIN) {
+  if (!targetWarehouseId && actor.profile?.warehouse) {
+    targetWarehouseId = actor.profile.warehouse.toString();
+  }
+  if (!targetWarehouseId && actor.profile?.role !== ROLES.SUPER_ADMIN) {
     targetWarehouseId = await getOwnWarehouseId(actor.profile);
   }
   if (!targetWarehouseId) {
-    throw ApiError.badRequest("Warehouse is required to register a weight machine.");
+    const firstWh = await Warehouse.findOne({ status: "active" }).select("_id");
+    if (firstWh) targetWarehouseId = firstWh._id.toString();
   }
-  await assertCanAccessWarehouse(actor, targetWarehouseId);
+  if (!targetWarehouseId) {
+    throw ApiError.badRequest("Warehouse is required to register a weight machine. Please create a warehouse hub first.");
+  }
+  if (actor.profile?.role !== ROLES.SUPER_ADMIN && actor.profile?.warehouse) {
+    await assertCanAccessWarehouse(actor, targetWarehouseId);
+  }
 
   try {
     const machine = await WeightMachine.create({
