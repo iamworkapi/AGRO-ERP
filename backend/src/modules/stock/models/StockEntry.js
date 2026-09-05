@@ -24,6 +24,19 @@ const stockEntrySchema = new mongoose.Schema(
     ratePerMt: { type: Number, min: 0, default: 1900 },
     actualWeightKg: { type: Number },
     totalAmountRs: { type: Number },
+    purchasedProducts: [
+      {
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+        productName: { type: String, trim: true },
+        unit: { type: String, default: "PCS" },
+        quantity: { type: Number, min: 0, default: 0 },
+        rate: { type: Number, min: 0, default: 0 },
+        amount: { type: Number, min: 0, default: 0 },
+      },
+    ],
+    productPurchaseTotalRs: { type: Number, default: 0 },
+    netPayableToPartyRs: { type: Number, default: 0 },
+    netReceivableFromPartyRs: { type: Number, default: 0 },
     status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
     recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -48,6 +61,17 @@ stockEntrySchema.pre("validate", function assertGrossNotBelowTare(next) {
     this.actualWeightKg = Math.max(0, this.netWeightKg - deductionKg);
     const rate = this.ratePerMt || 1900;
     this.totalAmountRs = Math.round((this.actualWeightKg / 1000) * rate * 100) / 100;
+
+    const purchaseTotal = (this.purchasedProducts || []).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    this.productPurchaseTotalRs = Math.round(purchaseTotal * 100) / 100;
+    if (this.totalAmountRs >= this.productPurchaseTotalRs) {
+      this.netPayableToPartyRs = Math.round((this.totalAmountRs - this.productPurchaseTotalRs) * 100) / 100;
+      this.netReceivableFromPartyRs = 0;
+    } else {
+      this.netPayableToPartyRs = 0;
+      this.netReceivableFromPartyRs = Math.round((this.productPurchaseTotalRs - this.totalAmountRs) * 100) / 100;
+    }
+
     next();
   }
 });

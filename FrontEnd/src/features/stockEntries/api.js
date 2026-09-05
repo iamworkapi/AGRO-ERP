@@ -69,6 +69,17 @@ export async function createStockEntry(payload) {
     allowedMoisturePct: payload.allowedMoisturePct || undefined,
     deductionPct: payload.deductionPct || undefined,
     ratePerMt: payload.ratePerMt || undefined,
+    purchasedProducts: payload.purchasedProducts || undefined,
   });
   return adaptStockEntry(data.data);
+}
+
+export async function updateStockEntry(id, payload) {
+  const { data } = await apiClient.patch(`/stock-entries/${id}`, payload);
+  return adaptStockEntry(data.data);
+}
+
+export async function deleteStockEntry(id) {
+  const { data } = await apiClient.delete(`/stock-entries/${id}`);
+  return data.data;
 }

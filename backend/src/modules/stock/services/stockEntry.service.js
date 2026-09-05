@@ -1,5 +1,6 @@
 import { StockEntry } from "../models/StockEntry.js";
 import { WeightMachine } from "../../weighment/models/WeightMachine.js";
+import { Product } from "../../products/models/Product.js";
 import { ApiError } from "../../common/utils/ApiError.js";
 import { ROLES } from "../../common/constants/roles.js";
 import { recordAudit } from "../../audit/services/audit.service.js";
@@ -62,9 +63,41 @@ export async function createStockEntry(actor, payload) {
       allowedMoisturePct: payload.allowedMoisturePct,
       deductionPct: payload.deductionPct,
       ratePerMt: payload.ratePerMt,
+      purchasedProducts: payload.purchasedProducts || [],
       recordedBy: actor.profile._id,
     });
     await entry.populate("warehouse", "name code");
+
+    // Automatically deduct purchased product inventory from Product catalog
+    if (payload.purchasedProducts && payload.purchasedProducts.length > 0) {
+      for (const item of payload.purchasedProducts) {
+        if (item.productId && Number(item.quantity) > 0) {
+          try {
+            await Product.findByIdAndUpdate(item.productId, {
+              $inc: { stockQty: -Number(item.quantity) },
+            });
+          } catch (e) {
+            console.error("[stockEntry] Failed to deduct product stock:", e);
+          }
+        }
+      }
+
+      await recordAudit({
+        actor,
+        action: "product_issued_barter",
+        entityType: "product",
+        entityId: entry._id,
+        warehouseId: entry.warehouse,
+        metadata: {
+          slipNo: entry.slipNo,
+          partyName: entry.partyName,
+          vehicleNo: entry.vehicleNo,
+          purchasedProducts: payload.purchasedProducts,
+          productPurchaseTotalRs: entry.productPurchaseTotalRs,
+          netPayableToPartyRs: entry.netPayableToPartyRs,
+        },
+      });
+    }
 
     await recordAudit({ actor, action: "stock_entry.create", entityType: "stock_entry", entityId: entry._id, warehouseId: entry.warehouse, metadata: { slipNo: entry.slipNo, netWeightKg: entry.netWeightKg } });
     return entry;
@@ -97,4 +130,72 @@ export async function reviewStockEntry(actor, id, status) {
 
   await recordAudit({ actor, action: `stock_entry.${status}`, entityType: "stock_entry", entityId: id, warehouseId: existing.warehouse });
   return existing;
+}
+
+export async function updateStockEntry(actor, id, payload) {
+  const existing = await StockEntry.findById(id);
+  if (!existing) throw ApiError.notFound("Stock entry not found.");
+
+  if (actor.profile.role !== ROLES.SUPER_ADMIN) {
+    const ownWarehouseId = await getOwnWarehouseId(actor.profile);
+    if (ownWarehouseId !== existing.warehouse.toString()) {
+      throw ApiError.forbidden("You can only update stock entries in your own warehouse.");
+    }
+  }
+
+  // Prevent editing approved/rejected entries
+  if (existing.status === "approved" || existing.status === "rejected") {
+    throw ApiError.badRequest("Cannot edit a reviewed entry. Approve or reject the updated entry separately.");
+  }
+
+  const allowedFields = [
+    "slipNo", "entryType", "commodity", "partyName", "vehicleNo",
+    "grossWeightKg", "tareWeightKg", "moisturePct", "allowedMoisturePct",
+    "deductionPct", "ratePerMt", "purchasedProducts",
+  ];
+
+  allowedFields.forEach((field) => {
+    if (payload[field] !== undefined) {
+      existing[field] = payload[field];
+    }
+  });
+
+  await existing.save();
+  await recordAudit({ actor, action: "stock_entry.update", entityType: "stock_entry", entityId: id, warehouseId: existing.warehouse, metadata: { slipNo: existing.slipNo } });
+  return existing;
+}
+
+export async function deleteStockEntry(actor, id) {
+  const existing = await StockEntry.findById(id);
+  if (!existing) throw ApiError.notFound("Stock entry not found.");
+
+  if (actor.profile.role !== ROLES.SUPER_ADMIN) {
+    const ownWarehouseId = await getOwnWarehouseId(actor.profile);
+    if (ownWarehouseId !== existing.warehouse.toString()) {
+      throw ApiError.forbidden("You can only delete stock entries in your own warehouse.");
+    }
+  }
+
+  if (existing.status === "approved" || existing.status === "rejected") {
+    throw ApiError.badRequest("Cannot delete a reviewed entry. Contact a super admin if needed.");
+  }
+
+  const slipNo = existing.slipNo;
+  const warehouseId = existing.warehouse;
+
+  // Restore purchased product stock if products were involved
+  if (existing.purchasedProducts && existing.purchasedProducts.length > 0) {
+    for (const item of existing.purchasedProducts) {
+      if (item.productId && Number(item.quantity) > 0) {
+        try {
+          await Product.findByIdAndUpdate(item.productId, { $inc: { stockQty: Number(item.quantity) } });
+        } catch (e) {
+          console.error("[stockEntry] Failed to restore product stock on delete:", e);
+        }
+      }
+    }
+  }
+
+  await StockEntry.findByIdAndDelete(id);
+  await recordAudit({ actor, action: "stock_entry.delete", entityType: "stock_entry", entityId: id, warehouseId, metadata: { slipNo } });
 }

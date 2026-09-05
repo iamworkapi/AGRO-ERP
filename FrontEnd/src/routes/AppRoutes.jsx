@@ -111,6 +111,7 @@ export default function AppRoutes() {
 
         <Route path="weighment" element={<Weighment />} />
         <Route path="weighment/new" element={<CreateWeighmentSlip />} />
+        <Route path="weighment/:id/edit" element={<CreateWeighmentSlip />} />
         <Route path="weighment/machines" element={<WeightMachines />} />
         <Route path="weighment/deduction-slabs" element={<DeductionSlabConfig />} />
 

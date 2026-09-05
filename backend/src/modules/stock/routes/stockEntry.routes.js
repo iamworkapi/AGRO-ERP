@@ -3,7 +3,7 @@ import * as stockEntryController from "../controllers/stockEntry.controller.js";
 import { authenticate } from "../../common/middleware/authenticate.js";
 import { authorize } from "../../common/middleware/authorize.js";
 import { validate } from "../../common/middleware/validate.js";
-import { createStockEntrySchema, reviewStockEntrySchema, listStockEntriesQuerySchema } from "../validators/stockEntry.validator.js";
+import { createStockEntrySchema, updateStockEntrySchema, reviewStockEntrySchema, listStockEntriesQuerySchema } from "../validators/stockEntry.validator.js";
 import { ROLES } from "../../common/constants/roles.js";
 
 const router = Router();
@@ -15,5 +15,7 @@ router.post("/", authorize(ROLES.SUPERVISOR, ROLES.SUPER_ADMIN), validate(create
 // Approve/reject is the admin-oversight step, so the Supervisor who logged
 // the entry is deliberately excluded from reviewing their own work.
 router.patch("/:id/review", authorize(ROLES.WAREHOUSE_ADMIN, ROLES.SUPER_ADMIN), validate(reviewStockEntrySchema), stockEntryController.review);
+router.patch("/:id", authorize(ROLES.SUPERVISOR, ROLES.SUPER_ADMIN), validate(updateStockEntrySchema), stockEntryController.update);
+router.delete("/:id", authorize(ROLES.SUPERVISOR, ROLES.SUPER_ADMIN), stockEntryController.remove);
 
 export default router;

@@ -13,6 +13,23 @@ import { toast } from "../utils/toast";
 
 const STATUS_TONE = { approved: "success", pending: "warning", rejected: "error" };
 
+function iconBtnStyle(iconColor, bgColor) {
+  return {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    border: `1px solid ${bgColor}`,
+    background: bgColor,
+    color: iconColor,
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 14,
+    transition: "all 150ms ease",
+  };
+}
+
 export default function Weighment() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -20,7 +37,7 @@ export default function Weighment() {
   const { warehouses } = useWarehouses();
   const myWarehouseName = isScopedRole ? warehouses[0]?.name : null;
 
-  const { entries, status, error } = useStockEntries();
+  const { entries, status, error, reload, deleteEntry } = useStockEntries();
 
   const [activeTab, setActiveTab] = useState("register"); // "register" | "list"
   const [commodityFilter, setCommodityFilter] = useState("ALL");
@@ -128,6 +145,12 @@ export default function Weighment() {
     const partyName = r.partyName || "";
     const vehicleNo = r.vehicleNo || "";
     const commodity = r.commodity || "PRALLI";
+
+    const purchasedProducts = r.purchasedProducts || [];
+    const hasProducts = purchasedProducts.length > 0;
+    const goodsTotal = r.productPurchaseTotalRs || (hasProducts ? purchasedProducts.reduce((sum, p) => sum + (Number(p.amount) || 0), 0) : 0);
+    const netPayable = r.netPayableToPartyRs != null ? r.netPayableToPartyRs : (hasProducts ? Math.max(0, totalAmount - goodsTotal) : totalAmount);
+    const netReceivable = r.netReceivableFromPartyRs != null ? r.netReceivableFromPartyRs : (hasProducts ? Math.max(0, goodsTotal - totalAmount) : 0);
 
     printWin.document.write(`<!DOCTYPE html>
 <html>
@@ -493,15 +516,59 @@ export default function Weighment() {
         </tbody>
       </table>
 
+      ${hasProducts ? `
+      <!-- Products Purchased Against Weighment Bill -->
+      <div class="section-title" style="margin-top:10px; background:#fef3c7; color:#92400e; border-color:#f59e0b;">
+        Products Purchased Against Weighment Bill
+      </div>
+      <table class="weight-table" style="margin-bottom:12px; border-color:#f59e0b;">
+        <thead>
+          <tr style="background:#fffbeb;">
+            <th style="text-align:left; border-color:#f59e0b;">Item / Product</th>
+            <th style="text-align:center; border-color:#f59e0b;">Qty</th>
+            <th style="text-align:right; border-color:#f59e0b;">Rate (₹)</th>
+            <th style="text-align:right; border-color:#f59e0b;">Total (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${purchasedProducts.map(p => `
+            <tr>
+              <td style="text-align:left; font-weight:700; border-color:#f59e0b;">${p.productName}</td>
+              <td style="text-align:center; border-color:#f59e0b;">${p.quantity} ${p.unit || 'Units'}</td>
+              <td style="text-align:right; border-color:#f59e0b;">₹${(Number(p.rate) || 0).toLocaleString('en-IN')}</td>
+              <td style="text-align:right; font-weight:700; border-color:#f59e0b;">₹${(Number(p.amount) || 0).toLocaleString('en-IN')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      ` : ''}
+
       <!-- Payment Box -->
-      <div class="payment-box">
-        <div class="rate-info">
-          <div>Agreed Rate: &#8377; ${rate.toLocaleString("en-IN")} / MT</div>
+      <div class="payment-box" style="${hasProducts ? 'flex-direction:column; align-items:stretch; gap:6px;' : ''}">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="rate-info">
+            <div>Agreed Rate: &#8377; ${rate.toLocaleString("en-IN")} / MT</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:11px; font-weight:bold; text-transform:uppercase;">Pralli Bill Total:</span>
+            <span style="font-size:14px; font-weight:bold;">&#8377; ${totalAmount.toLocaleString("en-IN")}</span>
+          </div>
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="font-size:11px; font-weight:bold; text-transform:uppercase;">Total Payable:</span>
-          <span class="total-amt">&#8377; ${totalAmount.toLocaleString("en-IN")}</span>
+
+        ${hasProducts ? `
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #cbd5e1; padding-top:4px; font-size:11px; color:#b45309; font-weight:700;">
+          <span>Less: Purchased Products Deducted:</span>
+          <span>- &#8377; ${goodsTotal.toLocaleString("en-IN")}</span>
         </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:2px solid #000; padding-top:6px;">
+          <span style="font-size:12px; font-weight:900; text-transform:uppercase; color:${netPayable > 0 ? '#16a34a' : '#ea580c'};">
+            ${netPayable > 0 ? 'Net Cash Payable to Vendor:' : 'Net Cash Receivable from Vendor:'}
+          </span>
+          <span style="font-size:16px; font-weight:900; color:${netPayable > 0 ? '#16a34a' : '#ea580c'};">
+            &#8377; ${(netPayable > 0 ? netPayable : netReceivable).toLocaleString("en-IN")}
+          </span>
+        </div>
+        ` : ''}
       </div>
 
       <div class="terms">
@@ -545,6 +612,33 @@ export default function Weighment() {
     const rate = r.ratePerMt || 1900;
     const totalAmt = r.totalAmountRs || 0;
 
+    let goodsSection = "";
+    let settlementSection = `*TOTAL AMOUNT:* ₹${totalAmt.toLocaleString("en-IN")}\n`;
+    if (r.purchasedProducts && r.purchasedProducts.length > 0) {
+      const pItems = r.purchasedProducts.map(p => `  • ${p.productName}: ${p.quantity} ${p.unit || 'Units'} @ ₹${Number(p.rate).toLocaleString("en-IN")} = ₹${Number(p.amount).toLocaleString("en-IN")}`).join("\n");
+      const goodsTotal = r.productPurchaseTotalRs || r.purchasedProducts.reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
+      const netPayable = r.netPayableToPartyRs != null ? r.netPayableToPartyRs : Math.max(0, totalAmt - goodsTotal);
+      const netReceivable = r.netReceivableFromPartyRs != null ? r.netReceivableFromPartyRs : Math.max(0, goodsTotal - totalAmt);
+
+      goodsSection =
+        `-----------------------------------\n` +
+        `🛍️ *PURCHASED PRODUCTS:*\n` +
+        `${pItems}\n` +
+        `*Total Goods Deducted:* -₹${goodsTotal.toLocaleString("en-IN")}\n`;
+
+      if (netReceivable > 0) {
+        settlementSection =
+          `*Pralli Bill Total:* ₹${totalAmt.toLocaleString("en-IN")}\n` +
+          `*Goods Deducted:* -₹${goodsTotal.toLocaleString("en-IN")}\n` +
+          `⚠️ *NET CASH DUE FROM VENDOR:* ₹${netReceivable.toLocaleString("en-IN")}\n`;
+      } else {
+        settlementSection =
+          `*Pralli Bill Total:* ₹${totalAmt.toLocaleString("en-IN")}\n` +
+          `*Goods Deducted:* -₹${goodsTotal.toLocaleString("en-IN")}\n` +
+          `💰 *FINAL NET PAYABLE TO VENDOR:* ₹${netPayable.toLocaleString("en-IN")}\n`;
+      }
+    }
+
     const text =
       `*KUSUMGANGA AGRO SOLUTIONS PVT. LTD.* \n` +
       `*Center:* ${r.warehouse || "Gorakhpur Center"}\n` +
@@ -561,7 +655,8 @@ export default function Weighment() {
       `✂️ *Deduction:* ${r.deductionPct || 0}%\n` +
       `*Actual Payable Weight:* ${actualMt} MT\n` +
       `*Rate:* ₹${rate.toLocaleString("en-IN")} / MT\n` +
-      `*TOTAL AMOUNT:* ₹${totalAmt.toLocaleString("en-IN")}\n` +
+      goodsSection +
+      settlementSection +
       `-----------------------------------\n` +
       `Automated Weighbridge Token - Kusumganga Agro Solutions.`;
 
@@ -841,46 +936,61 @@ export default function Weighment() {
             {
               key: "totalAmountRs",
               label: "TOTAL AMOUNT (₹)",
-              render: (r) => (
-                <strong style={{ color: "var(--primary)", fontSize: 13 }}>
-                  ₹{(r.totalAmountRs || 0).toLocaleString("en-IN")}
-                </strong>
-              ),
+              render: (r) => {
+                const hasProducts = r.purchasedProducts && r.purchasedProducts.length > 0;
+                const netPayable = r.netPayableToPartyRs != null ? r.netPayableToPartyRs : r.totalAmountRs;
+                const netReceivable = r.netReceivableFromPartyRs || 0;
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    {hasProducts ? (
+                      <>
+                        <span style={{ fontSize: 11, color: "var(--muted-color)", textDecoration: "line-through" }}>
+                          ₹{(r.totalAmountRs || 0).toLocaleString("en-IN")}
+                        </span>
+                        <div>
+                          <span style={{ fontSize: 10, background: "#fef3c7", color: "#b45309", padding: "1px 5px", borderRadius: 4, fontWeight: 700 }}>
+                            -₹{(r.productPurchaseTotalRs || 0).toLocaleString("en-IN")} Goods
+                          </span>
+                        </div>
+                        {netPayable > 0 ? (
+                          <strong style={{ color: "#16a34a", fontSize: 12 }}>
+                            Net: ₹{netPayable.toLocaleString("en-IN")}
+                          </strong>
+                        ) : (
+                          <strong style={{ color: "#ea580c", fontSize: 12 }}>
+                            Due: ₹{netReceivable.toLocaleString("en-IN")}
+                          </strong>
+                        )}
+                      </>
+                    ) : (
+                      <strong style={{ color: "var(--primary)", fontSize: 13 }}>
+                        ₹{(r.totalAmountRs || 0).toLocaleString("en-IN")}
+                      </strong>
+                    )}
+                  </div>
+                );
+              },
             },
             {
               key: "actions",
               label: "ACTIONS",
               render: (r) => (
-                <div style={{ display: "flex", gap: 6 }}>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    title="Print Receipt Slip PDF"
-                    onClick={() => triggerDirectPrint(r)}
-                    style={{ height: 28, fontSize: 11, padding: "0 8px" }}
-                  >
-                    <i className="ri-printer-line" style={{ marginRight: 3 }} /> Print
-                  </Button>
-
-                  <button
-                    type="button"
-                    title="Share via WhatsApp"
-                    onClick={() => handleShareWhatsApp(r)}
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 8,
-                      border: "none",
-                      background: "#25D366",
-                      color: "#FFFFFF",
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 14,
-                    }}
-                  >
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "var(--canvas)", padding: "3px 5px", borderRadius: 10, border: "1px solid var(--line)" }}>
+                  <button type="button" title="View Details" onClick={() => setSelectedSlipForPrint(r)} style={iconBtnStyle("#6b7280", "#e5e7eb")}>
+                    <i className="ri-eye-line" />
+                  </button>
+                  <button type="button" title="Edit Entry" onClick={() => navigate(`/weighment/${r.id}/edit`)} style={iconBtnStyle("#0284c7", "#7dd3fc")}>
+                    <i className="ri-edit-line" />
+                  </button>
+                  <button type="button" title="Print Receipt" onClick={() => triggerDirectPrint(r)} style={iconBtnStyle("#7c3aed", "#e9d5ff")}>
+                    <i className="ri-printer-line" />
+                  </button>
+                  <button type="button" title="Share via WhatsApp" onClick={() => handleShareWhatsApp(r)} style={{ ...iconBtnStyle("#25D366", "#dcfce7"), background: "#25D366", color: "#fff", border: "none" }}>
                     <i className="ri-whatsapp-line" />
+                  </button>
+                  <div style={{ width: 1, height: 18, background: "var(--line)", margin: "0 2px" }} />
+                  <button type="button" title="Delete Entry" onClick={async () => { if (window.confirm("Delete this weighment slip? This cannot be undone.")) { try { await deleteEntry(r.id); toast.success("Slip deleted."); reload(); } catch (err) { toast.error(err?.response?.data?.error?.message || "Delete failed."); } } }} style={iconBtnStyle("#dc2626", "#fecaca")}>
+                    <i className="ri-delete-bin-line" />
                   </button>
                 </div>
               ),
@@ -968,38 +1078,25 @@ export default function Weighment() {
             },
             {
               key: "actions",
-              label: "Actions",
+              label: "ACTIONS",
+              width: 180,
               render: (r) => (
-                <div style={{ display: "flex", gap: 6 }}>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    title="Print Receipt Slip"
-                    onClick={() => triggerDirectPrint(r)}
-                    style={{ height: 28, fontSize: 11, padding: "0 8px" }}
-                  >
-                    <i className="ri-printer-line" style={{ marginRight: 3 }} /> Print
-                  </Button>
-
-                  <button
-                    type="button"
-                    title="Share via WhatsApp"
-                    onClick={() => handleShareWhatsApp(r)}
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 8,
-                      border: "none",
-                      background: "#25D366",
-                      color: "#FFFFFF",
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 14,
-                    }}
-                  >
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "var(--canvas)", padding: "3px 5px", borderRadius: 10, border: "1px solid var(--line)" }}>
+                  <button type="button" title="View Details" onClick={() => setSelectedSlipForPrint(r)} style={iconBtnStyle("#6b7280", "#e5e7eb")}>
+                    <i className="ri-eye-line" />
+                  </button>
+                  <button type="button" title="Edit Entry" onClick={() => navigate(`/weighment/${r.id}/edit`)} style={iconBtnStyle("#0284c7", "#7dd3fc")}>
+                    <i className="ri-edit-line" />
+                  </button>
+                  <button type="button" title="Print Receipt" onClick={() => triggerDirectPrint(r)} style={iconBtnStyle("#7c3aed", "#e9d5ff")}>
+                    <i className="ri-printer-line" />
+                  </button>
+                  <button type="button" title="Share via WhatsApp" onClick={() => handleShareWhatsApp(r)} style={{ ...iconBtnStyle("#25D366", "#dcfce7"), background: "#25D366", color: "#fff", border: "none" }}>
                     <i className="ri-whatsapp-line" />
+                  </button>
+                  <div style={{ width: 1, height: 18, background: "var(--line)", margin: "0 2px" }} />
+                  <button type="button" title="Delete Entry" onClick={async () => { if (window.confirm("Delete this weighment slip?")) { try { await deleteEntry(r.id); toast.success("Slip deleted."); reload(); } catch (err) { toast.error(err?.response?.data?.error?.message || "Delete failed."); } } }} style={iconBtnStyle("#dc2626", "#fecaca")}>
+                    <i className="ri-delete-bin-line" />
                   </button>
                 </div>
               ),

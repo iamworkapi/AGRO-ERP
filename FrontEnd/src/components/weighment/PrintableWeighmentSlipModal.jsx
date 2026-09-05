@@ -49,6 +49,20 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
   const vehicleNo = data.vehicleNo || "—";
   const commodity = data.commodity || "PRALLI";
 
+  const purchasedProducts = data.purchasedProducts || [];
+  const productPurchaseTotal =
+    data.productPurchaseTotalRs ||
+    purchasedProducts.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  const hasProducts = purchasedProducts.length > 0;
+  const netPayable =
+    data.netPayableToPartyRs != null
+      ? data.netPayableToPartyRs
+      : Math.max(0, totalAmount - productPurchaseTotal);
+  const netReceivable =
+    data.netReceivableFromPartyRs != null
+      ? data.netReceivableFromPartyRs
+      : Math.max(0, productPurchaseTotal - totalAmount);
+
   const whatsappMessageText =
     `*KUSUMGANGA AGRO SOLUTIONS PVT. LTD.* \n` +
     `*Center:* ${centerName}\n` +
@@ -65,7 +79,22 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
     `✂️ *Moisture Cut:* ${dedPct}% (${deductionMt} MT)\n` +
     `*Actual Payable Wt:* ${actualMt} MT (${actualKg.toLocaleString()} kg)\n` +
     `*Purchase Rate:* ₹${rate.toLocaleString("en-IN")} / MT\n` +
-    `*TOTAL PAYABLE:* ₹${totalAmount.toLocaleString("en-IN")}\n` +
+    `*Pralli Total Bill:* ₹${totalAmount.toLocaleString("en-IN")}\n` +
+    (hasProducts
+      ? `-----------------------------------\n` +
+        `🛒 *GOODS PURCHASED AGAINST BILL:*\n` +
+        purchasedProducts
+          .map(
+            (p, i) =>
+              `${i + 1}. ${p.productName} (${p.quantity} ${p.unit}) @ ₹${Number(p.rate).toLocaleString("en-IN")} = ₹${Number(p.amount).toLocaleString("en-IN")}`
+          )
+          .join("\n") +
+        `\n*Total Goods Deducted:* -₹${productPurchaseTotal.toLocaleString("en-IN")}\n` +
+        `-----------------------------------\n` +
+        (netReceivable > 0
+          ? `⚠️ *NET AMOUNT DUE FROM VENDOR:* ₹${netReceivable.toLocaleString("en-IN")}\n`
+          : `💰 *FINAL NET PAYABLE TO VENDOR:* ₹${netPayable.toLocaleString("en-IN")}\n`)
+      : `*TOTAL PAYABLE:* ₹${totalAmount.toLocaleString("en-IN")}\n`) +
     `-----------------------------------\n` +
     `Automated Weighbridge Token - Kusumganga Agro Solutions.`;
 
@@ -434,14 +463,46 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
         </tbody>
       </table>
 
+      ${hasProducts ? `
+      <!-- Purchased Products Offset Table -->
+      <div style="margin: 8px 0; border: 1px solid #000; padding: 6px; background: #fafafa;">
+        <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; border-bottom: 1px solid #ccc; padding-bottom: 2px;">
+          Goods Purchased Against Weighment Bill (उत्पाद समायोजन)
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 9.5px;">
+          <thead>
+            <tr style="border-bottom: 1px solid #ddd; text-align: left;">
+              <th style="padding: 2px;">Item</th>
+              <th style="padding: 2px; text-align: right;">Qty</th>
+              <th style="padding: 2px; text-align: right;">Rate</th>
+              <th style="padding: 2px; text-align: right;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${purchasedProducts.map((p) => `
+              <tr>
+                <td style="padding: 2px;">${p.productName}</td>
+                <td style="padding: 2px; text-align: right;">${p.quantity} ${p.unit}</td>
+                <td style="padding: 2px; text-align: right;">₹${Number(p.rate).toLocaleString("en-IN")}</td>
+                <td style="padding: 2px; text-align: right; font-weight: bold;">₹${Number(p.amount).toLocaleString("en-IN")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+      ` : ""}
+
       <!-- Payment Box -->
       <div class="payment-box">
         <div class="rate-info">
-          <div>Agreed Rate: &#8377; ${rate.toLocaleString("en-IN")} / MT</div>
+          <div>Pralli Rate: &#8377; ${rate.toLocaleString("en-IN")} / MT</div>
+          ${hasProducts ? `<div>Gross Bill: &#8377; ${totalAmount.toLocaleString("en-IN")} &nbsp;|&nbsp; Goods Offset: -&#8377; ${productPurchaseTotal.toLocaleString("en-IN")}</div>` : ""}
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
-          <span style="font-size:11px; font-weight:bold; text-transform:uppercase;">Total Payable:</span>
-          <span class="total-amt">&#8377; ${totalAmount.toLocaleString("en-IN")}</span>
+          <span style="font-size:11px; font-weight:bold; text-transform:uppercase;">
+            ${hasProducts ? (netReceivable > 0 ? "Net Due From Vendor:" : "Final Net Payable:") : "Total Payable:"}
+          </span>
+          <span class="total-amt">&#8377; ${(hasProducts ? (netReceivable > 0 ? netReceivable : netPayable) : totalAmount).toLocaleString("en-IN")}</span>
         </div>
       </div>
 
@@ -680,14 +741,53 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
               </tbody>
             </table>
 
+            {/* Purchased Products Table in Screen Modal */}
+            {hasProducts && (
+              <div style={{ margin: "8px 0", border: "1px solid var(--line-strong)", borderRadius: 6, padding: "8px 10px", background: "var(--canvas)" }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, textTransform: "uppercase", color: "var(--ink)", marginBottom: 4, display: "flex", justifyContent: "space-between" }}>
+                  <span>Goods Purchased Against Bill (उत्पाद समायोजन)</span>
+                  <span style={{ color: "#d97706" }}>Total: -₹{productPurchaseTotal.toLocaleString("en-IN")}</span>
+                </div>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 10.5 }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--line)", textAlign: "left", color: "var(--muted)" }}>
+                      <th style={{ padding: "2px 0" }}>Item</th>
+                      <th style={{ padding: "2px 0", textAlign: "right" }}>Qty</th>
+                      <th style={{ padding: "2px 0", textAlign: "right" }}>Rate</th>
+                      <th style={{ padding: "2px 0", textAlign: "right" }}>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {purchasedProducts.map((p, idx) => (
+                      <tr key={idx} style={{ borderBottom: "1px solid var(--line)" }}>
+                        <td style={{ padding: "3px 0", fontWeight: 600 }}>{p.productName}</td>
+                        <td style={{ padding: "3px 0", textAlign: "right" }}>{p.quantity} {p.unit}</td>
+                        <td style={{ padding: "3px 0", textAlign: "right" }}>₹{Number(p.rate).toLocaleString("en-IN")}</td>
+                        <td style={{ padding: "3px 0", textAlign: "right", fontWeight: 700, color: "var(--primary-deep)" }}>
+                          ₹{Number(p.amount).toLocaleString("en-IN")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             {/* Payment Box */}
             <div className="payment-box-m">
               <div className="rate-info-m">
                 <div>Agreed Rate: &#8377; {rate.toLocaleString("en-IN")} / MT</div>
+                {hasProducts && (
+                  <div style={{ fontSize: 9.5, color: "#64748b" }}>
+                    Gross Bill: &#8377; {totalAmount.toLocaleString("en-IN")} &nbsp;|&nbsp; Goods Offset: -&#8377; {productPurchaseTotal.toLocaleString("en-IN")}
+                  </div>
+                )}
               </div>
               <div style={{display: "flex", alignItems: "center", gap: 10}}>
-                <span style={{fontSize: 11, fontWeight: "bold", textTransform: "uppercase"}}>Total Payable:</span>
-                <span className="total-amt-m">&#8377; {totalAmount.toLocaleString("en-IN")}</span>
+                <span style={{fontSize: 11, fontWeight: "bold", textTransform: "uppercase"}}>
+                  {hasProducts ? (netReceivable > 0 ? "Net Due From Vendor:" : "Final Net Payable:") : "Total Payable:"}
+                </span>
+                <span className="total-amt-m">&#8377; {(hasProducts ? (netReceivable > 0 ? netReceivable : netPayable) : totalAmount).toLocaleString("en-IN")}</span>
               </div>
             </div>
 

@@ -9,6 +9,7 @@ export const createProductSchema = z.object({
   category: z.string().optional(),
   unit: z.string().optional(),
   defaultRate: z.coerce.number().min(0).optional(),
+  stockQty: z.coerce.number().min(0).optional(),
   image: z.string().optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
 });
@@ -20,6 +21,7 @@ export const updateProductSchema = z.object({
   category: z.string().optional(),
   unit: z.string().optional(),
   defaultRate: z.coerce.number().min(0).optional(),
+  stockQty: z.coerce.number().min(0).optional(),
   image: z.string().optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
 });

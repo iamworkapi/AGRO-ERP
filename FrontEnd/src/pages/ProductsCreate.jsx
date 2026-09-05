@@ -27,6 +27,7 @@ const EMPTY_FORM = {
   category: "Equipment & Tools",
   unit: "PCS",
   defaultRate: "",
+  stockQty: "50",
   image: "",
   status: "ACTIVE",
 };
@@ -56,8 +57,9 @@ export default function ProductsCreate() {
             description: product.description || "",
             hsnCode: product.hsnCode || "",
             category: product.category || "Equipment & Tools",
-            unit: product.unit || "PCS",
+            unit: product.unit || "BAGS",
             defaultRate: product.defaultRate != null && product.defaultRate !== "" ? formatRate(product.defaultRate) : "",
+            stockQty: product.stockQty != null ? String(product.stockQty) : "0",
             image: product.image || "",
             status: product.status || "ACTIVE",
           });
@@ -142,6 +144,7 @@ export default function ProductsCreate() {
         category: form.category.trim(),
         unit: form.unit,
         defaultRate: parseRateValue(form.defaultRate),
+        stockQty: form.stockQty !== "" ? Number(form.stockQty) : 0,
         image: form.image,
         status: form.status,
       };
@@ -251,16 +254,20 @@ export default function ProductsCreate() {
             />
           </div>
 
-          <div className="responsive-grid-2" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "14px 18px", marginTop: 14 }}>
+          <div className="responsive-grid-2" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr", gap: "14px 18px", marginTop: 14 }}>
             <FormField
               label="Unit of Measure"
-              type="radio"
+              type="select"
               layout="vertical"
               value={form.unit}
               onChange={set("unit")}
               options={[
-                { label: "Pcs", value: "PCS" },
+                { label: "Pcs (Standard)", value: "PCS" },
+                { label: "Bags", value: "BAGS" },
+                { label: "Kg", value: "KG" },
+                { label: "Quintal", value: "QUINTAL" },
                 { label: "Box", value: "BOX" },
+                { label: "Litres", value: "LITRES" },
               ]}
             />
             <FormField
@@ -273,6 +280,16 @@ export default function ProductsCreate() {
               onBlur={handleDefaultRateBlur}
               placeholder="0.00"
               suffix="₹"
+            />
+            <FormField
+              label="Available Stock Quantity"
+              type="number"
+              min="0"
+              layout="vertical"
+              value={form.stockQty}
+              onChange={set("stockQty")}
+              placeholder="0"
+              help="Items available in warehouse for issuance/barter"
             />
           </div>
 

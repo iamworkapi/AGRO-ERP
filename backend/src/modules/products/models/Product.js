@@ -11,6 +11,7 @@ const productSchema = new mongoose.Schema(
     category: { type: String, trim: true, default: "" },
     unit: { type: String, trim: true, default: "PCS" },
     defaultRate: { type: Number, min: 0, default: 0 },
+    stockQty: { type: Number, min: 0, default: 0 },
     image: { type: String, trim: true, default: "" },
     status: { type: String, enum: ["ACTIVE", "INACTIVE"], default: "ACTIVE" },
     addedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },

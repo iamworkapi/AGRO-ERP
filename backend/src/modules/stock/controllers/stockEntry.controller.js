@@ -14,3 +14,12 @@ export const create = asyncHandler(async (req, res) => {
 export const review = asyncHandler(async (req, res) => {
   sendSuccess(res, await stockEntryService.reviewStockEntry(req.user, req.params.id, req.body.status));
 });
+
+export const update = asyncHandler(async (req, res) => {
+  sendSuccess(res, await stockEntryService.updateStockEntry(req.user, req.params.id, req.body));
+});
+
+export const remove = asyncHandler(async (req, res) => {
+  await stockEntryService.deleteStockEntry(req.user, req.params.id);
+  sendSuccess(res, { deleted: true }, 200);
+});

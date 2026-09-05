@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import FormField from "../components/common/FormField";
 import Button from "../components/common/Button";
+import Modal from "../components/common/Modal";
 import PrintableWeighmentSlipModal from "../components/weighment/PrintableWeighmentSlipModal";
 import { useStockEntries } from "../features/stockEntries/useStockEntries";
 import { useWeightMachines } from "../features/weightMachines/useWeightMachines";
@@ -12,6 +13,7 @@ import { createStockEntrySchema } from "../validators/stockEntryValidators";
 import { validateOrToast } from "../utils/validate";
 import { toast } from "../utils/toast";
 import { getStoredVendors } from "../features/biomass/biomassService";
+import { useProducts } from "../features/products/useProducts";
 
 const COMMODITY_DEFAULTS = {
   PRALLI: { allowedMoisture: "20", rate: "1900" },
@@ -103,6 +105,8 @@ const DASHED_INPUT_STYLE = {
 
 export default function CreateWeighmentSlip() {
   const navigate = useNavigate();
+  const { id: editId } = useParams();
+  const isEditMode = Boolean(editId);
   const { user } = useAuth();
   const isScopedRole = user?.roleKey === "supervisor" || user?.roleKey === "warehouse_admin";
 
@@ -112,12 +116,148 @@ export default function CreateWeighmentSlip() {
   const [form, setForm] = useState(() => emptyForm());
   const [saving, setSaving] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Commodity Multiple-Select Checklist State
   const [selectedCommodities, setSelectedCommodities] = useState(["PRALLI"]);
   const [customCommodityInput, setCustomCommodityInput] = useState("");
   const [isCommodityDropdownOpen, setIsCommodityDropdownOpen] = useState(false);
   const commodityDropdownRef = useRef(null);
+
+  // Product Purchase / Barter Offset State
+  const { items: allProducts, load: loadProducts } = useProducts();
+  const [enableProductPurchase, setEnableProductPurchase] = useState(false);
+  const [purchasedProducts, setPurchasedProducts] = useState([]);
+  const [prodForm, setProdForm] = useState({
+    productId: "",
+    productName: "",
+    quantity: "1",
+    unit: "PCS",
+    rate: "",
+  });
+
+  const { entries, addEntry, updateEntry, deleteEntry } = useStockEntries();
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
+  // Load entry data when in edit mode
+  useEffect(() => {
+    if (!isEditMode || !editId) return;
+    const entry = entries.find((e) => String(e.id) === String(editId));
+    if (!entry) return;
+
+    setForm({
+      slipNo: entry.slipNo || "",
+      warehouseId: entry.warehouseId || "",
+      weightMachineId: entry.weightMachineId || "",
+      entryType: entry.entryType || "inward",
+      party: entry.partyName || "",
+      vehicleNo: entry.vehicleNo || "",
+      commodity: entry.commodity || "",
+      gross: entry.grossWeightKg != null ? String(entry.grossWeightKg) : "",
+      tare: entry.tareWeightKg != null ? String(entry.tareWeightKg) : "",
+      moisture: entry.moisturePct != null ? String(entry.moisturePct) : "20",
+      allowedMoisture: entry.allowedMoisturePct != null ? String(entry.allowedMoisturePct) : "20",
+      rate: entry.ratePerMt != null ? String(entry.ratePerMt) : "1900",
+    });
+
+    // Restore selected commodities
+    if (entry.commodity) {
+      const comms = entry.commodity.split(",").map((c) => c.trim()).filter(Boolean);
+      setSelectedCommodities(comms.length > 0 ? comms : ["PRALLI"]);
+    }
+
+    // Restore product purchase data
+    const products = entry.purchasedProducts || [];
+    setEnableProductPurchase(products.length > 0);
+    setPurchasedProducts(
+      products.map((p, idx) => ({
+        id: p._id || Date.now() + idx,
+        productId: p.productId || "",
+        productName: p.productName,
+        quantity: Number(p.quantity) || 0,
+        unit: p.unit || "PCS",
+        rate: Number(p.rate) || 0,
+        amount: Number(p.amount) || 0,
+      }))
+    );
+
+    // Disable editing reviewed entries
+    if (entry.status === "approved" || entry.status === "rejected") {
+      toast.warning("This entry has been reviewed and cannot be edited.");
+    }
+  }, [isEditMode, editId, entries]);
+
+  // Filter only in-stock products (stock > 0 or default 100 for active catalog items)
+  const inStockProducts = useMemo(() => {
+    return (allProducts || []).filter((p) => {
+      if (p.status && p.status !== "ACTIVE") return false;
+      const stock = p.stockQty != null ? Number(p.stockQty) : 100;
+      return stock > 0;
+    });
+  }, [allProducts]);
+
+  const handleProductSelect = (productId) => {
+    if (!productId) {
+      setProdForm({ productId: "", productName: "", quantity: "1", unit: "PCS", rate: "" });
+      return;
+    }
+    const found = (allProducts || []).find((p) => String(p._id || p.id) === String(productId));
+    if (found) {
+      setProdForm({
+        productId: String(found._id || found.id),
+        productName: found.name,
+        quantity: "1",
+        unit: "PCS",
+        rate: String(found.defaultRate != null ? found.defaultRate : "0"),
+      });
+    }
+  };
+
+  const handleAddProductItem = () => {
+    if (!prodForm.productId || !prodForm.productName.trim()) {
+      toast.warning("Please select an in-stock product.");
+      return;
+    }
+    const qty = parseFloat(prodForm.quantity);
+    if (!qty || qty <= 0) {
+      toast.warning("Please enter a valid quantity.");
+      return;
+    }
+    const rate = parseFloat(prodForm.rate);
+    if (isNaN(rate) || rate < 0) {
+      toast.warning("Please enter a valid product rate.");
+      return;
+    }
+
+    // Check available stock limit
+    const p = (allProducts || []).find((item) => String(item._id || item.id) === String(prodForm.productId));
+    const available = p?.stockQty != null ? Number(p.stockQty) : 100;
+    if (qty > available) {
+      toast.error(`Cannot issue ${qty} PCS. Maximum available in stock is ${available} PCS.`);
+      return;
+    }
+
+    const newItem = {
+      id: Date.now(),
+      productId: prodForm.productId,
+      productName: prodForm.productName.trim(),
+      quantity: qty,
+      unit: "PCS",
+      rate: rate,
+      amount: Math.round(qty * rate * 100) / 100,
+    };
+
+    setPurchasedProducts((prev) => [...prev, newItem]);
+    setProdForm({ productId: "", productName: "", quantity: "1", unit: "PCS", rate: "" });
+    toast.success(`${newItem.productName} (${qty} PCS) added to bill.`);
+  };
+
+  const handleRemoveProductItem = (id) => {
+    setPurchasedProducts((prev) => prev.filter((item) => item.id !== id));
+  };
 
   const registeredVendors = useMemo(() => {
     try {
@@ -185,6 +325,15 @@ export default function CreateWeighmentSlip() {
 
   const calc = useMoistureCalc(form);
 
+  // Total value of products purchased against this weighment bill
+  const totalProductsCost = useMemo(() => {
+    if (!enableProductPurchase) return 0;
+    return purchasedProducts.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  }, [enableProductPurchase, purchasedProducts]);
+
+  const netPayableAmount = Math.max(0, calc.totalAmountRs - totalProductsCost);
+  const netReceivableAmount = Math.max(0, totalProductsCost - calc.totalAmountRs);
+
   useEffect(() => {
     if (isScopedRole && myWarehouse?.id) {
       setForm((f) => (f.warehouseId ? f : { ...f, warehouseId: myWarehouse.id }));
@@ -197,8 +346,6 @@ export default function CreateWeighmentSlip() {
   useEffect(() => {
     setForm((f) => (f.weightMachineId && activeMachines.some((m) => m.id === f.weightMachineId) ? f : { ...f, weightMachineId: "" }));
   }, [activeMachines]);
-
-  const { entries, addEntry } = useStockEntries();
 
   // Automatic order list sequence calculation
   const nextSeqSlipNo = useMemo(() => {
@@ -256,7 +403,7 @@ export default function CreateWeighmentSlip() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const parsed = validateOrToast(createStockEntrySchema, {
+    const basePayload = {
       warehouseId: form.warehouseId,
       weightMachineId: form.weightMachineId,
       slipNo: form.slipNo,
@@ -264,22 +411,54 @@ export default function CreateWeighmentSlip() {
       commodity: form.commodity,
       partyName: form.party,
       vehicleNo: form.vehicleNo,
-      grossWeightKg: form.gross,
-      tareWeightKg: form.tare,
-      moisturePct: form.moisture,
-      allowedMoisturePct: form.allowedMoisture,
+      grossWeightKg: parseFloat(form.gross) || 0,
+      tareWeightKg: parseFloat(form.tare) || 0,
+      moisturePct: parseFloat(form.moisture) || undefined,
+      allowedMoisturePct: parseFloat(form.allowedMoisture) || undefined,
       deductionPct: calc.deductionPct,
-      ratePerMt: form.rate,
-    });
+      ratePerMt: parseFloat(form.rate) || undefined,
+    };
+
+    const productsPayload = enableProductPurchase && purchasedProducts.length > 0 ? purchasedProducts : undefined;
+
+    const payload = isEditMode && editId
+      ? { ...basePayload, ...(productsPayload ? { purchasedProducts: productsPayload } : {}) }
+      : {
+          ...basePayload,
+          purchasedProducts: productsPayload || [],
+        };
+
+    const parsed = validateOrToast(createStockEntrySchema, payload);
     if (!parsed) return;
 
     setSaving(true);
     try {
-      await addEntry(parsed);
-      toast.success(`Weighment slip #${form.slipNo} saved successfully.`);
-      navigate("/weighment");
+      if (isEditMode && editId) {
+        await updateEntry(editId, parsed);
+        toast.success(`Weighment slip #${form.slipNo} updated successfully.`);
+        navigate("/weighment");
+      } else {
+        await addEntry(parsed);
+        toast.success(`Weighment slip #${form.slipNo} saved successfully.`);
+        navigate("/weighment");
+      }
     } catch (err) {
       toast.error(err?.response?.data?.error?.message || err.message || "Could not save this weighment slip.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!editId) return;
+    setSaving(true);
+    try {
+      await deleteEntry(editId);
+      toast.success("Weighment slip deleted successfully.");
+      setShowDeleteConfirm(false);
+      navigate("/weighment");
+    } catch (err) {
+      toast.error(err?.response?.data?.error?.message || err.message || "Could not delete this weighment slip.");
     } finally {
       setSaving(false);
     }
@@ -318,9 +497,9 @@ export default function CreateWeighmentSlip() {
       </div>
 
       <PageHeader
-        title="Create Weighment Slip"
-        subtitle="Full-width weighbridge station with automatic order list sequencing, live moisture cut evaluation, and dashed input design"
-        badge="WEIGHMENT SLIP"
+        title={isEditMode ? "Edit Weighment Slip" : "Create Weighment Slip"}
+        subtitle={isEditMode ? "Editing existing entry — changes will be saved immediately" : "Full-width weighbridge station with automatic order list sequencing, live moisture cut evaluation, and dashed input design"}
+        badge={isEditMode ? "EDIT MODE" : "WEIGHMENT SLIP"}
       />
 
       {noActiveMachine && (
@@ -986,6 +1165,353 @@ export default function CreateWeighmentSlip() {
           </div>
         </div>
 
+        {/* Step 2.5: Optional Product Purchase & Barter Offset Against Bill */}
+        <div
+          style={{
+            background: "var(--surface)",
+            border: enableProductPurchase ? "1.5px solid var(--primary)" : "1px solid var(--line)",
+            borderRadius: 14,
+            padding: "16px 20px",
+            boxShadow: "var(--shadow-sm)",
+            transition: "all 200ms ease",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  background: enableProductPurchase ? "var(--primary-tint)" : "var(--canvas)",
+                  color: enableProductPurchase ? "var(--primary-deep)" : "var(--muted)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 16,
+                }}
+              >
+                <i className="ri-shopping-bag-3-line" />
+              </div>
+              <div>
+                <h4 style={{ margin: 0, fontSize: 13.5, fontWeight: 800, color: "var(--ink)" }}>
+                  Product Purchase Against Weighment Bill
+                </h4>
+                <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--muted)" }}>
+                  Vendor can purchase available stock products (fertilizer, seeds, feed) adjusted directly in this bill
+                </p>
+              </div>
+            </div>
+
+            <label
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "6px 14px",
+                borderRadius: 20,
+                background: enableProductPurchase ? "var(--primary-tint)" : "var(--canvas)",
+                border: enableProductPurchase ? "1px solid var(--primary)" : "1px solid var(--line)",
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 700,
+                color: enableProductPurchase ? "var(--primary-deep)" : "var(--ink)",
+                userSelect: "none",
+                transition: "all 150ms ease",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={enableProductPurchase}
+                onChange={(e) => setEnableProductPurchase(e.target.checked)}
+                style={{ width: 16, height: 16, accentColor: "var(--primary)", cursor: "pointer" }}
+              />
+              <span>{enableProductPurchase ? "✓ Purchase Enabled" : "+ Enable Product Purchase"}</span>
+            </label>
+          </div>
+
+          {enableProductPurchase && (
+            <div style={{ marginTop: 16, borderTop: "1px dashed var(--line)", paddingTop: 14 }}>
+              {/* Product Selection Input Row */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "2.3fr 0.9fr 0.7fr 1.1fr 1.2fr auto",
+                  gap: "10px 12px",
+                  alignItems: "flex-end",
+                  background: "var(--canvas)",
+                  padding: "12px 14px",
+                  borderRadius: 10,
+                  border: "1px solid var(--line)",
+                }}
+              >
+                {/* Product Dropdown (Only In-Stock Products Shown) */}
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink)" }}>
+                      In-Stock Product <span style={{ color: "#ef4444" }}>*</span>
+                    </label>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--primary-deep)" }}>
+                      {inStockProducts.length} In-Stock
+                    </span>
+                  </div>
+                  <select
+                    value={prodForm.productId}
+                    onChange={(e) => handleProductSelect(e.target.value)}
+                    style={{
+                      width: "100%",
+                      height: 36,
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      borderRadius: 6,
+                      border: "1px solid var(--line-strong)",
+                      background: "var(--surface)",
+                      color: "var(--ink)",
+                      padding: "0 8px",
+                      outline: "none",
+                    }}
+                  >
+                    <option value="">-- Select In-Stock Product --</option>
+                    {inStockProducts.map((p) => {
+                      const stock = p.stockQty != null ? p.stockQty : 100;
+                      const pid = String(p._id || p.id);
+                      return (
+                        <option key={pid} value={pid}>
+                          {p.name} (Stock: {stock} PCS • ₹{p.defaultRate || 0}/PCS)
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {/* Quantity */}
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                    Qty (PCS) <span style={{ color: "#ef4444" }}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={prodForm.quantity}
+                    onChange={(e) => setProdForm((f) => ({ ...f, quantity: e.target.value }))}
+                    placeholder="1"
+                    style={{
+                      width: "100%",
+                      height: 36,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      borderRadius: 6,
+                      border: "1px solid var(--line-strong)",
+                      background: "var(--surface)",
+                      color: "var(--ink)",
+                      padding: "0 8px",
+                      outline: "none",
+                    }}
+                  />
+                </div>
+
+                {/* Unit (Always PCS) */}
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                    Unit
+                  </label>
+                  <input
+                    type="text"
+                    value="PCS"
+                    readOnly
+                    style={{
+                      width: "100%",
+                      height: 36,
+                      fontSize: 12,
+                      fontWeight: 800,
+                      borderRadius: 6,
+                      border: "1px solid var(--line)",
+                      background: "var(--canvas)",
+                      color: "var(--primary-deep)",
+                      padding: "0 8px",
+                      textAlign: "center",
+                      cursor: "not-allowed",
+                    }}
+                  />
+                </div>
+
+                {/* Automatic Rate (Auto Defined from Catalog) */}
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink)" }}>
+                      Rate (₹/PCS)
+                    </label>
+                    <span style={{ fontSize: 9.5, fontWeight: 700, color: "var(--muted)" }}>
+                      Auto
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    readOnly
+                    value={prodForm.rate ? `₹${Number(prodForm.rate).toLocaleString("en-IN")}` : "₹0"}
+                    style={{
+                      width: "100%",
+                      height: 36,
+                      fontSize: 12.5,
+                      fontWeight: 800,
+                      borderRadius: 6,
+                      border: "1px solid var(--line)",
+                      background: "var(--canvas)",
+                      color: "var(--ink)",
+                      padding: "0 8px",
+                      cursor: "not-allowed",
+                    }}
+                  />
+                </div>
+
+                {/* Dynamic Calculated Amount (Qty x Rate) */}
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                    Item Total (₹)
+                  </label>
+                  <div
+                    style={{
+                      height: 36,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                      padding: "0 10px",
+                      background: "var(--primary-tint)",
+                      border: "1px solid var(--primary-tint)",
+                      borderRadius: 6,
+                      fontSize: 13,
+                      fontWeight: 900,
+                      color: "var(--primary-deep)",
+                    }}
+                  >
+                    ₹{(Math.round((Number(prodForm.quantity) || 0) * (Number(prodForm.rate) || 0) * 100) / 100).toLocaleString("en-IN")}
+                  </div>
+                </div>
+
+                {/* Add Item Button */}
+                <button
+                  type="button"
+                  onClick={handleAddProductItem}
+                  style={{
+                    height: 36,
+                    padding: "0 16px",
+                    borderRadius: 6,
+                    border: "none",
+                    background: "var(--primary)",
+                    color: "#ffffff",
+                    fontSize: 12,
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <i className="ri-add-line" style={{ fontSize: 14 }} /> + Add Item
+                </button>
+              </div>
+
+              {/* Added Products Table */}
+              {purchasedProducts.length > 0 ? (
+                <div style={{ marginTop: 12, overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
+                    <thead>
+                      <tr style={{ background: "var(--canvas)", borderBottom: "1px solid var(--line)" }}>
+                        <th style={{ padding: "8px 10px", textAlign: "left", color: "var(--muted)", fontWeight: 700 }}>#</th>
+                        <th style={{ padding: "8px 10px", textAlign: "left", color: "var(--muted)", fontWeight: 700 }}>Product Name</th>
+                        <th style={{ padding: "8px 10px", textAlign: "right", color: "var(--muted)", fontWeight: 700 }}>Qty & Unit</th>
+                        <th style={{ padding: "8px 10px", textAlign: "right", color: "var(--muted)", fontWeight: 700 }}>Rate (₹)</th>
+                        <th style={{ padding: "8px 10px", textAlign: "right", color: "var(--muted)", fontWeight: 700 }}>Total Value (₹)</th>
+                        <th style={{ padding: "8px 10px", textAlign: "center", width: 40 }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {purchasedProducts.map((item, idx) => (
+                        <tr key={item.id} style={{ borderBottom: "1px solid var(--line)" }}>
+                          <td style={{ padding: "8px 10px", color: "var(--muted)" }}>{idx + 1}</td>
+                          <td style={{ padding: "8px 10px", fontWeight: 700, color: "var(--ink)" }}>{item.productName}</td>
+                          <td style={{ padding: "8px 10px", textAlign: "right" }}>{item.quantity} {item.unit}</td>
+                          <td style={{ padding: "8px 10px", textAlign: "right" }}>₹{Number(item.rate).toLocaleString("en-IN")}</td>
+                          <td style={{ padding: "8px 10px", textAlign: "right", fontWeight: 800, color: "var(--primary-deep)" }}>
+                            ₹{Number(item.amount).toLocaleString("en-IN")}
+                          </td>
+                          <td style={{ padding: "8px 10px", textAlign: "center" }}>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveProductItem(item.id)}
+                              title="Remove item"
+                              style={{
+                                width: 24,
+                                height: 24,
+                                borderRadius: 5,
+                                border: "none",
+                                background: "rgba(239, 68, 68, 0.1)",
+                                color: "#ef4444",
+                                cursor: "pointer",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <i className="ri-delete-bin-line" style={{ fontSize: 12 }} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Summary Barter Offset Bar */}
+                  <div
+                    style={{
+                      marginTop: 10,
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      background: "var(--canvas)",
+                      border: "1px solid var(--line)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: 8,
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12 }}>
+                      <span>Pralli Bill: <strong>₹{calc.totalAmountRs.toLocaleString("en-IN")}</strong></span>
+                      <span style={{ color: "var(--muted)" }}>−</span>
+                      <span style={{ color: "#d97706" }}>Product Cost: <strong>₹{totalProductsCost.toLocaleString("en-IN")}</strong></span>
+                    </div>
+
+                    <div>
+                      {netPayableAmount > 0 && (
+                        <span style={{ fontSize: 12, fontWeight: 800, color: "#15803d", background: "#dcfce7", padding: "3px 10px", borderRadius: 6, border: "1px solid #bbf7d0" }}>
+                          ✓ Net Cash Payable to Vendor: ₹{netPayableAmount.toLocaleString("en-IN")}
+                        </span>
+                      )}
+                      {netReceivableAmount > 0 && (
+                        <span style={{ fontSize: 12, fontWeight: 800, color: "#b45309", background: "#fef3c7", padding: "3px 10px", borderRadius: 6, border: "1px solid #fde68a" }}>
+                          ⚠️ Net Cash Receivable from Vendor: ₹{netReceivableAmount.toLocaleString("en-IN")}
+                        </span>
+                      )}
+                      {netPayableAmount === 0 && netReceivableAmount === 0 && (
+                        <span style={{ fontSize: 12, fontWeight: 800, color: "#0284c7", background: "#e0f2fe", padding: "3px 10px", borderRadius: 6, border: "1px solid #bae6fd" }}>
+                          ✓ Exact Barter Offset (₹0 Balance)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ marginTop: 10, fontSize: 12, color: "var(--muted)", fontStyle: "italic" }}>
+                  No products added yet. Select an in-stock item above and click "+ Add Item".
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Step 3: Live Automatic Calculation & Quality Breakdown (Full Width Visual Board) */}
         <div
           style={{
@@ -1055,24 +1581,38 @@ export default function CreateWeighmentSlip() {
               </div>
             </div>
 
-            {/* Metric 4: Total Payable Bill */}
+            {/* Metric 4: Total Payable Bill / Settlement */}
             <div
               style={{
-                background: "linear-gradient(135deg, #15803d 0%, #166534 100%)",
+                background:
+                  enableProductPurchase && purchasedProducts.length > 0 && netReceivableAmount > 0
+                    ? "linear-gradient(135deg, #d97706 0%, #b45309 100%)"
+                    : "linear-gradient(135deg, #15803d 0%, #166534 100%)",
                 borderRadius: 10,
                 padding: "14px 18px",
                 color: "#ffffff",
                 boxShadow: "0 4px 14px rgba(22, 101, 52, 0.25)",
               }}
             >
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", color: "rgba(255,255,255,0.85)" }}>
-                4. Total Amount Payable
+              <div style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", color: "rgba(255,255,255,0.85)" }}>
+                {enableProductPurchase && purchasedProducts.length > 0
+                  ? netReceivableAmount > 0
+                    ? "4. Final Receivable from Vendor"
+                    : "4. Final Net Payable to Vendor"
+                  : "4. Total Amount Payable"}
               </div>
               <div style={{ fontSize: 26, fontWeight: 900, marginTop: 4 }}>
-                ₹{calc.totalAmountRs.toLocaleString("en-IN")}
+                ₹
+                {enableProductPurchase && purchasedProducts.length > 0
+                  ? netReceivableAmount > 0
+                    ? netReceivableAmount.toLocaleString("en-IN")
+                    : netPayableAmount.toLocaleString("en-IN")
+                  : calc.totalAmountRs.toLocaleString("en-IN")}
               </div>
-              <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.9)", fontWeight: 600, marginTop: 2 }}>
-                Agreed Rate: ₹{calc.rate.toLocaleString("en-IN")} / MT
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.9)", fontWeight: 600, marginTop: 2 }}>
+                {enableProductPurchase && purchasedProducts.length > 0
+                  ? `Pralli: ₹${calc.totalAmountRs.toLocaleString("en-IN")} − Goods: ₹${totalProductsCost.toLocaleString("en-IN")}`
+                  : `Agreed Rate: ₹${calc.rate.toLocaleString("en-IN")} / MT`}
               </div>
             </div>
           </div>
@@ -1099,7 +1639,16 @@ export default function CreateWeighmentSlip() {
               {" "}− Moisture Cut: <strong style={{ color: calc.over ? "#b45309" : "var(--muted)" }}>{calc.deductionMt.toFixed(3)} MT</strong>
               {" "}= Payable Wt: <strong style={{ color: "var(--primary-deep)" }}>{calc.actualWeightMt.toFixed(3)} MT</strong>
               {" "}× Rate: <strong>₹{calc.rate}/MT</strong>
-              {" "}➔ Total: <strong style={{ color: "#15803d", fontSize: 13 }}>₹{calc.totalAmountRs.toLocaleString("en-IN")}</strong>
+              {" "}➔ Pralli: <strong style={{ color: "#15803d", fontSize: 13 }}>₹{calc.totalAmountRs.toLocaleString("en-IN")}</strong>
+              {enableProductPurchase && purchasedProducts.length > 0 && (
+                <>
+                  {" "}− Goods: <strong style={{ color: "#d97706" }}>₹{totalProductsCost.toLocaleString("en-IN")}</strong>
+                  {" "}➔ Net Settlement: <strong style={{ color: netReceivableAmount > 0 ? "#b45309" : "#15803d", fontSize: 13.5 }}>
+                    ₹{(netReceivableAmount > 0 ? netReceivableAmount : netPayableAmount).toLocaleString("en-IN")}
+                    {netReceivableAmount > 0 ? " (Due from Vendor)" : " (Payable to Vendor)"}
+                  </strong>
+                </>
+              )}
             </span>
           </div>
         </div>
@@ -1162,8 +1711,32 @@ export default function CreateWeighmentSlip() {
             </button>
           </div>
 
-          {/* Right: Cancel & Submit */}
+          {/* Right: Edit Actions / Cancel & Submit */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {isEditMode && (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={saving}
+                style={{
+                  padding: "8px 16px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  borderRadius: 8,
+                  border: "1px solid #ef4444",
+                  background: "#fef2f2",
+                  color: "#dc2626",
+                  cursor: saving ? "not-allowed" : "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  opacity: saving ? 0.6 : 1,
+                }}
+              >
+                <i className="ri-delete-bin-line" /> Delete
+              </button>
+            )}
+
             <Button
               variant="secondary"
               type="button"
@@ -1189,11 +1762,11 @@ export default function CreateWeighmentSlip() {
             >
               {saving ? (
                 <>
-                  <i className="ri-loader-4-line spin" /> Saving Weighment Slip...
+                  <i className="ri-loader-4-line spin" /> {isEditMode ? "Updating..." : "Saving Weighment Slip..."}
                 </>
               ) : (
                 <>
-                  <i className="ri-check-line" /> Save Weighment Slip
+                  <i className="ri-check-line" /> {isEditMode ? "Update Weighment Slip" : "Save Weighment Slip"}
                 </>
               )}
             </Button>
@@ -1218,8 +1791,35 @@ export default function CreateWeighmentSlip() {
           deductionPct: calc.deductionPct,
           ratePerMt: form.rate,
           totalAmountRs: calc.totalAmountRs,
+          purchasedProducts: enableProductPurchase ? purchasedProducts : [],
+          productPurchaseTotalRs: totalProductsCost,
+          netPayableToPartyRs: netPayableAmount,
+          netReceivableFromPartyRs: netReceivableAmount,
         }}
       />
+
+      {/* Delete Confirmation Modal */}
+      <Modal open={showDeleteConfirm} title="Delete Weighment Slip" onClose={() => setShowDeleteConfirm(false)} width={420}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: "10px 14px", display: "flex", gap: 8, alignItems: "flex-start" }}>
+            <i className="ri-alert-line" style={{ color: "#dc2626", fontSize: 18, marginTop: 1 }} />
+            <p style={{ margin: 0, fontSize: 13, color: "#991b1b", lineHeight: 1.4 }}>
+              Are you sure you want to delete weighment slip <strong>#{form.slipNo}</strong>? This action cannot be undone.
+              {purchasedProducts.length > 0 && (
+                <span style={{ display: "block", marginTop: 4 }}>
+                  <strong>{purchasedProducts.length} product item(s)</strong> were issued against this bill and their stock will be restored.
+                </span>
+              )}
+            </p>
+          </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+            <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
+            <Button onClick={handleDelete} disabled={saving} style={{ background: "#dc2626", boxShadow: saving ? "none" : "0 2px 8px rgba(220,38,38,0.25)" }}>
+              {saving ? "Deleting..." : "Delete Permanently"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
