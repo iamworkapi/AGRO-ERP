@@ -110,10 +110,10 @@ export default function Sidebar({ mobileOpen = false, onCloseMobile }) {
           flex: 1,
           minHeight: 0,
           overflowY: "auto",
-          padding: collapsed ? "10px 10px" : "10px 12px 16px",
+          padding: collapsed ? "8px 8px" : "8px 10px 12px",
           display: "flex",
           flexDirection: "column",
-          gap: 2,
+          gap: 1,
         }}
       >
         {visibleGroups.map((group) => (

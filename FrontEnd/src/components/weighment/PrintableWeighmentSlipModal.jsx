@@ -54,8 +54,8 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
     `*Center:* ${centerName}\n` +
     `📜 *RST / Slip No:* ${slipNo}\n` +
     `📅 *Date:* ${dateStr}\n` +
-    `*Commodity:* ${commodity}\n` +
-    `👤 *Party / Farmer:* ${partyName}\n` +
+    `🌾 *Commodity:* ${commodity}\n` +
+    `👤 *Vendor / Supplier:* ${partyName}\n` +
     `🚛 *Vehicle No:* ${vehicleNo}\n` +
     `-----------------------------------\n` +
     `*Gross Weight:* ${grossMt} MT (${grossKg.toLocaleString()} kg)\n` +
@@ -193,7 +193,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
 
     .info-row {
       display: flex;
-      border-bottom: 1px dotted #888;
+      border-bottom: 1px dashed #888;
       padding-bottom: 2px;
     }
     
@@ -565,7 +565,7 @@ export default function PrintableWeighmentSlipModal({ isOpen, onClose, data, aut
             .company-address-m { font-size: 10px; font-weight: 500; }
             .info-grid-m { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
             .info-col-m { display: flex; flex-direction: column; gap: 6px; }
-            .info-row-m { display: flex; border-bottom: 1px dotted #888; padding-bottom: 2px; }
+            .info-row-m { display: flex; border-bottom: 1px dashed #888; padding-bottom: 2px; }
             .info-label-m { width: 80px; font-size: 10px; font-weight: bold; color: #333; }
             .info-val-m { flex: 1; font-size: 11px; font-weight: 700; }
             .info-val-lg-m { font-size: 13px; font-weight: 900; }

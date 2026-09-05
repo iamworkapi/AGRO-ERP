@@ -1,26 +1,58 @@
 import { Dropdown } from "primereact/dropdown";
 
-// Bare dropdown control, no label - used standalone or via FormField's
-// type="select" branch, so a single place owns the select's look and feel.
-export default function Select({ value, onChange, options, placeholder = "Select...", style, disabled, hasLeftIcon }) {
-  // Plain strings (most pages) use the same text as value and label.
-  // {value, label} objects (e.g. picking a profile by id but showing their
-  // name) are also supported so callers aren't forced to fake an id-less
-  // selection just to satisfy this component.
-  const normalized = options.map((opt) => (typeof opt === "object" && opt !== null ? opt : { value: opt, label: opt }));
+export default function Select({
+  value,
+  onChange,
+  options = [],
+  placeholder = "Select...",
+  style,
+  inputStyle,
+  disabled = false,
+  hasLeftIcon = false,
+  error = false,
+  filter = false,
+  showClear = false,
+  className = "",
+  onFocus,
+  onBlur,
+}) {
+  const safeOptions = Array.isArray(options) ? options : [];
+  const normalized = safeOptions.map((opt) =>
+    typeof opt === "object" && opt !== null ? opt : { value: opt, label: String(opt ?? "") }
+  );
+
+  const isInvalid = Boolean(error);
+
+  const mergedStyle = {
+    width: "100%",
+    ...style,
+  };
+
+  const mergedInputStyle = {
+    border: "none",
+    borderBottom: "none",
+    boxShadow: "none",
+    background: "transparent",
+    outline: "none",
+    ...inputStyle,
+  };
 
   return (
     <Dropdown
-      value={value || null}
+      value={value ?? null}
       options={normalized}
       optionLabel="label"
       optionValue="value"
-      onChange={(e) => onChange(e.value)}
+      onChange={(e) => onChange?.(e.value)}
+      onFocus={onFocus}
+      onBlur={onBlur}
       placeholder={placeholder}
       disabled={disabled}
+      filter={filter || normalized.length > 8}
+      showClear={showClear}
       appendTo={typeof window !== "undefined" ? document.body : "self"}
-      className={hasLeftIcon ? "has-left-icon" : ""}
-      style={{ width: "100%", ...style }}
+      style={mergedStyle}
+      className={`app-select-dropdown ${hasLeftIcon ? "has-left-icon" : ""} ${isInvalid ? "p-invalid has-error" : ""} ${className}`}
     />
   );
 }

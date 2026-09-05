@@ -70,7 +70,9 @@ export async function createStockEntry(actor, payload) {
     return entry;
   } catch (error) {
     if (error.code === 11000) throw ApiError.conflict("A stock entry with this slip number already exists for this warehouse.");
-    if (error.name === "ValidationError") throw ApiError.badRequest(error.message);
+    if (error.name === "ValidationError" || error.name === "CastError" || error.message) {
+      throw ApiError.badRequest(error.message || "Invalid stock entry parameters.");
+    }
     throw error;
   }
 }

@@ -38,6 +38,10 @@ const LowStockAlerts = lazy(() => import("../pages/LowStockAlerts"));
 const Purchase = lazy(() => import("../pages/Purchase"));
 const VendorMasterLedger = lazy(() => import("../pages/VendorMasterLedger"));
 const Sales = lazy(() => import("../pages/Sales"));
+const Goods = lazy(() => import("../pages/Goods"));
+const GoodsCreate = lazy(() => import("../pages/GoodsCreate"));
+const Products = lazy(() => import("../pages/Products"));
+const ProductsCreate = lazy(() => import("../pages/ProductsCreate"));
 const Employees = lazy(() => import("../pages/Employees"));
 const AddEmployee = lazy(() => import("../pages/AddEmployee"));
 const TaskAssignment = lazy(() => import("../pages/TaskAssignment"));
@@ -130,6 +134,11 @@ export default function AppRoutes() {
         <Route path="purchase/vendors" element={<VendorMasterLedger />} />
 
         <Route path="sales" element={<Sales />} />
+        <Route path="goods" element={<Goods />} />
+        <Route path="goods/create" element={<GoodsCreate />} />
+        <Route path="products" element={<Products />} />
+        <Route path="products/create" element={<ProductsCreate />} />
+        <Route path="products/:id" element={<ProductsCreate />} />
         <Route path="sales/customer-master-ledger" element={<Customers />} />
 
         <Route path="employees" element={<Employees />} />

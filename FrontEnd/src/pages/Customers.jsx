@@ -43,6 +43,10 @@ export default function Customers() {
       setError("Enter a valid email address.");
       return;
     }
+    if (form.gstin?.trim() && form.gstin.trim().length !== 15) {
+      setError("GSTIN must be exactly 15 alphanumeric characters (e.g. 09ABCDE1234F1Z5).");
+      return;
+    }
     setError("");
     const openingBalance = Number(form.receivables) || 0;
     await addCustomer({
@@ -303,7 +307,13 @@ export default function Customers() {
             <FormField label="Company Name" required value={form.company} onChange={set("company")} placeholder="e.g. Kumar Traders" />
             <FormField label="Email Address" type="email" required value={form.email} onChange={set("email")} placeholder="name@company.com" />
             <FormField label="Work Phone" required value={form.phone} onChange={set("phone")} placeholder="98xxxxxxxx" />
-            <FormField label="GSTIN (optional)" value={form.gstin} onChange={set("gstin")} placeholder="09ABCDE1234F1Z5" />
+            <FormField
+              label="GSTIN (15-digit optional)"
+              maxLength={15}
+              value={form.gstin}
+              onChange={(val) => set("gstin")((val || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 15))}
+              placeholder="09ABCDE1234F1Z5"
+            />
             <FormField label="Status" type="select" required value={form.status} onChange={set("status")}
               options={["Accepted", "Pending", "Cancel"]} />
           </div>

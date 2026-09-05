@@ -4,8 +4,47 @@ import PageHeader from "../components/common/PageHeader";
 import Button from "../components/common/Button";
 import Badge from "../components/common/Badge";
 import FormField from "../components/common/FormField";
-import { saveNewVendor } from "../features/biomass/biomassService";
+import { saveNewVendor, getStoredVendors, getStoredBuyers } from "../features/biomass/biomassService";
 import { toast } from "../utils/toast";
+
+function generateNextPoNo() {
+  try {
+    const vendors = getStoredVendors() || [];
+    const buyers = getStoredBuyers ? getStoredBuyers() : [];
+    const all = [...vendors, ...buyers];
+    const currentYear = new Date().getFullYear();
+    let maxNum = 1000;
+
+    all.forEach((v) => {
+      const match = String(v.poNo || "").match(/PO-(?:202\d-)?(\d+)/i) || String(v.poNo || "").match(/(\d{4,})/);
+      if (match) {
+        const n = parseInt(match[1], 10);
+        if (!isNaN(n) && n >= 1000 && n < 99000 && n > maxNum) {
+          maxNum = n;
+        }
+      }
+    });
+
+    return `PO-${currentYear}-${maxNum + 1}`;
+  } catch {
+    return `PO-${new Date().getFullYear()}-1001`;
+  }
+}
+
+const DASHED_INPUT_STYLE = {
+  width: "100%",
+  fontSize: 13.5,
+  fontWeight: 400,
+  color: "var(--ink)",
+  background: "transparent",
+  border: "none",
+  borderBottom: "1.5px dashed var(--line-strong)",
+  borderRadius: 0,
+  outline: "none",
+  padding: "8px 0",
+  transition: "all 180ms ease",
+  fontFamily: "inherit",
+};
 
 export default function CreateBiomassVendor() {
   const navigate = useNavigate();
@@ -21,12 +60,54 @@ export default function CreateBiomassVendor() {
   const [sourcingArea, setSourcingArea] = useState("");
   const [commodity, setCommodity] = useState("Biomass / Mustard Husk / PRALLI");
 
-  // Commercial Agreement & Purchase Order Term Sheet
-  const [poNo, setPoNo] = useState(`PO-2026-${Math.floor(1000 + Math.random() * 9000)}`);
+  // Commercial Agreement & Purchase Order Term Sheet (Sequential Order)
+  const [poNo, setPoNo] = useState(() => generateNextPoNo());
   const [poDate, setPoDate] = useState(new Date().toISOString().slice(0, 10));
-  const [tenure, setTenure] = useState("01.06.2026 to 31.10.2026");
+  const [tenurePreset, setTenurePreset] = useState("kharif");
+  const [tenureStartDate, setTenureStartDate] = useState("2026-06-01");
+  const [tenureEndDate, setTenureEndDate] = useState("2026-10-31");
   const [contractedQtyMt, setContractedQtyMt] = useState("1000");
   const [agreedPricePerMt, setAgreedPricePerMt] = useState("1400");
+
+  const tenure = useMemo(() => {
+    if (!tenureStartDate && !tenureEndDate) return "01.06.2026 to 31.10.2026";
+    const fmt = (dStr) => {
+      if (!dStr) return "";
+      const [y, m, d] = dStr.split("-");
+      return `${d}.${m}.${y}`;
+    };
+    return `${fmt(tenureStartDate)} to ${fmt(tenureEndDate)}`;
+  }, [tenureStartDate, tenureEndDate]);
+
+  const handleTenurePresetChange = (e) => {
+    const val = e.target.value;
+    setTenurePreset(val);
+    const now = new Date();
+    const curYear = now.getFullYear();
+
+    if (val === "kharif") {
+      setTenureStartDate(`${curYear}-06-01`);
+      setTenureEndDate(`${curYear}-10-31`);
+    } else if (val === "rabi") {
+      setTenureStartDate(`${curYear}-11-01`);
+      setTenureEndDate(`${curYear + 1}-03-31`);
+    } else if (val === "annual") {
+      setTenureStartDate(`${curYear}-04-01`);
+      setTenureEndDate(`${curYear + 1}-03-31`);
+    } else if (val === "half_year") {
+      const start = new Date();
+      const end = new Date();
+      end.setMonth(end.getMonth() + 6);
+      setTenureStartDate(start.toISOString().slice(0, 10));
+      setTenureEndDate(end.toISOString().slice(0, 10));
+    } else if (val === "quarter") {
+      const start = new Date();
+      const end = new Date();
+      end.setMonth(end.getMonth() + 3);
+      setTenureStartDate(start.toISOString().slice(0, 10));
+      setTenureEndDate(end.toISOString().slice(0, 10));
+    }
+  };
 
   // Bank Info
   const [bankName, setBankName] = useState("");
@@ -42,6 +123,32 @@ export default function CreateBiomassVendor() {
     return qty * rate;
   }, [contractedQtyMt, agreedPricePerMt]);
 
+  const handleDashedFocus = (e) => {
+    e.target.style.borderBottom = "1.5px dashed var(--primary)";
+    e.target.style.boxShadow = "0 3px 8px rgba(0, 184, 107, 0.12)";
+  };
+
+  const handleDashedBlur = (e) => {
+    e.target.style.borderBottom = "1.5px dashed var(--line-strong)";
+    e.target.style.boxShadow = "none";
+  };
+
+  const handleGstinChange = (e) => {
+    const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 15);
+    setGstin(val);
+    // Standard Indian GSTIN: Characters 3 to 12 is the 10-digit PAN
+    if (val.length === 15 && (!panNo || panNo.length < 10)) {
+      const extractedPan = val.substring(2, 12);
+      setPanNo(extractedPan);
+      toast.info(`Auto-detected PAN from GSTIN: ${extractedPan}`);
+    }
+  };
+
+  const handlePanChange = (e) => {
+    const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+    setPanNo(val);
+  };
+
   function handleSubmit(e) {
     e.preventDefault();
     if (!companyName.trim()) {
@@ -50,6 +157,14 @@ export default function CreateBiomassVendor() {
     }
     if (!contactNo.trim()) {
       toast.error("Please enter Primary Contact Mobile Number.");
+      return;
+    }
+    if (gstin.trim() && gstin.trim().length !== 15) {
+      toast.error("GSTIN must be exactly 15 alphanumeric characters (e.g. 27AAHCM1258Q1ZW).");
+      return;
+    }
+    if (panNo.trim() && panNo.trim().length !== 10) {
+      toast.error("PAN must be exactly 10 alphanumeric characters (e.g. AAHCM1258Q).");
       return;
     }
 
@@ -76,7 +191,7 @@ export default function CreateBiomassVendor() {
       };
 
       saveNewVendor(newVendor);
-      toast.success(`Buyer "${companyName}" created successfully!`);
+      toast.success(`Buyer / Vendor "${companyName}" onboarded successfully!`);
       navigate("/biomass/vendors");
     } catch (err) {
       toast.error("Failed to save buyer details.");
@@ -86,438 +201,799 @@ export default function CreateBiomassVendor() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", maxWidth: "100%" }}>
+      {/* Top Back Navigation */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <button
+          type="button"
+          onClick={() => navigate("/biomass/vendors")}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            border: "none",
+            background: "transparent",
+            padding: 0,
+            fontSize: 12.5,
+            fontWeight: 600,
+            color: "var(--ink-secondary)",
+            cursor: "pointer",
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.color = "var(--primary-deep)")}
+          onMouseOut={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
+        >
+          <i className="ri-arrow-left-line" /> Back to Vendor Directory
+        </button>
+
+        <span style={{ fontSize: 12, color: "var(--muted)", fontWeight: 600 }}>
+          Biomass Procurement & Buyer Onboarding
+        </span>
+      </div>
+
       {/* Page Header */}
       <PageHeader
-        title="Create New Buyer"
-        subtitle="Onboard biomass procurement contractors, buyer networks, and farmer producer collectives"
+        title="Create New Buyer / Vendor"
+        subtitle="Full-width onboarding studio: register corporate entities, dispatch agreements, contracted tonnage, and banking credentials"
       />
 
-      {/* 2-Column Responsive Layout */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }} className="responsive-grid-2">
-        {/* Left Column: Form Sections */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {/* Section 1: Business Entity & Legal Compliance */}
-            <div
-              style={{
-                background: "var(--surface)",
-                border: "1px solid var(--line)",
-                borderRadius: 14,
-                padding: "18px 20px",
-                boxShadow: "var(--shadow-sm)",
-              }}
-            >
-              <div style={{ paddingBottom: 10, borderBottom: "1px solid var(--line)", marginBottom: 14 }}>
-                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
-                  <i className="ri-building-line" style={{ color: "var(--primary)" }} />
-                  1. Business Entity & Legal Compliance
-                </h3>
-                <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
-                  Registered vendor company details, legal tax identifiers, and sourcing networks
-                </p>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }} className="responsive-grid-2">
-                <div style={{ gridColumn: "1 / -1" }}>
-                  <FormField
-                    label="Buyer / Vendor Name"
-                    required
-                    icon="ri-industry-line"
-                    placeholder="e.g. SHREE RAM BIOMASS CONTRACTORS"
-                    value={companyName}
-                    onChange={setCompanyName}
-                    compact
-                    marginBottom={10}
-                  />
-                </div>
-
-                <FormField
-                  label="GSTIN Identification"
-                  icon="ri-file-line-invoice"
-                  placeholder="e.g. 09IYZPS0291E1ZK"
-                  value={gstin}
-                  onChange={setGstin}
-                  compact
-                  marginBottom={10}
-                />
-
-                <FormField
-                  label="Permanent Account Number (PAN)"
-                  icon="ri-id-card-line"
-                  placeholder="e.g. IYZPS0291E"
-                  value={panNo}
-                  onChange={setPanNo}
-                  compact
-                  marginBottom={10}
-                />
-
-                <FormField
-                  label="Sourcing Belt / Origin Network"
-                  icon="ri-map-pin-user-line"
-                  placeholder="e.g. Unnao & Shahjahanpur Belt (35 Villages)"
-                  value={sourcingArea}
-                  onChange={setSourcingArea}
-                  compact
-                  marginBottom={10}
-                />
-
-                <FormField
-                  label="Primary Raw Material Commodity"
-                  icon="ri-stack-line"
-                  placeholder="e.g. Biomass / Mustard Husk / PRALLI"
-                  value={commodity}
-                  onChange={setCommodity}
-                  compact
-                  marginBottom={10}
-                />
-              </div>
-            </div>
-
-            {/* Section 2: Authorized Representative & Contact Information */}
-            <div
-              style={{
-                background: "var(--surface)",
-                border: "1px solid var(--line)",
-                borderRadius: 14,
-                padding: "18px 20px",
-                boxShadow: "var(--shadow-sm)",
-              }}
-            >
-              <div style={{ paddingBottom: 10, borderBottom: "1px solid var(--line)", marginBottom: 14 }}>
-                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
-                  <i className="ri-user-3-line-tie" style={{ color: "var(--primary)" }} />
-                  2. Authorized Representative & Contact Desk
-                </h3>
-                <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
-                  Key representative contact details for dispatch coordination and billing
-                </p>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }} className="responsive-grid-2">
-                <FormField
-                  label="Representative Full Name"
-                  icon="ri-user-3-line"
-                  placeholder="e.g. Mr. Bhanu Pratap Singh"
-                  value={representative}
-                  onChange={setRepresentative}
-                  compact
-                  marginBottom={10}
-                />
-
-                <FormField
-                  label="Contact Phone Number"
-                  required
-                  icon="ri-phone-line"
-                  placeholder="e.g. 9876543210"
-                  value={contactNo}
-                  onChange={setContactNo}
-                  compact
-                  marginBottom={10}
-                />
-
-                <div style={{ gridColumn: "1 / -1" }}>
-                  <FormField
-                    label="Official Email Address"
-                    type="email"
-                    icon="ri-mail-line"
-                    placeholder="e.g. vendor.contact@shreerambiomass.com"
-                    value={email}
-                    onChange={setEmail}
-                    compact
-                    marginBottom={10}
-                  />
-                </div>
-
-                <div style={{ gridColumn: "1 / -1" }}>
-                  <FormField
-                    label="Full Operational / Registered Address"
-                    type="textarea"
-                    icon="ri-map-pin-line"
-                    placeholder="Enter complete office address, district, state, and pin code"
-                    value={address}
-                    onChange={setAddress}
-                    compact
-                    marginBottom={10}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Section 3: Commercial Purchase Order & Sourcing Agreement */}
-            <div
-              style={{
-                background: "var(--surface)",
-                border: "1px solid var(--line)",
-                borderRadius: 14,
-                padding: "18px 20px",
-                boxShadow: "var(--shadow-sm)",
-              }}
-            >
-              <div style={{ paddingBottom: 10, borderBottom: "1px solid var(--line)", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
-                    <i className="ri-file-line-signature" style={{ color: "var(--primary)" }} />
-                    3. Commercial PO Term Sheet & Rate Agreement
-                  </h3>
-                  <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
-                    Contracted biomass tonnage, agreed procurement price, and tenure
-                  </p>
-                </div>
-                <Badge tone="success">ACTIVE TERM SHEET</Badge>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
-                <FormField
-                  label="PO Reference Number"
-                  icon="ri-hashtag"
-                  placeholder="PO-2026-XXXX"
-                  value={poNo}
-                  onChange={setPoNo}
-                  compact
-                  marginBottom={10}
-                />
-
-                <FormField
-                  label="Agreement Tenure"
-                  icon="ri-calendar-event-line"
-                  placeholder="e.g. 01.06.2026 to 31.10.2026"
-                  value={tenure}
-                  onChange={setTenure}
-                  compact
-                  marginBottom={10}
-                />
-
-                <FormField
-                  label="Contracted Volume (MT)"
-                  type="number"
-                  icon="ri-weight-hanging-line"
-                  placeholder="1000"
-                  value={contractedQtyMt}
-                  onChange={setContractedQtyMt}
-                  compact
-                  marginBottom={10}
-                />
-
-                <FormField
-                  label="Agreed Sourcing Rate (₹/MT)"
-                  type="number"
-                  icon="ri-money-rupee-circle-line"
-                  placeholder="1400"
-                  value={agreedPricePerMt}
-                  onChange={setAgreedPricePerMt}
-                  compact
-                  marginBottom={10}
-                />
-              </div>
-
-              {/* Total Contract Estimated Value Banner */}
-              <div
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* Section 1: Business Entity & Legal Compliance (Full Width) */}
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            padding: "18px 22px",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span
                 style={{
-                  background: "rgba(0, 184, 107, 0.08)",
-                  border: "1px solid rgba(0, 184, 107, 0.2)",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  display: "flex",
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: "var(--primary-tint)",
+                  color: "var(--primary-deep)",
+                  fontSize: 12,
+                  fontWeight: 800,
+                  display: "inline-flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  marginTop: 4,
+                  justifyContent: "center",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <i className="ri-calculator-line" style={{ color: "var(--primary-deep)", fontSize: 14 }} />
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--ink)" }}>
-                    Estimated Total Sourcing Value:
-                  </span>
-                </div>
-                <strong style={{ fontSize: 14, color: "var(--primary-deep)" }}>
-                  ₹ {totalContractValue.toLocaleString("en-IN")}
-                </strong>
-              </div>
-            </div>
-
-            {/* Section 4: Bank Settlement & Disbursement Account */}
-            <div
-              style={{
-                background: "var(--surface)",
-                border: "1px solid var(--line)",
-                borderRadius: 14,
-                padding: "18px 20px",
-                boxShadow: "var(--shadow-sm)",
-              }}
-            >
-              <div style={{ paddingBottom: 10, borderBottom: "1px solid var(--line)", marginBottom: 14 }}>
-                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
-                  <i className="ri-bank-line" style={{ color: "var(--primary)" }} />
-                  4. Bank Settlement & Disbursement Details
-                </h3>
-                <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
-                  Official bank account for automated payment disbursal and invoicing
-                </p>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
-                <FormField
-                  label="Bank Name"
-                  icon="ri-landmark-line"
-                  placeholder="e.g. State Bank of India"
-                  value={bankName}
-                  onChange={setBankName}
-                  compact
-                  marginBottom={10}
-                />
-
-                <FormField
-                  label="Account Number"
-                  icon="ri-money-check-line"
-                  placeholder="e.g. 39182746192"
-                  value={accountNo}
-                  onChange={setAccountNo}
-                  compact
-                  marginBottom={10}
-                />
-
-                <FormField
-                  label="IFSC Code"
-                  icon="ri-shield-line"
-                  placeholder="e.g. SBIN0001234"
-                  value={ifscCode}
-                  onChange={setIfscCode}
-                  compact
-                  marginBottom={10}
-                />
-              </div>
-            </div>
-
-            {/* Form Submit & Cancel Actions */}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 6 }}>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => navigate("/biomass/vendors")}
-                style={{ padding: "8px 18px", fontSize: 12.5 }}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={loading}
-                className="btn-glow"
-                style={{ padding: "8px 24px", fontSize: 12.5, fontWeight: 700 }}
-              >
-                {loading ? "Registering…" : "Register Vendor"}
-              </Button>
-            </div>
-          </form>
-        </div>
-
-        {/* Right Column: Live Instant Summary Card */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div
-            style={{
-              background: "var(--surface)",
-              border: "1px solid var(--line)",
-              borderRadius: 14,
-              padding: "18px",
-              boxShadow: "var(--shadow-sm)",
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-              position: "sticky",
-              top: 14,
-            }}
-          >
-            {/* Header Badge */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--line)", paddingBottom: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>
-                Buyer / Vendor Preview
+                1
               </span>
-              <Badge tone="success">NEW ONBOARDING</Badge>
+              <h3 style={{ fontSize: 13.5, fontWeight: 800, color: "var(--ink)", margin: 0 }}>
+                Business Entity & Legal Compliance
+              </h3>
             </div>
+            <span style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600 }}>Step 1 of 4: Corporate Profile</span>
+          </div>
 
-            {/* Vendor Company Header */}
+          {/* Row 1: Company Name, GSTIN, PAN, Commodity (4 Columns) */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px 18px", marginBottom: 16 }}>
             <div>
-              <h4 style={{ margin: "0 0 2px", fontSize: 15, fontWeight: 800, color: "var(--ink)", wordBreak: "break-word" }}>
-                {companyName || "Buyer / Vendor Name"}
-              </h4>
-              <span style={{ fontSize: 11.5, color: "var(--primary-deep)", fontWeight: 600 }}>
-                {commodity || "Biomass Supply"}
+              <label style={{ display: "block", fontSize: 12, fontWeight: 800, color: "var(--ink)", marginBottom: 4 }}>
+                Buyer / Vendor Company Name <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder="e.g. Maschio Gaspardo India Private Limited"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Registered corporate or trade entity name
               </span>
             </div>
 
-            {/* Live Details Box */}
-            <div
-              style={{
-                background: "var(--canvas)",
-                border: "1px solid var(--line)",
-                borderRadius: 10,
-                padding: "12px",
-                display: "flex",
-                flexDirection: "column",
-                gap: 8,
-                fontSize: 12,
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>GSTIN:</span>
-                <strong style={{ color: "var(--ink)", fontFamily: "monospace", fontSize: 11 }}>{gstin || "—"}</strong>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Representative:</span>
-                <span style={{ color: "var(--ink)", fontWeight: 600 }}>{representative || "—"}</span>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Contact:</span>
-                <span style={{ color: "var(--ink)" }}>{contactNo || "—"}</span>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Origin Belt:</span>
-                <span style={{ color: "var(--ink-secondary)", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {sourcingArea || "—"}
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                GSTIN Identification Number
+              </label>
+              <input
+                type="text"
+                maxLength={15}
+                value={gstin}
+                onChange={handleGstinChange}
+                placeholder="e.g. 27AAHCM1258Q1ZW"
+                style={{
+                  ...DASHED_INPUT_STYLE,
+                  fontWeight: 400,
+                  letterSpacing: "0.5px",
+                }}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+                <span style={{ fontSize: 10.5, color: "var(--muted)" }}>
+                  [15-digit]
+                </span>
+                <span
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    color: gstin.length === 15 ? "#16a34a" : gstin.length > 0 ? "#d97706" : "var(--muted)",
+                    background: gstin.length === 15 ? "#f0fdf4" : gstin.length > 0 ? "#fffbeb" : "transparent",
+                    padding: "1px 6px",
+                    borderRadius: 4,
+                  }}
+                >
+                  [{gstin.length}/15 digits]
                 </span>
               </div>
+            </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid var(--line)", paddingTop: 8, marginTop: 2 }}>
-                <span style={{ color: "var(--muted)" }}>Contracted Vol:</span>
-                <strong style={{ color: "var(--primary-deep)" }}>{contractedQtyMt || "0"} MT</strong>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Agreed Sourcing Rate:</span>
-                <strong style={{ color: "var(--ink)" }}>₹ {agreedPricePerMt || "0"} / MT</strong>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between", background: "var(--surface)", padding: "6px 8px", borderRadius: 6, border: "1px solid var(--line)" }}>
-                <span style={{ color: "var(--muted)", fontWeight: 600 }}>Total Order Value:</span>
-                <strong style={{ color: "var(--primary-deep)" }}>₹ {totalContractValue.toLocaleString("en-IN")}</strong>
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Permanent Account Number (PAN)
+              </label>
+              <input
+                type="text"
+                maxLength={10}
+                value={panNo}
+                onChange={handlePanChange}
+                placeholder="e.g. AAHCM1258Q"
+                style={{
+                  ...DASHED_INPUT_STYLE,
+                  fontWeight: 400,
+                  letterSpacing: "0.5px",
+                }}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+                <span style={{ fontSize: 10.5, color: "var(--muted)" }}>
+                  [10-digit]
+                </span>
+                <span
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    color: panNo.length === 10 ? "#16a34a" : panNo.length > 0 ? "#d97706" : "var(--muted)",
+                    background: panNo.length === 10 ? "#f0fdf4" : panNo.length > 0 ? "#fffbeb" : "transparent",
+                    padding: "1px 6px",
+                    borderRadius: 4,
+                  }}
+                >
+                  [{panNo.length}/10 digits]
+                </span>
               </div>
             </div>
 
-            {/* Compliance Checklist */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 11 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: companyName ? "var(--primary-deep)" : "var(--muted)" }}>
-                <i className={companyName ? "ri-checkbox-circle-fill" : "ri-circle-line"} />
-                Entity Profile Setup
+            <FormField
+              label="Primary Raw Material Commodity"
+              type="select"
+              value={commodity}
+              onChange={setCommodity}
+              options={[
+                "Biomass / Mustard Husk / PRALLI",
+                "PRALLI (Baled)",
+                "PRALLI (Loose)",
+                "Mustard Husk",
+                "Paddy Straw",
+                "Wood Chips",
+              ]}
+              layout="vertical"
+              marginBottom={0}
+              inputStyle={{ borderBottom: "1.5px dashed var(--line-strong)", borderRadius: 0, background: "transparent" }}
+            />
+          </div>
+
+          {/* Row 2: Sourcing Belt & Full Address (2 Columns) */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 18px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Sourcing Belt / Origin Network
+              </label>
+              <input
+                type="text"
+                value={sourcingArea}
+                onChange={(e) => setSourcingArea(e.target.value)}
+                placeholder="e.g. Unnao & Shahjahanpur Belt (35 Villages)"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Primary agricultural collection zones or plant delivery hub
+              </span>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Full Operational / Registered Address
+              </label>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Enter complete office address, district, state, and pin code"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Headquarters or operational procurement office address
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 2: Authorized Representative & Contact Desk (Full Width) */}
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            padding: "18px 22px",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: "var(--primary-tint)",
+                  color: "var(--primary-deep)",
+                  fontSize: 12,
+                  fontWeight: 800,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                2
+              </span>
+              <h3 style={{ fontSize: 13.5, fontWeight: 800, color: "var(--ink)", margin: 0 }}>
+                Authorized Representative & Contact Desk
+              </h3>
+            </div>
+            <span style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600 }}>Step 2 of 4: Liaison Desk</span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px 18px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Representative Full Name
+              </label>
+              <input
+                type="text"
+                value={representative}
+                onChange={(e) => setRepresentative(e.target.value)}
+                placeholder="e.g. Mr. Bhanu Pratap Singh"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Primary liaison officer for dispatch and order tracking
+              </span>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Contact Phone Number <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <input
+                type="text"
+                maxLength={10}
+                required
+                value={contactNo}
+                onChange={(e) => setContactNo(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
+                placeholder="e.g. 9876543210"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Active mobile line for dispatch updates and OTPs
+              </span>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Official Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. vendor.contact@shreerambiomass.com"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Invoicing, billing statements, and contract communications
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Commercial PO Term Sheet & Rate Agreement (Full Width) */}
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            padding: "18px 22px",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: "var(--primary-tint)",
+                  color: "var(--primary-deep)",
+                  fontSize: 12,
+                  fontWeight: 800,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                3
+              </span>
+              <h3 style={{ fontSize: 13.5, fontWeight: 800, color: "var(--ink)", margin: 0 }}>
+                Commercial PO Term Sheet & Rate Agreement
+              </h3>
+            </div>
+            <Badge tone="success">ACTIVE TERM SHEET</Badge>
+          </div>
+
+          {/* 4 Commercial Columns with Dashed Border Bottom (Agreement Tenure has wider column for dual dates) */}
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 1fr) minmax(340px, 1.8fr) minmax(180px, 1fr) minmax(180px, 1fr)", gap: "14px 20px", marginBottom: 14 }}>
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                PO Reference Number
+              </label>
+              <input
+                type="text"
+                value={poNo}
+                onChange={(e) => setPoNo(e.target.value)}
+                placeholder="PO-2026-1001"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Auto-assigned sequential order PO identifier
+              </span>
+            </div>
+
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
+                  Agreement Tenure
+                </label>
+                <select
+                  value={tenurePreset}
+                  onChange={handleTenurePresetChange}
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                    color: "var(--primary-deep)",
+                    background: "var(--primary-tint)",
+                    border: "1px solid var(--primary-light)",
+                    borderRadius: 4,
+                    padding: "1px 6px",
+                    outline: "none",
+                    cursor: "pointer",
+                  }}
+                  title="Select procurement term preset"
+                >
+                  <option value="kharif">Kharif (Jun–Oct)</option>
+                  <option value="rabi">Rabi (Nov–Mar)</option>
+                  <option value="annual">Full Year (12 Mos)</option>
+                  <option value="half_year">Half Year (6 Mos)</option>
+                  <option value="quarter">Quarter (3 Mos)</option>
+                  <option value="custom">Custom Dates</option>
+                </select>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: contactNo ? "var(--primary-deep)" : "var(--muted)" }}>
-                <i className={contactNo ? "ri-checkbox-circle-fill" : "ri-circle-line"} />
-                Contact Verification
+
+              {/* Start and End Date dropdown calendar pickers */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <span style={{ fontSize: 9.5, color: "var(--muted)", textTransform: "uppercase", fontWeight: 700, display: "block" }}>
+                    Start Date
+                  </span>
+                  <input
+                    type="date"
+                    value={tenureStartDate}
+                    onChange={(e) => {
+                      setTenureStartDate(e.target.value);
+                      setTenurePreset("custom");
+                    }}
+                    style={{
+                      ...DASHED_INPUT_STYLE,
+                      fontSize: 13,
+                      padding: "5px 0",
+                      cursor: "pointer",
+                    }}
+                    onFocus={handleDashedFocus}
+                    onBlur={handleDashedBlur}
+                  />
+                </div>
+
+                <div>
+                  <span style={{ fontSize: 9.5, color: "var(--muted)", textTransform: "uppercase", fontWeight: 700, display: "block" }}>
+                    End Date
+                  </span>
+                  <input
+                    type="date"
+                    value={tenureEndDate}
+                    min={tenureStartDate}
+                    onChange={(e) => {
+                      setTenureEndDate(e.target.value);
+                      setTenurePreset("custom");
+                    }}
+                    style={{
+                      ...DASHED_INPUT_STYLE,
+                      fontSize: 13,
+                      padding: "5px 0",
+                      cursor: "pointer",
+                    }}
+                    onFocus={handleDashedFocus}
+                    onBlur={handleDashedBlur}
+                  />
+                </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: gstin ? "var(--primary-deep)" : "var(--muted)" }}>
-                <i className={gstin ? "ri-checkbox-circle-fill" : "ri-circle-line"} />
-                GST Compliance
+
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+                <span style={{ fontSize: 10.5, color: "var(--muted)" }}>
+                  Validity window
+                </span>
+                <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--primary-deep)" }}>
+                  {tenure}
+                </span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: bankName && accountNo ? "var(--primary-deep)" : "var(--muted)" }}>
-                <i className={bankName && accountNo ? "ri-checkbox-circle-fill" : "ri-circle-line"} />
-                Banking & Settlement
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Contracted Volume (MT)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="any"
+                value={contractedQtyMt}
+                onChange={(e) => setContractedQtyMt(e.target.value)}
+                placeholder="1000"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Tonnage committed under agreement
+              </span>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Agreed Sourcing Rate (₹/MT)
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="any"
+                value={agreedPricePerMt}
+                onChange={(e) => setAgreedPricePerMt(e.target.value)}
+                placeholder="1400"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Per Metric Ton contracted rate
+              </span>
+            </div>
+          </div>
+
+          {/* Live Order Calculation Banner (Wide & Understandable) */}
+          <div
+            style={{
+              background: "var(--canvas)",
+              border: "1px solid var(--line)",
+              borderRadius: 10,
+              padding: "12px 18px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 12,
+              marginTop: 6,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  background: "var(--primary-tint)",
+                  color: "var(--primary-deep)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 18,
+                }}
+              >
+                <i className="ri-calculator-line" />
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+                  Contract Value Calculation
+                </div>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink)", marginTop: 2 }}>
+                  {contractedQtyMt || "0"} MT × ₹{agreedPricePerMt || "0"}/MT
+                </div>
+              </div>
+            </div>
+
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+                Total Order Value
+              </div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: "var(--primary-deep)", marginTop: 2 }}>
+                ₹ {totalContractValue.toLocaleString("en-IN")}
               </div>
             </div>
           </div>
         </div>
-      </div>
+
+        {/* Section 4: Bank Settlement & Disbursement Details (Full Width) */}
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            padding: "18px 22px",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: "var(--primary-tint)",
+                  color: "var(--primary-deep)",
+                  fontSize: 12,
+                  fontWeight: 800,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                4
+              </span>
+              <h3 style={{ fontSize: 13.5, fontWeight: 800, color: "var(--ink)", margin: 0 }}>
+                Bank Settlement & Disbursement Details
+              </h3>
+            </div>
+            <span style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600 }}>Step 4 of 4: Direct Deposit Credentials</span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px 18px" }}>
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Bank Name
+              </label>
+              <input
+                type="text"
+                value={bankName}
+                onChange={(e) => setBankName(e.target.value)}
+                placeholder="e.g. State Bank of India"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Commercial bank name
+              </span>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Account Number
+              </label>
+              <input
+                type="text"
+                value={accountNo}
+                onChange={(e) => setAccountNo(e.target.value)}
+                placeholder="e.g. 39182746192"
+                style={DASHED_INPUT_STYLE}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                Beneficiary current or settlement account number
+              </span>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                IFSC Code
+              </label>
+              <input
+                type="text"
+                maxLength={11}
+                value={ifscCode}
+                onChange={(e) => setIfscCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11))}
+                placeholder="e.g. SBIN0001234"
+                style={{
+                  ...DASHED_INPUT_STYLE,
+                  letterSpacing: "0.5px",
+                }}
+                onFocus={handleDashedFocus}
+                onBlur={handleDashedBlur}
+              />
+              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
+                11-character branch IFSC identifier
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Buyer / Vendor Compliance & Summary Strip (Full Width) */}
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1.5px solid var(--primary-tint)",
+            borderRadius: 14,
+            padding: "16px 20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 14,
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          {/* Left: Entity Name & Tags */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 42,
+                height: 42,
+                borderRadius: 12,
+                background: "var(--primary-tint)",
+                color: "var(--primary)",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 20,
+              }}
+            >
+              <i className="ri-building-2-line" />
+            </div>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: "var(--ink)" }}>
+                {companyName || "Buyer / Vendor Name"}
+              </div>
+              <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
+                {gstin ? `GSTIN: ${gstin}` : "GSTIN pending"} | {commodity}
+              </div>
+            </div>
+          </div>
+
+          {/* Center: Compliance Checklist Chips */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", fontSize: 12 }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 5, color: companyName ? "#15803d" : "var(--muted)", fontWeight: 600 }}>
+              <i className={companyName ? "ri-checkbox-circle-fill" : "ri-circle-line"} style={{ color: companyName ? "#16a34a" : "var(--muted)" }} />
+              Entity Profile
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5, color: contactNo ? "#15803d" : "var(--muted)", fontWeight: 600 }}>
+              <i className={contactNo ? "ri-checkbox-circle-fill" : "ri-circle-line"} style={{ color: contactNo ? "#16a34a" : "var(--muted)" }} />
+              Contact
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5, color: gstin ? "#15803d" : "var(--muted)", fontWeight: 600 }}>
+              <i className={gstin ? "ri-checkbox-circle-fill" : "ri-circle-line"} style={{ color: gstin ? "#16a34a" : "var(--muted)" }} />
+              GST Code
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5, color: bankName && accountNo ? "#15803d" : "var(--muted)", fontWeight: 600 }}>
+              <i className={bankName && accountNo ? "ri-checkbox-circle-fill" : "ri-circle-line"} style={{ color: bankName && accountNo ? "#16a34a" : "var(--muted)" }} />
+              Bank Deposit
+            </span>
+          </div>
+
+          {/* Right: Total Value */}
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+              Contract Order Value
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: "var(--primary-deep)" }}>
+              ₹ {totalContractValue.toLocaleString("en-IN")}
+            </div>
+          </div>
+        </div>
+
+        {/* Action Controls Toolbar (Full Width) */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 12,
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            padding: "14px 20px",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => navigate("/biomass/vendors")}
+            style={{
+              padding: "8px 16px",
+              fontSize: 12.5,
+              fontWeight: 600,
+              borderRadius: 8,
+              border: "1px solid var(--line-strong)",
+              background: "var(--surface)",
+              color: "var(--ink)",
+              cursor: "pointer",
+            }}
+          >
+            <i className="ri-arrow-left-line" style={{ marginRight: 4 }} /> Return to Vendor Directory
+          </button>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => navigate("/biomass/vendors")}
+              style={{ padding: "8px 18px", fontSize: 13 }}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={loading}
+              style={{
+                padding: "8px 24px",
+                fontSize: 13,
+                fontWeight: 800,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                background: "var(--gradient-primary)",
+                boxShadow: "0 4px 12px rgba(0, 184, 107, 0.3)",
+              }}
+            >
+              {loading ? (
+                <>
+                  <i className="ri-loader-4-line spin" /> Registering Buyer / Vendor...
+                </>
+              ) : (
+                <>
+                  <i className="ri-check-line" /> Register Buyer / Vendor
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 }

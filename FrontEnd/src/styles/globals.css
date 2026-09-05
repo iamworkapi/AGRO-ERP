@@ -8,31 +8,46 @@
      OSCILLATE BIO-PALETTE (LIGHT MODE)
      #0F0F0F | #202020 | #5DD62C | #337418 | #F8F8F8
      ============================================================ */
-  --primary: #337418;        /* Deep Forest Green (Palette) */
-  --primary-deep: #1F490E;   /* Ultra Deep Green */
-  --primary-light: #5DD62C;  /* Vibrant Bio-Lime Green (Palette) */
-  --primary-tint: #EBF8E7;   /* Bio-Mint tint for badges/chips */
-  --accent-gold: #D4A373;    /* Harvest Gold Accent */
+  --primary: #337418;
+  /* Deep Forest Green (Palette) */
+  --primary-deep: #1F490E;
+  /* Ultra Deep Green */
+  --primary-light: #5DD62C;
+  /* Vibrant Bio-Lime Green (Palette) */
+  --primary-tint: #EBF8E7;
+  /* Bio-Mint tint for badges/chips */
+  --accent-gold: #D4A373;
+  /* Harvest Gold Accent */
 
   /* --- Neutrals --- */
-  --ink: #0F0F0F;            /* Deep Obsidian Slate text (Palette) */
-  --ink-secondary: #202020;  /* Elevated Dark text (Palette) */
-  --muted: #6B7A68;          /* Muted text */
-  --faint: #D0DDD0;          /* Subtle Borders */
-  
+  --ink: #0F0F0F;
+  /* Deep Obsidian Slate text (Palette) */
+  --ink-secondary: #202020;
+  /* Elevated Dark text (Palette) */
+  --muted: #6B7A68;
+  /* Muted text */
+  --faint: #D0DDD0;
+  /* Subtle Borders */
+
   /* --- Sidebar Theme --- */
-  --sidebar-bg: #0F0F0F;     /* Pitch Obsidian Dark (Palette) */
-  --sidebar-ink: #F8F8F8;    /* Chalk White (Palette) */
-  --sidebar-muted: #8E9E8B;  /* Muted text in sidebar */
-  --sidebar-hover: #202020;  /* Hover Dark (Palette) */
-  --sidebar-active: #337418; /* Active Deep Green (Palette) */
+  --sidebar-bg: #0F0F0F;
+  /* Pitch Obsidian Dark (Palette) */
+  --sidebar-ink: #F8F8F8;
+  /* Chalk White (Palette) */
+  --sidebar-muted: #8E9E8B;
+  /* Muted text in sidebar */
+  --sidebar-hover: #202020;
+  /* Hover Dark (Palette) */
+  --sidebar-active: #337418;
+  /* Active Deep Green (Palette) */
 
   /* --- Backgrounds & Surfaces --- */
-  --line: #E2E8E0;           
-  --line-strong: #C4D3C0;    
-  --surface: #FFFFFF;        
-  --surface-hover: #F2F7F0;  
-  --canvas: #F8F8F8;         /* Crisp Canvas (Palette) */
+  --line: #E2E8E0;
+  --line-strong: #C4D3C0;
+  --surface: #FFFFFF;
+  --surface-hover: #F2F7F0;
+  --canvas: #F8F8F8;
+  /* Crisp Canvas (Palette) */
 
   /* --- Status Colors --- */
   --status-success: #337418;
@@ -76,36 +91,50 @@
   --font-weight-bold: 700;
 }
 
-[data-theme="dark"], body.dark-theme {
+[data-theme="dark"],
+body.dark-theme {
   /* ============================================================
      OSCILLATE BIO-PALETTE (DARK MODE)
      #0F0F0F | #202020 | #5DD62C | #337418 | #F8F8F8
      ============================================================ */
-  --primary: #5DD62C;        /* Vibrant Bio-Lime Green (Palette) */
-  --primary-deep: #337418;   /* Deep Forest Green (Palette) */
-  --primary-light: #7DF050;  /* Electric Lime highlight */
+  --primary: #5DD62C;
+  /* Vibrant Bio-Lime Green (Palette) */
+  --primary-deep: #337418;
+  /* Deep Forest Green (Palette) */
+  --primary-light: #7DF050;
+  /* Electric Lime highlight */
   --primary-tint: rgba(93, 214, 44, 0.16);
-  --accent-gold: #FFB800;    /* Cyber Gold */
+  --accent-gold: #FFB800;
+  /* Cyber Gold */
 
   /* --- Neutrals --- */
-  --ink: #F8F8F8;            /* Crisp Chalk White text (Palette) */
-  --ink-secondary: #D4DCD2;  /* Soft text */
-  --muted: #8C998B;          /* Muted text */
+  --ink: #F8F8F8;
+  /* Crisp Chalk White text (Palette) */
+  --ink-secondary: #D4DCD2;
+  /* Soft text */
+  --muted: #8C998B;
+  /* Muted text */
   --faint: rgba(248, 248, 248, 0.1);
 
   /* --- Sidebar Theme --- */
-  --sidebar-bg: #0F0F0F;     /* Pitch Obsidian Dark (Palette) */
-  --sidebar-ink: #F8F8F8;    /* Chalk White (Palette) */
-  --sidebar-muted: #8C998B;  /* Muted text in sidebar */
-  --sidebar-hover: #202020;  /* Elevated Charcoal (Palette) */
+  --sidebar-bg: #0F0F0F;
+  /* Pitch Obsidian Dark (Palette) */
+  --sidebar-ink: #F8F8F8;
+  /* Chalk White (Palette) */
+  --sidebar-muted: #8C998B;
+  /* Muted text in sidebar */
+  --sidebar-hover: #202020;
+  /* Elevated Charcoal (Palette) */
   --sidebar-active: rgba(93, 214, 44, 0.18);
 
   /* --- Backgrounds & Surfaces --- */
   --line: rgba(248, 248, 248, 0.1);
   --line-strong: rgba(248, 248, 248, 0.18);
-  --surface: #202020;        /* Elevated Dark Charcoal Surface (Palette) */
-  --surface-hover: #292929;  
-  --canvas: #0F0F0F;         /* Pitch Obsidian Canvas (Palette) */
+  --surface: #202020;
+  /* Elevated Dark Charcoal Surface (Palette) */
+  --surface-hover: #292929;
+  --canvas: #0F0F0F;
+  /* Pitch Obsidian Canvas (Palette) */
 
   /* --- Status Colors --- */
   --status-success: #5DD62C;
@@ -130,11 +159,17 @@
 
 
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 body {
@@ -146,23 +181,103 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Allow text selection everywhere across tables, cards, content, and form text */
+p,
+span,
+h1, h2, h3, h4, h5, h6,
+td,
+th,
+table,
+label,
+input,
+textarea,
+.p-datatable,
+.app-datatable,
+.p-datatable-wrapper,
+.p-datatable-table,
+.p-datatable-tbody,
+.p-datatable-tbody > tr,
+.p-datatable-tbody > tr > td,
+.app-card,
+.p-card {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Custom theme text selection highlight */
+::selection {
+  background: rgba(93, 214, 44, 0.28);
+  color: var(--ink);
+}
+
+::-moz-selection {
+  background: rgba(93, 214, 44, 0.28);
+  color: var(--ink);
+}
+
 /* ============================================================
    BASE TYPOGRAPHY - element-level defaults so plain <h2>, <p>,
    <table> etc. already look on-brand without per-component styling
    ============================================================ */
-h1 { margin: 0; color: var(--ink); font-weight: var(--font-weight-bold); font-size: var(--font-size-xl); letter-spacing: -0.025em; }
-h2 { margin: 0; color: var(--ink); font-weight: var(--font-weight-bold); font-size: var(--font-size-lg); letter-spacing: -0.025em; }
-h3 { margin: 0; color: var(--ink); font-weight: var(--font-weight-semibold); font-size: var(--font-size-md); letter-spacing: -0.025em; }
-h4 { margin: 0; color: var(--ink); font-weight: var(--font-weight-semibold); font-size: var(--font-size-base); letter-spacing: -0.025em; }
+h1 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xl);
+  letter-spacing: -0.025em;
+}
 
-p { margin: 0; color: var(--ink-secondary); font-size: var(--font-size-base); line-height: 1.6; }
+h2 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  letter-spacing: -0.025em;
+}
 
-strong, b { color: var(--ink); font-weight: var(--font-weight-semibold); }
+h3 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
+  letter-spacing: -0.025em;
+}
 
-small { font-size: var(--font-size-xs); color: var(--muted); }
+h4 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  letter-spacing: -0.025em;
+}
 
-a { color: inherit; text-decoration: none; transition: color var(--transition-fast); }
-a:hover { color: var(--primary); }
+p {
+  margin: 0;
+  color: var(--ink-secondary);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+}
+
+strong,
+b {
+  color: var(--ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+small {
+  font-size: var(--font-size-xs);
+  color: var(--muted);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary);
+}
 
 button {
   font-family: inherit;
@@ -170,7 +285,12 @@ button {
   transition: all var(--transition-fast);
 }
 
-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
 th {
   text-align: left;
   font-size: var(--font-size-xs);
@@ -181,7 +301,12 @@ th {
   padding: 8px 6px;
   border-bottom: 1px solid var(--line);
 }
-td { padding: 10px 6px; color: var(--ink); border-top: 1px solid var(--line); }
+
+td {
+  padding: 10px 6px;
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+}
 
 /* ============================================================
    UTILITY CLASSES FOR ANIMATIONS & EFFECTS
@@ -197,6 +322,7 @@ td { padding: 10px 6px; color: var(--ink); border-top: 1px solid var(--line); }
 .hover-lift {
   transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
 }
+
 .hover-lift:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
@@ -213,35 +339,70 @@ td { padding: 10px 6px; color: var(--ink); border-top: 1px solid var(--line); }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
 .spin {
   animation: spin 0.7s linear infinite;
 }
 
 /* Add staggered animation delays */
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
 
 @keyframes modalBackdropFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalContentSlideIn {
-  from { opacity: 0; transform: scale(0.96) translateY(12px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* ============================================================
@@ -251,16 +412,20 @@ td { padding: 10px 6px; color: var(--ink); border-top: 1px solid var(--line); }
   scrollbar-width: thin;
   scrollbar-color: #CBD5E1 transparent;
 }
+
 .modal-scroll::-webkit-scrollbar {
   width: 6px;
 }
+
 .modal-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .modal-scroll::-webkit-scrollbar-thumb {
   background: #CBD5E1;
   border-radius: 999px;
 }
+
 .modal-scroll::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
@@ -272,18 +437,22 @@ td { padding: 10px 6px; color: var(--ink); border-top: 1px solid var(--line); }
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
+
 .sidebar-scroll::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
+
 .sidebar-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 999px;
 }
+
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.22);
 }
 
 /* ============================================================
@@ -292,6 +461,7 @@ td { padding: 10px 6px; color: var(--ink); border-top: 1px solid var(--line); }
 .data-table tbody tr {
   transition: background var(--transition-fast);
 }
+
 .data-table tbody tr:hover {
   background: var(--surface-hover);
 }
@@ -303,6 +473,7 @@ td { padding: 10px 6px; color: var(--ink); border-top: 1px solid var(--line); }
   .auth-brand-panel {
     display: none;
   }
+
   .auth-mobile-logo {
     display: flex !important;
   }
@@ -312,30 +483,76 @@ td { padding: 10px 6px; color: var(--ink); border-top: 1px solid var(--line); }
    AUTH & TOAST ANIMATIONS
    ============================================================ */
 @keyframes toastSlideIn {
-  0% { opacity: 0; transform: translateY(-16px) scale(0.95); }
-  60% { opacity: 1; transform: translateY(4px) scale(1.02); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.95);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateY(4px) scale(1.02);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes shakeError {
-  0%, 100% { transform: translateX(0); }
-  15%, 45%, 75% { transform: translateX(-5px); }
-  30%, 60%, 90% { transform: translateX(5px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  15%,
+  45%,
+  75% {
+    transform: translateX(-5px);
+  }
+
+  30%,
+  60%,
+  90% {
+    transform: translateX(5px);
+  }
 }
 
 @keyframes floatSlow {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-12px) rotate(3deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
 }
 
 @keyframes pulseGlow {
-  0%, 100% { opacity: 0.35; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.08); }
+
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08);
+  }
 }
 
 @keyframes toastProgress {
-  from { width: 100%; }
-  to { width: 0%; }
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
 }
 
 .animate-float {
@@ -374,7 +591,7 @@ i[class*="ri-"],
   box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 10px rgba(27, 94, 58, 0.08) !important;
   position: relative !important;
   overflow: hidden !important;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease !important;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease !important;
 }
 
 .app-card::before,
@@ -394,6 +611,12 @@ i[class*="ri-"],
 
 .app-card:hover,
 .p-card:hover {
+  transform: none !important;
+  border-color: rgba(27, 94, 58, 0.25) !important;
+}
+
+.app-card.hover-card:hover,
+.p-card.hover-card:hover {
   transform: translateY(-2px) !important;
   border-color: rgba(27, 94, 58, 0.35) !important;
   box-shadow: 0 14px 32px -4px rgba(0, 0, 0, 0.08), 0 6px 20px rgba(27, 94, 58, 0.18) !important;
@@ -417,11 +640,11 @@ i[class*="ri-"],
 /* ============================================================
    PRIMEREACT COMPONENT OVERRIDES
    ============================================================ */
-.pr-row-highlight > td {
+.pr-row-highlight>td {
   background: var(--primary-tint) !important;
 }
 
-.pr-datatable-compact .p-datatable-thead > tr > th {
+.pr-datatable-compact .p-datatable-thead>tr>th {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -432,25 +655,24 @@ i[class*="ri-"],
   border-bottom: 1px solid var(--line);
 }
 
-.pr-datatable-compact .p-datatable-tbody > tr > td {
+.pr-datatable-compact .p-datatable-tbody>tr>td {
   font-size: 12.5px;
   padding: 8px 12px;
   border-top: 1px solid var(--line);
   color: var(--ink);
 }
 
-.pr-datatable-compact .p-datatable-tbody > tr {
+.pr-datatable-compact .p-datatable-tbody>tr {
   transition: background 0.15s ease;
 }
 
-.pr-datatable-compact .p-datatable-tbody > tr:hover {
+.pr-datatable-compact .p-datatable-tbody>tr:hover {
   background: var(--surface-hover) !important;
 }
 
 /* Sleek Small Sort Icons for PrimeReact DataTable */
 .pr-datatable-compact .p-sortable-column {
   cursor: pointer !important;
-  user-select: none !important;
   transition: background 0.15s ease, color 0.15s ease !important;
 }
 
@@ -485,83 +707,40 @@ i[class*="ri-"],
   opacity: 1 !important;
 }
 
-/* Dropdown (components/common/Select.jsx) */
-.p-dropdown {
-  background: var(--canvas) !important;
-  border: 1px solid var(--line-strong) !important;
-  border-radius: var(--radius-sm) !important;
-  transition: all var(--transition-fast) !important;
-  box-shadow: none !important;
-  display: flex !important;
-  align-items: center !important;
-  box-sizing: border-box !important;
-}
-
-.p-dropdown:not(.p-disabled):hover {
-  border-color: var(--primary) !important;
-}
-
-.p-dropdown.p-focus {
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 0 3px var(--primary-tint) !important;
-  background: var(--surface) !important;
-}
-
-.p-dropdown .p-dropdown-label {
-  padding: 6px 12px !important;
-  font-size: 13.5px !important;
+/* Dropdown label padding & typography - ensure zero borders/shadows inside */
+.p-dropdown .p-dropdown-label,
+.p-dropdown .p-inputtext,
+.app-select-dropdown .p-dropdown-label,
+.app-select-dropdown .p-inputtext {
+  padding: 6px 0 !important;
+  font-size: 13px !important;
   font-family: inherit !important;
   color: var(--ink) !important;
   font-weight: 500 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  outline: none !important;
 }
 
 .p-dropdown.has-left-icon .p-dropdown-label {
-  padding-left: 34px !important;
+  padding-left: 26px !important;
 }
 
 .p-dropdown .p-dropdown-label.p-placeholder {
   color: #94A3B8 !important;
+  font-weight: 400 !important;
 }
 
 .p-dropdown .p-dropdown-trigger {
-  width: 32px !important;
-  color: #94A3B8 !important;
+  width: 24px !important;
+  color: var(--muted) !important;
+  padding: 0 !important;
 }
-
-.p-dropdown-panel {
-  background: var(--surface) !important;
-  border: 1px solid var(--line-strong) !important;
-  border-radius: 10px !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
-  z-index: 9999 !important;
-  overflow: hidden !important;
-}
-
-.p-dropdown-panel .p-dropdown-items-wrapper {
-  max-height: 220px !important;
-  border-radius: 10px !important;
-}
-
-.p-dropdown-panel .p-dropdown-items {
-  padding: 4px !important;
-}
-
-.p-dropdown-panel .p-dropdown-item {
-  padding: 8px 12px !important;
-  font-size: 12.5px !important;
-  color: var(--ink) !important;
-  border-radius: 6px !important;
-  margin: 1px 0 !important;
-  transition: background 0.15s ease !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-.p-dropdown-panel .p-dropdown-item:hover,
 .p-dropdown-panel .p-dropdown-item.p-highlight {
   background: var(--primary-tint) !important;
   color: var(--primary-deep) !important;
@@ -583,8 +762,15 @@ i[class*="ri-"],
 }
 
 @keyframes prToastSlideIn {
-  from { transform: translateX(115%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(115%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .pr-toast-compact .p-toast-message-content {
@@ -741,12 +927,10 @@ i[class*="ri-"],
   left: -60%;
   width: 50%;
   height: 200%;
-  background: linear-gradient(
-    60deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.25) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: linear-gradient(60deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.25) 50%,
+      rgba(255, 255, 255, 0) 100%);
   transform: rotate(25deg);
   transition: all 0.6s ease;
   pointer-events: none;
@@ -848,15 +1032,18 @@ i[class*="ri-"],
   .responsive-grid-4 {
     grid-template-columns: repeat(2, 1fr) !important;
   }
+
   .responsive-grid-2 {
     grid-template-columns: repeat(2, 1fr) !important;
   }
+
   .responsive-grid-1 {
     grid-template-columns: 1fr 1fr !important;
   }
 }
 
 @media (max-width: 640px) {
+
   .responsive-grid-4,
   .responsive-grid-3,
   .responsive-grid-2,
@@ -898,31 +1085,79 @@ i[class*="ri-"],
   animation: pr-loader-ripple 1.5s ease infinite;
 }
 
-.pr-loader-d1 { animation-delay: 100ms; }
-.pr-loader-d2 { animation-delay: 200ms; }
-.pr-loader-d3 { animation-delay: 300ms; }
-.pr-loader-d4 { animation-delay: 400ms; }
+.pr-loader-d1 {
+  animation-delay: 100ms;
+}
 
-.pr-loader-cell:nth-child(1) { --cell-color: var(--primary-deep); }
-.pr-loader-cell:nth-child(2) { --cell-color: var(--primary); }
-.pr-loader-cell:nth-child(3) { --cell-color: var(--primary-light); }
-.pr-loader-cell:nth-child(4) { --cell-color: var(--primary); }
-.pr-loader-cell:nth-child(5) { --cell-color: var(--primary-light); }
-.pr-loader-cell:nth-child(6) { --cell-color: var(--primary-light); }
-.pr-loader-cell:nth-child(7) { --cell-color: var(--primary-deep); }
-.pr-loader-cell:nth-child(8) { --cell-color: var(--primary-deep); }
-.pr-loader-cell:nth-child(9) { --cell-color: var(--primary-light); }
+.pr-loader-d2 {
+  animation-delay: 200ms;
+}
+
+.pr-loader-d3 {
+  animation-delay: 300ms;
+}
+
+.pr-loader-d4 {
+  animation-delay: 400ms;
+}
+
+.pr-loader-cell:nth-child(1) {
+  --cell-color: var(--primary-deep);
+}
+
+.pr-loader-cell:nth-child(2) {
+  --cell-color: var(--primary);
+}
+
+.pr-loader-cell:nth-child(3) {
+  --cell-color: var(--primary-light);
+}
+
+.pr-loader-cell:nth-child(4) {
+  --cell-color: var(--primary);
+}
+
+.pr-loader-cell:nth-child(5) {
+  --cell-color: var(--primary-light);
+}
+
+.pr-loader-cell:nth-child(6) {
+  --cell-color: var(--primary-light);
+}
+
+.pr-loader-cell:nth-child(7) {
+  --cell-color: var(--primary-deep);
+}
+
+.pr-loader-cell:nth-child(8) {
+  --cell-color: var(--primary-deep);
+}
+
+.pr-loader-cell:nth-child(9) {
+  --cell-color: var(--primary-light);
+}
 
 @keyframes pr-loader-ripple {
-  0% { background-color: transparent; }
-  30% { background-color: var(--cell-color); }
-  60% { background-color: transparent; }
-  100% { background-color: transparent; }
+  0% {
+    background-color: transparent;
+  }
+
+  30% {
+    background-color: var(--cell-color);
+  }
+
+  60% {
+    background-color: transparent;
+  }
+
+  100% {
+    background-color: transparent;
+  }
 }
 
 /* Table Header Single Line Rules & Crisp Grid Borders */
-.p-datatable-thead > tr > th,
-.p-datatable .p-datatable-thead > tr > th,
+.p-datatable-thead>tr>th,
+.p-datatable .p-datatable-thead>tr>th,
 .p-column-title,
 .p-datatable-header,
 th {
@@ -932,27 +1167,40 @@ th {
 
 .p-datatable,
 .p-datatable .p-datatable-wrapper,
-.p-datatable table,
-.p-datatable .p-datatable-thead > tr > th,
-.p-datatable .p-datatable-tbody > tr > td {
+.p-datatable table {
   border-radius: 0 !important;
 }
 
-.p-datatable.p-datatable-gridlines .p-datatable-thead > tr > th,
-.p-datatable.p-datatable-gridlines .p-datatable-tbody > tr > td,
-.p-datatable .p-datatable-thead > tr > th,
+/* Professional Modern Table Styling - Clean Horizontal Dividers (No Harsh Vertical Box Lines) */
+.p-datatable .p-datatable-thead > tr > th {
+  border: none !important;
+  border-bottom: 1.5px solid var(--line) !important;
+  background: var(--surface-hover) !important;
+  color: var(--muted) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 8px 12px !important;
+  line-height: 1.3 !important;
+}
+
 .p-datatable .p-datatable-tbody > tr > td {
-  border: 1px solid var(--line-strong) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line) !important;
+  font-size: 12.5px !important;
+  padding: 8px 12px !important;
+  color: var(--ink) !important;
+  vertical-align: middle !important;
+  background: transparent !important;
 }
 
-/* Distinct Alternating Even / Odd Row Strips */
-.p-datatable .p-datatable-tbody > tr:nth-child(even),
-.p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
-  background-color: var(--canvas) !important;
+/* Subtle Alternating Row Backgrounds */
+.p-datatable .p-datatable-tbody > tr:nth-child(even) {
+  background-color: #FAFCFA !important;
 }
 
-.p-datatable .p-datatable-tbody > tr:nth-child(odd),
-.p-datatable.p-datatable-striped .p-datatable-tbody > tr:nth-child(odd) {
+.p-datatable .p-datatable-tbody > tr:nth-child(odd) {
   background-color: var(--surface) !important;
 }
 
@@ -960,11 +1208,12 @@ th {
   transition: background-color 0.15s ease !important;
 }
 
-.p-datatable .p-datatable-tbody > tr:hover,
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #EEF8EC !important;
+}
+
 .p-datatable .p-datatable-tbody > tr:hover > td {
-  background-color: #e6f7f0 !important;
-  color: var(--ink) !important;
-  cursor: pointer;
+  background-color: transparent !important;
 }
 
 /* ============================================================
@@ -1061,9 +1310,15 @@ th {
   font-size: 12px !important;
 }
 
-/* Global Compact Small Input Text Override */
-input, select, textarea, .p-inputtext, .p-dropdown, .p-multiselect {
+/* Global Compact Small Input Text Override - regular 400 font weight for typed text */
+input,
+select,
+textarea,
+.p-inputtext,
+.p-dropdown,
+.p-multiselect {
   font-size: 12px !important;
+  font-weight: 400 !important;
 }
 
 /* Pill Submit Button */
@@ -1237,11 +1492,531 @@ input, select, textarea, .p-inputtext, .p-dropdown, .p-multiselect {
   color: rgba(255, 255, 255, 0.85);
 }
 
+/* ============================================================
+   FORM FIELD - dashed underline, left-label pattern
+   ============================================================ */
 
+/* Remove browser default spinner arrows from number inputs so suffixes (PCS, ₹, %) are never blocked */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+input[type="number"] {
+  -moz-appearance: textfield !important;
+  appearance: textfield !important;
+}
 
+/* Force PrimeReact inputs to dashed underline (excluding dropdown inner labels/inputs) */
+.p-inputtext:not(.p-dropdown-label):not(.p-dropdown *):not(.p-multiselect *),
+input.p-inputtext:not(.p-dropdown-label):not(.p-dropdown *):not(.p-multiselect *),
+.p-inputtext:enabled:not(.p-dropdown-label):not(.p-dropdown *):not(.p-multiselect *) {
+  border: none !important;
+  border-bottom: 1px dashed var(--line-strong) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  padding: 6px 0 !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  color: var(--ink) !important;
+  font-family: inherit !important;
+}
 
+.p-inputtext:enabled:focus:not(.p-dropdown-label):not(.p-dropdown *),
+input.p-inputtext:focus:not(.p-dropdown-label):not(.p-dropdown *),
+.p-inputtext:enabled:hover:not(.p-dropdown-label):not(.p-dropdown *) {
+  border-bottom: 1px dashed var(--primary) !important;
+  box-shadow: 0 3px 10px rgba(93, 214, 44, 0.12) !important;
+  background: rgba(93, 214, 44, 0.03) !important;
+}
 
+.p-inputtext.p-invalid:not(.p-dropdown-label):not(.p-dropdown *),
+.p-inputtext.p-invalid:enabled:not(.p-dropdown-label):not(.p-dropdown *),
+.form-field-wrapper.has-error .p-inputtext:not(.p-dropdown-label):not(.p-dropdown *) {
+  border-bottom: 1px dashed var(--status-error) !important;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.08) !important;
+}
 
+.p-inputtext:enabled::placeholder,
+.p-inputtext::placeholder {
+  color: #94A3B8 !important;
+  font-weight: 400 !important;
+  font-size: 13px !important;
+}
 
+/* Password component inputs */
+.p-password input {
+  border: none !important;
+  border-bottom: 1px dashed var(--line-strong) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 6px 0 !important;
+  font-size: 13px !important;
+  font-family: inherit !important;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
 
+.p-password input:focus {
+  border-bottom: 1px dashed var(--primary) !important;
+  box-shadow: 0 3px 10px rgba(93, 214, 44, 0.12) !important;
+  background: rgba(93, 214, 44, 0.03) !important;
+}
 
+.p-password.p-invalid input {
+  border-bottom: 1px dashed var(--status-error) !important;
+}
+
+/* Dropdowns - SINGLE dashed border on the outer container only */
+.p-dropdown,
+.p-dropdown.p-component,
+.form-field-dotted .p-dropdown,
+.form-field-dashed .p-dropdown,
+.app-select-dropdown,
+.app-select-dropdown.p-dropdown {
+  border: none !important;
+  border-bottom: 1px dashed var(--line-strong) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-height: 34px !important;
+  outline: none !important;
+}
+
+/* Ensure all children inside a dropdown have NO borders, NO underlines, NO box-shadows */
+.p-dropdown *,
+.p-dropdown .p-dropdown-label,
+.p-dropdown .p-inputtext,
+.p-dropdown .p-dropdown-trigger,
+.p-dropdown input,
+.app-select-dropdown *,
+.app-select-dropdown .p-dropdown-label,
+.app-select-dropdown .p-inputtext {
+  border: none !important;
+  border-bottom: none !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.p-dropdown:not(.p-disabled):hover,
+.form-field-dotted .p-dropdown:not(.p-disabled):hover,
+.form-field-dashed .p-dropdown:not(.p-disabled):hover,
+.app-select-dropdown:not(.p-disabled):hover {
+  border: none !important;
+  border-bottom: 1px dashed var(--primary) !important;
+  background: rgba(93, 214, 44, 0.02) !important;
+}
+
+.p-dropdown.p-focus,
+.form-field-dotted .p-dropdown.p-focus,
+.form-field-dashed .p-dropdown.p-focus,
+.app-select-dropdown.p-focus {
+  border: none !important;
+  border-bottom: 1px dashed var(--primary) !important;
+  box-shadow: 0 3px 10px rgba(93, 214, 44, 0.12) !important;
+  background: rgba(93, 214, 44, 0.03) !important;
+}
+
+.p-dropdown.p-invalid,
+.form-field-dashed .p-dropdown.p-invalid,
+.app-select-dropdown.p-invalid {
+  border: none !important;
+  border-bottom: 1px dashed var(--status-error) !important;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.08) !important;
+}
+
+.form-field-dotted .p-dropdown .p-dropdown-label,
+.form-field-dashed .p-dropdown .p-dropdown-label,
+.app-select-dropdown.p-dropdown .p-dropdown-label {
+  padding: 6px 0 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--ink) !important;
+}
+
+.form-field-dotted .p-dropdown .p-dropdown-trigger,
+.form-field-dashed .p-dropdown .p-dropdown-trigger,
+.app-select-dropdown.p-dropdown .p-dropdown-trigger {
+  width: 24px !important;
+  color: var(--muted) !important;
+  transition: transform 200ms ease;
+}
+
+.p-dropdown.p-overlay-open .p-dropdown-trigger {
+  transform: rotate(180deg);
+}
+
+.form-field-dotted .p-dropdown .p-dropdown-label.p-placeholder,
+.form-field-dashed .p-dropdown .p-dropdown-label.p-placeholder,
+.app-select-dropdown.p-dropdown .p-dropdown-label.p-placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Dropdown Panel overlay */
+.p-dropdown-panel {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow-lg) !important;
+  overflow: hidden !important;
+  padding: 4px !important;
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item {
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--ink) !important;
+  transition: all 120ms ease !important;
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item:not(.p-highlight):hover {
+  background: var(--surface-hover) !important;
+  color: var(--primary-deep) !important;
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
+  background: var(--primary-tint) !important;
+  color: var(--primary-deep) !important;
+  font-weight: 700 !important;
+}
+
+/* ============================================================
+   DATA TABLE - dashed row borders & hover scan design
+   ============================================================ */
+
+/* Override old compact datatable styles */
+.pr-datatable-compact .p-datatable-tbody>tr>td {
+  border-top: 1px dashed var(--line-strong) !important;
+}
+
+/* Organic Table Style */
+.pr-datatable-organic {
+  border-radius: 0 0 16px 16px;
+  overflow: hidden;
+}
+
+.pr-datatable-organic .p-datatable-wrapper {
+  overflow: hidden;
+  border-radius: 0 0 16px 16px;
+}
+
+.pr-datatable-organic .p-datatable-thead>tr>th {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  background: var(--surface-hover);
+  padding: 9px 12px;
+  border-bottom: 1.5px solid var(--line) !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  white-space: nowrap;
+  word-break: keep-all;
+  transition: background 150ms ease;
+}
+
+.pr-datatable-organic .p-datatable-thead>tr>th:hover {
+  background: var(--primary-tint) !important;
+  color: var(--primary-deep) !important;
+}
+
+.pr-datatable-organic .p-datatable-tbody>tr>td {
+  font-size: 12.5px;
+  padding: 8px 12px;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line) !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pr-datatable-organic.pr-datatable-compact .p-datatable-thead>tr>th {
+  padding: 6px 10px !important;
+  font-size: 10.5px !important;
+}
+
+.pr-datatable-organic.pr-datatable-compact .p-datatable-tbody>tr>td {
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+}
+
+.pr-datatable-organic .p-datatable-tbody>tr {
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.pr-datatable-organic .p-datatable-tbody>tr:hover {
+  background: var(--surface-hover) !important;
+}
+
+.pr-datatable-organic .p-datatable-tbody>tr:hover>td {
+  border-bottom-color: var(--line) !important;
+}
+
+.pr-datatable-organic .p-datatable-tbody>tr.pr-row-clickable {
+  cursor: pointer;
+}
+
+.pr-datatable-organic .p-datatable-tbody>tr.pr-row-clickable:hover>td:first-child {
+  box-shadow: inset 4px 0 0 var(--primary);
+}
+
+.pr-datatable-organic .p-datatable-tbody>tr.pr-row-highlight {
+  background: var(--primary-tint) !important;
+}
+
+/* Last row - solid bottom border instead of dashed */
+.pr-datatable-organic .p-datatable-tbody>tr:last-child>td {
+  border-bottom: 1px solid var(--line) !important;
+}
+
+/* Empty state */
+.pr-datatable-organic .p-datatable-emptymessage>td {
+  border-bottom: none !important;
+}
+
+/* Paginator */
+.pr-datatable-organic .p-paginator {
+  padding: 10px 16px;
+  border: none;
+  border-top: 1px solid var(--line);
+  background: var(--surface-hover);
+  border-radius: 0 0 16px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pr-datatable-organic .p-paginator .p-paginator-current {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  order: -1;
+  margin-right: auto;
+}
+
+.pr-datatable-organic .p-paginator .p-paginator-element {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 150ms ease;
+  min-width: 32px;
+  height: 32px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pr-datatable-organic .p-paginator .p-paginator-element.p-highlight {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border-color: var(--primary) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 8px rgba(51, 116, 24, 0.3) !important;
+}
+
+.pr-datatable-organic .p-paginator .p-paginator-element:not(.p-highlight):not(.p-disabled):hover {
+  background: var(--primary-tint) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary-deep) !important;
+}
+
+.pr-datatable-organic .p-paginator .p-dropdown {
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  font-size: 12px;
+}
+
+/* ============================================================
+   CARD - refined hover
+   ============================================================ */
+.app-card,
+.p-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow-sm) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: box-shadow 250ms ease, border-color 250ms ease !important;
+}
+
+.app-card::before,
+.p-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 300ms ease;
+  z-index: 2;
+}
+
+.app-card:hover,
+.p-card:hover {
+  box-shadow: var(--shadow-md) !important;
+}
+
+.app-card:hover::before,
+.p-card:hover::before {
+  opacity: 1;
+}
+
+.p-card .p-card-body {
+  padding: 16px 18px !important;
+}
+
+.p-card .p-card-title {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: var(--ink) !important;
+  margin-bottom: 12px !important;
+  letter-spacing: 0.1px !important;
+}
+
+.p-card .p-card-content {
+  padding: 0 !important;
+}
+
+/* ============================================================
+   FORM CONTAINER - dashed dividers between sections
+   ============================================================ */
+.form-section {
+  padding: 6px 0;
+}
+
+.form-section+.form-section {
+  border-top: 1px dashed var(--line-strong);
+  margin-top: 6px;
+  padding-top: 14px;
+}
+
+/* Section title inside forms */
+.form-section-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line-strong) 0%, transparent 100%);
+}
+
+/* Form Layout Grids */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .form-grid-2,
+  .form-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* Form Action Buttons Bar */
+.form-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px dashed var(--line-strong);
+}
+
+/* ============================================================
+   BUTTON refinements (Theme Primary Green)
+   ============================================================ */
+.app-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.app-btn.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(51, 116, 24, 0.3) !important;
+}
+
+.app-btn.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Full Width Button utilities */
+.app-btn.btn-full,
+.app-btn.full-width,
+.btn-full-width {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/* ============================================================
+   REUSABLE SECTION BACKGROUND - #F2C900
+   ============================================================ */
+:root {
+  --section-yellow: rgba(242, 201, 0, 0.5);
+  --section-yellow-light: #FFF8D6;
+}
+
+.section-bg-yellow,
+.section-yellow {
+  background: rgba(242, 201, 0, 0.5) !important;
+  color: #0F0F0F !important;
+  border: 1px solid rgba(242, 201, 0, 0.6) !important;
+  border-radius: 14px !important;
+  padding: 16px 20px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.form-actions-yellow,
+.form-actions-bar.bg-yellow,
+.action-section-yellow {
+  background: rgba(242, 201, 0, 0.5) !important;
+  border: 1px solid rgba(242, 201, 0, 0.5) !important;
+  border-radius: 14px !important;
+  padding: 14px 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 4px 14px rgba(242, 201, 0, 0.15) !important;
+}

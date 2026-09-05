@@ -29,8 +29,34 @@ export default function CreateWarehouse() {
 
   const set = (key) => (val) => setForm((f) => ({ ...f, [key]: val }));
 
+  const handleGstinChange = (val) => {
+    const sanitized = (val || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 15);
+    setForm((f) => {
+      const updated = { ...f, gstin: sanitized };
+      if (sanitized.length === 15 && (!f.pan || f.pan.length < 10)) {
+        updated.pan = sanitized.substring(2, 12);
+        toast.info(`Auto-detected PAN from GSTIN: ${sanitized.substring(2, 12)}`);
+      }
+      return updated;
+    });
+  };
+
+  const handlePanChange = (val) => {
+    const sanitized = (val || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+    setForm((f) => ({ ...f, pan: sanitized }));
+  };
+
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (form.gstin?.trim() && form.gstin.trim().length !== 15) {
+      toast.error("GSTIN must be exactly 15 alphanumeric characters (e.g. 09AALCK4355J1Z2).");
+      return;
+    }
+    if (form.pan?.trim() && form.pan.trim().length !== 10) {
+      toast.error("PAN must be exactly 10 alphanumeric characters (e.g. AALCK4355J).");
+      return;
+    }
 
     const payload = {
       name: form.name || "Kusumganga Agro Central Hub - Gorakhpur",
@@ -213,9 +239,11 @@ export default function CreateWarehouse() {
                   label="GSTIN / Unique ID"
                   required
                   icon="ri-file-line-invoice"
+                  maxLength={15}
                   value={form.gstin}
-                  onChange={set("gstin")}
+                  onChange={handleGstinChange}
                   placeholder="e.g. 09AALCK4355J1Z2"
+                  helperText={`[${(form.gstin || "").length}/15 digits]`}
                   compact
                   marginBottom={12}
                 />
@@ -224,9 +252,11 @@ export default function CreateWarehouse() {
                   label="PAN NO"
                   required
                   icon="ri-id-card-line"
+                  maxLength={10}
                   value={form.pan}
-                  onChange={set("pan")}
+                  onChange={handlePanChange}
                   placeholder="e.g. AALCK4355J"
+                  helperText={`[${(form.pan || "").length}/10 digits]`}
                   compact
                   marginBottom={12}
                 />

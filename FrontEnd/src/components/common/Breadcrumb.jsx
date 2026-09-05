@@ -11,14 +11,14 @@ export default function Breadcrumb({ items = [] }) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: 5,
+        gap: 4,
         background: "var(--primary-tint)",
-        border: "1px solid rgba(0, 184, 107, 0.25)",
-        borderRadius: 20,
-        padding: "3px 10px",
+        border: "1px solid rgba(93, 214, 44, 0.2)",
+        borderRadius: 24,
+        padding: "5px 12px",
         fontSize: 11,
         lineHeight: 1,
-        boxShadow: "0 1px 3px rgba(0, 184, 107, 0.08)",
+        boxShadow: "0 1px 4px rgba(93, 214, 44, 0.08)",
       }}
     >
       {items.map((item, idx) => {
@@ -27,9 +27,9 @@ export default function Breadcrumb({ items = [] }) {
         const isHome = item.label === "Home";
 
         return (
-          <span key={idx} style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <span key={idx} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
             {!isFirst && (
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 8, color: "var(--primary-deep)", opacity: 0.5 }} />
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 9, color: "var(--primary-deep)", opacity: 0.45 }} />
             )}
 
             {item.path && !isLast ? (
@@ -37,38 +37,26 @@ export default function Breadcrumb({ items = [] }) {
                 type="button"
                 onClick={() => navigate(item.path)}
                 style={{
-                  border: "none",
-                  background: "transparent",
-                  color: "var(--ink-secondary)",
-                  fontWeight: 500,
-                  cursor: "pointer",
-                  padding: 0,
-                  fontSize: 11,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
+                  border: "none", background: "transparent",
+                  color: "var(--ink-secondary)", fontWeight: 500,
+                  cursor: "pointer", padding: 0, fontSize: 11,
+                  display: "inline-flex", alignItems: "center", gap: 4,
                   transition: "color 0.15s ease",
                 }}
                 onMouseOver={(e) => (e.currentTarget.style.color = "var(--primary-deep)")}
                 onMouseOut={(e) => (e.currentTarget.style.color = "var(--ink-secondary)")}
               >
-                {isHome && <i className="ri-home-4-line" style={{ fontSize: 11, color: "var(--primary-deep)" }} />}
-
+                {isHome && <i className="ri-home-4-line" style={{ fontSize: 12, color: "var(--primary-deep)" }} />}
                 {item.label}
               </button>
             ) : (
               <span
                 style={{
-                  fontWeight: 700,
-                  color: "var(--primary-deep)",
-                  fontSize: 11,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
+                  fontWeight: 700, color: "var(--primary-deep)", fontSize: 11.5,
+                  display: "inline-flex", alignItems: "center", gap: 4,
                 }}
               >
-                {isHome && <i className="ri-home-4-line" style={{ fontSize: 11, color: "var(--primary-deep)" }} />}
-
+                {isHome && <i className="ri-home-4-line" style={{ fontSize: 12, color: "var(--primary-deep)" }} />}
                 {item.label}
               </span>
             )}

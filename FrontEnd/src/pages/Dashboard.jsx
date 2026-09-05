@@ -335,10 +335,10 @@ export default function Dashboard() {
 
         <StatCard
           variant="solid"
-          label="Total Factory Returns"
-          value={fmtBales(kpis.totalDispatchBales || 0)}
-          trend="-22%"
-          trendDirection="down"
+          label="Yard Stock (Remaining Pieces)"
+          value={fmtBales((kpis.remainingBales ?? (kpis.totalInflowBales || 0) - (kpis.totalDispatchBales || 0)))}
+          trend={kpis.totalDispatchBales > 0 ? `${fmtBales(kpis.totalDispatchBales)} dispatched` : "No dispatches yet"}
+          trendDirection={kpis.totalDispatchBales > 0 ? "up" : "neutral"}
           icon="ri-refresh-line"
           color="#1B2A4A"
           bg="linear-gradient(135deg, #1B2A4A 0%, #0F172A 100%)"

@@ -12,6 +12,8 @@ import reportsReducer from "../features/reports/reportsSlice";
 import settingsReducer from "../features/settings/settingsSlice";
 import alertsReducer from "../features/alerts/alertsSlice";
 import dashboardReducer from "../features/dashboard/dashboardSlice";
+import goodsReducer from "../features/goods/goodsSlice";
+import productsReducer from "../features/products/productsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -28,5 +30,7 @@ export const store = configureStore({
     settings: settingsReducer,
     alerts: alertsReducer,
     dashboard: dashboardReducer,
+    goods: goodsReducer,
+    products: productsReducer,
   },
 });

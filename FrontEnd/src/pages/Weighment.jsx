@@ -252,7 +252,7 @@ export default function Weighment() {
 
     .info-row {
       display: flex;
-      border-bottom: 1px dotted #888;
+      border-bottom: 1px dashed #888;
       padding-bottom: 2px;
     }
     
@@ -704,7 +704,7 @@ export default function Weighment() {
       {/* ================================================================== */}
       {activeTab === "register" ? (
         <DataTable
-          title="Daily Purchase & Weight Register (KUSUMGANGA AGRO SOLUTIONS)"
+          title="Daily Purchase & Weight Register"
           searchable
           exportable
           exportFilename="daily_weight_register"

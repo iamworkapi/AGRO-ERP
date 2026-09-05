@@ -483,6 +483,7 @@ export const getOverview = asyncHandler(async (req, res) => {
       collectionsToday,
       totalDispatchedMt: Math.round(totalDispatchedMt * 100) / 100,
       totalDispatchBales,
+      remainingBales: Math.max(0, totalInflowBales - totalDispatchBales),
       totalDispatchValue: Math.round(totalDispatchValue * 100) / 100,
       deliveredCount,
       inTransitCount,

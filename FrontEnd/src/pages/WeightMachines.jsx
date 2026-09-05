@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
-import Card from "../components/common/Card";
 import DataTable from "../components/common/DataTable";
 import Badge from "../components/common/Badge";
 import Modal from "../components/common/Modal";
@@ -64,7 +63,6 @@ export default function WeightMachines() {
   const { isOpen: openEdit, open: openEditModal, close: closeEditModal } = useDisclosure();
   const { isOpen: openCalib, open: openCalibModal, close: closeCalibModal } = useDisclosure();
 
-  const [viewMode, setViewMode] = useState("grid"); // "grid" | "table"
   const [form, setForm] = useState(() => emptyForm());
   const [editingId, setEditingId] = useState(null);
   const [calibMachine, setCalibMachine] = useState(null);
@@ -202,490 +200,162 @@ export default function WeightMachines() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18, position: "relative" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 14, position: "relative" }}>
       {/* Top Header */}
       <PageHeader
-        title="Weighbridge & Weight Machines Terminal"
+        title="Weight Machines"
         subtitle={
           isScopedRole
             ? `Active weighing scales and weighbridges at ${myWarehouse?.name || "your assigned warehouse"}`
             : "Enterprise weighbridge machinery, calibration logs & live capacity across all hubs"
         }
-        actions={
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {/* View Mode Toggle */}
-            <div style={{ display: "flex", background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 8, padding: 3 }}>
-              <button
-                type="button"
-                onClick={() => setViewMode("grid")}
-                style={{
-                  padding: "5px 12px",
-                  borderRadius: 6,
-                  border: "none",
-                  background: viewMode === "grid" ? "var(--primary)" : "transparent",
-                  color: viewMode === "grid" ? "white" : "var(--ink-secondary)",
-                  fontWeight: 700,
-                  fontSize: 12,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 5,
-                }}
-              >
-                <i className="ri-layout-grid-line" /> Cards
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode("table")}
-                style={{
-                  padding: "5px 12px",
-                  borderRadius: 6,
-                  border: "none",
-                  background: viewMode === "table" ? "var(--primary)" : "transparent",
-                  color: viewMode === "table" ? "white" : "var(--ink-secondary)",
-                  fontWeight: 700,
-                  fontSize: 12,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 5,
-                }}
-              >
-                <i className="ri-list-unordered" /> Table
-              </button>
-            </div>
-
-            {canAdd && (
-              <Button onClick={() => handleOpenAdd()}>
-                <i className="ri-add-line" style={{ marginRight: 6 }} /> Register Scale
-              </Button>
-            )}
-          </div>
-        }
+        badge="SCALES & WEIGHBRIDGES"
       />
 
-      {/* Hero Stats Strip */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+      {/* Hero Stats Strip (Compact Modern Design) */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
         {/* Card 1: Total Units */}
-        <div className="app-card" style={{ padding: "16px 18px", borderRadius: 14, background: "var(--surface)", border: "1px solid var(--line)", boxShadow: "var(--shadow-sm)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.5 }}>
+        <div
+          className="app-card"
+          style={{
+            padding: "12px 14px",
+            borderRadius: 12,
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderTop: "3px solid var(--primary)",
+            boxShadow: "var(--shadow-xs)",
+            transition: "all 150ms ease",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
               Total Weighbridges
             </span>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: "rgba(0,245,155,0.12)", color: "#00F59B", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 7, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>
               <i className="ri-scales-3-line" />
             </div>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "var(--ink)" }}>{stats.total} Units</div>
-          <span style={{ fontSize: 11, color: "var(--muted)", marginTop: 4, display: "block" }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.01em" }}>{stats.total} Units</div>
+          <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 2, display: "block" }}>
             Installed &amp; connected
           </span>
         </div>
 
         {/* Card 2: Active & Online */}
-        <div className="app-card" style={{ padding: "16px 18px", borderRadius: 14, background: "var(--surface)", border: "1px solid var(--line)", boxShadow: "var(--shadow-sm)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.5 }}>
+        <div
+          className="app-card"
+          style={{
+            padding: "12px 14px",
+            borderRadius: 12,
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderTop: "3px solid #10B981",
+            boxShadow: "var(--shadow-xs)",
+            transition: "all 150ms ease",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
               Online &amp; Operational
             </span>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: "rgba(16,185,129,0.12)", color: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 7, background: "rgba(16,185,129,0.12)", color: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>
               <i className="ri-checkbox-circle-fill" />
             </div>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "#10B981" }}>{stats.active} Active</div>
-          <span style={{ fontSize: 11, color: "var(--muted)", marginTop: 4, display: "block" }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "#10B981", letterSpacing: "-0.01em" }}>{stats.active} Active</div>
+          <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 2, display: "block" }}>
             Ready for live tare/gross
           </span>
         </div>
 
         {/* Card 3: In Maintenance */}
-        <div className="app-card" style={{ padding: "16px 18px", borderRadius: 14, background: "var(--surface)", border: "1px solid var(--line)", boxShadow: "var(--shadow-sm)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.5 }}>
+        <div
+          className="app-card"
+          style={{
+            padding: "12px 14px",
+            borderRadius: 12,
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderTop: "3px solid #F59E0B",
+            boxShadow: "var(--shadow-xs)",
+            transition: "all 150ms ease",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
               Maintenance / Calib
             </span>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: "rgba(245,158,11,0.12)", color: "#F59E0B", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 7, background: "rgba(245,158,11,0.12)", color: "#F59E0B", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>
               <i className="ri-tools-line" />
             </div>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: stats.maintenance > 0 ? "#F59E0B" : "var(--ink)" }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: stats.maintenance > 0 ? "#F59E0B" : "var(--ink)", letterSpacing: "-0.01em" }}>
             {stats.maintenance} Units
           </div>
-          <span style={{ fontSize: 11, color: "var(--muted)", marginTop: 4, display: "block" }}>
+          <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 2, display: "block" }}>
             Periodic calibration queue
           </span>
         </div>
 
         {/* Card 4: Aggregate Load Capacity */}
-        <div className="app-card" style={{ padding: "16px 18px", borderRadius: 14, background: "var(--surface)", border: "1px solid var(--line)", boxShadow: "var(--shadow-sm)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.5 }}>
+        <div
+          className="app-card"
+          style={{
+            padding: "12px 14px",
+            borderRadius: 12,
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderTop: "3px solid #0284C7",
+            boxShadow: "var(--shadow-xs)",
+            transition: "all 150ms ease",
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+            <span style={{ fontSize: 10, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
               Max Axle Capacity
             </span>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: "rgba(0,210,255,0.12)", color: "#00D2FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 7, background: "rgba(2,132,199,0.12)", color: "#0284C7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>
               <i className="ri-truck-line" />
             </div>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "#00D2FF" }}>{stats.totalCapacityMt} MT</div>
-          <span style={{ fontSize: 11, color: "var(--muted)", marginTop: 4, display: "block" }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "#0284C7", letterSpacing: "-0.01em" }}>{stats.totalCapacityMt} MT</div>
+          <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 2, display: "block" }}>
             Heavy vehicle weighbridge
           </span>
         </div>
       </div>
 
-      <AsyncState status={status} error={error} loadingLabel="Connecting to weighbridge telemetry nodes…" />
-
-      {/* Action Bar Strip */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 12,
-          padding: "12px 18px",
-          background: "var(--surface)",
-          border: "1px solid var(--line)",
-          borderRadius: 14,
-          boxShadow: "var(--shadow-sm)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: "var(--primary-tint)",
-              color: "var(--primary-deep)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 16,
-            }}
-          >
-            <i className="ri-scales-3-line" />
-          </div>
-          <div>
-            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)" }}>
-              Weighbridge Terminal Units ({machines.length})
-            </h3>
-            <span style={{ fontSize: 11, color: "var(--muted)" }}>
-              {isScopedRole
-                ? `Hub: ${assignedWarehouse?.name || "Assigned Warehouse"}`
-                : "Active weighment telemetry across all enterprise hubs"}
-            </span>
-          </div>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {/* View Mode Toggle */}
-          <div style={{ display: "flex", background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 8, padding: 3 }}>
-            <button
-              type="button"
-              onClick={() => setViewMode("grid")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 6,
-                border: "none",
-                background: viewMode === "grid" ? "var(--primary)" : "transparent",
-                color: viewMode === "grid" ? "white" : "var(--ink-secondary)",
-                fontWeight: 700,
-                fontSize: 12,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
-              }}
+      <DataTable
+        title="All Registered Weighbridges & Scales"
+        subtitle={
+          isScopedRole
+            ? `Hub: ${assignedWarehouse?.name || "Assigned Warehouse"} • Active weighment telemetry`
+            : "Active weighment telemetry and operational scales across enterprise facilities"
+        }
+        keyField="id"
+        rows={machines}
+        compact
+        searchable
+        searchPlaceholder="Search machine code, make, model, warehouse..."
+        right={
+          canAdd && (
+            <Button
+              size="sm"
+              variant="primary"
+              icon="ri-add-line"
+              onClick={handleOpenAdd}
+              style={{ height: 32, fontSize: 12, padding: "0 12px", fontWeight: 700 }}
             >
-              <i className="ri-layout-grid-line" /> Cards
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("table")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 6,
-                border: "none",
-                background: viewMode === "table" ? "var(--primary)" : "transparent",
-                color: viewMode === "table" ? "white" : "var(--ink-secondary)",
-                fontWeight: 700,
-                fontSize: 12,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
-              }}
-            >
-              <i className="ri-list-unordered" /> Table
-            </button>
-          </div>
-
-          {/* Prominent Create Machine Button */}
-          <Button onClick={() => handleOpenAdd()}>
-            <i className="ri-add-line" style={{ marginRight: 6 }} /> Register New Weight Machine
-          </Button>
-        </div>
-      </div>
-
-      {/* VIEW MODE 1: INTERACTIVE ASSET CARDS GRID */}
-      {viewMode === "grid" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
-          {machines.map((m) => {
-            const isOnline = m.status === "active";
-            const capMt = m.capacityKg ? Math.round(m.capacityKg / 1000) : 60;
-            const whName = m.warehouse?.name || myWarehouse?.name || "Assigned Warehouse";
-
-            return (
-              <div
-                key={m.id || m._id}
-                className="app-card hover-card"
-                style={{
-                  padding: "20px 22px",
-                  borderRadius: 18,
-                  background: "var(--surface)",
-                  border: "1px solid var(--line)",
-                  boxShadow: "var(--shadow-sm)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  gap: 14,
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                {/* Top Section: Code & Status */}
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div
-                        style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 12,
-                          background: isOnline ? "rgba(0,245,155,0.12)" : "rgba(245,158,11,0.12)",
-                          color: isOnline ? "#00F59B" : "#F59E0B",
-                          border: `1px solid ${isOnline ? "rgba(0,245,155,0.3)" : "rgba(245,158,11,0.3)"}`,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 18,
-                        }}
-                      >
-                        <i className="ri-scales-3-line" />
-                      </div>
-                      <div>
-                        <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.01em" }}>
-                          {m.machineCode}
-                        </h3>
-                        <span style={{ fontSize: 11, color: "var(--muted)" }}>{whName}</span>
-                      </div>
-                    </div>
-
-                    <Badge tone={isOnline ? "success" : m.status === "maintenance" ? "warning" : "error"}>
-                      {m.status ? m.status.toUpperCase() : "ACTIVE"}
-                    </Badge>
-                  </div>
-
-                  {/* Make & Model specifications */}
-                  <div style={{ background: "var(--canvas)", padding: "10px 14px", borderRadius: 10, border: "1px solid var(--line)", margin: "8px 0 12px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
-                      <span style={{ color: "var(--muted)" }}>Make / Brand:</span>
-                      <strong style={{ color: "var(--ink)" }}>{m.make || "Avery Weigh-Tronix"}</strong>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                      <span style={{ color: "var(--muted)" }}>Indicator Model:</span>
-                      <strong style={{ color: "var(--ink)" }}>{m.model || "ZM510 High Precision"}</strong>
-                    </div>
-                  </div>
-
-                  {/* Capacity Bar */}
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 700, marginBottom: 4 }}>
-                      <span style={{ color: "var(--muted)", textTransform: "uppercase" }}>Rated Axle Capacity</span>
-                      <span style={{ color: "var(--ink)" }}>{m.capacityKg ? `${m.capacityKg.toLocaleString()} kg (${capMt} MT)` : "60,000 kg (60 MT)"}</span>
-                    </div>
-                    <div style={{ height: 6, width: "100%", background: "var(--line)", borderRadius: 3, overflow: "hidden" }}>
-                      <div style={{ width: "85%", height: "100%", background: isOnline ? "var(--primary)" : "#F59E0B", borderRadius: 3 }} />
-                    </div>
-                  </div>
-
-                  {/* Calibration details */}
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--muted)", marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--line)" }}>
-                    <span>Installed: <strong>{m.installedOn ? new Date(m.installedOn).toLocaleDateString("en-IN", { month: "short", year: "numeric" }) : "Active"}</strong></span>
-                    <span>Next Calib: <strong style={{ color: isOnline ? "var(--ink)" : "#F59E0B" }}>{m.nextCalibrationDue ? new Date(m.nextCalibrationDue).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Standard"}</strong></span>
-                  </div>
-                </div>
-
-                {/* Card Action Buttons */}
-                <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-                  <button
-                    onClick={() => navigate("/weighment/create")}
-                    style={{
-                      flex: 1,
-                      padding: "8px 10px",
-                      borderRadius: 8,
-                      border: "1px solid var(--primary)",
-                      background: "var(--primary-tint)",
-                      color: "var(--primary-deep)",
-                      fontWeight: 800,
-                      fontSize: 11.5,
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <i className="ri-file-text-line" /> Weigh Slip
-                  </button>
-
-                  <button
-                    onClick={() => handleOpenCalib(m)}
-                    title="Log Calibration"
-                    style={{
-                      padding: "8px 10px",
-                      borderRadius: 8,
-                      border: "1px solid var(--line)",
-                      background: "var(--canvas)",
-                      color: "var(--ink)",
-                      fontWeight: 700,
-                      fontSize: 11.5,
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <i className="ri-tools-line" /> Calibrate
-                  </button>
-
-                  <button
-                    onClick={() => handleOpenEdit(m)}
-                    title="Edit Machine Settings"
-                    style={{
-                      padding: "8px 10px",
-                      borderRadius: 8,
-                      border: "1px solid var(--line)",
-                      background: "var(--canvas)",
-                      color: "var(--ink-secondary)",
-                      fontWeight: 700,
-                      fontSize: 12,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <i className="ri-edit-line" />
-                  </button>
-
-                  <button
-                    onClick={() => handleDeleteMachine(m.id || m._id, m.machineCode)}
-                    title="Delete Machine"
-                    style={{
-                      padding: "8px 10px",
-                      borderRadius: 8,
-                      border: "1px solid rgba(239, 68, 68, 0.25)",
-                      background: "rgba(239, 68, 68, 0.08)",
-                      color: "var(--status-error)",
-                      fontWeight: 700,
-                      fontSize: 12,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <i className="ri-delete-bin-line" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Quick Register Machine Card in Grid */}
-          <div
-            onClick={() => handleOpenAdd()}
-            className="app-card hover-card"
-            style={{
-              minHeight: 250,
-              borderRadius: 18,
-              border: "2px dashed var(--primary)",
-              background: "rgba(0, 245, 155, 0.04)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 12,
-              cursor: "pointer",
-              padding: "24px 20px",
-              textAlign: "center",
-              transition: "all 0.2s ease",
-            }}
-          >
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "50%",
-                background: "var(--primary-tint)",
-                color: "var(--primary-deep)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 24,
-                boxShadow: "0 0 12px rgba(0, 245, 155, 0.2)",
-              }}
-            >
-              <i className="ri-add-line" />
-            </div>
-            <div>
-              <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--ink)" }}>Register New Machine</h4>
-              <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--muted)" }}>
-                Add another weighbridge scale for this hub
-              </p>
-            </div>
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--primary-deep)",
-                background: "var(--primary-tint)",
-                padding: "4px 12px",
-                borderRadius: 8,
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-              }}
-            >
-              + Register Scale &rarr;
-            </span>
-          </div>
-
-          {machines.length === 0 && (
-            <div style={{ gridColumn: "1 / -1", padding: 32, textAlign: "center", background: "var(--surface)", borderRadius: 14, border: "1px solid var(--line)" }}>
-              <i className="ri-scales-3-line" style={{ fontSize: 36, color: "var(--muted)", marginBottom: 10 }} />
-              <h3 style={{ margin: "0 0 6px", color: "var(--ink)" }}>No Weight Machines Registered</h3>
-              <p style={{ margin: "0 0 14px", fontSize: 13, color: "var(--muted)" }}>
-                Register your first electronic weighbridge or scale to begin automated PRALLI stock weighment.
-              </p>
-              <Button onClick={() => handleOpenAdd()}>
-                <i className="ri-add-line" style={{ marginRight: 6 }} /> Register Scale / Machine
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* VIEW MODE 2: FULL DATA TABLE */}
-      {viewMode === "table" && (
-        <Card title="All Registered Weighbridges & Scales">
-          <DataTable
-            keyField="id"
-            rows={machines}
-            searchable
-            searchPlaceholder="Search machine code, make, model, warehouse..."
-            emptyMessage="No weight machines recorded yet."
-            columns={[
-              {
-                key: "machineCode",
-                label: "Machine Code",
-                emphasize: true,
+              Register New Machine
+            </Button>
+          )
+        }
+        emptyMessage="No weight machines recorded yet."
+        columns={[
+          {
+            key: "machineCode",
+            label: "Machine Code",
+            emphasize: true,
                 render: (m) => (
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <div style={{ width: 28, height: 28, borderRadius: 6, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>
@@ -732,7 +402,7 @@ export default function WeightMachines() {
                 key: "status",
                 label: "Status",
                 render: (m) => (
-                  <Badge tone={m.status === "active" ? "success" : m.status === "maintenance" ? "warning" : "error"}>
+                  <Badge tone={m.status === "active" ? "success" : m.status === "maintenance" ? "warning" : "error"} size="sm">
                     {m.status ? m.status.toUpperCase() : "ACTIVE"}
                   </Badge>
                 ),
@@ -741,11 +411,11 @@ export default function WeightMachines() {
                 key: "actions",
                 label: "Actions",
                 render: (m) => (
-                  <div style={{ display: "flex", gap: 6 }}>
+                  <div style={{ display: "flex", gap: 5 }}>
                     <button
-                      onClick={() => navigate("/weighment/create")}
+                      onClick={() => navigate("/weighment/new")}
                       style={{
-                        padding: "4px 8px",
+                        padding: "3px 8px",
                         borderRadius: 6,
                         border: "1px solid var(--primary)",
                         background: "var(--primary-tint)",
@@ -805,8 +475,6 @@ export default function WeightMachines() {
               },
             ]}
           />
-        </Card>
-      )}
 
       {/* MODAL 1: ADD WEIGHT MACHINE */}
       <Modal open={openAdd} title="Register New Weighbridge / Scale" onClose={() => closeAddModal()}>

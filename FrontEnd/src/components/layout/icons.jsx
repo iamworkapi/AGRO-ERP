@@ -78,6 +78,26 @@ export function BiomassIcon({ size = 20, style = {} }) {
   return <i className="ri-plant-line" style={{ fontSize: size, ...style }} />;
 }
 
+export function VendorsIcon({ size = 20, style = {} }) {
+  return <i className="ri-store-2-line" style={{ fontSize: size, ...style }} />;
+}
+
+export function DispatchIcon({ size = 20, style = {} }) {
+  return <i className="ri-truck-line" style={{ fontSize: size, ...style }} />;
+}
+
+export function StorageIcon({ size = 20, style = {} }) {
+  return <i className="ri-archive-stack-line" style={{ fontSize: size, ...style }} />;
+}
+
+export function ProductsIcon({ size = 20, style = {} }) {
+  return <i className="ri-shopping-bag-2-line" style={{ fontSize: size, ...style }} />;
+}
+
+export function GoodsIcon({ size = 20, style = {} }) {
+  return <i className="ri-file-list-3-line" style={{ fontSize: size, ...style }} />;
+}
+
 export function Stage1Icon({ size = 20, style = {} }) {
   return <i className="ri-truck-line" style={{ fontSize: size, ...style }} />;
 }
@@ -100,15 +120,17 @@ export const NAV_ICONS = {
   "/users": UsersIcon,
   "/attendance": AttendanceIcon,
   "/weighment": WeighmentIcon,
-  "/biomass/vendors": BuyersIcon,
+  "/biomass/vendors": VendorsIcon,
   "/biomass": BiomassIcon,
   "/biomass/collection": Stage1Icon,
   "/biomass/processing": Stage2Icon,
-  "/biomass/storage": Stage3Icon,
-  "/biomass/dispatch": Stage4Icon,
+  "/biomass/storage": StorageIcon,
+  "/biomass/dispatch": DispatchIcon,
   "/inventory": InventoryIcon,
   "/purchase": PurchaseIcon,
   "/sales": SalesIcon,
+  "/products": ProductsIcon,
+  "/goods": GoodsIcon,
   "/employees": EmployeesIcon,
   "/reports": ReportsIcon,
   "/alerts": AlertsIcon,

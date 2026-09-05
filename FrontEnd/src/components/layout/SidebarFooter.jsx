@@ -21,7 +21,7 @@ export default function SidebarFooter({ collapsed }) {
       title={collapsed ? `${name} (${role})` : undefined}
       onClick={() => navigate("/settings/super-admin")}
       style={{
-        padding: collapsed ? "14px 10px" : "14px 16px",
+        padding: collapsed ? "10px 10px" : "10px 12px",
         borderTop: "1px solid rgba(255, 255, 255, 0.08)",
         display: "flex",
         alignItems: "center",
@@ -37,8 +37,8 @@ export default function SidebarFooter({ collapsed }) {
       <div style={{ position: "relative", flexShrink: 0 }}>
         <div
           style={{
-            width: 36,
-            height: 36,
+            width: 30,
+            height: 30,
             borderRadius: "50%",
             background: avatarUrl ? `url(${avatarUrl}) center/cover no-repeat` : "var(--gradient-primary)",
             display: "flex",
@@ -46,7 +46,7 @@ export default function SidebarFooter({ collapsed }) {
             justifyContent: "center",
             color: "white",
             fontWeight: 800,
-            fontSize: 13.5,
+            fontSize: 11,
             boxShadow: "0 2px 8px rgba(0, 184, 107, 0.3)",
             overflow: "hidden",
           }}
@@ -56,10 +56,10 @@ export default function SidebarFooter({ collapsed }) {
         <span
           style={{
             position: "absolute",
-            bottom: 0,
-            right: 0,
-            width: 10,
-            height: 10,
+            bottom: -1,
+            right: -1,
+            width: 8,
+            height: 8,
             borderRadius: "50%",
             background: "#10B981",
             border: "2px solid #07281D",
@@ -74,7 +74,7 @@ export default function SidebarFooter({ collapsed }) {
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span
                 style={{
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 700,
                   color: "white",
                   whiteSpace: "nowrap",
@@ -87,7 +87,7 @@ export default function SidebarFooter({ collapsed }) {
             </div>
             <span
               style={{
-                fontSize: 11,
+                fontSize: 10,
                 color: "rgba(255, 255, 255, 0.5)",
                 whiteSpace: "nowrap",
                 overflow: "hidden",

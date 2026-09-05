@@ -4,7 +4,7 @@ export default function SidebarHeader({ collapsed, onToggleCollapse }) {
   return (
     <div
       style={{
-        padding: collapsed ? "20px 14px 18px" : "20px 18px 18px",
+        padding: collapsed ? "14px 10px 12px" : "14px 12px 12px",
         borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
         display: "flex",
         alignItems: "center",
@@ -17,11 +17,11 @@ export default function SidebarHeader({ collapsed, onToggleCollapse }) {
           src="/Agro-Logo.svg"
           alt="Kusumganga Agro Logo"
           style={{
-            width: 36,
-            height: 36,
+            width: 28,
+            height: 28,
             flexShrink: 0,
             objectFit: "contain",
-            filter: "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3))",
+            filter: "drop-shadow(0 1px 4px rgba(0, 0, 0, 0.3))",
           }}
         />
         {!collapsed && (
@@ -30,7 +30,7 @@ export default function SidebarHeader({ collapsed, onToggleCollapse }) {
               style={{
                 margin: 0,
                 fontWeight: 800,
-                fontSize: 16.5,
+                fontSize: 14,
                 color: "white",
                 whiteSpace: "nowrap",
                 letterSpacing: "-0.02em",
@@ -39,8 +39,8 @@ export default function SidebarHeader({ collapsed, onToggleCollapse }) {
             >
               KUSUMGANGA
             </p>
-            <span style={{ fontSize: 10, color: "rgba(255, 255, 255, 0.65)", fontWeight: 600, letterSpacing: "0.02em" }}>
-              Agro Solutions ERP
+            <span style={{ fontSize: 9.5, color: "rgba(255, 255, 255, 0.6)", fontWeight: 600, letterSpacing: "0.02em" }}>
+              Agro Solutions
             </span>
           </div>
         )}
@@ -50,6 +50,7 @@ export default function SidebarHeader({ collapsed, onToggleCollapse }) {
         <button
           onClick={onToggleCollapse}
           title="Collapse sidebar"
+          className="sidebar-collapse-btn"
           style={{
             width: 28,
             height: 28,
@@ -62,15 +63,6 @@ export default function SidebarHeader({ collapsed, onToggleCollapse }) {
             justifyContent: "center",
             cursor: "pointer",
             flexShrink: 0,
-            transition: "all var(--transition-fast)",
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = "rgba(255, 255, 255, 0.14)";
-            e.currentTarget.style.color = "white";
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
-            e.currentTarget.style.color = "var(--sidebar-muted)";
           }}
         >
           <ChevronsLeft size={15} />

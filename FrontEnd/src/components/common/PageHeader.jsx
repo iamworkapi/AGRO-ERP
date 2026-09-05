@@ -2,6 +2,29 @@ import { useLocation } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import { resolveBreadcrumb } from "../../utils/breadcrumb";
 
+const SPARKLE_ICONS = {
+  weighment: "ri-scales-3-line",
+  warehouse: "ri-building-line",
+  inventory: "ri-stack-line",
+  storage: "ri-stack-line",
+  dispatch: "ri-truck-fast-line",
+  truck: "ri-truck-fast-line",
+  collection: "ri-truck-line",
+  procurement: "ri-truck-line",
+  buyer: "ri-user-star-line",
+  customer: "ri-user-star-line",
+  vendor: "ri-store-2-line",
+  employee: "ri-team-line",
+  attendance: "ri-team-line",
+  setting: "ri-settings-4-line",
+  profile: "ri-user-settings-line",
+  report: "ri-file-chart-line",
+  mis: "ri-file-chart-line",
+  alert: "ri-notification-3-line",
+  product: "ri-capsule-line",
+  goods: "ri-file-list-3-line",
+};
+
 export default function PageHeader({
   title,
   subtitle,
@@ -18,250 +41,155 @@ export default function PageHeader({
   className = "",
 }) {
   const routerLocation = useLocation();
+  const path = routerLocation.pathname.toLowerCase();
+
+  const resolvedIcon =
+    icon ||
+    Object.entries(SPARKLE_ICONS).find(([key]) => path.includes(key))?.[1] ||
+    "ri-command-line";
+
   const trail = breadcrumb || (title ? resolveBreadcrumb(routerLocation.pathname, title) : null);
   const actionContent = actions || action || children;
 
-  // Auto-detect a suitable icon if none passed based on pathname or title
-  const resolvedIcon =
-    icon ||
-    (() => {
-      const path = routerLocation.pathname.toLowerCase();
-      if (path.includes("weighment")) return "ri-scales-3-line";
-      if (path.includes("warehouse")) return "ri-building-line";
-      if (path.includes("inventory") || path.includes("storage")) return "ri-stack-line";
-      if (path.includes("dispatch") || path.includes("truck")) return "ri-truck-fast-line";
-      if (path.includes("collection") || path.includes("procurement")) return "ri-truck-line";
-      if (path.includes("buyer") || path.includes("customer")) return "ri-user-star-line";
-      if (path.includes("vendor")) return "ri-store-2-line";
-      if (path.includes("employee") || path.includes("attendance")) return "ri-team-line";
-      if (path.includes("setting") || path.includes("profile")) return "ri-settings-4-line";
-      if (path.includes("report") || path.includes("mis")) return "ri-file-chart-line";
-      if (path.includes("alert")) return "ri-notification-3-line";
-      return "ri-command-line";
-    })();
-
-  const toneConfig = {
-    success: {
-      bg: "rgba(93, 214, 44, 0.12)",
-      text: "var(--primary)",
-      border: "rgba(93, 214, 44, 0.3)",
-      dot: "#5DD62C",
-    },
-    warning: {
-      bg: "rgba(255, 184, 0, 0.12)",
-      text: "#D97706",
-      border: "rgba(255, 184, 0, 0.3)",
-      dot: "#FFB800",
-    },
-    info: {
-      bg: "rgba(0, 210, 255, 0.12)",
-      text: "#00D2FF",
-      border: "rgba(0, 210, 255, 0.3)",
-      dot: "#00D2FF",
-    },
-    purple: {
-      bg: "rgba(168, 85, 247, 0.12)",
-      text: "#A855F7",
-      border: "rgba(168, 85, 247, 0.3)",
-      dot: "#A855F7",
-    },
-  }[badgeTone] || {
-    bg: "rgba(93, 214, 44, 0.12)",
-    text: "var(--primary)",
-    border: "rgba(93, 214, 44, 0.3)",
-    dot: "#5DD62C",
-  };
-
   return (
     <div
-      className={`app-page-header app-card ${className}`}
+      className={`app-page-header ${className}`}
       style={{
-        background: "linear-gradient(135deg, var(--surface) 0%, var(--canvas) 100%)",
+        background: "linear-gradient(160deg, var(--surface) 0%, var(--canvas) 100%)",
         border: "1px solid var(--line)",
-        borderRadius: 16,
-        padding: "12px 18px",
-        boxShadow: "var(--shadow-sm)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        flexWrap: "wrap",
-        gap: 12,
+        borderRadius: 20,
+        padding: 0,
+        boxShadow: "var(--shadow-md)",
         position: "relative",
         overflow: "hidden",
         ...style,
       }}
     >
-      {/* Background Geometric Dot Matrix */}
+      {/* Top accent bar */}
       <div
         style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: `radial-gradient(var(--primary) 1.2px, transparent 1.2px)`,
-          backgroundSize: "20px 20px",
-          opacity: 0.08,
+          position: "absolute", top: 0, left: 0, right: 0, height: 3,
+          background: "linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 60%, transparent 100%)",
+        }}
+      />
+
+      {/* Animated dot grid */}
+      <div
+        style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `radial-gradient(var(--primary) 1px, transparent 1px)`,
+          backgroundSize: "18px 18px",
+          opacity: 0.06,
+          pointerEvents: "none",
+          animation: "drift 60s linear infinite",
+        }}
+      />
+
+      {/* Ambient glow blob */}
+      <div
+        style={{
+          position: "absolute", right: -20, top: -20,
+          width: 160, height: 160, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(93, 214, 44, 0.14) 0%, transparent 70%)",
+          filter: "blur(20px)",
           pointerEvents: "none",
         }}
       />
 
-      {/* Subtle Ambient Corner Light */}
-      <div
-        style={{
-          position: "absolute",
-          right: -30,
-          top: -30,
-          width: 140,
-          height: 140,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(93, 214, 44, 0.16) 0%, transparent 70%)",
-          filter: "blur(18px)",
-          pointerEvents: "none",
-        }}
-      />
+      <div style={{ position: "relative", zIndex: 2, padding: "18px 22px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
 
-      {/* Left: Icon Tile + Title & Metadata */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative", zIndex: 1, minWidth: 0, flex: 1 }}>
-        {/* Glow Icon Tile */}
-        <div
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 11,
-            background: "linear-gradient(135deg, rgba(93, 214, 44, 0.18) 0%, rgba(51, 116, 24, 0.1) 100%)",
-            color: "var(--primary)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 19,
-            flexShrink: 0,
-            border: "1px solid rgba(93, 214, 44, 0.35)",
-            boxShadow: "0 0 14px rgba(93, 214, 44, 0.15)",
-            position: "relative",
-          }}
-        >
-          <i className={resolvedIcon} />
-          <span
+        {/* Left: Icon + Text */}
+        <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0, flex: 1 }}>
+          {/* Animated icon tile */}
+          <div
             style={{
-              position: "absolute",
-              bottom: -1,
-              right: -1,
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: "#5DD62C",
-              border: "1.5px solid var(--surface)",
-              boxShadow: "0 0 6px #5DD62C",
+              width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+              background: "linear-gradient(135deg, rgba(93, 214, 44, 0.2) 0%, rgba(51, 116, 24, 0.12) 100%)",
+              color: "var(--primary)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 22,
+              border: "1px solid rgba(93, 214, 44, 0.35)",
+              boxShadow: "0 0 20px rgba(93, 214, 44, 0.15), 0 0 0 6px rgba(93, 214, 44, 0.04)",
+              position: "relative",
+              animation: "iconPulse 3s ease-in-out infinite",
             }}
-          />
-        </div>
-
-        {/* Text Details */}
-        <div style={{ minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <h1
+          >
+            <i className={resolvedIcon} style={{ position: "relative", zIndex: 1 }} />
+            <span
               style={{
-                margin: 0,
-                fontSize: 16.5,
-                fontWeight: 800,
-                color: "var(--ink)",
-                letterSpacing: "-0.015em",
-                lineHeight: 1.2,
+                position: "absolute", bottom: -2, right: -2,
+                width: 10, height: 10, borderRadius: "50%",
+                background: "#5DD62C", border: "2px solid var(--surface)",
+                boxShadow: "0 0 8px #5DD62C",
               }}
-            >
-              {title}
-            </h1>
-
-            {badge && (
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 5,
-                  padding: "2px 8px",
-                  borderRadius: 12,
-                  fontSize: 10,
-                  fontWeight: 800,
-                  background: toneConfig.bg,
-                  color: toneConfig.text,
-                  border: `1px solid ${toneConfig.border}`,
-                  letterSpacing: "0.02em",
-                }}
-              >
-                <span
-                  style={{
-                    width: 5,
-                    height: 5,
-                    borderRadius: "50%",
-                    background: toneConfig.dot,
-                    boxShadow: `0 0 6px ${toneConfig.dot}`,
-                  }}
-                />
-                {badge}
-              </span>
-            )}
+            />
           </div>
 
-          {(subtitle || locationText) && (
-            <p
-              style={{
-                margin: "3px 0 0",
-                fontSize: 11.5,
-                color: "var(--muted)",
-                lineHeight: 1.3,
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                flexWrap: "wrap",
-              }}
-            >
-              {locationText && (
-                <>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 3, fontWeight: 600, color: "var(--ink-secondary)" }}>
-                    <i className="ri-map-pin-2-line" style={{ color: "var(--primary)", fontSize: 12 }} />
-                    {locationText}
-                  </span>
-                  {subtitle && <span style={{ opacity: 0.35 }}>•</span>}
-                </>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <h1
+                style={{
+                  margin: 0, fontSize: 19, fontWeight: 900,
+                  background: "linear-gradient(135deg, var(--ink) 0%, var(--ink-secondary) 100%)",
+                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+                  letterSpacing: "-0.02em", lineHeight: 1.2,
+                }}
+              >
+                {title}
+              </h1>
+
+              {badge && (
+                <span
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 5,
+                    padding: "3px 10px", borderRadius: 20,
+                    fontSize: 9.5, fontWeight: 800,
+                    background: "var(--primary-tint)",
+                    color: "var(--primary-deep)",
+                    border: "1px solid rgba(93, 214, 44, 0.25)",
+                    letterSpacing: "0.04em", textTransform: "uppercase",
+                    boxShadow: "0 0 8px rgba(93, 214, 44, 0.1)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 5px var(--primary)" }} />
+                  {badge}
+                </span>
               )}
-              {subtitle && <span>{subtitle}</span>}
-            </p>
+            </div>
+
+            {subtitle && (
+              <p style={{ margin: "3px 0 0", fontSize: 12, color: "var(--muted)", display: "flex", alignItems: "center", gap: 5, lineHeight: 1.3 }}>
+                <i className="ri-information-line" style={{ fontSize: 12, opacity: 0.7 }} />
+                {subtitle}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Breadcrumb + Actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, flexWrap: "wrap" }}>
+          {trail && <Breadcrumb items={trail} />}
+          {actionContent && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {actionContent}
+            </div>
           )}
         </div>
       </div>
 
-      {/* Right: Actions & Breadcrumb Trail */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, flexWrap: "wrap", position: "relative", zIndex: 1, marginLeft: "auto" }}>
-        {trail && <Breadcrumb items={trail} />}
-        {actionContent && (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {actionContent}
-          </div>
-        )}
-      </div>
-
-      {/* Optional Secondary Row: Mini Stats */}
-      {stats.length > 0 && (
-        <div style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", paddingTop: 4, position: "relative", zIndex: 1 }}>
-          {stats.map((s, idx) => (
-            <div
-              key={idx}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                background: "var(--canvas)",
-                border: "1px solid var(--line)",
-                borderRadius: 8,
-                padding: "3px 9px",
-                fontSize: 11,
-              }}
-            >
-              {s.icon && <i className={s.icon} style={{ color: s.color || "var(--primary)", fontSize: 12 }} />}
-              <span style={{ color: "var(--muted)", fontWeight: 600 }}>{s.label}:</span>
-              <strong style={{ color: s.color || "var(--ink)", fontWeight: 800 }}>{s.value}</strong>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Inline styles for animations */}
+      <style>{`
+        @keyframes drift {
+          0% { transform: translate(0, 0); }
+          50% { transform: translate(-10px, -8px); }
+          100% { transform: translate(0, 0); }
+        }
+        @keyframes iconPulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(93,214,44,0.15), 0 0 0 6px rgba(93,214,44,0.04); }
+          50% { box-shadow: 0 0 28px rgba(93,214,44,0.25), 0 0 0 8px rgba(93,214,44,0.06); }
+        }
+      `}</style>
     </div>
   );
 }
