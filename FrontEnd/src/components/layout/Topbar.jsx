@@ -21,7 +21,7 @@ const toneByType = {
   Login: "error",
 };
 
-export default function Topbar({ onToggleMobileSidebar }) {
+export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const { exceptions } = useAlerts();
@@ -69,36 +69,46 @@ export default function Topbar({ onToggleMobileSidebar }) {
         borderBottom: "1px solid var(--line)",
       }}
     >
-      {/* Left: Mobile Hamburger & Greeting */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      {/* Left: Mobile App Launcher Button & Greeting */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <button
-          onClick={onToggleMobileSidebar}
-          aria-label="Toggle Navigation Menu"
+          onClick={onOpenAppHub || onToggleMobileSidebar}
+          aria-label="Open App Menu & Modules"
           className="app-topbar-hamburger"
+          title="Open App Hub"
           style={{
             display: "none",
-            width: 36,
-            height: 36,
-            borderRadius: 8,
+            width: 38,
+            height: 38,
+            borderRadius: 10,
             border: "1px solid var(--line)",
             background: "var(--canvas)",
             color: "var(--ink)",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: 18,
+            fontSize: 19,
             cursor: "pointer",
+            flexShrink: 0,
           }}
         >
-          <i className="ri-menu-line" />
+          <i className="ri-apps-2-line" />
         </button>
-        <h2 className="topbar-greeting" style={{ fontSize: 17, fontWeight: 700, color: "var(--ink)", margin: 0, letterSpacing: "-0.01em" }}>
-          Hello, {userName}
-        </h2>
+
+        <div>
+          <h2 className="topbar-greeting" style={{ fontSize: 16, fontWeight: 800, color: "var(--ink)", margin: 0, letterSpacing: "-0.02em" }}>
+            Hello, {userName}
+          </h2>
+          <div className="topbar-mobile-sub" style={{ display: "none", fontSize: 11, color: "var(--muted)", alignItems: "center", gap: 5 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary)" }} />
+            <span style={{ fontWeight: 600 }}>{hubStatusLabel}</span>
+          </div>
+        </div>
       </div>
 
       {/* Right: Live Status Pill, Theme Toggle, Notifications & Account Menu */}
-      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <div
+          className="topbar-status-pill"
           style={{
             fontSize: 12,
             fontWeight: 500,

@@ -124,7 +124,7 @@ export default function Dashboard() {
       {/* 1. HERO COMMAND STRIP & SCOPE SELECTOR (PATTERNED & ANIMATED)       */}
       {/* ================================================================== */}
       <div
-        className="app-card"
+        className="app-card dashboard-hub-banner"
         style={{
           background: "linear-gradient(135deg, var(--surface) 0%, var(--canvas) 100%)",
           border: "1px solid var(--line)",
@@ -599,6 +599,7 @@ export default function Dashboard() {
       {(() => {
         const tabRibbon = (
           <div
+            className="dashboard-tab-ribbon"
             style={{
               display: "flex",
               alignItems: "center",

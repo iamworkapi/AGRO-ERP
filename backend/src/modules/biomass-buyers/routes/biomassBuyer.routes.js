@@ -9,6 +9,12 @@ import {
 import { authenticate } from "../../common/middleware/authenticate.js";
 import { authorize } from "../../common/middleware/authorize.js";
 import { ROLES } from "../../common/constants/roles.js";
+import { validate } from "../../common/middleware/validate.js";
+import {
+  listBiomassBuyersQuerySchema,
+  createBiomassBuyerSchema,
+  updateBiomassBuyerSchema,
+} from "../validators/biomassBuyer.validator.js";
 
 const router = Router();
 router.use(authenticate);

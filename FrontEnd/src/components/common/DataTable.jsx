@@ -87,6 +87,7 @@ export default function DataTable({
       {/* Header Bar */}
       {hasHeader && (
         <div
+          className="app-datatable-header"
           style={{
             display: "flex",
             alignItems: "center",
@@ -129,9 +130,9 @@ export default function DataTable({
             )}
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
+          <div className="app-datatable-controls" style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
             {searchable && (
-              <div style={{ position: "relative" }}>
+              <div className="app-datatable-search-wrap" style={{ position: "relative" }}>
                 <i
                   className="ri-search-line"
                   style={{
@@ -147,6 +148,7 @@ export default function DataTable({
                 />
                 <input
                   type="text"
+                  className="app-datatable-search-input"
                   value={globalFilter}
                   onChange={(e) => setGlobalFilter(e.target.value)}
                   placeholder={searchPlaceholder}

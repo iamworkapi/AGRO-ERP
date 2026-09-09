@@ -1,6 +1,7 @@
 export default function Footer() {
   return (
     <footer
+      className="app-footer"
       style={{
         flexShrink: 0,
         padding: "10px 40px",

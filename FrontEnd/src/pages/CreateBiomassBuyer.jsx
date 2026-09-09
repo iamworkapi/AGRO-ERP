@@ -25,7 +25,7 @@ export default function CreateBiomassBuyer() {
 
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!name.trim()) {
       toast.error("Please enter Company / Buyer Name");

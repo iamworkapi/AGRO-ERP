@@ -63,12 +63,6 @@ export const gstinField = z
   .optional()
   .or(z.literal(""));
 
-export const gstinField = z
-  .string()
-  .regex(gstinRegex, "Enter a valid 15-character GSTIN (e.g. 27AAAAA0000A1Z5).")
-  .optional()
-  .or(z.literal(""));
-
 export const hsnField = z
   .string()
   .regex(hsnRegex, "Enter a valid HSN code (4-8 digits).")

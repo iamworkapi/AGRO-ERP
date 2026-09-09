@@ -57,6 +57,71 @@ function adaptLeaveRequest(lr) {
   };
 }
 
+function adaptEmployee(e) {
+  if (!e) return null;
+  const wh = e.warehouse && typeof e.warehouse === "object" ? e.warehouse : {};
+  const statusMap = {
+    active: "Active",
+    on_leave: "On Leave",
+    inactive: "Inactive",
+  };
+  return {
+    id: e.id || e._id,
+    _id: e._id || e.id,
+    name: e.fullName || e.name || "",
+    fullName: e.fullName || e.name || "",
+    employeeCode: e.employeeCode || "",
+    designation: e.designation || "",
+    role: e.designation || "",
+    phone: e.phone || "",
+    email: e.email || "",
+    avatarUrl: e.avatarUrl || "",
+    dateOfJoining: formatDate(e.dateOfJoining),
+    dateOfJoiningRaw: e.dateOfJoining ? String(e.dateOfJoining).slice(0, 10) : "",
+    address: e.address || "",
+    emergencyContactName: e.emergencyContactName || "",
+    emergencyContactPhone: e.emergencyContactPhone || "",
+    status: statusMap[e.employmentStatus] || e.status || "Active",
+    employmentStatus: e.employmentStatus || "active",
+    warehouse: wh.name || "",
+    warehouseId: wh.id || wh._id || e.warehouse || "",
+    salaryType: e.salaryType || "monthly",
+    basicSalary: e.basicSalary ?? 0,
+    allowances: e.allowances ?? 0,
+    deductions: e.deductions ?? 0,
+    bankName: e.bankName || "",
+    accountNo: e.accountNo || "",
+    ifscCode: e.ifscCode || "",
+    panNo: e.panNo || "",
+    pfAccountNo: e.pfAccountNo || "",
+    esiNo: e.esiNo || "",
+    uan: e.uan || "",
+  };
+}
+
+export async function fetchEmployees(warehouseId) {
+  const { data } = await apiClient.get("/employees", {
+    params: warehouseId ? { warehouseId } : undefined,
+  });
+  return unwrapList(data).map(adaptEmployee);
+}
+
+export async function createEmployee(payload) {
+  const { data } = await apiClient.post("/employees", payload);
+  return adaptEmployee(data.data);
+}
+
+export async function updateEmployee(payload) {
+  const id = payload.id || payload._id;
+  const { data } = await apiClient.patch(`/employees/${id}`, payload);
+  return adaptEmployee(data.data);
+}
+
+export async function deactivateEmployee(id) {
+  const { data } = await apiClient.delete(`/employees/${id}`);
+  return adaptEmployee(data.data);
+}
+
 // Supervisor/Warehouse Admin is scoped server-side; Super Admin gets
 // org-wide leave register when warehouseId is omitted.
 export async function fetchLeaveRequests(warehouseId) {
