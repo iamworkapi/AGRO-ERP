@@ -1,7 +1,8 @@
-import { ApiError } from "../../common/utils/ApiError.js";
 import Goods from "../models/Goods.js";
+import { ApiError } from "../../common/utils/ApiError.js";
 import { recordAudit } from "../../audit/services/audit.service.js";
 import { assertCanAccessWarehouse, getOwnWarehouseId } from "../../warehouses/services/warehouseScope.service.js";
+import { parsePagination, paginationMeta } from "../../common/utils/pagination.js";
 
 export async function getNextSupplierInvoiceNo() {
   const y = new Date().getFullYear();
@@ -28,16 +29,26 @@ export async function getNextSupplierInvoiceNo() {
   return `GINV-${y}-${String(nextSeq).padStart(4, "0")}`;
 }
 
-export async function listGoods(actor) {
+export async function listGoods(actor, { status, supplierInvoiceNo, page, limit }) {
   const filter = {};
   const role = actor?.profile?.role || actor?.role;
   if (role !== "SUPER_ADMIN" && role !== "super_admin") {
     const ownWarehouse = await getOwnWarehouseId(actor.profile);
     if (ownWarehouse) filter.warehouseId = ownWarehouse;
   }
-  return Goods.find(filter)
-    .populate("createdBy", "fullName")
-    .sort({ createdAt: -1 });
+  if (status && status !== "ALL") filter.status = status;
+  if (supplierInvoiceNo) filter.supplierInvoiceNo = new RegExp(supplierInvoiceNo, "i");
+
+  const { page: pageNum, limit: pageSize, skip } = parsePagination({ page, limit });
+  const [list, total] = await Promise.all([
+    Goods.find(filter)
+      .populate("createdBy", "fullName")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(pageSize),
+    Goods.countDocuments(filter),
+  ]);
+  return { list, meta: paginationMeta({ page: pageNum, limit: pageSize, total }) };
 }
 
 export async function getGoods(actor, id) {
@@ -51,15 +62,14 @@ export async function createGoods(actor, payload) {
   await assertCanAccessWarehouse(actor, payload.warehouseId);
   const userId = actor?.profile?._id || actor?.id || actor?._id;
   const nextSeq = await getNextSupplierInvoiceNo();
-  const invoiceNo = payload.supplierInvoiceNo || payload.invoiceNo || nextSeq;
-  const supplierInvoiceNo = payload.supplierInvoiceNo || invoiceNo;
-  const goods = await Goods.create({ ...payload, invoiceNo, supplierInvoiceNo, createdBy: userId });
+  const supplierInvoiceNo = payload.supplierInvoiceNo || nextSeq;
+  const goods = await Goods.create({ ...payload, supplierInvoiceNo, createdBy: userId });
   await recordAudit({
     actor,
     action: "goods_created",
     entityType: "Goods",
     entityId: goods._id,
-    metadata: { invoiceNo, supplier: goods.supplier },
+    metadata: { invoiceNo: nextSeq, supplier: goods.supplier },
   });
   return getGoods(actor, goods._id);
 }

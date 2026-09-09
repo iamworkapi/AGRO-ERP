@@ -1,17 +1,30 @@
-import { ApiError } from "../../common/utils/ApiError.js";
 import { Product } from "../models/Product.js";
 import { recordAudit } from "../../audit/services/audit.service.js";
+import { parsePagination, paginationMeta } from "../../common/utils/pagination.js";
 
-export async function listProducts() {
-  return Product.find().sort({ createdAt: -1 });
+export async function listProducts({ search, category, status, page, limit }) {
+  const filter = {};
+  if (status && status !== "ALL") filter.status = status;
+  if (category) filter.category = new RegExp(category, "i");
+  if (search) {
+    const reg = new RegExp(search, "i");
+    filter.$or = [{ name: reg }, { productCode: reg }, { category: reg }, { hsnCode: reg }];
+  }
+
+  const { page: pageNum, limit: pageSize, skip } = parsePagination({ page, limit });
+  const [list, total] = await Promise.all([
+    Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(pageSize),
+    Product.countDocuments(filter),
+  ]);
+  return { list, meta: paginationMeta({ page: pageNum, limit: pageSize, total }) };
 }
 
 export async function getProduct(id) {
   if (!id || !String(id).match(/^[0-9a-fA-F]{24}$/)) {
-    throw ApiError.badRequest("Invalid product ID");
+    throw new Error("Invalid product ID");
   }
   const product = await Product.findById(id);
-  if (!product) throw ApiError.notFound("Product not found");
+  if (!product) throw new Error("Product not found");
   return product;
 }
 
@@ -28,12 +41,21 @@ export async function createProduct(actor, payload) {
   return product;
 }
 
+const ALLOWED_UPDATE_FIELDS = [
+  "name", "description", "hsnCode", "category", "unit", "defaultRate", "status", "image",
+];
+
 export async function updateProduct(actor, id, payload) {
   if (!id || !String(id).match(/^[0-9a-fA-F]{24}$/)) {
-    throw ApiError.badRequest("Invalid product ID");
+    throw new Error("Invalid product ID");
   }
-  const product = await Product.findByIdAndUpdate(id, payload, { new: true });
-  if (!product) throw ApiError.notFound("Product not found");
+  const patch = {};
+  for (const field of ALLOWED_UPDATE_FIELDS) {
+    if (payload[field] !== undefined) patch[field] = payload[field];
+  }
+
+  const product = await Product.findByIdAndUpdate(id, patch, { new: true, runValidators: true });
+  if (!product) throw new Error("Product not found");
   await recordAudit({
     actor,
     action: "product_updated",
@@ -46,10 +68,11 @@ export async function updateProduct(actor, id, payload) {
 
 export async function deleteProduct(actor, id) {
   if (!id || !String(id).match(/^[0-9a-fA-F]{24}$/)) {
-    throw ApiError.badRequest("Invalid product ID");
+    throw new Error("Invalid product ID");
   }
-  const product = await Product.findByIdAndDelete(id);
-  if (!product) throw ApiError.notFound("Product not found");
+  const product = await Product.findById(id);
+  if (!product) throw new Error("Product not found");
+  await Product.findByIdAndDelete(id);
   await recordAudit({
     actor,
     action: "product_deleted",

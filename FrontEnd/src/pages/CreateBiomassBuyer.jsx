@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
-import { saveNewBuyer } from "../features/biomass/biomassService";
+import { createBuyer } from "../features/biomass/api";
 import { toast } from "../utils/toast";
 
 export default function CreateBiomassBuyer() {
@@ -57,7 +57,7 @@ export default function CreateBiomassBuyer() {
         paymentTerms,
       };
 
-      saveNewBuyer(newBuyer);
+      await createBuyer(newBuyer);
       toast.success(`Industrial Buyer "${name}" registered successfully!`);
       navigate("/biomass/buyers");
     } catch (err) {

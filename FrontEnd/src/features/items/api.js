@@ -23,9 +23,13 @@ function adaptItem(it) {
 // A Supervisor/Warehouse Admin is always scoped server-side to their own
 // warehouse regardless of warehouseId (see backend item.service.js
 // listItems); Super Admin gets the org-wide item master when omitted.
-export async function fetchItems(warehouseId) {
-  const { data } = await apiClient.get("/items", { params: warehouseId ? { warehouseId } : undefined });
-  return unwrapList(data).map(adaptItem);
+export async function fetchItems(warehouseId, { page = 1, limit = 100 } = {}) {
+  const params = {};
+  if (warehouseId) params.warehouseId = warehouseId;
+  if (page) params.page = page;
+  if (limit) params.limit = limit;
+  const { data } = await apiClient.get("/items", { params });
+  return { items: unwrapList(data).map(adaptItem), meta: data.meta };
 }
 
 export async function createItem(payload) {
@@ -35,6 +39,17 @@ export async function createItem(payload) {
     category: payload.category,
     unit: payload.unit,
     stockQty: payload.stock || 0,
+    reorderLevel: payload.reorder,
+  });
+  return adaptItem(data.data);
+}
+
+export async function updateItem(id, payload) {
+  const { data } = await apiClient.patch(`/items/${id}`, {
+    name: payload.name,
+    category: payload.category,
+    unit: payload.unit,
+    stockQty: payload.stock ?? undefined,
     reorderLevel: payload.reorder,
   });
   return adaptItem(data.data);

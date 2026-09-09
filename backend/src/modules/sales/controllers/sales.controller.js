@@ -1,27 +1,36 @@
-import { ApiError } from "../../common/utils/ApiError.js";
+import { asyncHandler } from "../../common/utils/asyncHandler.js";
+import { sendSuccess } from "../../common/utils/ApiResponse.js";
+import { authorize } from "../../common/middleware/authorize.js";
+import { validate } from "../../common/middleware/validate.js";
 import * as service from "../services/sales.service.js";
+import {
+  createSalesInvoiceSchema,
+  updateSalesInvoiceStatusSchema,
+  listSalesInvoicesQuerySchema,
+} from "../validators/sales.validator.js";
+import { ROLES } from "../../common/constants/roles.js";
 
-export async function listSalesInvoices(req, res, next) {
-  try { const data = await service.listSalesInvoices(req.user); res.json({ success: true, count: data.length, data }); }
-  catch (err) { next(err); }
-}
+export const listSalesInvoices = asyncHandler(async (req, res) => {
+  const q = listSalesInvoicesQuerySchema.parse(req.query);
+  const { list, meta } = await service.listSalesInvoices(req.user, q);
+  sendSuccess(res, list, 200, meta);
+});
 
-export async function getSalesInvoice(req, res, next) {
-  try { res.json({ success: true, data: await service.getSalesInvoice(req.user, req.params.id) }); }
-  catch (err) { next(err); }
-}
+export const getSalesInvoice = asyncHandler(async (req, res) => {
+  res.json({ success: true, data: await service.getSalesInvoice(req.user, req.params.id) });
+});
 
-export async function createSalesInvoice(req, res, next) {
-  try { res.status(201).json({ success: true, data: await service.createSalesInvoice(req.user, req.body) }); }
-  catch (err) { next(err); }
-}
+export const createSalesInvoice = asyncHandler(async (req, res) => {
+  const payload = createSalesInvoiceSchema.parse(req.body);
+  res.status(201).json({ success: true, data: await service.createSalesInvoice(req.user, payload) });
+});
 
-export async function updateSalesInvoiceStatus(req, res, next) {
-  try { res.json({ success: true, data: await service.updateSalesInvoiceStatus(req.user, req.params.id, req.body.status) }); }
-  catch (err) { next(err); }
-}
+export const updateSalesInvoiceStatus = asyncHandler(async (req, res) => {
+  const { status } = updateSalesInvoiceStatusSchema.parse(req.body);
+  res.json({ success: true, data: await service.updateSalesInvoiceStatus(req.user, req.params.id, status) });
+});
 
-export async function deleteSalesInvoice(req, res, next) {
-  try { res.json({ success: true, ...(await service.deleteSalesInvoice(req.user, req.params.id)) }); }
-  catch (err) { next(err); }
-}
+export const deleteSalesInvoice = asyncHandler(async (req, res) => {
+  await service.deleteSalesInvoice(req.user, req.params.id);
+  sendSuccess(res, { deleted: true }, 200);
+});

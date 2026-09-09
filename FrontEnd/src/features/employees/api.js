@@ -1,9 +1,4 @@
 import { apiClient } from "../../services/apiClient";
-// Tasks / leave requests have no backend yet (see root README's "what's
-// real vs mock" section) - only the employee roster itself is wired here.
-import { tasks, leaveRequests } from "./mockData";
-
-const resolveAfter = (value, ms = 300) => new Promise((resolve) => setTimeout(() => resolve(value), ms));
 
 function unwrapList(data) {
   return Array.isArray(data?.data) ? data.data : [];
@@ -14,74 +9,87 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
-function adaptEmployee(e) {
+const LEAVE_TYPE_LABEL = {
+  casual: "Casual Leave",
+  sick: "Sick Leave",
+  earned: "Earned Leave",
+  maternity: "Maternity Leave",
+  paternity: "Paternity Leave",
+  unpaid: "Unpaid Leave",
+  other: "Emergency Leave",
+};
+
+const LEAVE_TYPE_VALUE = {
+  "Casual Leave": "casual",
+  "Sick Leave": "sick",
+  "Earned Leave": "earned",
+  "Emergency Leave": "other",
+  "Maternity Leave": "maternity",
+  "Paternity Leave": "paternity",
+  "Unpaid Leave": "unpaid",
+};
+
+function adaptLeaveRequest(lr) {
+  const emp = lr.employee || {};
+  const wh = lr.warehouse || {};
   return {
-    id: e.id,
-    employeeCode: e.employeeCode,
-    name: e.fullName,
-    designation: e.designation,
-    role: e.designation, // legacy column name some table configs still use
-    phone: e.phone || "",
-    email: e.email || "",
-    avatarUrl: e.avatarUrl || "",
-    dateOfJoining: formatDate(e.dateOfJoining),
-    // Raw ISO value (yyyy-mm-dd) for pre-filling an <input type="date"> when
-    // editing - the display field above is human-formatted and unusable there.
-    dateOfJoiningRaw: e.dateOfJoining ? e.dateOfJoining.slice(0, 10) : "",
-    address: e.address || "",
-    emergencyContactName: e.emergencyContactName || "",
-    emergencyContactPhone: e.emergencyContactPhone || "",
-    warehouseId: e.warehouse?.id || e.warehouse || "",
-    warehouse: e.warehouse?.name || "",
-    employmentStatus: e.employmentStatus || "active",
-    status: e.employmentStatus === "active" ? "Active" : e.employmentStatus === "on_leave" ? "On Leave" : "Inactive",
+    id: lr.id,
+    employee: emp.fullName || "",
+    employeeCode: emp.employeeCode || "",
+    employeeId: emp.id || "",
+    warehouse: wh.name || "",
+    warehouseId: wh.id || wh._id || "",
+    type: LEAVE_TYPE_LABEL[lr.leaveType] || lr.leaveType || "Casual Leave",
+    leaveType: lr.leaveType || "casual",
+    fromDate: formatDate(lr.fromDate),
+    toDate: formatDate(lr.toDate),
+    dates:
+      lr.fromDate && lr.toDate
+        ? `${formatDate(lr.fromDate)} – ${formatDate(lr.toDate)}`
+        : formatDate(lr.fromDate) || formatDate(lr.toDate) || "",
+    days: lr.totalDays || 0,
+    reason: lr.reason || "",
+    status: lr.status ? lr.status.charAt(0).toUpperCase() + lr.status.slice(1) : "Pending",
+    appliedOn: formatDate(lr.createdAt),
+    reviewedBy: lr.reviewedBy?.name || "",
+    reviewedAt: formatDate(lr.reviewedAt),
+    reviewedRemark: lr.reviewedRemark || "",
   };
 }
 
-// Super Admin gets the org-wide roster (no warehouseId); a Supervisor/Admin
-// is always scoped server-side to their own warehouse regardless of what's
-// passed here.
-export async function fetchEmployees(warehouseId) {
-  const { data } = await apiClient.get("/employees", { params: warehouseId ? { warehouseId } : undefined });
-  return unwrapList(data).map(adaptEmployee);
+// Supervisor/Warehouse Admin is scoped server-side; Super Admin gets
+// org-wide leave register when warehouseId is omitted.
+export async function fetchLeaveRequests(warehouseId) {
+  const { data } = await apiClient.get("/leave-requests", { params: warehouseId ? { warehouseId } : undefined });
+  return unwrapList(data).map(adaptLeaveRequest);
 }
 
-export async function createEmployee(payload) {
-  const { data } = await apiClient.post("/employees", {
+export async function createLeaveRequest(payload) {
+  const { data } = await apiClient.post("/leave-requests", {
     warehouseId: payload.warehouseId,
-    fullName: payload.fullName,
-    designation: payload.designation,
-    phone: payload.phone || undefined,
-    email: payload.email || undefined,
-    avatarUrl: payload.avatarUrl || undefined,
-    dateOfJoining: payload.dateOfJoining || undefined,
-    address: payload.address || undefined,
-    emergencyContactName: payload.emergencyContactName || undefined,
-    emergencyContactPhone: payload.emergencyContactPhone || undefined,
+    employeeId: payload.employeeId,
+    leaveType: LEAVE_TYPE_VALUE[payload.type] || payload.leaveType || "casual",
+    fromDate: payload.fromDate,
+    toDate: payload.toDate,
+    reason: payload.reason || "",
   });
-  return adaptEmployee(data.data);
+  return adaptLeaveRequest(data.data);
 }
 
-export async function deactivateEmployee(id) {
-  const { data } = await apiClient.delete(`/employees/${id}`);
-  return adaptEmployee(data.data);
+export async function approveLeave(id) {
+  const { data } = await apiClient.post(`/leave-requests/${id}/review`, { decision: "approved" });
+  return adaptLeaveRequest(data.data);
 }
 
-export async function updateEmployee({ id, ...payload }) {
-  const { data } = await apiClient.patch(`/employees/${id}`, {
-    fullName: payload.fullName,
-    designation: payload.designation,
-    phone: payload.phone || undefined,
-    email: payload.email || undefined,
-    avatarUrl: payload.avatarUrl || undefined,
-    dateOfJoining: payload.dateOfJoining || undefined,
-    address: payload.address || undefined,
-    emergencyContactName: payload.emergencyContactName || undefined,
-    emergencyContactPhone: payload.emergencyContactPhone || undefined,
-    employmentStatus: payload.employmentStatus || undefined,
-  });
-  return adaptEmployee(data.data);
+export async function rejectLeave(id) {
+  const { data } = await apiClient.post(`/leave-requests/${id}/review`, { decision: "rejected" });
+  return adaptLeaveRequest(data.data);
 }
+
+// Tasks remain mocked until a backend task module is built.
+const resolveAfter = (value, ms = 300) => new Promise((resolve) => setTimeout(() => resolve(value), ms));
+
+import { tasks } from "./mockData";
 
 export function fetchTasks() {
   return resolveAfter([...tasks]);
@@ -108,41 +116,5 @@ export function completeTask(idOrTitle) {
   if (idx === -1) return resolveAfter(null);
   const updated = { ...tasks[idx], status: "Completed" };
   tasks[idx] = updated;
-  return resolveAfter(updated);
-}
-
-export function fetchLeaveRequests() {
-  return resolveAfter([...leaveRequests]);
-}
-
-export function createLeaveRequest(payload) {
-  const newReq = {
-    id: `lr-${Date.now()}`,
-    employee: payload.employee,
-    warehouse: payload.warehouse || "Manimau Centre",
-    type: payload.type || "Casual Leave",
-    dates: payload.dates || "Upcoming",
-    days: payload.days || 1,
-    reason: payload.reason || "Personal reason",
-    status: "Pending",
-    appliedOn: "Today",
-  };
-  leaveRequests.unshift(newReq);
-  return resolveAfter(newReq);
-}
-
-export function approveLeave(employeeOrId) {
-  const idx = leaveRequests.findIndex((r) => r.id === employeeOrId || r.employee === employeeOrId);
-  if (idx === -1) return resolveAfter(null);
-  const updated = { ...leaveRequests[idx], status: "Approved" };
-  leaveRequests[idx] = updated;
-  return resolveAfter(updated);
-}
-
-export function rejectLeave(employeeOrId) {
-  const idx = leaveRequests.findIndex((r) => r.id === employeeOrId || r.employee === employeeOrId);
-  if (idx === -1) return resolveAfter(null);
-  const updated = { ...leaveRequests[idx], status: "Rejected" };
-  leaveRequests[idx] = updated;
   return resolveAfter(updated);
 }

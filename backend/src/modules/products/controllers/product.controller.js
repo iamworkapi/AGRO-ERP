@@ -1,29 +1,31 @@
-import { ApiError } from "../../common/utils/ApiError.js";
+import { asyncHandler } from "../../common/utils/asyncHandler.js";
+import { sendSuccess } from "../../common/utils/ApiResponse.js";
+import { validate } from "../../common/middleware/validate.js";
 import * as service from "../services/product.service.js";
+import {
+  listProductsQuerySchema,
+  createProductSchema,
+  updateProductSchema,
+} from "../validators/product.validators.js";
 
-export async function listProducts(req, res, next) {
-  try { const data = await service.listProducts(); res.json({ success: true, data }); }
-  catch (err) { next(err); }
-}
+export const listProducts = asyncHandler(async (req, res) => {
+  const { list, meta } = await service.listProducts(req.query);
+  sendSuccess(res, list, 200, meta);
+});
 
-export async function getProduct(req, res, next) {
-  try { res.json({ success: true, data: await service.getProduct(req.params.id) }); }
-  catch (err) { next(err); }
-}
+export const getProduct = asyncHandler(async (req, res) => {
+  res.json({ success: true, data: await service.getProduct(req.params.id) });
+});
 
-export async function createProduct(req, res, next) {
-  try { res.status(201).json({ success: true, data: await service.createProduct(req.user, req.body) }); }
-  catch (err) { next(err); }
-}
+export const createProduct = asyncHandler(async (req, res) => {
+  res.status(201).json({ success: true, data: await service.createProduct(req.user, req.body) });
+});
 
-export async function updateProduct(req, res, next) {
-  try { res.json({ success: true, data: await service.updateProduct(req.user, req.params.id, req.body) }); }
-  catch (err) { next(err); }
-}
+export const updateProduct = asyncHandler(async (req, res) => {
+  res.json({ success: true, data: await service.updateProduct(req.user, req.params.id, req.body) });
+});
 
-export async function deleteProduct(req, res, next) {
-  try {
-    await service.deleteProduct(req.user, req.params.id);
-    res.status(204).end();
-  } catch (err) { next(err); }
-}
+export const deleteProduct = asyncHandler(async (req, res) => {
+  await service.deleteProduct(req.user, req.params.id);
+  sendSuccess(res, { deleted: true }, 200);
+});

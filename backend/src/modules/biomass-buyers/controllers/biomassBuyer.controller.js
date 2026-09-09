@@ -1,114 +1,36 @@
-import { BiomassBuyer } from "../models/BiomassBuyer.js";
+import { asyncHandler } from "../../common/utils/asyncHandler.js";
+import { sendSuccess } from "../../common/utils/ApiResponse.js";
+import { authorize } from "../../common/middleware/authorize.js";
+import { validate } from "../../common/middleware/validate.js";
+import * as service from "../services/biomassBuyer.service.js";
+import {
+  createBiomassBuyerSchema,
+  updateBiomassBuyerSchema,
+  listBiomassBuyersQuerySchema,
+} from "../validators/biomassBuyer.validator.js";
+import { ROLES } from "../../common/constants/roles.js";
 
-export const getBiomassBuyers = async (req, res, next) => {
-  try {
-    const { search, plantType } = req.query;
-    const filter = {};
+export const list = asyncHandler(async (req, res) => {
+  const q = req.validatedQuery || listBiomassBuyersQuerySchema.parse(req.query);
+  const { list, meta } = await service.listBiomassBuyers(req.user, q);
+  sendSuccess(res, list, 200, meta);
+});
 
-    if (plantType && plantType !== "ALL") {
-      filter.plantType = new RegExp(plantType, "i");
-    }
+export const getById = asyncHandler(async (req, res) => {
+  sendSuccess(res, await service.getBiomassBuyer(req.user, req.params.id));
+});
 
-    if (search) {
-      const reg = new RegExp(search, "i");
-      filter.$or = [
-        { name: reg },
-        { buyerCode: reg },
-        { division: reg },
-        { contactPerson: reg },
-        { gstin: reg },
-      ];
-    }
+export const create = asyncHandler(async (req, res) => {
+  const payload = req.validatedBody || createBiomassBuyerSchema.parse(req.body);
+  sendSuccess(res, await service.createBiomassBuyer(req.user, payload), 201);
+});
 
-    const buyers = await BiomassBuyer.find(filter).sort({ createdAt: -1 });
-    res.json({ success: true, data: buyers });
-  } catch (err) {
-    next(err);
-  }
-};
+export const update = asyncHandler(async (req, res) => {
+  const payload = req.validatedBody || updateBiomassBuyerSchema.parse(req.body);
+  sendSuccess(res, await service.updateBiomassBuyer(req.user, req.params.id, payload));
+});
 
-export const getBiomassBuyerById = async (req, res, next) => {
-  try {
-    const buyer = await BiomassBuyer.findById(req.params.id);
-    if (!buyer) {
-      return res.status(404).json({ success: false, message: "Buyer not found" });
-    }
-    res.json({ success: true, data: buyer });
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const createBiomassBuyer = async (req, res, next) => {
-  try {
-    const {
-      name,
-      division,
-      address,
-      gstin,
-      plantType,
-      agreedRatePerMt,
-      targetQtyMt,
-      contactPerson,
-      contactMobile,
-      email,
-      poNo,
-      paymentTerms,
-    } = req.body;
-
-    if (!name || !address || !gstin) {
-      return res.status(400).json({ success: false, message: "Buyer name, address, and GSTIN are required" });
-    }
-
-    const buyer = new BiomassBuyer({
-      name: name.toUpperCase(),
-      division: division ? division.toUpperCase() : "",
-      address,
-      gstin: gstin.toUpperCase(),
-      plantType: plantType || "Bio-Ethanol Plant",
-      agreedRatePerMt: Number(agreedRatePerMt) || 1850,
-      targetQtyMt: Number(targetQtyMt) || 5000,
-      contactPerson,
-      contactMobile,
-      email,
-      poNo,
-      paymentTerms: paymentTerms || "Net 15 Days",
-    });
-
-    await buyer.save();
-    res.status(201).json({ success: true, message: "Buyer created successfully", data: buyer });
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const updateBiomassBuyer = async (req, res, next) => {
-  try {
-    const buyer = await BiomassBuyer.findById(req.params.id);
-    if (!buyer) {
-      return res.status(404).json({ success: false, message: "Buyer not found" });
-    }
-
-    Object.assign(buyer, req.body);
-    if (req.body.name) buyer.name = req.body.name.toUpperCase();
-    if (req.body.division) buyer.division = req.body.division.toUpperCase();
-    if (req.body.gstin) buyer.gstin = req.body.gstin.toUpperCase();
-
-    await buyer.save();
-    res.json({ success: true, message: "Buyer updated successfully", data: buyer });
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const deleteBiomassBuyer = async (req, res, next) => {
-  try {
-    const buyer = await BiomassBuyer.findByIdAndDelete(req.params.id);
-    if (!buyer) {
-      return res.status(404).json({ success: false, message: "Buyer not found" });
-    }
-    res.json({ success: true, message: "Buyer deleted successfully" });
-  } catch (err) {
-    next(err);
-  }
-};
+export const remove = asyncHandler(async (req, res) => {
+  await service.deleteBiomassBuyer(req.user, req.params.id);
+  sendSuccess(res, { deleted: true }, 200);
+});

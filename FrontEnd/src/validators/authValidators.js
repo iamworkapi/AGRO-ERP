@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { phoneField } from "./formatValidators";
 
 // Client-side mirror of backend/src/validators/auth.validator.js - catches
 // obviously-invalid submissions before spending a round trip on them, but
@@ -20,7 +21,7 @@ export const registerSchema = z
       errorMap: () => ({ message: "Select whether you're registering as a Warehouse Admin or Supervisor." }),
     }),
     fullName: z.string().trim().min(2, "Full name is required."),
-    phone: z.string().trim().min(8, "Enter a valid phone number."),
+    phone: phoneField,
     email: z.union([z.string().trim().email("Enter a valid email address."), z.literal("")]).optional(),
     password: strongPassword,
     confirmPassword: z.string(),

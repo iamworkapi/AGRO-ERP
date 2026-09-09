@@ -78,13 +78,27 @@ export async function updateWeightMachine(actor, id, payload) {
   if (payload.make !== undefined) patch.make = payload.make;
   if (payload.model !== undefined) patch.model = payload.model;
   if (payload.capacityKg !== undefined) patch.capacityKg = payload.capacityKg;
-  if (payload.lastCalibratedOn !== undefined) patch.lastCalibratedOn = payload.lastCalibratedOn;
-  if (payload.nextCalibrationDue !== undefined) patch.nextCalibrationDue = payload.nextCalibrationDue;
   if (payload.status !== undefined) patch.status = payload.status;
 
   const machine = await WeightMachine.findByIdAndUpdate(id, patch, { new: true, runValidators: true });
 
   await recordAudit({ actor, action: "weight_machine.update", entityType: "weight_machine", entityId: id, warehouseId: existing.warehouse, metadata: patch });
+  return machine;
+}
+
+// Calibration updates (lastCalibratedOn / nextCalibrationDue) are restricted
+// to SUPER_ADMIN via the route. All other roles hitting this endpoint get 403.
+export async function updateCalibration(actor, id, payload) {
+  const existing = await WeightMachine.findById(id);
+  if (!existing) throw ApiError.notFound("Weight machine not found.");
+
+  const patch = {};
+  if (payload.lastCalibratedOn !== undefined) patch.lastCalibratedOn = payload.lastCalibratedOn;
+  if (payload.nextCalibrationDue !== undefined) patch.nextCalibrationDue = payload.nextCalibrationDue;
+
+  const machine = await WeightMachine.findByIdAndUpdate(id, patch, { new: true, runValidators: true });
+
+  await recordAudit({ actor, action: "weight_machine.calibration_updated", entityType: "weight_machine", entityId: id, warehouseId: existing.warehouse, metadata: patch });
   return machine;
 }
 

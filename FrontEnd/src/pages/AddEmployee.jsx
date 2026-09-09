@@ -30,6 +30,17 @@ function emptyForm(defaultWarehouseId = "") {
     emergencyContactName: "",
     emergencyContactPhone: "",
     employmentStatus: "active",
+    salaryType: "",
+    basicSalary: "",
+    allowances: "",
+    deductions: "",
+    bankName: "",
+    accountNo: "",
+    ifscCode: "",
+    panNo: "",
+    pfAccountNo: "",
+    esiNo: "",
+    uan: "",
   };
 }
 
@@ -46,6 +57,17 @@ function formFromEmployee(employee) {
     emergencyContactName: employee.emergencyContactName || "",
     emergencyContactPhone: employee.emergencyContactPhone || "",
     employmentStatus: employee.employmentStatus || "active",
+    salaryType: employee.salaryType || "",
+    basicSalary: String(employee.basicSalary ?? ""),
+    allowances: String(employee.allowances ?? ""),
+    deductions: String(employee.deductions ?? ""),
+    bankName: employee.bankName || "",
+    accountNo: employee.accountNo || "",
+    ifscCode: employee.ifscCode || "",
+    panNo: employee.panNo || "",
+    pfAccountNo: employee.pfAccountNo || "",
+    esiNo: employee.esiNo || "",
+    uan: employee.uan || "",
   };
 }
 
@@ -306,7 +328,59 @@ export default function AddEmployee() {
               />
             </div>
 
-            {/* Section 4: Employment Details */}
+            {/* Section 4: Payroll Details */}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
+                <i className="ri-money-rupee-circle-line" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>Payroll Details</h3>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
+                <FormField
+                  label="Salary Type"
+                  type="select"
+                  value={form.salaryType}
+                  onChange={set("salaryType")}
+                  options={[
+                    { value: "", label: "Select type" },
+                    { value: "monthly", label: "Monthly" },
+                    { value: "daily", label: "Daily" },
+                    { value: "piece_rate", label: "Piece Rate" },
+                  ]}
+                  compact
+                  marginBottom={12}
+                />
+                <FormField
+                  label="Basic Salary"
+                  type="number"
+                  value={form.basicSalary}
+                  onChange={set("basicSalary")}
+                  placeholder="0.00"
+                  compact
+                  marginBottom={12}
+                />
+                <FormField
+                  label="Allowances"
+                  type="number"
+                  value={form.allowances}
+                  onChange={set("allowances")}
+                  placeholder="0.00"
+                  compact
+                  marginBottom={12}
+                />
+                <FormField
+                  label="Deductions"
+                  type="number"
+                  value={form.deductions}
+                  onChange={set("deductions")}
+                  placeholder="0.00"
+                  compact
+                  marginBottom={12}
+                />
+              </div>
+            </div>
+
+            {/* Section 5: Employment Details */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
                 <i className="ri-calendar-line-day" style={{ color: "var(--primary)", fontSize: 14 }} />
@@ -324,7 +398,74 @@ export default function AddEmployee() {
               />
             </div>
 
-            {/* Section 5: Emergency Contact */}
+            {/* Section 6: Bank Details */}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
+                <i className="ri-bank-line" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink)", margin: 0 }}>Bank Details</h3>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
+                <FormField
+                  label="Bank Name"
+                  value={form.bankName}
+                  onChange={set("bankName")}
+                  placeholder="e.g. State Bank of India"
+                  compact
+                  marginBottom={12}
+                />
+                <FormField
+                  label="Account Number"
+                  value={form.accountNo}
+                  onChange={set("accountNo")}
+                  placeholder="Account number"
+                  compact
+                  marginBottom={12}
+                />
+                <FormField
+                  label="IFSC Code"
+                  value={form.ifscCode}
+                  onChange={set("ifscCode")}
+                  placeholder="SBIN0001234"
+                  compact
+                  marginBottom={12}
+                />
+                <FormField
+                  label="PAN Number"
+                  value={form.panNo}
+                  onChange={set("panNo")}
+                  placeholder="ABCDE1234F"
+                  compact
+                  marginBottom={12}
+                />
+                <FormField
+                  label="PF Account No"
+                  value={form.pfAccountNo}
+                  onChange={set("pfAccountNo")}
+                  placeholder="PF/UAN"
+                  compact
+                  marginBottom={12}
+                />
+                <FormField
+                  label="ESI Number"
+                  value={form.esiNo}
+                  onChange={set("esiNo")}
+                  placeholder="ESI No"
+                  compact
+                  marginBottom={12}
+                />
+                <FormField
+                  label="UAN"
+                  value={form.uan}
+                  onChange={set("uan")}
+                  placeholder="UAN"
+                  compact
+                  marginBottom={12}
+                />
+              </div>
+            </div>
+
+            {/* Section 7: Emergency Contact */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
                 <i className="ri-first-aid-kit-line" style={{ color: "var(--primary)", fontSize: 14 }} />

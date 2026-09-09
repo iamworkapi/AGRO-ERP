@@ -19,10 +19,17 @@ export const updateWeightMachineSchema = z.object({
   make: z.string().optional(),
   model: z.string().optional(),
   capacityKg: optionalPositiveNumber,
-  lastCalibratedOn: z.string().date().optional(),
-  nextCalibrationDue: z.string().date().optional(),
   status: z.enum(["active", "maintenance", "inactive"]).optional(),
 });
+
+// Calibration fields: separate schema, restricted to SUPER_ADMIN only
+export const updateCalibrationSchema = z.object({
+  lastCalibratedOn: z.string().date().optional(),
+  nextCalibrationDue: z.string().date().optional(),
+}).refine(
+  (data) => data.lastCalibratedOn || data.nextCalibrationDue,
+  { message: "At least one calibration field is required." }
+);
 
 export const listWeightMachinesQuerySchema = z.object({
   warehouseId: objectId("warehouseId").optional(),

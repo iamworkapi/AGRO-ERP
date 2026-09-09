@@ -4,6 +4,7 @@ import { ROLES } from "../../common/constants/roles.js";
 import { recordAudit } from "../../audit/services/audit.service.js";
 import { assertCanAccessWarehouse, getOwnWarehouseId } from "../../warehouses/services/warehouseScope.service.js";
 import { parsePagination, paginationMeta } from "../../common/utils/pagination.js";
+import { COLLECTION } from "../../common/constants/index.js";
 
 function computeCollectionCalculations(input) {
   const gross = input.grossWeightMt || 0;
@@ -11,15 +12,14 @@ function computeCollectionCalculations(input) {
   const net = Math.max(0, gross - tare);
   const moisture = input.actualMoisturePct || 0;
   const ash = input.actualAshPct || 0;
-  const agreedMoisture = input.agreedMoisturePct || 20;
-  const agreedAsh = input.agreedAshPct || 20;
+  const agreedMoisture = input.agreedMoisturePct || COLLECTION.DEFAULT_AGREED_MOISTURE_PCT;
+  const agreedAsh = input.agreedAshPct || COLLECTION.DEFAULT_AGREED_ASH_PCT;
 
-  // Hard rejection criteria matching frontend
-  if (moisture > 28) {
-    return { net, isRejected: true, rejectionReason: `Moisture content (${moisture}%) exceeds maximum allowable limit of 28%.`, invoiceWeightMt: 0, totalDeductionPct: 100 };
+  if (moisture > COLLECTION.MAX_MOISTURE_PCT) {
+    return { net, isRejected: true, rejectionReason: `Moisture content (${moisture}%) exceeds maximum allowable limit of ${COLLECTION.MAX_MOISTURE_PCT}%.`, invoiceWeightMt: 0, totalDeductionPct: 100 };
   }
-  if (ash > 35) {
-    return { net, isRejected: true, rejectionReason: `Ash content (${ash}%) exceeds maximum allowable limit of 35%.`, invoiceWeightMt: 0, totalDeductionPct: 100 };
+  if (ash > COLLECTION.MAX_ASH_PCT) {
+    return { net, isRejected: true, rejectionReason: `Ash content (${ash}%) exceeds maximum allowable limit of ${COLLECTION.MAX_ASH_PCT}%.`, invoiceWeightMt: 0, totalDeductionPct: 100 };
   }
 
   const numerator = 100 - moisture - ash;
@@ -84,8 +84,8 @@ export async function createCollection(actor, payload) {
     actualNetWeightMt: calc.net,
     actualMoisturePct: payload.actualMoisturePct,
     actualAshPct: payload.actualAshPct,
-    agreedMoisturePct: payload.agreedMoisturePct || 20,
-    agreedAshPct: payload.agreedAshPct || 20,
+    agreedMoisturePct: payload.agreedMoisturePct || COLLECTION.DEFAULT_AGREED_MOISTURE_PCT,
+    agreedAshPct: payload.agreedAshPct || COLLECTION.DEFAULT_AGREED_ASH_PCT,
     moistureDeductionPct: calc.moistureDeductionPct,
     ashDeductionPct: calc.ashDeductionPct,
     totalDeductionPct: calc.totalDeductionPct,
@@ -94,7 +94,7 @@ export async function createCollection(actor, payload) {
     rejectionReason: calc.rejectionReason,
     baleCountProduced: payload.baleCountProduced || 0,
     balerMachine: payload.balerMachine || "",
-    totalAmountRs: calc.isRejected ? 0 : Math.round(calc.invoiceWeightMt * (payload.ratePerMt || 1400) * 100) / 100,
+    totalAmountRs: calc.isRejected ? 0 : Math.round(calc.invoiceWeightMt * (payload.ratePerMt || COLLECTION.DEFAULT_RATE_PER_MT) * 100) / 100,
     recordedBy: actor.profile._id,
   });
 

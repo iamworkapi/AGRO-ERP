@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { objectId } from "../../common/validators/common.js";
+import { objectId, dateRangeCheck } from "../../common/validators/common.js";
 
 export const createLeaveRequestSchema = z.object({
   warehouseId: objectId("warehouseId"),
@@ -8,6 +8,9 @@ export const createLeaveRequestSchema = z.object({
   fromDate: z.string().date("Enter a valid from date."),
   toDate: z.string().date("Enter a valid to date."),
   reason: z.string().trim().optional().or(z.literal("")),
+}).refine(dateRangeCheck, {
+  message: "End date must be on or after the start date.",
+  path: ["toDate"],
 });
 
 export const listLeaveRequestsQuerySchema = z.object({

@@ -1,25 +1,5 @@
 import { z } from "zod";
 
-// Mongo ObjectId: 24 hex characters. Reused wherever a validator needs to
-// accept a reference to another document (adminId, warehouseId, etc.).
-export const objectId = (label = "id") => z.string().regex(/^[0-9a-fA-F]{24}$/, `Invalid ${label}.`);
-
-// Base64 data URI for a small inline photo (Employee.avatarUrl,
-// User.avatarUrl) - capped well under MongoDB's document limit and
-// Express's JSON body limit; ~700k chars is roughly a 500KB image after
-// base64 overhead. Not a general file store, just a profile picture.
-// Profile photo: accepts Data URI (base64) up to 3MB, HTTP/HTTPS URL, or empty string.
-export const avatarUrl = z
-  .string()
-  .max(4_000_000, "Photo is too large - please use an image under 2MB.")
-  .refine(
-    (val) => !val || val.startsWith("http://") || val.startsWith("https://") || val.startsWith("data:image/"),
-    { message: "Photo must be a valid image URL or image file upload." }
-  )
-  .optional()
-  .or(z.literal(""))
-  .or(z.null());
-
 // ──────────────────────────────────────────────────────────────
 // Indian regulatory / financial format validators
 // ──────────────────────────────────────────────────────────────
@@ -43,23 +23,9 @@ export const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 // Shared field-level Zod schemas
 // ──────────────────────────────────────────────────────────────
 
-export const requiredPhoneField = z
-  .string()
-  .regex(phoneRegex, "Enter a valid 10-digit Indian mobile number.");
-
 export const phoneField = z
   .string()
-  .regex(phoneRegex, "Enter a valid 10-digit Indian mobile number.")
-  .optional()
-  .or(z.literal(""));
-
-export const requiredGstinField = z
-  .string()
-  .regex(gstinRegex, "Enter a valid 15-character GSTIN (e.g. 27AAAAA0000A1Z5).");
-
-export const gstinField = z
-  .string()
-  .regex(gstinRegex, "Enter a valid 15-character GSTIN (e.g. 27AAAAA0000A1Z5).")
+  .regex(phoneRegex, "Enter a valid 10-digit Indian mobile number (e.g. 9876543210).")
   .optional()
   .or(z.literal(""));
 
@@ -88,10 +54,17 @@ export const ifscField = z
   .or(z.literal(""));
 
 // ──────────────────────────────────────────────────────────────
-// Cross-field date range checker
+// Cross-field date validators
 // ──────────────────────────────────────────────────────────────
 
+/**
+ * Attach to a schema to enforce toDate >= fromDate.
+ * Usage:
+ *   schema.refine(dateRangeCheck, { message, path: ["toDate"] })
+ */
 export function dateRangeCheck({ fromDate, toDate }) {
   if (!fromDate || !toDate) return true;
   return new Date(toDate) >= new Date(fromDate);
 }
+
+export const dateRangeErrorMessage = "End date must be on or after the start date.";

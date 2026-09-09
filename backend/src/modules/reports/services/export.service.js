@@ -16,8 +16,8 @@ async function resolveWarehouseId(actor, warehouseId) {
 
 function dateFilter(from, to) {
   const f = {};
-  if (from) { f.$gte = new Date(from); f.$gte.setHours(0, 0, 0, 0); }
-  if (to) { f.$lte = new Date(to); f.$lte.setHours(23, 59, 59, 999); }
+  if (from) { const d = new Date(from); d.setHours(0, 0, 0, 0); f.$gte = d; }
+  if (to) { const d = new Date(to); d.setHours(23, 59, 59, 999); f.$lte = d; }
   return f;
 }
 

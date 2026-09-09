@@ -128,11 +128,11 @@ export const NAV_GROUPS = [
     label: "Employees",
     path: "/employees",
     icon: "ri-team-line",
-    roles: ["admin"],
+    roles: ["admin", "supervisor"],
     sections: [
-      { label: "Directory", path: "/employees", roles: ["admin"] },
-      { label: "Task Assignment", path: "/employees/tasks", roles: ["admin"] },
-      { label: "Leave Requests", path: "/employees/leave-requests", roles: ["admin"] },
+      { label: "Directory", path: "/employees", roles: ["admin", "supervisor"] },
+      { label: "Task Assignment", path: "/employees/tasks", roles: ["admin", "supervisor"] },
+      { label: "Leave Requests", path: "/employees/leave-requests", roles: ["admin", "supervisor"] },
     ],
   },
   {

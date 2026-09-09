@@ -88,6 +88,24 @@ export async function createStockMovement(actor, payload) {
       performedBy: actor.profile._id,
     });
 
+    // Sync godown stocks for transfer
+    const fromGodownDoc = await Godown.findById(payload.godownId);
+    const toGodownDoc = await Godown.findById(payload.toGodownId);
+    if (fromGodownDoc && fromGodownDoc.currentStockMt != null) {
+      const newFromStock = Math.max(0, fromGodownDoc.currentStockMt - qty);
+      await Godown.findByIdAndUpdate(payload.godownId, {
+        currentStockMt: newFromStock,
+        status: newFromStock >= (fromGodownDoc.capacityMt || Infinity) ? "full" : "active",
+      });
+    }
+    if (toGodownDoc && toGodownDoc.currentStockMt != null) {
+      const newToStock = toGodownDoc.currentStockMt + qty;
+      await Godown.findByIdAndUpdate(payload.toGodownId, {
+        currentStockMt: newToStock,
+        status: newToStock >= (toGodownDoc.capacityMt || Infinity) ? "full" : "active",
+      });
+    }
+
     // Decrease item total stockQty by qty (it gets added back in to-godown)
     item.stockQty = Math.max(0, item.stockQty - qty);
     await item.save();
@@ -111,6 +129,30 @@ export async function createStockMovement(actor, payload) {
 
   item.stockQty = newStock;
   await item.save();
+
+  // Sync godown currentStockMt for inward/outward/adjustment
+  const godownDoc = await Godown.findById(payload.godownId);
+  if (godownDoc && godownDoc.currentStockMt != null) {
+    if (payload.movementType === "inward") {
+      const newGodownStock = (godownDoc.currentStockMt || 0) + qty;
+      await Godown.findByIdAndUpdate(payload.godownId, {
+        currentStockMt: newGodownStock,
+        status: newGodownStock >= (godownDoc.capacityMt || Infinity) ? "full" : "active",
+      });
+    } else if (payload.movementType === "outward") {
+      const newGodownStock = Math.max(0, (godownDoc.currentStockMt || 0) - qty);
+      await Godown.findByIdAndUpdate(payload.godownId, {
+        currentStockMt: newGodownStock,
+        status: newGodownStock >= (godownDoc.capacityMt || Infinity) ? "full" : "active",
+      });
+    } else if (payload.movementType === "adjustment") {
+      const newGodownStock = Math.max(0, newStock);
+      await Godown.findByIdAndUpdate(payload.godownId, {
+        currentStockMt: newGodownStock,
+        status: newGodownStock >= (godownDoc.capacityMt || Infinity) ? "full" : "active",
+      });
+    }
+  }
 
   const movement = await StockMovement.create({
     warehouse: payload.warehouseId,

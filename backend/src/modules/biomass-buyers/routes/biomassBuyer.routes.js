@@ -1,21 +1,23 @@
 import { Router } from "express";
 import {
-  getBiomassBuyers,
-  getBiomassBuyerById,
-  createBiomassBuyer,
-  updateBiomassBuyer,
-  deleteBiomassBuyer,
+  list,
+  getById,
+  create,
+  update,
+  remove,
 } from "../controllers/biomassBuyer.controller.js";
 import { authenticate } from "../../common/middleware/authenticate.js";
+import { authorize } from "../../common/middleware/authorize.js";
+import { ROLES } from "../../common/constants/roles.js";
 
 const router = Router();
-
 router.use(authenticate);
+router.use(authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN, ROLES.SUPERVISOR));
 
-router.get("/", getBiomassBuyers);
-router.get("/:id", getBiomassBuyerById);
-router.post("/", createBiomassBuyer);
-router.put("/:id", updateBiomassBuyer);
-router.delete("/:id", deleteBiomassBuyer);
+router.get("/", validate(listBiomassBuyersQuerySchema, "query"), list);
+router.get("/:id", getById);
+router.post("/", validate(createBiomassBuyerSchema), create);
+router.put("/:id", validate(updateBiomassBuyerSchema), update);
+router.delete("/:id", remove);
 
 export default router;

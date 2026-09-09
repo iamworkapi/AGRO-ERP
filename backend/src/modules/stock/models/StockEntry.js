@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { toJSONPlugin } from "../../common/models/plugins/toJSON.js";
+import { COLLECTION, STOCK_ENTRY } from "../../common/constants/index.js";
 
 // The weighment records a Supervisor logs against a warehouse's weight
 // machine - the "weight machine stock" they're responsible for maintaining.
@@ -19,9 +20,9 @@ const stockEntrySchema = new mongoose.Schema(
     tareWeightKg: { type: Number, required: true, min: 0 },
     netWeightKg: { type: Number },
     moisturePct: { type: Number, min: 0, max: 100 },
-    allowedMoisturePct: { type: Number, min: 0, max: 100, default: 20 },
+    allowedMoisturePct: { type: Number, min: 0, max: 100, default: STOCK_ENTRY.DEFAULT_ALLOWED_MOISTURE_PCT },
     deductionPct: { type: Number, min: 0, max: 100, default: 0 },
-    ratePerMt: { type: Number, min: 0, default: 1900 },
+    ratePerMt: { type: Number, min: 0, default: STOCK_ENTRY.DEFAULT_RATE_PER_MT },
     actualWeightKg: { type: Number },
     totalAmountRs: { type: Number },
     purchasedProducts: [
@@ -53,13 +54,13 @@ stockEntrySchema.pre("validate", function assertGrossNotBelowTare(next) {
     next(new Error("Gross weight must be greater than or equal to tare weight."));
   } else {
     this.netWeightKg = this.grossWeightKg - this.tareWeightKg;
-    const allowed = this.allowedMoisturePct || 20;
+    const allowed = this.allowedMoisturePct || STOCK_ENTRY.DEFAULT_ALLOWED_MOISTURE_PCT;
     const moisture = this.moisturePct || 0;
     const diffPct = Math.max(0, moisture - allowed);
     this.deductionPct = diffPct;
     const deductionKg = (this.netWeightKg * diffPct) / 100;
     this.actualWeightKg = Math.max(0, this.netWeightKg - deductionKg);
-    const rate = this.ratePerMt || 1900;
+    const rate = this.ratePerMt || STOCK_ENTRY.DEFAULT_RATE_PER_MT;
     this.totalAmountRs = Math.round((this.actualWeightKg / 1000) * rate * 100) / 100;
 
     const purchaseTotal = (this.purchasedProducts || []).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
