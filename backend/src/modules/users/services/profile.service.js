@@ -3,6 +3,21 @@ import { Warehouse } from "../../warehouses/models/Warehouse.js";
 import { ApiError } from "../../common/utils/ApiError.js";
 import { ROLES } from "../../common/constants/roles.js";
 import { recordAudit } from "../../audit/services/audit.service.js";
+import { getOwnWarehouseId } from "../../warehouses/services/warehouseScope.service.js";
+
+// Returns the logged-in user's own profile with warehouse info attached.
+export async function getOwnProfile(actor) {
+  const user = await User.findById(actor.profile._id);
+  if (!user) throw ApiError.notFound("Account not found.");
+
+  const warehouseId = await getOwnWarehouseId(actor.profile);
+  let warehouse = null;
+  if (warehouseId) {
+    warehouse = await Warehouse.findById(warehouseId).select("name code address commodity status");
+  }
+
+  return { ...user.toJSON(), warehouseId, warehouse };
+}
 
 // Two very different actors can call this:
 //  - Super Admin: can create a Warehouse Admin OR a Supervisor, unassigned
@@ -258,4 +273,73 @@ export async function updateProfileById(actor, profileId, { fullName, email, pho
   });
 
   return user;
+}
+
+export async function deleteProfile(actor, profileId) {
+  const user = await User.findById(profileId);
+  if (!user) throw ApiError.notFound("User profile not found.");
+
+  // If deleting a Super Admin, make sure at least one other Super Admin exists
+  if (user.role === ROLES.SUPER_ADMIN) {
+    const superAdminCount = await User.countDocuments({ role: ROLES.SUPER_ADMIN });
+    if (superAdminCount <= 1) {
+      throw ApiError.badRequest("Cannot delete the only Super Administrator account.");
+    }
+  }
+
+  // Non-super-admins cannot delete other accounts unless it's their own account
+  const isSelf = String(actor.profile._id) === String(profileId);
+  if (!isSelf && actor.profile.role !== ROLES.SUPER_ADMIN) {
+    throw ApiError.forbidden("Only Super Administrators can delete other user profiles.");
+  }
+
+  // Detach user from any assigned warehouses
+  await Warehouse.updateMany({ admin: profileId }, { $set: { admin: null } });
+  await Warehouse.updateMany({ supervisor: profileId }, { $set: { supervisor: null } });
+
+  await User.findByIdAndDelete(profileId);
+
+  await recordAudit({
+    actor,
+    action: "profile.delete",
+    entityType: "profile",
+    entityId: profileId,
+    metadata: { deletedName: user.fullName, deletedEmail: user.email, deletedRole: user.role },
+  });
+
+  return { success: true, message: "Profile successfully deleted." };
+}
+
+// Return user counts grouped by role for the governance dashboard.
+export async function getCountsByRole(actor) {
+  const isSuperAdmin = actor.profile.role === ROLES.SUPER_ADMIN;
+
+  // Warehouse Admin sees only their own count + supervisor count for their warehouse
+  if (!isSuperAdmin) {
+    const ownId = actor.profile._id;
+    const ownWarehouse = await Warehouse.findOne({ admin: actor.profile._id });
+    const supId = ownWarehouse?.supervisor;
+
+    const total = await User.countDocuments({
+      $or: [
+        { _id: ownId },
+        ...(supId ? [{ _id: supId }] : []),
+      ],
+    });
+    const adminCount = await User.countDocuments({ _id: ownId });
+    const supCount = supId ? await User.countDocuments({ _id: supId }) : 0;
+
+    return { [ROLES.SUPER_ADMIN]: 0, [ROLES.WAREHOUSE_ADMIN]: adminCount, [ROLES.SUPERVISOR]: supCount };
+  }
+
+  // Super Admin sees org-wide counts
+  const counts = await User.aggregate([
+    { $group: { _id: "$role", count: { $sum: 1 } } },
+  ]);
+
+  const result = {};
+  for (const c of counts) {
+    result[c._id] = c.count;
+  }
+  return result;
 }

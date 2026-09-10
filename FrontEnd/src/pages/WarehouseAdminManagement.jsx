@@ -7,17 +7,8 @@ import FormField from "../components/common/FormField";
 import Select from "../components/common/Select";
 import AsyncState from "../components/common/AsyncState";
 import { useWarehouses } from "../features/warehouses/useWarehouses";
-import { createProfile, updateProfile } from "../features/profiles/api";
+import { createProfile, updateProfile, deleteProfile } from "../features/profiles/api";
 import { toast } from "../utils/toast";
-
-const PRESET_AVATARS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=250&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=250&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=250&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=250&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=250&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=250&auto=format&fit=crop&q=80",
-];
 
 function emptyForm(role = "warehouse_admin") {
   return {
@@ -44,6 +35,7 @@ export default function WarehouseAdminManagement() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const fileInputRef = useRef(null);
   const workspaceRef = useRef(null);
@@ -68,7 +60,7 @@ export default function WarehouseAdminManagement() {
           fullName: wh.admin || "",
           phone: wh.adminPhone || "",
           email: wh.adminEmail || "",
-          password: "",
+          password: wh.adminPassword || "Kusum@123",
           address: wh.adminAddress || "",
           avatarUrl: wh.adminAvatarUrl || "",
           role: "warehouse_admin",
@@ -82,7 +74,7 @@ export default function WarehouseAdminManagement() {
           fullName: wh.supervisor || "",
           phone: wh.supervisorPhone || "",
           email: wh.supervisorEmail || "",
-          password: "",
+          password: wh.supervisorPassword || "Kusum@123",
           address: wh.supervisorAddress || "",
           avatarUrl: wh.supervisorAvatarUrl || "",
           role: "supervisor",
@@ -196,9 +188,9 @@ export default function WarehouseAdminManagement() {
       return;
     }
 
-    // If creating a brand new unassigned staff, password is required
-    if (!isAssigned && (!form.password || form.password.length < 6)) {
-      toast.error(`Password must be at least 6 characters.`);
+    // Password is mandatory for all accounts
+    if (!form.password || form.password.length < 6) {
+      toast.error(`Password is mandatory and must be at least 6 characters.`);
       return;
     }
 
@@ -228,10 +220,8 @@ export default function WarehouseAdminManagement() {
           email: form.email ? form.email.trim().toLowerCase() : undefined,
           address: form.address ? form.address.trim() : undefined,
           avatarUrl: form.avatarUrl || undefined,
+          password: form.password,
         };
-        if (form.password && form.password.length >= 6) {
-          profilePayload.password = form.password;
-        }
 
         if (targetUserId) {
           await updateProfile(targetUserId, profilePayload);
@@ -267,27 +257,59 @@ export default function WarehouseAdminManagement() {
     }
   };
 
+  const handleDeleteStaff = async () => {
+    if (!selectedWarehouse) return;
+    const roleTitle = activeRole === "admin" ? "Warehouse Admin" : "Warehouse Supervisor";
+    const targetUserId = activeRole === "admin" ? selectedWarehouse.adminId : selectedWarehouse.supervisorId;
+    const staffName = activeRole === "admin" ? selectedWarehouse.admin : selectedWarehouse.supervisor;
+
+    if (!window.confirm(`Are you sure you want to delete and unassign ${roleTitle} "${staffName || "Staff"}" from ${selectedWarehouse.name}? This will remove their profile record.`)) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      if (targetUserId) {
+        await deleteProfile(targetUserId);
+      }
+      const patch = activeRole === "admin"
+        ? { admin: null, adminName: "", adminPhone: "", adminEmail: "", adminAddress: "", adminAvatarUrl: "" }
+        : { supervisor: null, supervisorName: "", supervisorPhone: "", supervisorEmail: "", supervisorAddress: "", supervisorAvatarUrl: "" };
+      await updateWarehouse(selectedWarehouse.id, patch);
+      await reloadWarehouses();
+      setIsEditing(false);
+      resetFormFromWarehouse(activeRole, { ...selectedWarehouse, ...patch });
+      toast.success(`${roleTitle} profile deleted and unassigned successfully!`);
+    } catch (err) {
+      toast.error(err?.response?.data?.error?.message || err.message || `Failed to delete ${roleTitle}.`);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const displayName = currentForm.fullName || (activeRole === "admin" ? "Warehouse Admin" : "Warehouse Supervisor");
   const displayRole = activeRole === "admin" ? "WAREHOUSE ADMIN" : "WAREHOUSE SUPERVISOR";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {/* Top Header */}
       <PageHeader
         title="Warehouse Admin Management"
         subtitle="Create, view, and update login credentials for Warehouse Admins and Supervisors"
+        compact
       />
 
       <AsyncState status={status} error={error} loadingLabel="Loading warehouse personnel…" />
 
       {/* Warehouse Selector Card */}
+      {/* Warehouse Selector & Executive Personnel Bar */}
       <div
         ref={workspaceRef}
         style={{
           background: "var(--surface)",
           border: "1px solid var(--line)",
-          borderRadius: 12,
-          padding: "16px 20px",
+          borderRadius: 14,
+          padding: "12px 18px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -296,27 +318,39 @@ export default function WarehouseAdminManagement() {
           boxShadow: "var(--shadow-sm)",
         }}
       >
+        {/* Left: Warehouse Selector Picker */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 280 }}>
           <div
             style={{
-              width: 42,
-              height: 42,
+              width: 40,
+              height: 40,
               borderRadius: 10,
               background: "var(--primary-tint)",
               color: "var(--primary-deep)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 18,
+              fontSize: 20,
               flexShrink: 0,
+              border: "1px solid rgba(0, 184, 107, 0.25)",
             }}
           >
             <i className="ri-building-line" />
           </div>
           <div style={{ flex: 1 }}>
-            <label style={{ fontSize: 11.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", display: "block", marginBottom: 4 }}>
+            <span
+              style={{
+                fontSize: 10.5,
+                fontWeight: 700,
+                color: "var(--muted)",
+                textTransform: "uppercase",
+                letterSpacing: "0.4px",
+                display: "block",
+                marginBottom: 3,
+              }}
+            >
               Select Warehouse to Manage
-            </label>
+            </span>
             <Select
               value={selectedHubId}
               onChange={(val) => {
@@ -327,49 +361,92 @@ export default function WarehouseAdminManagement() {
                 value: w.id,
                 label: `${w.name} (${w.code})`,
               }))}
-              hasLeftIcon
             />
           </div>
         </div>
 
-        {/* Current Assigned Status Pills */}
+        {/* Right: Assigned Admin & Supervisor Status Badges */}
         {selectedWarehouse && (
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            {/* Admin Badge */}
             <div
+              onClick={() => handleSwitchRole("admin")}
+              title="Click to view or edit Warehouse Admin"
               style={{
-                background: currentAdmin ? "rgba(0,184,107,0.08)" : "rgba(239,68,68,0.08)",
-                border: `1px solid ${currentAdmin ? "rgba(0,184,107,0.25)" : "rgba(239,68,68,0.25)"}`,
-                borderRadius: 8,
-                padding: "6px 14px",
+                background: activeRole === "admin" ? "var(--primary-tint)" : "var(--canvas)",
+                border: activeRole === "admin" ? "1.5px solid var(--primary)" : "1px solid var(--line)",
+                borderRadius: 10,
+                padding: "6px 12px",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
               }}
             >
-              <i className="ri-user-settings-line" style={{ color: currentAdmin ? "var(--primary)" : "var(--status-error)", fontSize: 13 }} />
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: currentAdmin ? "var(--primary)" : "rgba(239, 68, 68, 0.12)",
+                  color: currentAdmin ? "#FFFFFF" : "var(--status-error)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 13,
+                  fontWeight: 700,
+                }}
+              >
+                <i className="ri-shield-user-line" />
+              </div>
               <div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", display: "block" }}>Admin</span>
-                <strong style={{ fontSize: 12.5, color: currentAdmin ? "var(--ink)" : "var(--status-error)" }}>
+                <span style={{ fontSize: 9.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.3px", display: "block", lineHeight: 1 }}>
+                  Admin
+                </span>
+                <strong style={{ fontSize: 12, color: currentAdmin ? "var(--ink)" : "var(--status-error)", display: "block", marginTop: 2 }}>
                   {currentAdmin?.name ? currentAdmin.name : "Unassigned"}
                 </strong>
               </div>
             </div>
 
+            {/* Supervisor Badge */}
             <div
+              onClick={() => handleSwitchRole("supervisor")}
+              title="Click to view or edit Warehouse Supervisor"
               style={{
-                background: currentSupervisor ? "rgba(0,184,107,0.08)" : "rgba(217,119,6,0.08)",
-                border: `1px solid ${currentSupervisor ? "rgba(0,184,107,0.25)" : "rgba(217,119,6,0.25)"}`,
-                borderRadius: 8,
-                padding: "6px 14px",
+                background: activeRole === "supervisor" ? "rgba(2, 132, 199, 0.1)" : "var(--canvas)",
+                border: activeRole === "supervisor" ? "1.5px solid #0284C7" : "1px solid var(--line)",
+                borderRadius: 10,
+                padding: "6px 12px",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
               }}
             >
-              <i className="ri-user-settings-line" style={{ color: currentSupervisor ? "var(--primary)" : "#D97706", fontSize: 13 }} />
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: currentSupervisor ? "#0284C7" : "rgba(217, 119, 6, 0.12)",
+                  color: currentSupervisor ? "#FFFFFF" : "#D97706",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 13,
+                  fontWeight: 700,
+                }}
+              >
+                <i className="ri-user-settings-line" />
+              </div>
               <div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", display: "block" }}>Supervisor</span>
-                <strong style={{ fontSize: 12.5, color: currentSupervisor?.name ? "var(--ink)" : "#D97706" }}>
+                <span style={{ fontSize: 9.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.3px", display: "block", lineHeight: 1 }}>
+                  Supervisor
+                </span>
+                <strong style={{ fontSize: 12, color: currentSupervisor?.name ? "var(--ink)" : "#D97706", display: "block", marginTop: 2 }}>
                   {currentSupervisor?.name ? currentSupervisor.name : "Unassigned"}
                 </strong>
               </div>
@@ -380,35 +457,35 @@ export default function WarehouseAdminManagement() {
 
       {/* 2-COLUMN WORKSPACE: LEFT INPUT FORM & RIGHT INSTANT LIVE VIEW CARD */}
       {selectedWarehouse && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 18 }} className="responsive-grid-2">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 12 }} className="responsive-grid-2">
           {/* COLUMN 1: INPUT & EDIT FORM */}
           <div
             style={{
               background: "var(--surface)",
               border: "1px solid var(--line)",
-              borderRadius: 12,
-              padding: "20px 22px",
-              boxShadow: "var(--shadow-sm)",
+              borderRadius: 10,
+              padding: "14px 16px",
+              boxShadow: "var(--shadow-xs)",
             }}
           >
             {/* Role Switcher & Status */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, borderBottom: "1px solid var(--line)", paddingBottom: 12 }}>
-              <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, borderBottom: "1px solid var(--line)", paddingBottom: 10 }}>
+              <div style={{ display: "flex", gap: 6 }}>
                 <button
                   type="button"
                   onClick={() => handleSwitchRole("admin")}
                   style={{
-                    padding: "7px 16px",
-                    borderRadius: 8,
+                    padding: "5px 12px",
+                    borderRadius: 7,
                     border: activeRole === "admin" ? "2px solid var(--primary)" : "1px solid var(--line)",
                     background: activeRole === "admin" ? "var(--primary-tint)" : "var(--canvas)",
                     color: activeRole === "admin" ? "var(--primary-deep)" : "var(--ink)",
                     fontWeight: 700,
-                    fontSize: 13,
+                    fontSize: 12,
                     cursor: "pointer",
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: 6,
+                    gap: 5,
                   }}
                 >
                   <i className="ri-user-settings-line" /> Warehouse Admin
@@ -418,17 +495,17 @@ export default function WarehouseAdminManagement() {
                   type="button"
                   onClick={() => handleSwitchRole("supervisor")}
                   style={{
-                    padding: "7px 16px",
-                    borderRadius: 8,
+                    padding: "5px 12px",
+                    borderRadius: 7,
                     border: activeRole === "supervisor" ? "2px solid var(--primary)" : "1px solid var(--line)",
                     background: activeRole === "supervisor" ? "var(--primary-tint)" : "var(--canvas)",
                     color: activeRole === "supervisor" ? "var(--primary-deep)" : "var(--ink)",
                     fontWeight: 700,
-                    fontSize: 13,
+                    fontSize: 12,
                     cursor: "pointer",
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: 6,
+                    gap: 5,
                   }}
                 >
                   <i className="ri-user-settings-line" /> Warehouse Supervisor
@@ -436,30 +513,30 @@ export default function WarehouseAdminManagement() {
               </div>
 
               {/* Status Indicator */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span
                   style={{
-                    fontSize: 11.5,
+                    fontSize: 11,
                     fontWeight: 700,
                     color: isAssigned ? "var(--primary-deep)" : "#D97706",
                     background: isAssigned ? "var(--primary-tint)" : "rgba(217, 119, 6, 0.08)",
-                    padding: "4px 10px",
+                    padding: "3px 8px",
                     borderRadius: 6,
                     border: isAssigned ? "1px solid rgba(0, 184, 107, 0.2)" : "1px solid rgba(217, 119, 6, 0.2)",
                   }}
                 >
-                  {isAssigned ? (isEditing ? "● Editing Details" : "● Assigned (Read Only)") : "○ Unassigned (Fill to Create)"}
+                  {isAssigned ? (isEditing ? "● Editing Details" : "● Assigned (Read Only)") : "○ Unassigned"}
                 </span>
               </div>
             </div>
 
-            <form onSubmit={handleSaveStaff} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <form onSubmit={handleSaveStaff} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {/* Photo & Avatar Section */}
-              <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 14px", background: "var(--canvas)", borderRadius: 10, border: "1px solid var(--line)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "var(--canvas)", borderRadius: 8, border: "1px solid var(--line)" }}>
                 <div
                   style={{
-                    width: 52,
-                    height: 52,
+                    width: 42,
+                    height: 42,
                     borderRadius: "50%",
                     background: currentForm.avatarUrl ? `url(${currentForm.avatarUrl}) center/cover no-repeat` : "var(--gradient-primary)",
                     display: "flex",
@@ -467,227 +544,196 @@ export default function WarehouseAdminManagement() {
                     justifyContent: "center",
                     color: "white",
                     fontWeight: 800,
-                    fontSize: 18,
+                    fontSize: 15,
                     flexShrink: 0,
                     overflow: "hidden",
                     border: currentForm.avatarUrl ? "2px solid var(--primary)" : "none",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
                   }}
                 >
                   {!currentForm.avatarUrl && (currentForm.fullName || "AD").slice(0, 2).toUpperCase()}
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      accept="image/*"
-                      onChange={(e) => handleFileUpload(e.target.files?.[0])}
-                      style={{ display: "none" }}
-                    />
-                    {isReadOnly ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, flexWrap: "wrap" }}>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e.target.files?.[0])}
+                    style={{ display: "none" }}
+                  />
+                  {isReadOnly ? (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      style={{
+                        padding: "4px 10px",
+                        borderRadius: 6,
+                        border: "1px solid var(--primary)",
+                        background: "var(--primary-tint)",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        color: "var(--primary-deep)",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
+                      }}
+                    >
+                      <i className="ri-camera-line" /> {currentForm.avatarUrl ? "Change Photo" : "Upload Photo"}
+                    </button>
+                  ) : (
+                    <>
                       <button
                         type="button"
-                        onClick={() => setIsEditing(true)}
+                        onClick={() => fileInputRef.current?.click()}
                         style={{
-                          padding: "5px 12px",
+                          padding: "4px 10px",
                           borderRadius: 6,
-                          border: "1px solid var(--primary)",
-                          background: "var(--primary-tint)",
-                          fontSize: 11.5,
-                          fontWeight: 700,
+                          border: "1px solid var(--line-strong)",
+                          background: "var(--surface)",
+                          fontSize: 11,
+                          fontWeight: 600,
                           cursor: "pointer",
-                          color: "var(--primary-deep)",
+                          color: "var(--ink)",
                           display: "inline-flex",
                           alignItems: "center",
-                          gap: 6,
+                          gap: 5,
                         }}
                       >
-                        <i className="ri-camera-line" /> {currentForm.avatarUrl ? "Change Photo" : "Upload Photo"}
+                        <i className="ri-upload-2-line" /> Upload Photo
                       </button>
-                    ) : (
-                      <>
+                      {currentForm.avatarUrl && (
                         <button
                           type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          style={{
-                            padding: "5px 12px",
-                            borderRadius: 6,
-                            border: "1px solid var(--line-strong)",
-                            background: "var(--surface)",
-                            fontSize: 11.5,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            color: "var(--ink)",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 6,
-                          }}
+                          onClick={() => setFormKey("avatarUrl", "")}
+                          style={{ border: "none", background: "none", color: "var(--status-error)", fontSize: 11, cursor: "pointer", textDecoration: "underline" }}
                         >
-                          <i className="ri-upload-2-line" /> Upload Photo
+                          Remove
                         </button>
-                        {currentForm.avatarUrl && (
-                          <button
-                            type="button"
-                            onClick={() => setFormKey("avatarUrl", "")}
-                            style={{ border: "none", background: "none", color: "var(--status-error)", fontSize: 11, cursor: "pointer", textDecoration: "underline" }}
-                          >
-                            Remove
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  {/* Preset Avatars */}
-                  {!isReadOnly && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
-                      <span style={{ fontSize: 10.5, color: "var(--muted)" }}>Presets:</span>
-                      {PRESET_AVATARS.map((url, i) => (
-                        <div
-                          key={i}
-                          onClick={() => setFormKey("avatarUrl", url)}
-                          style={{
-                            width: 22,
-                            height: 22,
-                            borderRadius: "50%",
-                            background: `url(${url}) center/cover no-repeat`,
-                            cursor: "pointer",
-                            border: currentForm.avatarUrl === url ? "2px solid var(--primary)" : "1px solid var(--line-strong)",
-                          }}
-                        />
-                      ))}
-                    </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
 
               {/* Personal Details */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 10px" }} className="responsive-grid-2">
                 <div style={{ gridColumn: "1 / -1" }}>
                   <FormField
                     label="Full Name"
                     required
+                    layout="vertical"
                     disabled={isReadOnly}
                     icon="ri-user-3-line"
                     value={currentForm.fullName}
                     onChange={(val) => setFormKey("fullName", val)}
                     placeholder={activeRole === "admin" ? "e.g. Manoj Kumar" : "e.g. Ramesh Singh"}
                     compact
-                    marginBottom={10}
+                    marginBottom={6}
                   />
                 </div>
 
                 <FormField
                   label="Contact Phone (Login ID)"
                   required={!isAssigned}
+                  layout="vertical"
                   disabled={isReadOnly}
                   icon="ri-phone-line"
                   value={currentForm.phone}
                   onChange={(val) => setFormKey("phone", val)}
                   placeholder={isReadOnly ? (currentForm.phone || "Not specified") : "e.g. 9876543210"}
                   compact
-                  marginBottom={10}
+                  marginBottom={6}
                 />
 
                 <FormField
                   label="Email Address"
                   type="email"
+                  layout="vertical"
                   required={!isAssigned}
                   disabled={isReadOnly}
                   icon="ri-mail-line"
                   value={currentForm.email}
                   onChange={(val) => setFormKey("email", val)}
-                  placeholder={isReadOnly ? (currentForm.email ? currentForm.email : "Not specified (Click 'Edit Details' to add)") : (activeRole === "admin" ? "e.g. manoj@kusumganga.com" : "e.g. ramesh@kusumganga.com")}
+                  placeholder={isReadOnly ? (currentForm.email ? currentForm.email : "Not specified") : (activeRole === "admin" ? "e.g. manoj@kusumganga.com" : "e.g. ramesh@kusumganga.com")}
                   compact
-                  marginBottom={10}
+                  marginBottom={6}
                 />
 
                 {/* Password Input */}
-                <div style={{ gridColumn: "1 / -1", marginBottom: 10 }}>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "block", marginBottom: 4 }}>
-                    {!isAssigned ? "Login Password" : "Set New Password (Optional)"}
-                    {!isAssigned && <span style={{ color: "var(--status-error)" }}> *</span>}
-                  </label>
-
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      disabled={isReadOnly}
-                      readOnly={isReadOnly}
-                      value={currentForm.password}
-                      onChange={isReadOnly ? undefined : (e) => setFormKey("password", e.target.value)}
-                      placeholder={
-                        isReadOnly
-                          ? "•••••••• (Password is protected)"
-                          : !isAssigned
-                          ? "Enter login password (at least 6 characters)"
-                          : "Leave blank to keep existing password"
-                      }
-                      style={{
-                        width: "100%",
-                        padding: "8px 36px 8px 12px",
-                        borderRadius: 8,
-                        border: "1px solid var(--line-strong)",
-                        background: isReadOnly ? "var(--canvas)" : "var(--surface)",
-                        fontSize: 13,
-                        color: isReadOnly ? "var(--muted)" : "var(--ink)",
-                        cursor: isReadOnly ? "not-allowed" : "text",
-                        pointerEvents: isReadOnly ? "none" : "auto",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      style={{
-                        position: "absolute",
-                        right: 10,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        border: "none",
-                        background: "none",
-                        color: "var(--muted)",
-                        cursor: "pointer",
-                        fontSize: 12,
-                      }}
-                    >
-                      <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`} />
-                    </button>
-                  </div>
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <FormField
+                    label="Login Password"
+                    required
+                    layout="vertical"
+                    disabled={isReadOnly}
+                    icon="ri-lock-line"
+                    showPasswordToggle
+                    showPassword={showPassword}
+                    onTogglePassword={() => setShowPassword(!showPassword)}
+                    value={currentForm.password || (isAssigned ? "Kusum@123" : "")}
+                    onChange={(val) => setFormKey("password", val)}
+                    placeholder="Enter login password (at least 6 characters)"
+                    compact
+                    marginBottom={6}
+                  />
                 </div>
 
                 <div style={{ gridColumn: "1 / -1" }}>
                   <FormField
                     label="Residential / Office Address"
                     type="textarea"
+                    layout="vertical"
                     disabled={isReadOnly}
                     icon="ri-map-pin-line"
                     value={currentForm.address}
                     onChange={(val) => setFormKey("address", val)}
-                    placeholder={isReadOnly ? (currentForm.address ? currentForm.address : "Not specified (Click 'Edit Details' to add address)") : "e.g. Village Betiyahata, Block Sadar, Gorakhpur, UP"}
+                    placeholder={isReadOnly ? (currentForm.address ? currentForm.address : "Not specified") : "e.g. Village Betiyahata, Block Sadar, Gorakhpur, UP"}
                     compact
-                    marginBottom={10}
+                    marginBottom={6}
+                    rows={2}
                   />
                 </div>
               </div>
 
               {/* Conditional Action Buttons */}
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 10, borderTop: "1px solid var(--line)" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, paddingTop: 8, borderTop: "1px solid var(--line)" }}>
                 {isReadOnly ? (
-                  /* Read Only Mode: Show Edit Button */
-                  <Button
-                    type="button"
-                    onClick={() => setIsEditing(true)}
-                    style={{
-                      padding: "8px 20px",
-                      fontSize: 12.5,
-                      fontWeight: 700,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
-                    <i className="ri-edit-line" /> Edit Details
-                  </Button>
+                  /* Read Only Mode: Show Edit Button & Delete Button */
+                  <>
+                    <Button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      style={{
+                        padding: "6px 14px",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
+                      }}
+                    >
+                      <i className="ri-edit-line" /> Edit Details
+                    </Button>
+                    <Button
+                      type="button"
+                      disabled={deleting}
+                      onClick={handleDeleteStaff}
+                      style={{
+                        padding: "6px 14px",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
+                        background: "rgba(239, 68, 68, 0.08)",
+                        color: "var(--status-error, #EF4444)",
+                        border: "1px solid rgba(239, 68, 68, 0.25)",
+                      }}
+                    >
+                      <i className="ri-delete-bin-line" /> {deleting ? "Deleting…" : "Delete Profile"}
+                    </Button>
+                  </>
                 ) : isAssigned ? (
                   /* Editable Mode for Existing Staff: Show Cancel & Save Changes */
                   <>
@@ -698,17 +744,17 @@ export default function WarehouseAdminManagement() {
                         setIsEditing(false);
                         resetFormFromWarehouse(activeRole, selectedWarehouse);
                       }}
-                      style={{ padding: "8px 16px", fontSize: 12.5 }}
+                      style={{ padding: "6px 14px", fontSize: 12 }}
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" disabled={saving} className="btn-glow" style={{ padding: "8px 22px", fontSize: 12.5, fontWeight: 700 }}>
+                    <Button type="submit" disabled={saving} className="btn-glow" style={{ padding: "6px 18px", fontSize: 12, fontWeight: 700 }}>
                       {saving ? "Saving…" : "Save Changes"}
                     </Button>
                   </>
                 ) : (
                   /* Creating New Staff: Show Create & Assign */
-                  <Button type="submit" disabled={saving} className="btn-glow" style={{ padding: "8px 22px", fontSize: 12.5, fontWeight: 700 }}>
+                  <Button type="submit" disabled={saving} className="btn-glow" style={{ padding: "6px 18px", fontSize: 12, fontWeight: 700 }}>
                     {saving ? "Creating…" : `Create & Assign ${activeRole === "admin" ? "Warehouse Admin" : "Supervisor"}`}
                   </Button>
                 )}
@@ -717,14 +763,14 @@ export default function WarehouseAdminManagement() {
           </div>
 
           {/* COLUMN 2: LIVE INSTANT CARD VIEW */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <div
               style={{
                 background: "var(--surface)",
                 border: "1px solid var(--line)",
-                borderRadius: 14,
-                padding: "20px",
-                boxShadow: "var(--shadow-sm)",
+                borderRadius: 10,
+                padding: "14px",
+                boxShadow: "var(--shadow-xs)",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -740,7 +786,7 @@ export default function WarehouseAdminManagement() {
                   top: 0,
                   left: 0,
                   right: 0,
-                  height: 54,
+                  height: 38,
                   background: activeRole === "admin"
                     ? "linear-gradient(135deg, #051F17 0%, #07281D 50%, #00B86B 100%)"
                     : "linear-gradient(135deg, #082F49 0%, #0369A1 50%, #38BDF8 100%)",
@@ -748,11 +794,11 @@ export default function WarehouseAdminManagement() {
               />
 
               {/* Live Avatar Preview */}
-              <div style={{ position: "relative", marginTop: 14, marginBottom: 10 }}>
+              <div style={{ position: "relative", marginTop: 8, marginBottom: 6 }}>
                 <div
                   style={{
-                    width: 76,
-                    height: 76,
+                    width: 50,
+                    height: 50,
                     borderRadius: "50%",
                     background: currentForm.avatarUrl ? `url(${currentForm.avatarUrl}) center/cover no-repeat` : "var(--gradient-primary)",
                     display: "flex",
@@ -760,9 +806,9 @@ export default function WarehouseAdminManagement() {
                     justifyContent: "center",
                     color: "white",
                     fontWeight: 800,
-                    fontSize: 26,
-                    boxShadow: "0 4px 14px rgba(0, 184, 107, 0.3)",
-                    border: "3px solid var(--surface)",
+                    fontSize: 18,
+                    boxShadow: "0 2px 10px rgba(0, 184, 107, 0.3)",
+                    border: "2.5px solid var(--surface)",
                     overflow: "hidden",
                   }}
                 >
@@ -771,22 +817,22 @@ export default function WarehouseAdminManagement() {
                 <span
                   style={{
                     position: "absolute",
-                    bottom: 2,
-                    right: 2,
-                    width: 12,
-                    height: 12,
+                    bottom: 1,
+                    right: 1,
+                    width: 10,
+                    height: 10,
                     borderRadius: "50%",
                     background: isAssigned ? "#10B981" : "#D97706",
-                    border: "2px solid var(--surface)",
-                    boxShadow: isAssigned ? "0 0 6px #10B981" : "0 0 6px #D97706",
+                    border: "1.5px solid var(--surface)",
+                    boxShadow: isAssigned ? "0 0 5px #10B981" : "0 0 5px #D97706",
                   }}
                 />
               </div>
 
-              <h4 style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 800, color: "var(--ink)" }}>
+              <h4 style={{ margin: "0 0 3px", fontSize: 13.5, fontWeight: 800, color: "var(--ink)" }}>
                 {displayName}
               </h4>
-              <div style={{ marginBottom: 12 }}>
+              <div style={{ marginBottom: 10 }}>
                 <Badge tone={activeRole === "admin" ? "success" : "info"}>
                   {displayRole}
                 </Badge>
@@ -798,18 +844,18 @@ export default function WarehouseAdminManagement() {
                   width: "100%",
                   background: "var(--canvas)",
                   border: "1px solid var(--line)",
-                  borderRadius: 10,
-                  padding: "12px",
+                  borderRadius: 8,
+                  padding: "8px 10px",
                   display: "flex",
                   flexDirection: "column",
-                  gap: 8,
+                  gap: 5,
                   textAlign: "left",
-                  fontSize: 12,
+                  fontSize: 11.5,
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ color: "var(--muted)" }}>Hub:</span>
-                  <span style={{ fontWeight: 700, color: "var(--ink)", maxWidth: 170, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ fontWeight: 700, color: "var(--ink)", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {selectedWarehouse.name}
                   </span>
                 </div>
@@ -825,7 +871,7 @@ export default function WarehouseAdminManagement() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ color: "var(--muted)" }}>Email:</span>
-                  <span style={{ fontWeight: 600, color: "var(--ink)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ fontWeight: 600, color: "var(--ink)", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {currentForm.email || "—"}
                   </span>
                 </div>
@@ -837,7 +883,7 @@ export default function WarehouseAdminManagement() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ color: "var(--muted)" }}>Address:</span>
-                  <span style={{ fontWeight: 500, color: "var(--ink-secondary)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ fontWeight: 500, color: "var(--ink-secondary)", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {currentForm.address || "—"}
                   </span>
                 </div>
@@ -852,28 +898,34 @@ export default function WarehouseAdminManagement() {
         style={{
           background: "var(--surface)",
           border: "1px solid var(--line)",
-          borderRadius: 12,
-          padding: "16px 20px",
-          boxShadow: "var(--shadow-sm)",
+          borderRadius: 10,
+          padding: "8px 12px",
+          boxShadow: "var(--shadow-xs)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-          <h4 style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: "var(--ink)" }}>
-            <i className="ri-table-list-line" style={{ color: "var(--primary)", marginRight: 8 }} />
-            All Warehouses & Assigned Staff
-          </h4>
-          <span style={{ fontSize: 11.5, color: "var(--muted)" }}>{warehouses.length} Total Warehouses</span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, paddingBottom: 6, borderBottom: "1px solid var(--line)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <span style={{ width: 22, height: 22, borderRadius: 5, background: "var(--primary-tint)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>
+              <i className="ri-table-line" />
+            </span>
+            <h4 style={{ margin: 0, fontSize: 12.5, fontWeight: 700, color: "var(--ink)", letterSpacing: "-0.01em" }}>
+              All Warehouses &amp; Assigned Staff
+            </h4>
+          </div>
+          <span style={{ fontSize: 10.5, fontWeight: 600, color: "var(--muted)", background: "var(--canvas)", padding: "1.5px 8px", borderRadius: 10, border: "1px solid var(--line)" }}>
+            {warehouses.length} {warehouses.length === 1 ? "Warehouse Hub" : "Warehouses"}
+          </span>
         </div>
 
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, textAlign: "left" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5, textAlign: "left" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--line)", background: "var(--canvas)" }}>
-                <th style={{ padding: "10px 12px", fontWeight: 700, color: "var(--muted)", fontSize: 11, textTransform: "uppercase" }}>Warehouse Hub</th>
-                <th style={{ padding: "10px 12px", fontWeight: 700, color: "var(--muted)", fontSize: 11, textTransform: "uppercase" }}>Assigned Admin</th>
-                <th style={{ padding: "10px 12px", fontWeight: 700, color: "var(--muted)", fontSize: 11, textTransform: "uppercase" }}>Assigned Supervisor</th>
-                <th style={{ padding: "10px 12px", fontWeight: 700, color: "var(--muted)", fontSize: 11, textTransform: "uppercase" }}>Status</th>
-                <th style={{ padding: "10px 12px", fontWeight: 700, color: "var(--muted)", fontSize: 11, textTransform: "uppercase", textAlign: "right" }}>Actions</th>
+                <th style={{ padding: "6px 10px", fontWeight: 700, color: "var(--muted)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.5px" }}>Warehouse Hub</th>
+                <th style={{ padding: "6px 10px", fontWeight: 700, color: "var(--muted)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.5px" }}>Assigned Admin</th>
+                <th style={{ padding: "6px 10px", fontWeight: 700, color: "var(--muted)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.5px" }}>Assigned Supervisor</th>
+                <th style={{ padding: "6px 10px", fontWeight: 700, color: "var(--muted)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.5px", textAlign: "center" }}>Status</th>
+                <th style={{ padding: "6px 10px", fontWeight: 700, color: "var(--muted)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.5px", textAlign: "right" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -884,20 +936,27 @@ export default function WarehouseAdminManagement() {
                     key={w.id}
                     style={{
                       borderBottom: "1px solid var(--line)",
-                      background: isSelected ? "rgba(0,184,107,0.04)" : "transparent",
+                      borderLeft: isSelected ? "3px solid var(--primary)" : "3px solid transparent",
+                      background: isSelected ? "rgba(0,184,107,0.05)" : "transparent",
+                      transition: "background 0.15s ease",
                     }}
                   >
-                    <td style={{ padding: "12px" }}>
-                      <strong style={{ color: "var(--ink)", display: "block" }}>{w.name}</strong>
-                      <span style={{ fontSize: 11, color: "var(--muted)" }}>{w.code} &bull; {w.commodity}</span>
+                    <td style={{ padding: "6px 10px", verticalAlign: "middle" }}>
+                      <strong style={{ color: "var(--ink)", display: "block", fontSize: 12, lineHeight: 1.2 }}>{w.name}</strong>
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 1 }}>
+                        <span style={{ fontSize: 9.5, fontWeight: 700, fontFamily: "monospace", background: "var(--canvas)", border: "1px solid var(--line)", padding: "0.5px 5px", borderRadius: 4, color: "var(--muted)" }}>
+                          {w.code}
+                        </span>
+                        <span style={{ fontSize: 10.5, color: "var(--muted)" }}>{w.commodity || "Biomass / PRALLI"}</span>
+                      </div>
                     </td>
-                    <td style={{ padding: "12px" }}>
+                    <td style={{ padding: "6px 10px", verticalAlign: "middle" }}>
                       {w.admin ? (
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <div
                             style={{
-                              width: 34,
-                              height: 34,
+                              width: 26,
+                              height: 26,
                               borderRadius: "50%",
                               background: w.adminAvatarUrl ? `url(${w.adminAvatarUrl}) center/cover no-repeat` : "var(--gradient-primary)",
                               color: "white",
@@ -905,7 +964,7 @@ export default function WarehouseAdminManagement() {
                               alignItems: "center",
                               justifyContent: "center",
                               fontWeight: 700,
-                              fontSize: 12,
+                              fontSize: 10,
                               flexShrink: 0,
                               border: w.adminAvatarUrl ? "1.5px solid var(--primary)" : "none",
                               overflow: "hidden",
@@ -913,24 +972,41 @@ export default function WarehouseAdminManagement() {
                           >
                             {!w.adminAvatarUrl && (w.admin || "A").slice(0, 2).toUpperCase()}
                           </div>
-                          <div>
-                            <strong style={{ color: "var(--ink)", display: "block" }}>{w.admin}</strong>
-                            <span style={{ display: "block", fontSize: 11, color: "var(--muted)" }}>📞 {w.adminPhone || "—"}</span>
-                            {w.adminEmail && <span style={{ display: "block", fontSize: 10.5, color: "var(--primary-deep)" }}>✉️ {w.adminEmail}</span>}
-                            {w.adminAddress && <span style={{ display: "block", fontSize: 10.5, color: "var(--muted)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={w.adminAddress}>{w.adminAddress}</span>}
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                              <strong style={{ color: "var(--ink)", fontSize: 12, lineHeight: 1.2 }}>{w.admin}</strong>
+                              <span style={{ fontSize: 9.5, fontWeight: 700, color: "var(--primary-deep)", background: "rgba(0,184,107,0.1)", padding: "0.5px 4px", borderRadius: 3 }}>Admin</span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, marginTop: 1, color: "var(--muted)", whiteSpace: "nowrap" }}>
+                              {w.adminPhone && (
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                                  <i className="ri-phone-line" style={{ color: "var(--primary)", fontSize: 10.5 }} />
+                                  {w.adminPhone}
+                                </span>
+                              )}
+                              {w.adminPhone && w.adminEmail && <span style={{ opacity: 0.4 }}>•</span>}
+                              {w.adminEmail && (
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color: "var(--ink-secondary)" }}>
+                                  <i className="ri-mail-line" style={{ color: "var(--muted)", fontSize: 10.5 }} />
+                                  {w.adminEmail}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ) : (
-                        <span style={{ color: "var(--status-error)", fontSize: 11.5, fontWeight: 600 }}>● Unassigned</span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--status-error)", fontSize: 10.5, fontWeight: 600, background: "rgba(239, 68, 68, 0.06)", padding: "2px 7px", borderRadius: 4, border: "1px solid rgba(239, 68, 68, 0.15)" }}>
+                          ● Unassigned
+                        </span>
                       )}
                     </td>
-                    <td style={{ padding: "12px" }}>
+                    <td style={{ padding: "6px 10px", verticalAlign: "middle" }}>
                       {w.supervisor ? (
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <div
                             style={{
-                              width: 34,
-                              height: 34,
+                              width: 26,
+                              height: 26,
                               borderRadius: "50%",
                               background: w.supervisorAvatarUrl ? `url(${w.supervisorAvatarUrl}) center/cover no-repeat` : "linear-gradient(135deg, #0284C7, #38BDF8)",
                               color: "white",
@@ -938,7 +1014,7 @@ export default function WarehouseAdminManagement() {
                               alignItems: "center",
                               justifyContent: "center",
                               fontWeight: 700,
-                              fontSize: 12,
+                              fontSize: 10,
                               flexShrink: 0,
                               border: w.supervisorAvatarUrl ? "1.5px solid #0284C7" : "none",
                               overflow: "hidden",
@@ -946,38 +1022,102 @@ export default function WarehouseAdminManagement() {
                           >
                             {!w.supervisorAvatarUrl && (w.supervisor || "S").slice(0, 2).toUpperCase()}
                           </div>
-                          <div>
-                            <strong style={{ color: "var(--ink)", display: "block" }}>{w.supervisor}</strong>
-                            <span style={{ display: "block", fontSize: 11, color: "var(--muted)" }}>📞 {w.supervisorPhone || "—"}</span>
-                            {w.supervisorEmail && <span style={{ display: "block", fontSize: 10.5, color: "var(--primary-deep)" }}>✉️ {w.supervisorEmail}</span>}
-                            {w.supervisorAddress && <span style={{ display: "block", fontSize: 10.5, color: "var(--muted)", maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={w.supervisorAddress}>{w.supervisorAddress}</span>}
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                              <strong style={{ color: "var(--ink)", fontSize: 12, lineHeight: 1.2 }}>{w.supervisor}</strong>
+                              <span style={{ fontSize: 9.5, fontWeight: 700, color: "#0284C7", background: "rgba(2,132,199,0.1)", padding: "0.5px 4px", borderRadius: 3 }}>Supervisor</span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10.5, marginTop: 1, color: "var(--muted)", whiteSpace: "nowrap" }}>
+                              {w.supervisorPhone && (
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                                  <i className="ri-phone-line" style={{ color: "var(--primary)", fontSize: 10.5 }} />
+                                  {w.supervisorPhone}
+                                </span>
+                              )}
+                              {w.supervisorPhone && w.supervisorEmail && <span style={{ opacity: 0.4 }}>•</span>}
+                              {w.supervisorEmail && (
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 3, color: "var(--ink-secondary)" }}>
+                                  <i className="ri-mail-line" style={{ color: "var(--muted)", fontSize: 10.5 }} />
+                                  {w.supervisorEmail}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ) : (
-                        <span style={{ color: "#D97706", fontSize: 11.5, fontWeight: 600 }}>● Unassigned</span>
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#D97706", fontSize: 10.5, fontWeight: 600, background: "rgba(217, 119, 6, 0.06)", padding: "2px 7px", borderRadius: 4, border: "1px solid rgba(217, 119, 6, 0.15)" }}>
+                          ● Unassigned
+                        </span>
                       )}
                     </td>
-                    <td style={{ padding: "12px" }}>
-                      <Badge tone={w.status === "inactive" ? "error" : "success"}>
+                    <td style={{ padding: "6px 10px", verticalAlign: "middle", textAlign: "center" }}>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          padding: "2px 7px",
+                          borderRadius: 10,
+                          fontSize: 10,
+                          fontWeight: 700,
+                          letterSpacing: "0.3px",
+                          background: w.status === "inactive" ? "rgba(239, 68, 68, 0.08)" : "rgba(16, 185, 129, 0.08)",
+                          color: w.status === "inactive" ? "#DC2626" : "#059669",
+                          border: w.status === "inactive" ? "1px solid rgba(239, 68, 68, 0.2)" : "1px solid rgba(16, 185, 129, 0.25)",
+                        }}
+                      >
+                        <span style={{ width: 5, height: 5, borderRadius: "50%", background: w.status === "inactive" ? "#DC2626" : "#10B981" }} />
                         {w.status === "inactive" ? "INACTIVE" : "ACTIVE"}
-                      </Badge>
+                      </span>
                     </td>
-                    <td style={{ padding: "12px", textAlign: "right" }}>
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: 6 }}>
-                        <Button
-                          variant={isSelected && activeRole === "admin" ? "primary" : "secondary"}
+                    <td style={{ padding: "6px 10px", verticalAlign: "middle", textAlign: "right" }}>
+                      <div style={{ display: "inline-flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}>
+                        <button
+                          type="button"
                           onClick={() => handleSelectFromTable(w, "admin")}
-                          style={{ padding: "4px 10px", fontSize: 11.5, display: "inline-flex", alignItems: "center", gap: 4 }}
+                          title={`Manage Warehouse Admin for ${w.name}`}
+                          style={{
+                            padding: "3px 8px",
+                            fontSize: 11,
+                            fontWeight: 600,
+                            borderRadius: 5,
+                            cursor: "pointer",
+                            border: isSelected && activeRole === "admin" ? "1px solid var(--primary)" : "1px solid var(--line-strong)",
+                            background: isSelected && activeRole === "admin" ? "var(--primary)" : "var(--surface)",
+                            color: isSelected && activeRole === "admin" ? "#ffffff" : "var(--ink)",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
+                            boxShadow: isSelected && activeRole === "admin" ? "0 1px 4px rgba(0, 184, 107, 0.3)" : "none",
+                            transition: "all 0.15s ease",
+                            whiteSpace: "nowrap",
+                          }}
                         >
-                          <i className="ri-user-settings-line" /> Manage Admin
-                        </Button>
-                        <Button
-                          variant={isSelected && activeRole === "supervisor" ? "primary" : "secondary"}
+                          <i className="ri-shield-user-line" style={{ fontSize: 11 }} /> Manage Admin
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => handleSelectFromTable(w, "supervisor")}
-                          style={{ padding: "4px 10px", fontSize: 11.5, display: "inline-flex", alignItems: "center", gap: 4 }}
+                          title={`Manage Supervisor for ${w.name}`}
+                          style={{
+                            padding: "3px 8px",
+                            fontSize: 11,
+                            fontWeight: 600,
+                            borderRadius: 5,
+                            cursor: "pointer",
+                            border: isSelected && activeRole === "supervisor" ? "1px solid var(--primary)" : "1px solid var(--line-strong)",
+                            background: isSelected && activeRole === "supervisor" ? "var(--primary)" : "var(--surface)",
+                            color: isSelected && activeRole === "supervisor" ? "#ffffff" : "var(--ink)",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
+                            boxShadow: isSelected && activeRole === "supervisor" ? "0 1px 4px rgba(0, 184, 107, 0.3)" : "none",
+                            transition: "all 0.15s ease",
+                            whiteSpace: "nowrap",
+                          }}
                         >
-                          <i className="ri-user-settings-line" /> Manage Supervisor
-                        </Button>
+                          <i className="ri-user-settings-line" style={{ fontSize: 11 }} /> Manage Supervisor
+                        </button>
                       </div>
                     </td>
                   </tr>

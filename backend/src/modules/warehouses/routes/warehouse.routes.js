@@ -9,6 +9,9 @@ import { ROLES } from "../../common/constants/roles.js";
 
 const router = Router();
 
+// Public warehouse list for login dropdown (no auth required)
+router.get("/public", warehouseController.publicList);
+
 router.use(authenticate);
 
 // Static sub-paths must be registered before the /:id param route below.

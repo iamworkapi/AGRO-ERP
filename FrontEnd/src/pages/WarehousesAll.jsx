@@ -10,6 +10,7 @@ import ConfirmDialog from "../components/common/ConfirmDialog";
 import AsyncState from "../components/common/AsyncState";
 import { useWarehouses } from "../features/warehouses/useWarehouses";
 import { toast } from "../utils/toast";
+import { isValidPhone } from "../utils/phone";
 
 export default function WarehousesAll() {
   const navigate = useNavigate();
@@ -80,6 +81,22 @@ export default function WarehousesAll() {
       toast.error("Invalid warehouse target ID.");
       return;
     }
+
+    if (!editForm.name?.trim()) {
+      toast.error("Warehouse name is required.");
+      return;
+    }
+
+    if (editForm.contactPhone && !isValidPhone(editForm.contactPhone)) {
+      toast.error("Contact Phone must be exactly a valid 10-digit number.");
+      return;
+    }
+
+    if (editForm.helpDeskPhone && !isValidPhone(editForm.helpDeskPhone)) {
+      toast.error("Help Desk Phone must be exactly a valid 10-digit number.");
+      return;
+    }
+
     setSavingEdit(true);
     try {
       await updateWarehouse(targetId, editForm);
@@ -605,86 +622,128 @@ export default function WarehousesAll() {
         );
       })()}
 
-      {/* EDIT WAREHOUSE MODAL */}
+      {/* EDIT WAREHOUSE RIGHT-SLIDE DRAWER */}
       {editingWarehouse && (
         <Modal
           isOpen={true}
           onClose={() => setEditingWarehouse(null)}
           title="Edit Warehouse Details"
+          subtitle="Update operational contacts, location, and statutory credentials"
+          icon="ri-building-line"
+          width={560}
         >
-          <form onSubmit={handleSaveEdit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }}>
-              <FormField
-                label="Company Name"
-                value={editForm.companyName}
-                onChange={(val) => setEditForm((f) => ({ ...f, companyName: val }))}
-                compact
-                marginBottom={10}
-              />
-              <FormField
-                label="Warehouse Name"
-                required
-                value={editForm.name}
-                onChange={(val) => setEditForm((f) => ({ ...f, name: val }))}
-                compact
-                marginBottom={10}
-              />
-              <FormField
-                label="GSTIN"
-                value={editForm.gstin}
-                onChange={(val) => setEditForm((f) => ({ ...f, gstin: val }))}
-                compact
-                marginBottom={10}
-              />
-              <FormField
-                label="PAN"
-                value={editForm.pan}
-                onChange={(val) => setEditForm((f) => ({ ...f, pan: val }))}
-                compact
-                marginBottom={10}
-              />
-              <FormField
-                label="Contact Person"
-                value={editForm.contactPerson}
-                onChange={(val) => setEditForm((f) => ({ ...f, contactPerson: val }))}
-                compact
-                marginBottom={10}
-              />
-              <FormField
-                label="Contact Phone"
-                value={editForm.contactPhone}
-                onChange={(val) => setEditForm((f) => ({ ...f, contactPhone: val }))}
-                compact
-                marginBottom={10}
-              />
-              <FormField
-                label="Email"
-                type="email"
-                value={editForm.email}
-                onChange={(val) => setEditForm((f) => ({ ...f, email: val }))}
-                compact
-                marginBottom={10}
-              />
-              <FormField
-                label="Help Desk Phone"
-                value={editForm.helpDeskPhone}
-                onChange={(val) => setEditForm((f) => ({ ...f, helpDeskPhone: val }))}
-                compact
-                marginBottom={10}
-              />
-              <div style={{ gridColumn: "1 / -1" }}>
+          <form onSubmit={handleSaveEdit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* Section: Basic & Statutory */}
+            <div style={{ background: "var(--canvas)", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)" }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                <i className="ri-profile-line" /> General & Tax Info
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "10px 12px" }}>
                 <FormField
-                  label="Address"
-                  type="textarea"
-                  value={editForm.address}
-                  onChange={(val) => setEditForm((f) => ({ ...f, address: val }))}
+                  label="Warehouse Name"
+                  required
+                  layout="vertical"
+                  icon="ri-store-2-line"
+                  value={editForm.name}
+                  onChange={(val) => setEditForm((f) => ({ ...f, name: val }))}
                   compact
-                  marginBottom={10}
+                  marginBottom={0}
+                />
+                <FormField
+                  label="Company Name"
+                  layout="vertical"
+                  icon="ri-community-line"
+                  value={editForm.companyName}
+                  onChange={(val) => setEditForm((f) => ({ ...f, companyName: val }))}
+                  compact
+                  marginBottom={0}
+                />
+                <FormField
+                  label="GSTIN (15 chars)"
+                  layout="vertical"
+                  icon="ri-file-shield-2-line"
+                  value={editForm.gstin}
+                  onChange={(val) => setEditForm((f) => ({ ...f, gstin: (val || "").toUpperCase() }))}
+                  compact
+                  marginBottom={0}
+                />
+                <FormField
+                  label="PAN (10 chars)"
+                  layout="vertical"
+                  icon="ri-bank-card-line"
+                  value={editForm.pan}
+                  onChange={(val) => setEditForm((f) => ({ ...f, pan: (val || "").toUpperCase() }))}
+                  compact
+                  marginBottom={0}
                 />
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 6 }}>
+            {/* Section: Contact & Helpdesk */}
+            <div style={{ background: "var(--canvas)", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)" }}>
+              <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                <i className="ri-contacts-line" /> Contact & Communication
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "10px 12px" }}>
+                <FormField
+                  label="Contact Person"
+                  layout="vertical"
+                  icon="ri-user-line"
+                  value={editForm.contactPerson}
+                  onChange={(val) => setEditForm((f) => ({ ...f, contactPerson: val }))}
+                  compact
+                  marginBottom={0}
+                />
+                <FormField
+                  label="Contact Phone (10 digits)"
+                  layout="vertical"
+                  type="tel"
+                  icon="ri-phone-line"
+                  value={editForm.contactPhone}
+                  onChange={(val) => setEditForm((f) => ({ ...f, contactPhone: val }))}
+                  compact
+                  marginBottom={0}
+                />
+                <FormField
+                  label="Email Address"
+                  layout="vertical"
+                  type="email"
+                  icon="ri-mail-line"
+                  value={editForm.email}
+                  onChange={(val) => setEditForm((f) => ({ ...f, email: val }))}
+                  compact
+                  marginBottom={0}
+                />
+                <FormField
+                  label="Help Desk Phone (10 digits)"
+                  layout="vertical"
+                  type="tel"
+                  icon="ri-customer-service-2-line"
+                  value={editForm.helpDeskPhone}
+                  onChange={(val) => setEditForm((f) => ({ ...f, helpDeskPhone: val }))}
+                  compact
+                  marginBottom={0}
+                />
+              </div>
+            </div>
+
+            {/* Address */}
+            <div>
+              <FormField
+                label="Depot Physical Address"
+                layout="vertical"
+                type="textarea"
+                rows={2}
+                icon="ri-map-pin-line"
+                value={editForm.address}
+                onChange={(val) => setEditForm((f) => ({ ...f, address: val }))}
+                compact
+                marginBottom={0}
+              />
+            </div>
+
+            {/* Actions Bar */}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
               <Button type="button" variant="secondary" onClick={() => setEditingWarehouse(null)}>
                 Cancel
               </Button>

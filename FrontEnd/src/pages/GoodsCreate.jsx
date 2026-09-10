@@ -297,7 +297,7 @@ export default function GoodsCreate() {
       ) ||
       warehouses[0];
     const activeWarehouseId = form.warehouse || activeWarehouse?._id || activeWarehouse?.id || "6a73021e0658dc94fc89bdc8";
-    const activeWarehouseName = activeWarehouse?.name || "Betia Hata Gorakhpur";
+    const activeWarehouseName = activeWarehouse?.name || "Bettiah Hub";
 
     setSubmitting(true);
     try {

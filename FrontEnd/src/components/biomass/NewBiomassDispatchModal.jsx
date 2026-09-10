@@ -1,10 +1,14 @@
 import { useState } from "react";
+import Modal from "../common/Modal";
+import FormField from "../common/FormField";
+import Button from "../common/Button";
 import {
   CROPS_MASTER,
   getStoredBuyers,
   saveNewBuyer,
 } from "../../features/biomass/biomassService";
 import { toast } from "../../utils/toast";
+import { isValidPhone, sanitizePhone } from "../../utils/phone";
 
 export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
   const [buyersList, setBuyersList] = useState(getStoredBuyers);
@@ -45,13 +49,17 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
       toast.error("Please enter Buyer / Company Name");
       return;
     }
+    if (newBuyerMobile && !isValidPhone(newBuyerMobile)) {
+      toast.error("Buyer Mobile must be a valid 10-digit number.");
+      return;
+    }
     const created = saveNewBuyer({
       name: newBuyerName.toUpperCase(),
       division: newBuyerDivision,
       address: newBuyerAddress,
       gstin: newBuyerGstin.toUpperCase(),
       contactPerson: newBuyerContact,
-      contactMobile: newBuyerMobile,
+      contactMobile: sanitizePhone(newBuyerMobile),
       plantType: "Bio-Ethanol / Power Plant",
       agreedRatePerMt: rate,
     });
@@ -72,6 +80,10 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
       toast.error("Please enter Vehicle / Heavy Trailer Number");
       return;
     }
+    if (driverPhone && !isValidPhone(driverPhone)) {
+      toast.error("Driver Phone must be a valid 10-digit number.");
+      return;
+    }
 
     const payload = {
       buyerId: selectedBuyer.id,
@@ -83,7 +95,7 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
       vehicleNo: vehicleNo.toUpperCase(),
       vehicleType,
       driverName,
-      driverPhone,
+      driverPhone: sanitizePhone(driverPhone),
       cropName: currentCrop.name,
       baleCount: parseInt(baleCount, 10) || 0,
       dispatchedTonnageMt: tonnage,
@@ -98,58 +110,15 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
   }
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(15, 23, 42, 0.65)",
-        backdropFilter: "blur(4px)",
-        zIndex: 999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-      }}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Create Biomass Dispatch Gate Pass"
+      subtitle="Issue outward delivery order, calculate client invoice amount & record vehicle gate pass"
+      icon="ri-send-plane-line"
+      width={720}
     >
-      <div
-        style={{
-          background: "var(--surface)",
-          border: "1px solid var(--line-strong)",
-          borderRadius: 16,
-          width: "100%",
-          maxWidth: 820,
-          maxHeight: "92vh",
-          overflowY: "auto",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {/* Header */}
-        <div
-          style={{
-            padding: "16px 20px",
-            borderBottom: "1px solid var(--line)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            background: "var(--surface-tint)",
-          }}
-        >
-          <div>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
-              Stage 4: New Industrial Dispatch Gate Pass (आगे फ़ैक्ट्री भेजना)
-            </h3>
-            <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
-              Select saved buyer (Reliance / Balrampur) or create a new buyer company & issue Gate Pass
-            </p>
-          </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "var(--muted)" }}>
-            ✕
-          </button>
-        </div>
-
-        <div style={{ padding: 20 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {/* BUYER SELECTOR BAR & ADD NEW BUYER BUTTON */}
           <div style={{ background: "#F1F5F9", border: "1px solid #CBD5E1", borderRadius: 10, padding: 14, marginBottom: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
@@ -404,35 +373,16 @@ export default function NewBiomassDispatchModal({ isOpen, onClose, onSave }) {
             </div>
 
             {/* Actions */}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
-              <button
-                type="button"
-                onClick={onClose}
-                style={{ padding: "8px 16px", fontSize: 12.5, fontWeight: 700, borderRadius: 8, border: "1px solid var(--line)", background: "var(--surface)", cursor: "pointer" }}
-              >
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
+              <Button type="button" variant="secondary" onClick={onClose}>
                 Cancel
-              </button>
-
-              <button
-                type="submit"
-                style={{
-                  padding: "8px 20px",
-                  fontSize: 12.5,
-                  fontWeight: 800,
-                  borderRadius: 8,
-                  border: "none",
-                  background: "var(--gradient-primary)",
-                  color: "#fff",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(0, 184, 107, 0.3)",
-                }}
-              >
+              </Button>
+              <Button type="submit" className="btn-glow">
                 Generate Factory Gate Pass
-              </button>
+              </Button>
             </div>
           </form>
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 }

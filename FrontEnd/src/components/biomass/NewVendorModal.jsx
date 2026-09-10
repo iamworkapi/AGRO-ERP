@@ -1,6 +1,10 @@
 import { useState } from "react";
+import Modal from "../common/Modal";
+import FormField from "../common/FormField";
+import Button from "../common/Button";
 import { saveNewVendor } from "../../features/biomass/biomassService";
 import { toast } from "../../utils/toast";
+import { isValidPhone, sanitizePhone } from "../../utils/phone";
 
 export default function NewVendorModal({ isOpen, onClose, onSaved }) {
   const [companyName, setCompanyName] = useState("");
@@ -16,12 +20,15 @@ export default function NewVendorModal({ isOpen, onClose, onSaved }) {
   const [contractedQtyMt, setContractedQtyMt] = useState("1000");
   const [agreedPricePerMt, setAgreedPricePerMt] = useState("1400");
 
-  if (!isOpen) return null;
-
   function handleSubmit(e) {
     e.preventDefault();
-    if (!companyName) {
-      toast.error("Please enter Vendor Company Name");
+    if (!companyName.trim()) {
+      toast.error("Please enter Vendor Company Name.");
+      return;
+    }
+
+    if (contactNo && !isValidPhone(contactNo)) {
+      toast.error("Contact Mobile must be a valid 10-digit number.");
       return;
     }
 
@@ -29,7 +36,7 @@ export default function NewVendorModal({ isOpen, onClose, onSaved }) {
       companyName: companyName.toUpperCase(),
       gstin: gstin.toUpperCase() || "09AAAAA0000A1Z5",
       representative,
-      contactNo,
+      contactNo: sanitizePhone(contactNo),
       email,
       address,
       sourcingArea: sourcingArea || "Unnao & Surrounding Villages",
@@ -41,173 +48,164 @@ export default function NewVendorModal({ isOpen, onClose, onSaved }) {
     };
 
     const updatedList = saveNewVendor(newVendor);
-    onSaved(updatedList);
+    onSaved?.(updatedList);
     toast.success(`New Raw Material Vendor "${companyName}" added successfully!`);
-    onClose();
+    onClose?.();
   }
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(15, 23, 42, 0.65)",
-        backdropFilter: "blur(4px)",
-        zIndex: 999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-      }}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Register New Raw Material Vendor"
+      subtitle="Onboard a new raw straw supplier, procurement contractor, or farmer producer collective"
+      icon="ri-user-add-line"
+      width={600}
     >
-      <div
-        style={{
-          background: "var(--surface)",
-          border: "1px solid var(--line-strong)",
-          borderRadius: 16,
-          width: "100%",
-          maxWidth: 720,
-          maxHeight: "90vh",
-          overflowY: "auto",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div
-          style={{
-            padding: "16px 20px",
-            borderBottom: "1px solid var(--line)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            background: "var(--surface-tint)",
-          }}
-        >
-          <div>
-            <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 8 }}>
-              <i className="ri-user-add-line" style={{ color: "var(--primary)" }} />
-              Register New Raw Material Vendor
-            </h3>
-            <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
-              Onboard a new raw straw supplier, procurement contractor, or farmer producer collective
-            </p>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* Basic Identification */}
+        <div style={{ background: "var(--canvas)", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)" }}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+            <i className="ri-building-line" /> Vendor Details
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "var(--muted)" }}>
-            ✕
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Buyer / Vendor Name *
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. SHREE RAM BIOMASS CONTRACTOR"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                GSTIN Number
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. 09IYZPS0291E1ZK"
-                value={gstin}
-                onChange={(e) => setGstin(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Representative Name
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Mr. Bhanu Singh"
-                value={representative}
-                onChange={(e) => setRepresentative(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Contact Mobile *
-              </label>
-              <input
-                type="text"
-                placeholder="10-digit mobile"
-                value={contactNo}
-                onChange={(e) => setContactNo(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Email Address
-              </label>
-              <input
-                type="email"
-                placeholder="vendor@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-              Full Office Address
-            </label>
-            <input
-              type="text"
-              placeholder="Colony, Tehsil, District, State, Pincode"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              style={{ width: "100%", padding: "7px 10px", fontSize: 12, borderRadius: 6, border: "1px solid var(--line-strong)" }}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "10px 12px" }}>
+            <FormField
+              label="Vendor Company Name"
+              required
+              layout="vertical"
+              placeholder="e.g. SHREE RAM BIOMASS CONTRACTOR"
+              value={companyName}
+              onChange={setCompanyName}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="GSTIN Number"
+              layout="vertical"
+              placeholder="e.g. 09IYZPS0291E1ZK"
+              value={gstin}
+              onChange={(val) => setGstin((val || "").toUpperCase())}
+              compact
+              marginBottom={0}
             />
           </div>
+        </div>
 
-          <div style={{ background: "#F8FAFC", border: "1px solid #CBD5E1", borderRadius: 8, padding: 12, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-            <div>
-              <label style={{ fontSize: 10.5, fontWeight: 700, color: "#475569" }}>PO Number</label>
-              <input type="text" value={poNo} onChange={(e) => setPoNo(e.target.value)} style={{ width: "100%", padding: 5, fontSize: 11.5, borderRadius: 4, border: "1px solid #94A3B8" }} />
-            </div>
-            <div>
-              <label style={{ fontSize: 10.5, fontWeight: 700, color: "#475569" }}>Supply Tenure</label>
-              <input type="text" value={tenure} onChange={(e) => setTenure(e.target.value)} style={{ width: "100%", padding: 5, fontSize: 11.5, borderRadius: 4, border: "1px solid #94A3B8" }} />
-            </div>
-            <div>
-              <label style={{ fontSize: 10.5, fontWeight: 700, color: "#475569" }}>Contracted Qty (MT)</label>
-              <input type="number" value={contractedQtyMt} onChange={(e) => setContractedQtyMt(e.target.value)} style={{ width: "100%", padding: 5, fontSize: 11.5, borderRadius: 4, border: "1px solid #94A3B8" }} />
-            </div>
-            <div>
-              <label style={{ fontSize: 10.5, fontWeight: 700, color: "#475569" }}>Agreed Price (₹/MT)</label>
-              <input type="number" value={agreedPricePerMt} onChange={(e) => setAgreedPricePerMt(e.target.value)} style={{ width: "100%", padding: 5, fontSize: 11.5, borderRadius: 4, border: "1px solid #94A3B8" }} />
-            </div>
+        {/* Contact Info */}
+        <div style={{ background: "var(--canvas)", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)" }}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+            <i className="ri-contacts-line" /> Contact Information
           </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "10px 12px" }}>
+            <FormField
+              label="Representative Name"
+              layout="vertical"
+              placeholder="e.g. Mr. Bhanu Singh"
+              value={representative}
+              onChange={setRepresentative}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Contact Mobile (10 digits)"
+              layout="vertical"
+              type="tel"
+              placeholder="10-digit mobile"
+              value={contactNo}
+              onChange={setContactNo}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Email Address"
+              layout="vertical"
+              type="email"
+              placeholder="vendor@email.com"
+              value={email}
+              onChange={setEmail}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Sourcing Area"
+              layout="vertical"
+              placeholder="e.g. Unnao & Surrounding Villages"
+              value={sourcingArea}
+              onChange={setSourcingArea}
+              compact
+              marginBottom={0}
+            />
+          </div>
+        </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
-            <button type="button" onClick={onClose} style={{ padding: "8px 16px", fontSize: 12.5, borderRadius: 8, border: "1px solid var(--line)" }}>
-              Cancel
-            </button>
-            <button type="submit" style={{ padding: "8px 20px", fontSize: 12.5, fontWeight: 800, borderRadius: 8, border: "none", background: "#2563EB", color: "#fff", cursor: "pointer" }}>
-              💾 Save New Vendor
-            </button>
+        {/* Address */}
+        <div>
+          <FormField
+            label="Full Office Address"
+            layout="vertical"
+            type="textarea"
+            rows={2}
+            placeholder="Colony, Tehsil, District, State, Pincode"
+            value={address}
+            onChange={setAddress}
+            compact
+            marginBottom={0}
+          />
+        </div>
+
+        {/* Commercial & PO Terms */}
+        <div style={{ background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 10, padding: "12px 14px" }}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+            <i className="ri-file-list-3-line" /> PO Contract & Pricing Terms
           </div>
-        </form>
-      </div>
-    </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "10px 12px" }}>
+            <FormField
+              label="PO Number"
+              layout="vertical"
+              value={poNo}
+              onChange={setPoNo}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Supply Tenure"
+              layout="vertical"
+              value={tenure}
+              onChange={setTenure}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Qty (MT)"
+              layout="vertical"
+              type="number"
+              value={contractedQtyMt}
+              onChange={setContractedQtyMt}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Price (₹/MT)"
+              layout="vertical"
+              type="number"
+              value={agreedPricePerMt}
+              onChange={setAgreedPricePerMt}
+              compact
+              marginBottom={0}
+            />
+          </div>
+        </div>
+
+        {/* Sticky Actions */}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" className="btn-glow">
+            Save New Vendor
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

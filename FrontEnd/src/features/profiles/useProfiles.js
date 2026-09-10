@@ -39,11 +39,16 @@ export function useProfiles() {
     return updated;
   }
 
-  async function updateProfileStatus(id, status) {
-    const updated = await api.updateProfileStatus(id, status);
+  async function updateProfile(id, payload) {
+    const updated = await api.updateProfile(id, payload);
     setProfiles((prev) => prev.map((p) => (p.id === id ? updated : p)));
     return updated;
   }
 
-  return { profiles, status, error, reload: load, createProfile, approveProfile, updateProfileStatus };
+  async function deleteProfile(id) {
+    await api.deleteProfile(id);
+    setProfiles((prev) => prev.filter((p) => p.id !== id));
+  }
+
+  return { profiles, status, error, reload: load, createProfile, approveProfile, updateProfileStatus, updateProfile, deleteProfile };
 }

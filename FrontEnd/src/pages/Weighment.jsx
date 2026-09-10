@@ -678,9 +678,9 @@ export default function Weighment() {
       {/* 1. HERO COMMAND HEADER                                             */}
       {/* ================================================================== */}
       <PageHeader
-        title={`PRALLI Weighment Slips — ${myWarehouseName || "Betia Hata Gorakhpur"}`}
+        title={`PRALLI Weighment Slips — ${myWarehouseName || "Bettiah Hub"}`}
         badge="WEIGHBRIDGE WB-01 ONLINE"
-        location="Betia Hata, Gorakhpur, Uttar Pradesh"
+        location={myWarehouseAddress || "Bettiah, West Champaran, Bihar"}
         subtitle="Automated Load Cells Active • Digitised Purchase Register & Auto QC Deductions"
         icon="ri-scales-3-line"
       />

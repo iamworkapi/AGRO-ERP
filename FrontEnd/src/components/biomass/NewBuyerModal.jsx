@@ -1,6 +1,10 @@
 import { useState } from "react";
+import Modal from "../common/Modal";
+import FormField from "../common/FormField";
+import Button from "../common/Button";
 import { saveNewBuyer } from "../../features/biomass/biomassService";
 import { toast } from "../../utils/toast";
+import { isValidPhone, sanitizePhone } from "../../utils/phone";
 
 export default function NewBuyerModal({ isOpen, onClose, onSaved }) {
   const [name, setName] = useState("");
@@ -13,12 +17,15 @@ export default function NewBuyerModal({ isOpen, onClose, onSaved }) {
   const [plantType, setPlantType] = useState("Bio-Ethanol Plant");
   const [agreedRatePerMt, setAgreedRatePerMt] = useState("1850");
 
-  if (!isOpen) return null;
-
   function handleSubmit(e) {
     e.preventDefault();
-    if (!name) {
-      toast.error("Please enter Buyer / Consignee Company Name");
+    if (!name.trim()) {
+      toast.error("Please enter Buyer / Consignee Company Name.");
+      return;
+    }
+
+    if (contactMobile && !isValidPhone(contactMobile)) {
+      toast.error("Contact Mobile must be a valid 10-digit number.");
       return;
     }
 
@@ -28,191 +35,155 @@ export default function NewBuyerModal({ isOpen, onClose, onSaved }) {
       address: address || "UTTAR PRADESH",
       gstin: gstin.toUpperCase() || "09AAACR5055K2Z4",
       contactPerson,
-      contactMobile,
+      contactMobile: sanitizePhone(contactMobile),
       email,
       plantType,
       agreedRatePerMt: parseFloat(agreedRatePerMt) || 1850,
     };
 
     const updatedList = saveNewBuyer(newBuyer);
-    onSaved(updatedList);
+    onSaved?.(updatedList);
     toast.success(`New Industrial Buyer "${name}" added successfully!`);
-    onClose();
+    onClose?.();
   }
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(15, 23, 42, 0.65)",
-        backdropFilter: "blur(4px)",
-        zIndex: 999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-      }}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Register Industrial Buyer / Client"
+      subtitle="Onboard a new Bio-Ethanol Plant, Power Plant, or Factory Consignee"
+      icon="ri-user-star-line"
+      width={600}
     >
-      <div
-        style={{
-          background: "var(--surface)",
-          border: "1px solid var(--line-strong)",
-          borderRadius: 16,
-          width: "100%",
-          maxWidth: 720,
-          maxHeight: "90vh",
-          overflowY: "auto",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div
-          style={{
-            padding: "16px 20px",
-            borderBottom: "1px solid var(--line)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            background: "var(--surface-tint)",
-          }}
-        >
-          <div>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
-              Register New Industrial Buyer / Client (जिसको माल बेचना है)
-            </h3>
-            <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
-              Add a new Bio-Ethanol Plant, Power Plant, CBG Plant or Factory Consignee
-            </p>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* Company Info */}
+        <div style={{ background: "var(--canvas)", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)" }}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+            <i className="ri-building-line" /> Buyer Identity
           </div>
-          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "var(--muted)" }}>
-            ✕
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Company / Buyer Name *
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. NTPC BIOMASS POWER LIMITED"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Division / Plant Name
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. UNNAO BIO-ENERGY DIVISION"
-                value={division}
-                onChange={(e) => setDivision(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-              Full Plant Delivery Address (as per Bill To) *
-            </label>
-            <input
-              type="text"
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "10px 12px" }}>
+            <FormField
+              label="Company / Buyer Name"
               required
-              placeholder="P.O., Village, Gata No., Tehsil, District, State, Pincode"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              style={{ width: "100%", padding: "7px 10px", fontSize: 12, borderRadius: 6, border: "1px solid var(--line-strong)" }}
+              layout="vertical"
+              placeholder="e.g. BALRAMPUR CHINI MILLS LTD"
+              value={name}
+              onChange={setName}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Division / Unit"
+              layout="vertical"
+              placeholder="e.g. BIO-ENERGY DIVISION"
+              value={division}
+              onChange={setDivision}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="GSTIN Number"
+              layout="vertical"
+              placeholder="e.g. 09AAACR5055K2Z4"
+              value={gstin}
+              onChange={(val) => setGstin((val || "").toUpperCase())}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Industry / Plant Type"
+              layout="vertical"
+              type="select"
+              options={[
+                "Bio-Ethanol Plant",
+                "Thermal Power Plant",
+                "Paper Mill Boiler",
+                "CBG / Biogas Plant",
+                "Cement Kiln Co-Firing",
+                "Plywood / Biomass Boiler",
+              ]}
+              value={plantType}
+              onChange={setPlantType}
+              compact
+              marginBottom={0}
             />
           </div>
+        </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                GSTIN Number *
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. 09AAACR5055K2Z4"
-                value={gstin}
-                onChange={(e) => setGstin(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Plant Type
-              </label>
-              <select
-                value={plantType}
-                onChange={(e) => setPlantType(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              >
-                <option value="Bio-Ethanol Plant">Bio-Ethanol Plant</option>
-                <option value="Biomass Power Plant">Biomass Power Plant</option>
-                <option value="CBG (Bio-Gas) Plant">CBG (Bio-Gas) Plant</option>
-                <option value="Paper & Board Mill">Paper & Board Mill</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Agreed Rate (₹/MT)
-              </label>
-              <input
-                type="number"
-                value={agreedRatePerMt}
-                onChange={(e) => setAgreedRatePerMt(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, fontWeight: 700, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
+        {/* Contact Info */}
+        <div style={{ background: "var(--canvas)", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)" }}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+            <i className="ri-contacts-line" /> Contact Person & Details
           </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "10px 12px" }}>
+            <FormField
+              label="Contact Person Name"
+              layout="vertical"
+              placeholder="e.g. Mr. Amit Verma (Purchase Head)"
+              value={contactPerson}
+              onChange={setContactPerson}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Contact Mobile (10 digits)"
+              layout="vertical"
+              type="tel"
+              placeholder="10-digit mobile"
+              value={contactMobile}
+              onChange={setContactMobile}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Email Address"
+              layout="vertical"
+              type="email"
+              placeholder="procurement@buyer.com"
+              value={email}
+              onChange={setEmail}
+              compact
+              marginBottom={0}
+            />
+            <FormField
+              label="Agreed Rate (₹/MT)"
+              layout="vertical"
+              type="number"
+              placeholder="1850"
+              value={agreedRatePerMt}
+              onChange={setAgreedRatePerMt}
+              compact
+              marginBottom={0}
+            />
+          </div>
+        </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Plant Contact Person
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Mr. S. K. Singh (Purchase Head)"
-                value={contactPerson}
-                onChange={(e) => setContactPerson(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink-secondary)", display: "block", marginBottom: 3 }}>
-                Contact Mobile Number
-              </label>
-              <input
-                type="text"
-                placeholder="10-digit mobile"
-                value={contactMobile}
-                onChange={(e) => setContactMobile(e.target.value)}
-                style={{ width: "100%", padding: "7px 10px", fontSize: 12, borderRadius: 6, border: "1px solid var(--line-strong)" }}
-              />
-            </div>
-          </div>
+        {/* Address */}
+        <div>
+          <FormField
+            label="Plant / Delivery Address"
+            layout="vertical"
+            type="textarea"
+            rows={2}
+            placeholder="Plot No., Industrial Area, District, State"
+            value={address}
+            onChange={setAddress}
+            compact
+            marginBottom={0}
+          />
+        </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
-            <button type="button" onClick={onClose} style={{ padding: "8px 16px", fontSize: 12.5, borderRadius: 8, border: "1px solid var(--line)" }}>
-              Cancel
-            </button>
-            <button type="submit" style={{ padding: "8px 20px", fontSize: 12.5, fontWeight: 800, borderRadius: 8, border: "none", background: "#2563EB", color: "#fff", cursor: "pointer" }}>
-              💾 Save Industrial Buyer
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {/* Sticky Actions */}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" className="btn-glow">
+            Save Buyer Record
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

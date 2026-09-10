@@ -38,9 +38,12 @@ function findActiveAccordionGroup(pathname, groups) {
 
 export default function Sidebar({ mobileOpen = false, onCloseMobile }) {
   const { user } = useAuth();
+  const roleStr = (user?.role || "").toLowerCase();
+  const roleKeyStr = (user?.roleKey || "").toLowerCase();
   const userRole =
-    user?.roleKey?.toLowerCase()?.includes("supervisor") ||
-    user?.role?.toLowerCase()?.includes("supervisor")
+    roleStr === "super_admin" || roleStr === "super admin" || roleKeyStr === "super_admin"
+      ? "super_admin"
+      : user?.roleKey?.toLowerCase()?.includes("supervisor") || roleStr.includes("supervisor")
       ? "supervisor"
       : "admin";
 

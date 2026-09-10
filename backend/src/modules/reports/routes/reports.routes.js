@@ -23,6 +23,10 @@ router.get("/purchase-vs-sales", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_AD
 
 router.get("/outstanding", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN, ROLES.SUPERVISOR), validate(reportsQuerySchema, "query"), reportsController.outstandingReport);
 
+router.get("/warehouse-breakdown", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN, ROLES.SUPERVISOR), reportsController.warehouseBreakdown);
+
+router.get("/available", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN, ROLES.SUPERVISOR), reportsController.available);
+
 router.get("/export", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN, ROLES.SUPERVISOR), exportController.exportReport);
 
 export default router;

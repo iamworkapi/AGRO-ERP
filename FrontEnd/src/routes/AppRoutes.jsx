@@ -92,6 +92,14 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="admin-management"
+          element={
+            <ProtectedRoute roles={["super_admin", "warehouse_admin"]}>
+              <WarehouseAdminManagement />
+            </ProtectedRoute>
+          }
+        />
         <Route path="warehouses/rooms" element={<StorageRooms />} />
         <Route path="biomass/rooms" element={<StorageRooms />} />
 
@@ -154,7 +162,7 @@ export default function AppRoutes() {
         <Route path="alerts" element={<Alerts />} />
 
         <Route path="settings" element={<Settings />} />
-        <Route path="settings/super-admin" element={<SuperAdminProfile />} />
+        <Route path="settings/super-admin" element={<Navigate to="/settings/my-profile" replace />} />
         <Route path="settings/audit-log" element={<AuditLog />} />
         <Route path="settings/organisation-profile" element={<OrganisationProfile />} />
         <Route path="settings/my-profile" element={<MyProfile />} />

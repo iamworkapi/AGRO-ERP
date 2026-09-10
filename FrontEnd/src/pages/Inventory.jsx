@@ -50,7 +50,7 @@ export default function Inventory() {
 
       <AsyncState status={status} error={error} loadingLabel="Loading stock ledger…" />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }} className="responsive-grid-2">
+      <div className="stat-cards-grid-4">
         {stats.map((s) => (
           <StatCard key={s.label} {...s} />
         ))}

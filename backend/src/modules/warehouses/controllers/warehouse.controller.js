@@ -6,6 +6,10 @@ export const list = asyncHandler(async (req, res) => {
   sendSuccess(res, await warehouseService.listWarehouses(req.user));
 });
 
+export const publicList = asyncHandler(async (_req, res) => {
+  sendSuccess(res, await warehouseService.listPublicWarehouses());
+});
+
 export const availableAdmins = asyncHandler(async (_req, res) => {
   sendSuccess(res, await warehouseService.listAvailableAdmins());
 });

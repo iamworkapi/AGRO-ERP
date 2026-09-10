@@ -16,6 +16,7 @@ router.use(authenticate);
 // (both enforced in profile.service.js, not just here - this is the coarse
 // gate, not the fine-grained one).
 router.get("/", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN), validate(listProfilesQuerySchema, "query"), profileController.list);
+router.get("/counts-by-role", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN), profileController.countsByRole);
 router.post("/", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN), validate(createProfileSchema), profileController.create);
 
 // Approving pending signups and toggling status remain Super Admin-only -
@@ -23,11 +24,16 @@ router.post("/", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN), validate(c
 router.patch("/:id/approve", authorize(ROLES.SUPER_ADMIN), profileController.approve);
 router.patch("/:id/status", authorize(ROLES.SUPER_ADMIN), validate(updateProfileStatusSchema), profileController.updateStatus);
 
-// Any logged-in user can update their own profile — name, contact, photo.
+// Any logged-in user can view their own profile
+router.get("/me", profileController.getMe);
 router.patch("/me", validate(updateOwnProfileSchema), profileController.updateOwnProfile);
+router.delete("/me", profileController.deleteOwnProfile);
 
 // Super Admin or Warehouse Admin updating staff profile directly (including password, phone, email, avatar, address)
 router.patch("/:id", authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN), validate(updateProfileByIdSchema), profileController.update);
+
+// Super Admin deleting user profile
+router.delete("/:id", authorize(ROLES.SUPER_ADMIN), profileController.deleteProfile);
 
 
 export default router;

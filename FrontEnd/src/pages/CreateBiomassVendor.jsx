@@ -5,6 +5,7 @@ import Button from "../components/common/Button";
 import Badge from "../components/common/Badge";
 import FormField from "../components/common/FormField";
 import { saveNewVendor, getStoredVendors, getStoredBuyers } from "../features/biomass/biomassService";
+import { createVendor } from "../features/biomass/api";
 import { toast } from "../utils/toast";
 
 function generateNextPoNo() {
@@ -149,7 +150,7 @@ export default function CreateBiomassVendor() {
     setPanNo(val);
   };
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!companyName.trim()) {
       toast.error("Please enter Vendor Entity Name.");
@@ -190,6 +191,11 @@ export default function CreateBiomassVendor() {
         ifscCode: ifscCode.trim().toUpperCase(),
       };
 
+      try {
+        await createVendor(newVendor);
+      } catch (apiErr) {
+        console.warn("Backend createVendor error, fallback to local:", apiErr);
+      }
       saveNewVendor(newVendor);
       toast.success(`Buyer / Vendor "${companyName}" onboarded successfully!`);
       navigate("/biomass/vendors");

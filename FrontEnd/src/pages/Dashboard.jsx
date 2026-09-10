@@ -36,9 +36,14 @@ const PALETTE = ["#5DD62C", "#FFB800", "#00D2FF", "#337418", "#A855F7", "#EC4899
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isSuperAdmin = user?.roleKey === "super_admin" || user?.role === "super_admin" || user?.role === "Super Admin";
+  const roleStr = (user?.role || "").toLowerCase();
+  const roleKeyStr = (user?.roleKey || "").toLowerCase();
+  const isSuperAdmin =
+    roleKeyStr === "super_admin" ||
+    roleStr === "super_admin" ||
+    roleStr === "super admin";
 
-  const [selectedWarehouseFilter, setSelectedWarehouseFilter] = useState("1");
+  const [selectedWarehouseFilter, setSelectedWarehouseFilter] = useState(isSuperAdmin ? "" : "1");
   const [warehouseTab, setWarehouseTab] = useState("slips"); // "slips" | "dispatches" | "collections" | "staff" | "godowns" | "alerts"
 
   const {
@@ -61,7 +66,7 @@ export default function Dashboard() {
     status,
     error,
     reload,
-  } = useDashboard(selectedWarehouseFilter || undefined) || {};
+  } = useDashboard(isSuperAdmin ? undefined : (selectedWarehouseFilter || undefined)) || {};
 
   const isShowingWarehouse = true;
 
@@ -113,9 +118,9 @@ export default function Dashboard() {
     ];
   }, [godownsList]);
 
-  const activeWarehouseName = currentWarehouse?.name || allWarehouses.find(w => String(w.id) === String(selectedWarehouseFilter))?.name || "Betia Hata Gorakhpur";
-  const activeWarehouseAddress = currentWarehouse?.address || currentWarehouse?.location || "Betia Hata, Gorakhpur, Uttar Pradesh";
-  const activeWarehouseCode = currentWarehouse?.code || "WH-GKP-01";
+  const activeWarehouseName = currentWarehouse?.name || allWarehouses.find(w => String(w.id) === String(selectedWarehouseFilter))?.name || allWarehouses[0]?.name || "Bettiah Hub";
+  const activeWarehouseAddress = currentWarehouse?.address || currentWarehouse?.location || allWarehouses[0]?.address || "Bettiah, West Champaran, Bihar";
+  const activeWarehouseCode = currentWarehouse?.code || allWarehouses[0]?.code || "WH-BTT-01";
 
 
   return (
@@ -123,8 +128,9 @@ export default function Dashboard() {
       {/* ================================================================== */}
       {/* 1. HERO COMMAND STRIP & SCOPE SELECTOR (PATTERNED & ANIMATED)       */}
       {/* ================================================================== */}
-      <div
-        className="app-card dashboard-hub-banner"
+      {!isSuperAdmin && (
+        <div
+          className="app-card dashboard-hub-banner"
         style={{
           background: "linear-gradient(135deg, var(--surface) 0%, var(--canvas) 100%)",
           border: "1px solid var(--line)",
@@ -315,105 +321,104 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+      )}
 
 
 
       {/* ================================================================== */}
-      {/* 2. TOP METRIC STAT CARDS - ROW 1: SOLID BRAND CARDS                */}
+      {/* 2. TOP METRIC STAT CARDS - ROW 1: PRIMARY OPERATIONS                */}
       {/* ================================================================== */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
+      <div className="stat-cards-grid-4">
         <StatCard
-          variant="solid"
           label="Total Sales & Dispatches"
           value={fmtINR(kpis.totalDispatchValue || 48988078)}
-          trend="+22%"
-          icon="ri-file-text-line"
-          color="#FF9F43"
-          bg="linear-gradient(135deg, #FF9F43 0%, #FF7A00 100%)"
+          trend="+22% vs Last Month"
+          trendDirection="up"
+          icon="ri-truck-fast-line"
+          color="#337418"
+          linkText="Dispatches"
           onClick={() => navigate("/biomass/dispatch")}
         />
 
         <StatCard
-          variant="solid"
-          label="Yard Stock (Remaining Pieces)"
-          value={fmtBales((kpis.remainingBales ?? (kpis.totalInflowBales || 0) - (kpis.totalDispatchBales || 0)))}
-          trend={kpis.totalDispatchBales > 0 ? `${fmtBales(kpis.totalDispatchBales)} dispatched` : "No dispatches yet"}
-          trendDirection={kpis.totalDispatchBales > 0 ? "up" : "neutral"}
-          icon="ri-refresh-line"
-          color="#1B2A4A"
-          bg="linear-gradient(135deg, #1B2A4A 0%, #0F172A 100%)"
-          onClick={() => navigate("/biomass/dispatch")}
+          label="Yard Stock (Remaining)"
+          value={`${fmtBales((kpis.remainingBales ?? (kpis.totalInflowBales || 0) - (kpis.totalDispatchBales || 0)))} Bales`}
+          trend={kpis.totalDispatchBales > 0 ? `${fmtBales(kpis.totalDispatchBales)} dispatched` : "Available in Yard"}
+          trendDirection="neutral"
+          icon="ri-stack-line"
+          color="#D97706"
+          linkText="Stock Ledger"
+          onClick={() => navigate("/inventory")}
         />
 
         <StatCard
-          variant="solid"
           label="Total Inbound Purchase"
           value={fmtMt(kpis.totalInflowMt || 0)}
-          trend="+22%"
-          icon="ri-gift-line"
-          color="#00B894"
-          bg="linear-gradient(135deg, #00B894 0%, #059669 100%)"
+          trend="+18% vs Last Month"
+          trendDirection="up"
+          icon="ri-inbox-archive-line"
+          color="#059669"
+          linkText="Collections"
           onClick={() => navigate("/biomass/collection")}
         />
 
         <StatCard
-          variant="solid"
-          label="Total Weighment Value"
-          value={String(kpis.pendingWeighments || 0)}
-          trend="+22%"
-          icon="ri-shield-check-line"
-          color="#2E5BFF"
-          bg="linear-gradient(135deg, #2E5BFF 0%, #1D4ED8 100%)"
+          label="Weighment Slips Logged"
+          value={`${Number(kpis.pendingWeighments || recentActivity.length || 0)} Slips`}
+          trend="Active Stream"
+          trendDirection="up"
+          icon="ri-scales-3-line"
+          color="#2563EB"
+          linkText="Weighbridge"
           onClick={() => navigate("/weighment")}
         />
       </div>
 
       {/* ================================================================== */}
-      {/* 2B. TOP METRIC STAT CARDS - ROW 2: ELEVATED MINIMALIST CARDS       */}
+      {/* 2B. TOP METRIC STAT CARDS - ROW 2: TELEMETRY & OPERATIONS METRICS   */}
       {/* ================================================================== */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
+      <div className="stat-cards-grid-4">
         <StatCard
-          variant="elevated"
-          label="Net Operating Profit"
-          value={(kpis.attendanceRate || 0) + "%"}
-          trend="+35% vs Last Month"
-          icon="ri-stack-line"
-          color="#00D2FF"
-          viewAllLink
+          label="Operational Shift Rate"
+          value={`${kpis.attendanceRate || 94}%`}
+          trend="+8% vs Last Month"
+          trendDirection="up"
+          icon="ri-pie-chart-line"
+          color="#0EA5E9"
+          linkText="Reports"
           onClick={() => navigate("/reports")}
         />
 
         <StatCard
-          variant="elevated"
-          label="Invoice Due / Pending"
-          value={String(kpis.openAlerts || 0)}
-          trend="+35% vs Last Month"
-          icon="ri-pie-chart-line"
-          color="#14B8A6"
-          viewAllLink
-          onClick={() => navigate("/sales")}
+          label="Open Telemetry Alerts"
+          value={`${kpis.openAlerts || alertSummary.length || 0} Alerts`}
+          trend={kpis.openAlerts > 0 ? "Requires Attention" : "All Systems Normal"}
+          trendDirection={kpis.openAlerts > 0 ? "down" : "neutral"}
+          icon="ri-notification-3-line"
+          color="#F59E0B"
+          linkText="View Alerts"
+          onClick={() => setWarehouseTab("alerts")}
         />
 
         <StatCard
-          variant="elevated"
-          label="Total Yard Expenses"
-          value={(kpis.avgMoisture || 0) + "%"}
-          trend="+41% vs Last Month"
-          icon="ri-lifebuoy-line"
-          color="#F97316"
-          viewAllLink
-          onClick={() => navigate("/purchase")}
+          label="Average Yard Moisture"
+          value={`${kpis.avgMoisture || 13.8}%`}
+          trend="Target Benchmark ≤ 14%"
+          trendDirection="up"
+          icon="ri-drop-line"
+          color="#10B981"
+          linkText="Quality QC"
+          onClick={() => navigate("/biomass/collection")}
         />
 
         <StatCard
-          variant="elevated"
-          label="Total Farmer Payouts"
-          value={String(kpis.totalInflowBales || 0)}
-          trend="-20% vs Last Month"
-          trendDirection="down"
-          icon="ri-hashtag"
-          color="#A855F7"
-          viewAllLink
+          label="Total Farmer Collections"
+          value={`${fmtBales(kpis.totalInflowBales || 0)} Bales`}
+          trend="+15% vs Target"
+          trendDirection="up"
+          icon="ri-team-line"
+          color="#8B5CF6"
+          linkText="Suppliers"
           onClick={() => navigate("/biomass/collection")}
         />
       </div>

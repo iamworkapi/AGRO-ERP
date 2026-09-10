@@ -30,7 +30,7 @@ function getPasswordStrength(pw) {
 }
 
 function emptyForm(defaultRole) {
-  return { role: defaultRole, fullName: "", phone: "", email: "", password: "", confirmPassword: "", avatarUrl: "" };
+  return { role: defaultRole, fullName: "", phone: "", email: "", password: "", avatarUrl: "" };
 }
 
 const STATUS_TONE = { active: "success", pending: "warning", inactive: "error" };
@@ -70,8 +70,9 @@ export default function Users() {
   // the Super Admin gets the full org-wide directory and can create either role.
   const isWarehouseAdmin = user?.roleKey === "warehouse_admin";
 
-  const { profiles, status, error, createProfile, approveProfile, updateProfileStatus } = useProfiles();
+  const { profiles, status, error, createProfile, approveProfile, updateProfileStatus, updateProfile, deleteProfile } = useProfiles();
   const { isOpen: open, open: openModal, close: closeModal } = useDisclosure();
+  const [editingUser, setEditingUser] = useState(null);
   const [form, setForm] = useState(() => emptyForm(isWarehouseAdmin ? "Supervisor" : "Warehouse Admin"));
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState(null);
@@ -96,11 +97,37 @@ export default function Users() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (form.password !== form.confirmPassword) {
-      toast.error("Passwords do not match.");
+
+    if (editingUser) {
+      if (!form.fullName.trim()) {
+        toast.error("Full Name is required.");
+        return;
+      }
+      setSaving(true);
+      try {
+        const payload = {
+          fullName: form.fullName.trim(),
+          phone: form.phone ? form.phone.trim() : undefined,
+          email: form.email ? form.email.trim().toLowerCase() : undefined,
+          avatarUrl: form.avatarUrl || undefined,
+        };
+        if (form.password && form.password.length >= 6) {
+          payload.password = form.password;
+        }
+        await updateProfile(editingUser.id, payload);
+        toast.success(`${form.fullName} profile updated successfully.`);
+        setEditingUser(null);
+        setForm(emptyForm(isWarehouseAdmin ? "Supervisor" : "Warehouse Admin"));
+        closeModal();
+      } catch (err) {
+        toast.error(err?.response?.data?.error?.message || err?.message || "Failed to update profile.");
+      } finally {
+        setSaving(false);
+      }
       return;
     }
-    const { confirmPassword, ...schemaFields } = form;
+
+    const schemaFields = form;
     const parsed = validateOrToast(createUserSchema, schemaFields);
     if (!parsed) return;
 
@@ -114,6 +141,34 @@ export default function Users() {
       toast.error(err?.message || "Could not create this user. Please try again.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  function handleOpenEdit(p) {
+    setEditingUser(p);
+    setForm({
+      role: p.role?.includes("Admin") ? "Warehouse Admin" : "Supervisor",
+      fullName: p.name || "",
+      phone: p.phone || "",
+      email: p.email || "",
+      password: "",
+      avatarUrl: p.avatarUrl || "",
+    });
+    openModal();
+  }
+
+  async function handleDeleteUser(profile) {
+    if (!window.confirm(`Are you sure you want to permanently delete profile "${profile.name}"? This action cannot be undone.`)) {
+      return;
+    }
+    setBusyId(profile.id);
+    try {
+      await deleteProfile(profile.id);
+      toast.success(`${profile.name} was successfully deleted.`);
+    } catch (err) {
+      toast.error(err?.response?.data?.error?.message || err?.message || "Failed to delete user profile.");
+    } finally {
+      setBusyId(null);
     }
   }
 
@@ -483,13 +538,21 @@ export default function Users() {
               label: "Action",
               sortable: false,
               render: (p) => (
-                <div style={{ display: "flex", gap: 6 }}>
+                <div style={{ display: "flex", gap: 5 }}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleOpenEdit(p)}
+                    style={{ padding: "3px 8px", fontSize: 11, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 3 }}
+                    title="Edit User Profile"
+                  >
+                    <i className="ri-edit-line" /> Edit
+                  </Button>
                   {p.status === "pending" && (
                     <Button
                       variant="secondary"
                       disabled={busyId === p.id}
                       onClick={() => handleApprove(p)}
-                      style={{ padding: "4px 10px", fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, background: "var(--primary-tint)", color: "var(--primary-deep)", borderColor: "var(--primary)" }}
+                      style={{ padding: "3px 8px", fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 3, background: "var(--primary-tint)", color: "var(--primary-deep)", borderColor: "var(--primary)" }}
                     >
                       <i className="ri-check-line" /> Approve
                     </Button>
@@ -499,12 +562,31 @@ export default function Users() {
                       variant="secondary"
                       disabled={busyId === p.id}
                       onClick={() => handleToggleStatus(p)}
-                      style={{ padding: "4px 10px", fontSize: 11, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}
+                      style={{ padding: "3px 8px", fontSize: 11, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 3 }}
                     >
                       <i className={`fa-solid ${p.status === "active" ? "fa-user-xmark" : "fa-user-check"}`} />
                       {p.status === "active" ? "Deactivate" : "Activate"}
                     </Button>
                   )}
+                  <Button
+                    variant="danger"
+                    disabled={busyId === p.id}
+                    onClick={() => handleDeleteUser(p)}
+                    style={{
+                      padding: "3px 8px",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 3,
+                      background: "rgba(239, 68, 68, 0.08)",
+                      color: "var(--status-error, #EF4444)",
+                      border: "1px solid rgba(239, 68, 68, 0.25)",
+                    }}
+                    title="Delete User Profile"
+                  >
+                    <i className="ri-delete-bin-line" /> Delete
+                  </Button>
                 </div>
               ),
             },
@@ -512,16 +594,22 @@ export default function Users() {
         />
       </div>
 
-      {/* CREATE USER MODAL */}
+      {/* CREATE / EDIT USER MODAL */}
       <Modal
         open={open}
-        title={isWarehouseAdmin ? "Add Supervisor" : "Create User Account"}
+        title={editingUser ? `Edit ${editingUser.name}'s Profile` : isWarehouseAdmin ? "Add Supervisor" : "Create User Account"}
         subtitle={
-          isWarehouseAdmin
+          editingUser
+            ? "Update personal contact credentials and access details"
+            : isWarehouseAdmin
             ? "Creates an active Supervisor account for your warehouse immediately"
             : "Creates an active Warehouse Admin or Supervisor account immediately"
         }
-        onClose={() => closeModal()}
+        onClose={() => {
+          closeModal();
+          setEditingUser(null);
+          setForm(emptyForm(isWarehouseAdmin ? "Supervisor" : "Warehouse Admin"));
+        }}
       >
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <PhotoPicker value={form.avatarUrl} onChange={set("avatarUrl")} name={form.fullName} />
@@ -575,13 +663,13 @@ export default function Users() {
             />
           </div>
           <FormField
-            label="Temporary Password"
+            label={editingUser ? "New Password" : "Account Password"}
             type="password"
-            required
+            required={!editingUser}
             icon="ri-lock-line"
             value={form.password}
             onChange={set("password")}
-            placeholder="At least 8 characters"
+            placeholder={editingUser ? "Leave blank to keep unchanged" : "At least 8 characters"}
             compact
             marginBottom={4}
           />
@@ -589,7 +677,7 @@ export default function Users() {
           {form.password && (() => {
             const s = getPasswordStrength(form.password);
             return (
-              <div style={{ marginBottom: 8, display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ flex: 1, height: 5, borderRadius: 3, background: "var(--line)", overflow: "hidden" }}>
                   <div style={{ width: `${(s.level / 3) * 100}%`, height: "100%", background: s.color, borderRadius: 3, transition: "width 0.3s ease" }} />
                 </div>
@@ -597,18 +685,6 @@ export default function Users() {
               </div>
             );
           })()}
-          <FormField
-            label="Confirm Password"
-            type="password"
-            required
-            icon="ri-lock-line"
-            value={form.confirmPassword}
-            onChange={set("confirmPassword")}
-            placeholder="Re-type the password"
-            compact
-            marginBottom={10}
-            error={form.confirmPassword && form.password !== form.confirmPassword ? "Passwords do not match" : ""}
-          />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
             <Button variant="secondary" type="button" onClick={() => closeModal()} style={{ padding: "7px 14px", fontSize: 12.5 }}>
               <i className="ri-close-line" /> Cancel

@@ -103,6 +103,23 @@ export async function listWarehouses(actor) {
   return withStaffAndStockTotals(warehouses);
 }
 
+export async function listPublicWarehouses() {
+  const warehouses = await Warehouse.find({ status: "active" })
+    .sort({ name: 1 })
+    .populate("admin", "fullName phone email")
+    .populate("supervisor", "fullName phone email")
+    .lean();
+
+  return warehouses.map((w) => ({
+    id: w._id.toString(),
+    _id: w._id.toString(),
+    code: w.code,
+    name: w.name,
+    address: w.address,
+    commodity: w.commodity,
+  }));
+}
+
 export async function getWarehouseById(actor, id) {
   if (actor.profile.role !== ROLES.SUPER_ADMIN) {
     const ownWarehouseId = await getOwnWarehouseId(actor.profile);

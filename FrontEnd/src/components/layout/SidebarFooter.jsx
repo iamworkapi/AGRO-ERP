@@ -19,7 +19,7 @@ export default function SidebarFooter({ collapsed }) {
   return (
     <div
       title={collapsed ? `${name} (${role})` : undefined}
-      onClick={() => navigate("/settings/super-admin")}
+      onClick={() => navigate("/settings/my-profile")}
       style={{
         padding: collapsed ? "10px 10px" : "10px 12px",
         borderTop: "1px solid rgba(255, 255, 255, 0.08)",

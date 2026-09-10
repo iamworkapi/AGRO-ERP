@@ -1,10 +1,14 @@
 import { useState } from "react";
+import Modal from "../common/Modal";
+import FormField from "../common/FormField";
+import Button from "../common/Button";
 import {
   CROPS_MASTER,
   getStoredVendors,
   calculateGrnInvoiceWeight,
 } from "../../features/biomass/biomassService";
 import { toast } from "../../utils/toast";
+import { isValidPhone, sanitizePhone } from "../../utils/phone";
 
 export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
   const vendors = getStoredVendors();
@@ -49,12 +53,16 @@ export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!farmerName) {
+    if (!farmerName.trim()) {
       toast.error("Please enter Farmer / Aggregator Name");
       return;
     }
-    if (!vehicleNo) {
+    if (!vehicleNo.trim()) {
       toast.error("Please enter Vehicle Number");
+      return;
+    }
+    if (farmerMobile && !isValidPhone(farmerMobile)) {
+      toast.error("Farmer Mobile Number must be a valid 10-digit number.");
       return;
     }
 
@@ -71,7 +79,7 @@ export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
       vendorName: currentVendor.companyName,
       villageName,
       farmerName,
-      farmerMobile,
+      farmerMobile: sanitizePhone(farmerMobile),
       vehicleNo: vehicleNo.toUpperCase(),
       vehicleType,
       grossWeightMt: grossMt,
@@ -95,65 +103,14 @@ export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
   }
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(15, 23, 42, 0.65)",
-        backdropFilter: "blur(4px)",
-        zIndex: 999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-      }}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="New Raw Biomass Entry & Weighbridge Slip"
+      subtitle="Record collection gate entry, calculate GRN moisture/ash invoice weight & assign baling"
+      icon="ri-truck-line"
+      width={680}
     >
-      <div
-        style={{
-          background: "var(--surface)",
-          border: "1px solid var(--line-strong)",
-          borderRadius: 16,
-          width: "100%",
-          maxWidth: 780,
-          maxHeight: "92vh",
-          overflowY: "auto",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {/* Header */}
-        <div
-          style={{
-            padding: "16px 20px",
-            borderBottom: "1px solid var(--line)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            background: "var(--surface-tint)",
-          }}
-        >
-          <div>
-            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
-              New Raw Biomass Entry & Weighbridge Slip (Stage 1 & 2)
-            </h3>
-            <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
-              Record collection gate entry, calculate GRN moisture/ash invoice weight & assign baling
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: "none",
-              border: "none",
-              fontSize: 20,
-              cursor: "pointer",
-              color: "var(--muted)",
-            }}
-          >
-            ✕
-          </button>
-        </div>
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} style={{ padding: 20, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -413,42 +370,15 @@ export default function NewBiomassCollectionModal({ isOpen, onClose, onSave }) {
           </div>
 
           {/* Actions */}
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                padding: "8px 16px",
-                fontSize: 12.5,
-                fontWeight: 700,
-                borderRadius: 8,
-                border: "1px solid var(--line)",
-                background: "var(--surface)",
-                cursor: "pointer",
-              }}
-            >
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
+            <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
-            </button>
-
-            <button
-              type="submit"
-              style={{
-                padding: "8px 20px",
-                fontSize: 12.5,
-                fontWeight: 800,
-                borderRadius: 8,
-                border: "none",
-                background: "var(--gradient-primary)",
-                color: "#fff",
-                cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(0, 184, 107, 0.3)",
-              }}
-            >
+            </Button>
+            <Button type="submit" className="btn-glow">
               ✓ Save Collection Entry & Print Slip
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }

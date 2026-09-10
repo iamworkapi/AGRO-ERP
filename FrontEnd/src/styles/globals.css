@@ -474,15 +474,217 @@ td {
 }
 
 /* ============================================================
-   AUTH LAYOUT - brand panel collapses on narrow viewports
+   AUTH LAYOUT - Seamless Full-Screen Flowing Theme
    ============================================================ */
-@media (max-width: 900px) {
-  .auth-brand-panel {
-    display: none;
+.auth-root-layout {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  background: linear-gradient(135deg, #02170D 0%, #072B1A 30%, #0B3A23 65%, #051A10 100%);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Full-Screen Continuous Flowing Ribbons & Linings Across Left to Right */
+.auth-bg-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.auth-ribbon-1 {
+  position: absolute;
+  top: -15%;
+  left: -15%;
+  width: 145%;
+  height: 55%;
+  background: linear-gradient(135deg, rgba(27, 94, 58, 0.45) 0%, rgba(13, 56, 35, 0.2) 60%, transparent 100%);
+  transform: rotate(-14deg);
+  border-bottom: 1.5px solid rgba(93, 214, 44, 0.26);
+}
+
+.auth-ribbon-2 {
+  position: absolute;
+  bottom: -20%;
+  right: -15%;
+  width: 150%;
+  height: 60%;
+  background: linear-gradient(135deg, transparent 0%, rgba(27, 94, 58, 0.22) 40%, rgba(46, 139, 87, 0.38) 100%);
+  transform: rotate(-16deg);
+  border-top: 1.5px solid rgba(93, 214, 44, 0.3);
+}
+
+.auth-ribbon-3 {
+  position: absolute;
+  top: 35%;
+  left: -20%;
+  width: 160%;
+  height: 38%;
+  background: linear-gradient(120deg, rgba(93, 214, 44, 0.08) 0%, rgba(27, 94, 58, 0.16) 50%, transparent 100%);
+  transform: rotate(-9deg);
+  border-top: 1px solid rgba(93, 214, 44, 0.2);
+  border-bottom: 1px solid rgba(93, 214, 44, 0.14);
+}
+
+.auth-bg-matrix {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(93, 214, 44, 0.1) 1.2px, transparent 1.2px);
+  background-size: 28px 28px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.auth-bg-glow-1 {
+  position: absolute;
+  top: -100px;
+  left: 15%;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(93, 214, 44, 0.22) 0%, transparent 70%);
+  filter: blur(50px);
+  animation: pulseGlow 5s ease-in-out infinite alternate;
+}
+
+.auth-bg-glow-2 {
+  position: absolute;
+  bottom: -120px;
+  right: 12%;
+  width: 580px;
+  height: 580px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(46, 139, 87, 0.32) 0%, transparent 70%);
+  filter: blur(60px);
+}
+
+.auth-brand-panel {
+  flex: 1 1 50%;
+  min-width: 440px;
+  height: 100vh;
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 32px 48px;
+  color: white;
+  background: transparent !important;
+  box-sizing: border-box;
+}
+
+.auth-form-panel {
+  flex: 1 1 50%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  background: transparent !important;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.auth-form-wrapper {
+  width: 100%;
+  max-width: 430px;
+  position: relative;
+  margin: auto;
+}
+
+.auth-card {
+  border-radius: 28px !important;
+  padding: 28px 32px 24px !important;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  box-sizing: border-box;
+}
+
+.auth-mobile-logo {
+  display: none;
+}
+
+/* RESPONSIVE BREAKPOINT (<= 960px): ONLY LOGIN FORM WILL APPEAR */
+@media (max-width: 960px) {
+  .auth-root-layout {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 14px;
+    overflow-y: auto;
   }
 
+  /* Completely hide the left brand panel */
+  .auth-brand-panel {
+    display: none !important;
+  }
+
+  /* Expand form panel to full width and center it */
+  .auth-form-panel {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    min-width: 0 !important;
+    min-height: auto !important;
+    height: auto !important;
+    padding: 8px 0 !important;
+    margin: auto;
+  }
+
+  .auth-form-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .auth-card {
+    border-radius: 22px !important;
+    padding: 24px 20px 20px !important;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  /* Show the mobile brand header inside the card */
   .auth-mobile-logo {
     display: flex !important;
+  }
+}
+
+/* Extra Small Phones (< 400px) */
+@media (max-width: 400px) {
+  .auth-root-layout {
+    padding: 12px 8px;
+  }
+
+  .auth-card {
+    padding: 18px 14px 16px !important;
+    border-radius: 18px !important;
+  }
+
+  .tactile-segmented-btn {
+    font-size: 8.5px !important;
+    gap: 2px !important;
+    padding: 0 2px !important;
+  }
+
+  .tactile-segmented-btn i {
+    font-size: 10px !important;
   }
 }
 
@@ -2131,10 +2333,10 @@ input[type="number"] {
   appearance: textfield !important;
 }
 
-/* Force PrimeReact inputs to dashed underline (excluding dropdown inner labels/inputs) */
-.p-inputtext:not(.p-dropdown-label):not(.p-dropdown *):not(.p-multiselect *),
-input.p-inputtext:not(.p-dropdown-label):not(.p-dropdown *):not(.p-multiselect *),
-.p-inputtext:enabled:not(.p-dropdown-label):not(.p-dropdown *):not(.p-multiselect *) {
+/* Only apply dashed underline when explicitly wrapped inside .form-field-dashed */
+.form-field-dashed .p-inputtext:not(.p-dropdown-label):not(.p-dropdown *):not(.p-multiselect *),
+.form-field-dashed input.p-inputtext:not(.p-dropdown-label):not(.p-dropdown *):not(.p-multiselect *),
+.form-field-dashed .p-inputtext:enabled:not(.p-dropdown-label):not(.p-dropdown *):not(.p-multiselect *) {
   border: none !important;
   border-bottom: 1px dashed var(--line-strong) !important;
   border-radius: 0 !important;
@@ -2148,17 +2350,17 @@ input.p-inputtext:not(.p-dropdown-label):not(.p-dropdown *):not(.p-multiselect *
   font-family: inherit !important;
 }
 
-.p-inputtext:enabled:focus:not(.p-dropdown-label):not(.p-dropdown *),
-input.p-inputtext:focus:not(.p-dropdown-label):not(.p-dropdown *),
-.p-inputtext:enabled:hover:not(.p-dropdown-label):not(.p-dropdown *) {
+.form-field-dashed .p-inputtext:enabled:focus:not(.p-dropdown-label):not(.p-dropdown *),
+.form-field-dashed input.p-inputtext:focus:not(.p-dropdown-label):not(.p-dropdown *),
+.form-field-dashed .p-inputtext:enabled:hover:not(.p-dropdown-label):not(.p-dropdown *) {
   border-bottom: 1px dashed var(--primary) !important;
   box-shadow: 0 3px 10px rgba(93, 214, 44, 0.12) !important;
   background: rgba(93, 214, 44, 0.03) !important;
 }
 
-.p-inputtext.p-invalid:not(.p-dropdown-label):not(.p-dropdown *),
-.p-inputtext.p-invalid:enabled:not(.p-dropdown-label):not(.p-dropdown *),
-.form-field-wrapper.has-error .p-inputtext:not(.p-dropdown-label):not(.p-dropdown *) {
+.form-field-dashed .p-inputtext.p-invalid:not(.p-dropdown-label):not(.p-dropdown *),
+.form-field-dashed .p-inputtext.p-invalid:enabled:not(.p-dropdown-label):not(.p-dropdown *),
+.form-field-wrapper.has-error.form-field-dashed .p-inputtext:not(.p-dropdown-label):not(.p-dropdown *) {
   border-bottom: 1px dashed var(--status-error) !important;
   box-shadow: 0 3px 8px rgba(220, 38, 38, 0.08) !important;
 }
@@ -2170,8 +2372,8 @@ input.p-inputtext:focus:not(.p-dropdown-label):not(.p-dropdown *),
   font-size: 13px !important;
 }
 
-/* Password component inputs */
-.p-password input {
+/* Password component inputs under .form-field-dashed */
+.form-field-dashed .p-password input {
   border: none !important;
   border-bottom: 1px dashed var(--line-strong) !important;
   border-radius: 0 !important;
@@ -2183,34 +2385,44 @@ input.p-inputtext:focus:not(.p-dropdown-label):not(.p-dropdown *),
   transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.p-password input:focus {
+.form-field-dashed .p-password input:focus {
   border-bottom: 1px dashed var(--primary) !important;
   box-shadow: 0 3px 10px rgba(93, 214, 44, 0.12) !important;
   background: rgba(93, 214, 44, 0.03) !important;
 }
 
-.p-password.p-invalid input {
+.form-field-dashed .p-password.p-invalid input {
   border-bottom: 1px dashed var(--status-error) !important;
 }
 
-/* Dropdowns - SINGLE dashed border on the outer container only */
+/* Dropdowns - Clean, Modern Boxed Dropdown */
 .p-dropdown,
 .p-dropdown.p-component,
-.form-field-dotted .p-dropdown,
-.form-field-dashed .p-dropdown,
 .app-select-dropdown,
 .app-select-dropdown.p-dropdown {
+  border: 1px solid var(--line-strong) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--shadow-sm) !important;
+  background: var(--surface) !important;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-height: 38px !important;
+  outline: none !important;
+  padding: 0 4px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Explicitly dashed form fields only */
+.form-field-dotted .p-dropdown,
+.form-field-dashed .p-dropdown {
   border: none !important;
   border-bottom: 1px dashed var(--line-strong) !important;
   border-radius: 0 !important;
-  box-shadow: none !important;
   background: transparent !important;
-  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1) !important;
-  min-height: 34px !important;
-  outline: none !important;
+  box-shadow: none !important;
 }
 
-/* Ensure all children inside a dropdown have NO borders, NO underlines, NO box-shadows */
+/* Ensure all children inside a dropdown have NO duplicate borders, NO underlines, NO box-shadows */
 .p-dropdown *,
 .p-dropdown .p-dropdown-label,
 .p-dropdown .p-inputtext,
@@ -2229,57 +2441,49 @@ input.p-inputtext:focus:not(.p-dropdown-label):not(.p-dropdown *),
 }
 
 .p-dropdown:not(.p-disabled):hover,
-.form-field-dotted .p-dropdown:not(.p-disabled):hover,
-.form-field-dashed .p-dropdown:not(.p-disabled):hover,
 .app-select-dropdown:not(.p-disabled):hover {
-  border: none !important;
-  border-bottom: 1px dashed var(--primary) !important;
-  background: rgba(93, 214, 44, 0.02) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
 }
 
 .p-dropdown.p-focus,
-.form-field-dotted .p-dropdown.p-focus,
-.form-field-dashed .p-dropdown.p-focus,
 .app-select-dropdown.p-focus {
-  border: none !important;
-  border-bottom: 1px dashed var(--primary) !important;
-  box-shadow: 0 3px 10px rgba(93, 214, 44, 0.12) !important;
-  background: rgba(93, 214, 44, 0.03) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-tint) !important;
 }
 
 .p-dropdown.p-invalid,
-.form-field-dashed .p-dropdown.p-invalid,
 .app-select-dropdown.p-invalid {
-  border: none !important;
-  border-bottom: 1px dashed var(--status-error) !important;
-  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.08) !important;
+  border-color: var(--status-error) !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important;
 }
 
-.form-field-dotted .p-dropdown .p-dropdown-label,
-.form-field-dashed .p-dropdown .p-dropdown-label,
+.p-dropdown .p-dropdown-label,
 .app-select-dropdown.p-dropdown .p-dropdown-label {
-  padding: 6px 0 !important;
+  padding: 6px 8px !important;
   font-size: 13px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   color: var(--ink) !important;
 }
 
-.form-field-dotted .p-dropdown .p-dropdown-trigger,
-.form-field-dashed .p-dropdown .p-dropdown-trigger,
+.p-dropdown .p-dropdown-trigger,
 .app-select-dropdown.p-dropdown .p-dropdown-trigger {
-  width: 24px !important;
+  width: 28px !important;
   color: var(--muted) !important;
   transition: transform 200ms ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .p-dropdown.p-overlay-open .p-dropdown-trigger {
   transform: rotate(180deg);
 }
 
-.form-field-dotted .p-dropdown .p-dropdown-label.p-placeholder,
-.form-field-dashed .p-dropdown .p-dropdown-label.p-placeholder,
+.p-dropdown .p-dropdown-label.p-placeholder,
 .app-select-dropdown.p-dropdown .p-dropdown-label.p-placeholder {
   color: #94A3B8 !important;
+  font-weight: 400 !important;
 }
 
 /* Dropdown Panel overlay */
@@ -2643,4 +2847,254 @@ input.p-inputtext:focus:not(.p-dropdown-label):not(.p-dropdown *),
   width: 100% !important;
   box-sizing: border-box !important;
   box-shadow: 0 4px 14px rgba(242, 201, 0, 0.15) !important;
+}
+
+/* ============================================================
+   RIGHT-SLIDE REUSABLE DRAWER / POPUP STYLING & ANIMATIONS
+   ============================================================ */
+@keyframes slideDrawerInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDrawerOutRight {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes slideDrawerInBottom {
+  0% {
+    transform: translateY(100%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDrawerOutBottom {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes drawerBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes drawerBackdropFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.slide-drawer-portal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+.slide-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: drawerBackdropFadeIn 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 1201;
+}
+
+.slide-drawer-backdrop.closing {
+  animation: drawerBackdropFadeOut 200ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.slide-drawer-panel {
+  position: relative;
+  z-index: 1202;
+  height: 100vh;
+  height: 100dvh;
+  max-width: 100vw;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.16), -2px 0 8px rgba(0, 0, 0, 0.08);
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  animation: slideDrawerInRight 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.slide-drawer-panel.closing {
+  animation: slideDrawerOutRight 220ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.slide-drawer-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.slide-drawer-body {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+.slide-drawer-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* Custom Scrollbar for Drawer Body */
+.slide-drawer-body::-webkit-scrollbar {
+  width: 6px;
+}
+.slide-drawer-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.slide-drawer-body::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 6px;
+}
+.slide-drawer-body::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+/* Mobile responsive drawer */
+@media (max-width: 640px) {
+  .slide-drawer-portal {
+    justify-content: flex-end;
+    align-items: flex-end;
+  }
+  .slide-drawer-panel {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 92vh;
+    height: 92dvh;
+    border-left: none;
+    border-top: 1px solid var(--line);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    animation: slideDrawerInBottom 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .slide-drawer-panel.closing {
+    animation: slideDrawerOutBottom 220ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  .slide-drawer-header {
+    padding: 14px 16px;
+  }
+  .slide-drawer-body {
+    padding: 16px;
+  }
+  .slide-drawer-footer {
+    padding: 12px 16px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE CARD GRID SYSTEM (EVERY DEVICE COMPLIANT)
+   ============================================================ */
+.stat-cards-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 1280px) {
+  .stat-cards-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 1040px) {
+  .stat-cards-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .stat-cards-grid-4 {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.responsive-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 960px) {
+  .responsive-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
+.stat-card-root {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
+}
+
+.stat-card-clickable {
+  cursor: pointer;
+}
+
+.stat-card-clickable:active {
+  transform: scale(0.99) translateY(0);
 }

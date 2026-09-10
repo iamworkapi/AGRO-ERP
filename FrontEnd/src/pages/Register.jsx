@@ -15,7 +15,6 @@ function emptyForm() {
     phone: "",
     email: "",
     password: "",
-    confirmPassword: "",
   };
 }
 
@@ -129,30 +128,17 @@ export default function Register() {
             />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 10px" }}>
-            <FormField
-              label="Password"
-              type="password"
-              required
-              icon="ri-lock-line"
-              value={form.password}
-              onChange={set("password")}
-              placeholder="••••••••"
-              compact
-              marginBottom={11}
-            />
-            <FormField
-              label="Confirm Password"
-              type="password"
-              required
-              icon="ri-lock-line"
-              value={form.confirmPassword}
-              onChange={set("confirmPassword")}
-              placeholder="••••••••"
-              compact
-              marginBottom={11}
-            />
-          </div>
+          <FormField
+            label="Password"
+            type="password"
+            required
+            icon="ri-lock-line"
+            value={form.password}
+            onChange={set("password")}
+            placeholder="At least 8 characters"
+            compact
+            marginBottom={11}
+          />
 
           <div style={{ background: "var(--canvas)", border: "1px solid var(--line)", borderRadius: 8, padding: "8px 10px", margin: "2px 0 14px", display: "flex", gap: 8, alignItems: "flex-start" }}>
             <i className="ri-shield-check-line" style={{ color: "var(--primary)", fontSize: 13, marginTop: 2, flexShrink: 0 }} />

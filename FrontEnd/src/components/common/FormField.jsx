@@ -1,10 +1,7 @@
-import { useState } from "react";
-import { InputText } from "primereact/inputtext";
-import { Password } from "primereact/password";
-import { InputTextarea } from "primereact/inputtextarea";
-import { Button } from "primereact/button";
+import { useState, useMemo } from "react";
 import { RadioButton } from "primereact/radiobutton";
 import Select from "./Select";
+import { sanitizePhone, isValidPhone } from "../../utils/phone";
 
 const DEFAULT_LABEL_WIDTH = 130;
 const GAP = 14;
@@ -47,68 +44,71 @@ export default function FormField({
   maxLength,
   filter = false,
   showClear = false,
+  isPhone = false,
 }) {
   const [isFocused, setIsFocused] = useState(false);
+  const [internalShowPass, setInternalShowPass] = useState(false);
+
+  // Detect if this is a phone / contact number field
+  const isPhoneNumberField = useMemo(() => {
+    if (isPhone || type === "tel" || type === "phone") return true;
+    const lowerName = (name || "").toLowerCase();
+    const lowerLabel = (label || "").toLowerCase();
+    return (
+      lowerName.includes("phone") ||
+      lowerName.includes("mobile") ||
+      lowerName.includes("contactno") ||
+      lowerName.includes("contact_no") ||
+      lowerLabel.includes("phone") ||
+      lowerLabel.includes("mobile") ||
+      lowerLabel.includes("contact number")
+    );
+  }, [isPhone, type, name, label]);
+
+  // If phone field, resolve validation hint if invalid length
+  const phoneHint = useMemo(() => {
+    if (!isPhoneNumberField || !value) return null;
+    const clean = String(value).replace(/\D/g, "");
+    if (clean.length > 0 && clean.length < 10) {
+      return `Enter 10-digit number (${clean.length}/10)`;
+    }
+    return null;
+  }, [isPhoneNumberField, value]);
+
+  const effectiveError = error || (isFocused && phoneHint ? phoneHint : undefined);
   const isInvalid = Boolean(error);
-  const effectiveHint = error || helperText || hint;
+  const effectiveHint = error || helperText || hint || phoneHint;
   const isVertical = layout === "vertical" || labelPosition === "top";
 
-  function dashedStyle(extra = {}) {
-    return {
-      width: "100%",
-      fontSize: 13,
-      fontWeight: 400,
-      color: disabled ? "var(--muted)" : "var(--ink)",
-      background: disabled ? "rgba(0,0,0,0.02)" : "transparent",
-      border: "none",
-      borderBottom: isInvalid
-        ? "1px dashed var(--status-error)"
-        : isFocused
-        ? "1px dashed var(--primary)"
-        : "1px dashed var(--line-strong)",
-      borderRadius: 0,
-      outline: "none",
-      transition: "all 180ms cubic-bezier(0.4, 0, 0.2, 1)",
-      fontFamily: "inherit",
-      padding: compact ? "4px 0" : "6px 0",
-      boxShadow: isInvalid
-        ? "0 3px 8px rgba(220, 38, 38, 0.08)"
-        : isFocused
-        ? "0 3px 10px rgba(93, 214, 44, 0.12)"
-        : "none",
-      ...inputStyle,
-      ...extra,
-    };
-  }
+  // If external password control is provided, use it; otherwise use internal state
+  const effectiveShowPassword = showPassword !== undefined && onTogglePassword ? showPassword : internalShowPass;
+  const handleTogglePassword = onTogglePassword || (() => setInternalShowPass((prev) => !prev));
+  const isPasswordField = type === "password" || showPasswordToggle;
 
   const handleFocus = (e) => {
     setIsFocused(true);
     onFocus?.(e);
   };
+
   const handleBlur = (e) => {
     setIsFocused(false);
     onBlur?.(e);
   };
 
-  let control;
-  if (type === "select") {
-    control = (
-      <Select
-        value={value}
-        onChange={disabled || readOnly ? undefined : onChange}
-        options={options}
-        placeholder={placeholder || `Select ${label?.toLowerCase() || ""}`}
-        disabled={disabled || readOnly}
-        error={isInvalid}
-        filter={filter}
-        showClear={showClear}
-        style={inputStyle}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-      />
-    );
-  } else if (type === "radio") {
-    control = (
+  // Safe change handler that restricts phone inputs to 10 numeric digits only
+  const handleInputChange = (rawVal) => {
+    if (disabled || readOnly) return;
+    if (isPhoneNumberField) {
+      const sanitized = sanitizePhone(rawVal);
+      onChange?.(sanitized);
+    } else {
+      onChange?.(rawVal);
+    }
+  };
+
+  // Radio button special handling
+  if (type === "radio") {
+    const radioContent = (
       <div
         style={{
           display: "flex",
@@ -126,14 +126,7 @@ export default function FormField({
           const radioId = `${id || name || (label ? label.replace(/\s+/g, "_").toLowerCase() : "radio")}_${idx}`;
 
           return (
-            <div
-              key={optVal}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
+            <div key={optVal} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
               <RadioButton
                 inputId={radioId}
                 name={name || label}
@@ -162,99 +155,265 @@ export default function FormField({
         })}
       </div>
     );
-  } else if (type === "textarea") {
-    control = (
-      <InputTextarea
-        id={id}
-        name={name}
-        value={value ?? ""}
-        disabled={disabled}
-        readOnly={readOnly}
-        onChange={disabled || readOnly ? undefined : (e) => onChange?.(e.target.value)}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        rows={rows}
-        aria-invalid={isInvalid}
-        style={dashedStyle({
-          resize: disabled || readOnly ? "none" : "vertical",
-          opacity: disabled ? 0.65 : 1,
-          cursor: disabled ? "not-allowed" : "text",
-        })}
-      />
-    );
-  } else if (showPasswordToggle) {
-    control = (
-      <InputText
-        id={id}
-        name={name}
-        type={showPassword ? "text" : "password"}
-        value={value ?? ""}
-        disabled={disabled}
-        readOnly={readOnly}
-        onChange={disabled || readOnly ? undefined : (e) => onChange?.(e.target.value)}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        aria-invalid={isInvalid}
-        style={dashedStyle({
-          paddingRight: 36,
-          paddingLeft: icon ? 26 : undefined,
-          opacity: disabled ? 0.65 : 1,
-        })}
-      />
-    );
-  } else if (type === "password") {
-    control = (
-      <Password
-        id={id}
-        name={name}
-        value={value ?? ""}
-        disabled={disabled}
-        readOnly={readOnly}
-        onChange={disabled || readOnly ? undefined : (e) => onChange?.(e.target.value)}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        toggleMask
-        feedback={false}
-        inputStyle={dashedStyle({
-          paddingLeft: icon ? 26 : undefined,
-        })}
-        style={{ width: "100%" }}
-        className={isInvalid ? "p-invalid" : ""}
-      />
-    );
-  } else {
-    control = (
-      <InputText
-        id={id}
-        name={name}
-        type={type}
-        min={min}
-        max={max}
-        step={step}
-        inputMode={inputMode}
-        maxLength={maxLength}
-        value={value ?? ""}
-        disabled={disabled}
-        readOnly={readOnly}
-        onChange={disabled || readOnly ? undefined : (e) => onChange?.(e.target.value)}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        aria-invalid={isInvalid}
-        style={dashedStyle({
-          paddingLeft: icon ? 26 : undefined,
-          paddingRight: suffix ? 48 : undefined,
-          opacity: disabled ? 0.65 : 1,
-          cursor: disabled ? "not-allowed" : "text",
-        })}
-      />
+
+    return (
+      <div
+        className={`form-field-wrapper ${isInvalid ? "has-error" : ""} ${isVertical ? "is-vertical" : ""}`}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          marginBottom: marginBottom !== undefined ? marginBottom : compact ? 6 : 10,
+          ...style,
+        }}
+      >
+        {isVertical ? (
+          <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+            {label && (
+              <label
+                htmlFor={id}
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: isInvalid ? "var(--status-error)" : "var(--muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  marginBottom: 4,
+                }}
+              >
+                {label} {required && <span style={{ color: "var(--status-error)" }}>*</span>}
+              </label>
+            )}
+            {radioContent}
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: GAP }}>
+            {label && (
+              <label
+                htmlFor={id}
+                style={{
+                  width: labelWidth,
+                  minWidth: labelWidth,
+                  fontSize: 12.5,
+                  fontWeight: 700,
+                  color: isInvalid ? "var(--status-error)" : "var(--ink-secondary)",
+                }}
+              >
+                {label} {required && <span style={{ color: "var(--status-error)" }}>*</span>}
+              </label>
+            )}
+            <div style={{ flex: 1 }}>{radioContent}</div>
+          </div>
+        )}
+      </div>
     );
   }
+
+  // Boxed container styling with separated icon block
+  const containerStyle = {
+    display: "flex",
+    alignItems: type === "textarea" ? "flex-start" : "center",
+    width: "100%",
+    borderRadius: 7,
+    border: isInvalid
+      ? "1.5px solid var(--status-error)"
+      : isFocused
+      ? "1.5px solid var(--primary)"
+      : "1px solid var(--line-strong)",
+    background: disabled || readOnly ? "rgba(0, 0, 0, 0.025)" : "var(--surface)",
+    boxShadow: isInvalid
+      ? "0 0 0 2.5px rgba(239, 68, 68, 0.15)"
+      : isFocused
+      ? "0 0 0 2.5px rgba(51, 116, 24, 0.18)"
+      : "none",
+    transition: "border-color 150ms ease, box-shadow 150ms ease",
+    overflow: "hidden",
+    boxSizing: "border-box",
+    minHeight: type === "textarea" ? (compact ? 62 : 78) : (compact ? 34 : 38),
+    ...inputStyle,
+  };
+
+  const effectiveIcon = icon || (isPhoneNumberField ? "ri-phone-line" : null);
+
+  // Dedicated separate icon tile style
+  const iconTileStyle = {
+    width: compact ? 34 : 38,
+    height: type === "textarea" ? 34 : (compact ? 32 : 36),
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "var(--canvas)",
+    borderRight: "1px solid var(--line)",
+    color: isInvalid
+      ? "var(--status-error)"
+      : isFocused
+      ? "var(--primary)"
+      : "var(--muted)",
+    fontSize: compact ? 13.5 : 15,
+    flexShrink: 0,
+    transition: "color 150ms ease",
+  };
+
+  const fieldControl = (
+    <div
+      className={`form-field-input-box ${isInvalid ? "has-error" : ""} ${isFocused ? "is-focused" : ""}`}
+      style={containerStyle}
+    >
+      {/* SEPARATE ICON TILE */}
+      {effectiveIcon && (
+        <div style={iconTileStyle} aria-hidden="true">
+          <i className={effectiveIcon} />
+        </div>
+      )}
+
+      {/* INPUT / TEXTAREA / SELECT */}
+      {type === "select" ? (
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Select
+            value={value}
+            onChange={disabled || readOnly ? undefined : onChange}
+            options={options}
+            placeholder={placeholder || `Select ${label?.toLowerCase() || ""}`}
+            disabled={disabled || readOnly}
+            error={isInvalid}
+            filter={filter}
+            showClear={showClear}
+            style={{ border: "none" }}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+          />
+        </div>
+      ) : type === "textarea" ? (
+        <textarea
+          id={id}
+          name={name}
+          value={value ?? ""}
+          disabled={disabled}
+          readOnly={readOnly}
+          onChange={disabled || readOnly ? undefined : (e) => onChange?.(e.target.value)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          rows={rows}
+          style={{
+            flex: 1,
+            minWidth: 0,
+            border: "none",
+            background: "transparent",
+            outline: "none",
+            padding: "8px 10px",
+            fontSize: compact ? 12.5 : 13,
+            color: disabled || readOnly ? "var(--ink-secondary)" : "var(--ink)",
+            fontFamily: "inherit",
+            resize: disabled || readOnly ? "none" : "vertical",
+            boxSizing: "border-box",
+            lineHeight: 1.4,
+          }}
+        />
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0, height: "100%" }}>
+          <input
+            id={id}
+            name={name}
+            type={
+              isPasswordField
+                ? effectiveShowPassword
+                  ? "text"
+                  : "password"
+                : isPhoneNumberField
+                ? "tel"
+                : type
+            }
+            min={min}
+            max={max}
+            step={step}
+            inputMode={isPhoneNumberField ? "numeric" : inputMode}
+            pattern={isPhoneNumberField ? "[0-9]*" : undefined}
+            maxLength={isPhoneNumberField ? 10 : maxLength}
+            value={value ?? ""}
+            disabled={disabled}
+            readOnly={readOnly}
+            onChange={(e) => handleInputChange(e.target.value)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder={
+              placeholder || (isPhoneNumberField ? "10-digit mobile number" : undefined)
+            }
+            autoComplete={autoComplete}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              height: compact ? 32 : 36,
+              border: "none",
+              background: "transparent",
+              outline: "none",
+              padding: "0 10px",
+              fontSize: compact ? 12.5 : 13,
+              color: disabled || readOnly ? "var(--ink-secondary)" : "var(--ink)",
+              fontFamily: "inherit",
+              boxSizing: "border-box",
+            }}
+          />
+
+          {/* Suffix / Character counter for phone */}
+          {isPhoneNumberField && value && String(value).length > 0 && (
+            <span
+              style={{
+                padding: "0 8px",
+                color: String(value).length === 10 ? "var(--primary)" : "var(--muted)",
+                fontSize: 10.5,
+                fontWeight: 700,
+                flexShrink: 0,
+                letterSpacing: "0.2px",
+                userSelect: "none",
+              }}
+            >
+              {String(value).length}/10
+            </span>
+          )}
+
+          {suffix && !isPhoneNumberField && (
+            <span
+              style={{
+                padding: "0 10px",
+                color: "var(--muted)",
+                fontSize: 11,
+                fontWeight: 700,
+                flexShrink: 0,
+                letterSpacing: "0.4px",
+                userSelect: "none",
+              }}
+            >
+              {suffix}
+            </span>
+          )}
+
+          {(showPasswordToggle || type === "password") && (
+            <button
+              type="button"
+              onClick={handleTogglePassword}
+              tabIndex={-1}
+              aria-label={effectiveShowPassword ? "Hide password" : "Show password"}
+              style={{
+                border: "none",
+                background: "transparent",
+                color: "var(--muted)",
+                cursor: "pointer",
+                padding: "0 10px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 14,
+                flexShrink: 0,
+                outline: "none",
+              }}
+            >
+              <i className={effectiveShowPassword ? "ri-eye-off-line" : "ri-eye-line"} />
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div
@@ -293,11 +452,7 @@ export default function FormField({
               {label}
               {required && (
                 <span
-                  style={{
-                    color: "var(--status-error)",
-                    fontSize: 12,
-                    fontWeight: 800,
-                  }}
+                  style={{ color: "var(--status-error)", fontSize: 12, fontWeight: 800 }}
                   title="Required field"
                 >
                   *
@@ -306,75 +461,7 @@ export default function FormField({
             </label>
           )}
 
-          <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%" }}>
-            {icon && (
-              <i
-                className={icon}
-                style={{
-                  position: "absolute",
-                  left: 2,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: isInvalid
-                    ? "var(--status-error)"
-                    : isFocused
-                    ? "var(--primary)"
-                    : "var(--muted)",
-                  fontSize: 14,
-                  zIndex: 2,
-                  pointerEvents: "none",
-                  transition: "color 150ms ease",
-                }}
-              />
-            )}
-            <div style={{ width: "100%" }}>{control}</div>
-
-            {showPasswordToggle && (
-              <Button
-                type="button"
-                icon={showPassword ? "ri-eye-off-line" : "ri-eye-line"}
-                text
-                rounded
-                onClick={onTogglePassword}
-                tabIndex={-1}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  width: 28,
-                  height: 28,
-                  color: "var(--muted)",
-                  padding: 0,
-                }}
-              />
-            )}
-
-            {suffix && !showPasswordToggle && (
-              <span
-                style={{
-                  position: "absolute",
-                  right: 2,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  fontSize: 10,
-                  color: isFocused ? "var(--primary-deep)" : "var(--ink-secondary)",
-                  fontWeight: 800,
-                  pointerEvents: "none",
-                  transition: "all 150ms ease",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                  background: isFocused ? "var(--primary-tint)" : "rgba(0, 0, 0, 0.05)",
-                  padding: "2px 6px",
-                  borderRadius: 4,
-                  lineHeight: 1.2,
-                }}
-              >
-                {suffix}
-              </span>
-            )}
-          </div>
+          {fieldControl}
         </div>
       ) : (
         // Horizontal (Left Label) layout
@@ -410,12 +497,7 @@ export default function FormField({
               {label}
               {required && (
                 <span
-                  style={{
-                    color: "var(--status-error)",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    marginLeft: 3,
-                  }}
+                  style={{ color: "var(--status-error)", fontSize: 13, fontWeight: 800, marginLeft: 3 }}
                   title="Required field"
                 >
                   *
@@ -425,75 +507,7 @@ export default function FormField({
           )}
 
           <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
-            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-              {icon && (
-                <i
-                  className={icon}
-                  style={{
-                    position: "absolute",
-                    left: 2,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    color: isInvalid
-                      ? "var(--status-error)"
-                      : isFocused
-                      ? "var(--primary)"
-                      : "var(--muted)",
-                    fontSize: 14,
-                    zIndex: 2,
-                    pointerEvents: "none",
-                    transition: "color 150ms ease",
-                  }}
-                />
-              )}
-              <div style={{ width: "100%" }}>{control}</div>
-            </div>
-
-            {showPasswordToggle && (
-              <Button
-                type="button"
-                icon={showPassword ? "ri-eye-off-line" : "ri-eye-line"}
-                text
-                rounded
-                onClick={onTogglePassword}
-                tabIndex={-1}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  width: 28,
-                  height: 28,
-                  color: "var(--muted)",
-                  padding: 0,
-                }}
-              />
-            )}
-
-            {suffix && !showPasswordToggle && (
-              <span
-                style={{
-                  position: "absolute",
-                  right: 2,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  fontSize: 10,
-                  color: isFocused ? "var(--primary-deep)" : "var(--ink-secondary)",
-                  fontWeight: 800,
-                  pointerEvents: "none",
-                  transition: "all 150ms ease",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                  background: isFocused ? "var(--primary-tint)" : "rgba(0, 0, 0, 0.05)",
-                  padding: "2px 6px",
-                  borderRadius: 4,
-                  lineHeight: 1.2,
-                }}
-              >
-                {suffix}
-              </span>
-            )}
+            {fieldControl}
           </div>
         </div>
       )}
@@ -503,17 +517,17 @@ export default function FormField({
           style={{
             marginLeft: isVertical ? 0 : label ? labelWidth + GAP : 0,
             fontSize: 11,
-            fontWeight: isInvalid ? 600 : 500,
-            color: isInvalid ? "var(--status-error)" : "var(--muted)",
+            fontWeight: isInvalid || phoneHint ? 600 : 500,
+            color: isInvalid || phoneHint ? "var(--status-error)" : "var(--muted)",
             display: "flex",
             alignItems: "center",
             gap: 4,
-            marginTop: 2,
+            marginTop: 3,
             lineHeight: 1.2,
             transition: "all 150ms ease",
           }}
         >
-          {isInvalid ? (
+          {isInvalid || phoneHint ? (
             <i className="ri-error-warning-line" style={{ fontSize: 12, flexShrink: 0 }} />
           ) : (
             <i className="ri-information-line" style={{ fontSize: 12, flexShrink: 0 }} />

@@ -267,11 +267,8 @@ export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
                   <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: "var(--ink)" }}>{userName}</p>
                   <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>{userRole}</p>
                 </div>
-                <MenuLink to="/settings/super-admin" onClick={() => setOpenMenu(null)}>
-                  <i className="ri-user-settings-line" style={{ marginRight: 8, width: 14, color: "var(--primary)" }} /> Super Admin Profile
-                </MenuLink>
                 <MenuLink to="/settings/my-profile" onClick={() => setOpenMenu(null)}>
-                  <i className="ri-user-3-line" style={{ marginRight: 8, width: 14, color: "var(--muted)" }} /> My Profile
+                  <i className="ri-user-3-line" style={{ marginRight: 8, width: 14, color: "var(--primary)" }} /> My Profile
                 </MenuLink>
                 <MenuLink to="/settings/organisation-profile" onClick={() => setOpenMenu(null)}>
                   <i className="ri-building-line" style={{ marginRight: 8, width: 14, color: "var(--muted)" }} /> Organisation Profile

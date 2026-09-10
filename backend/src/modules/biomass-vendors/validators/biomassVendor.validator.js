@@ -18,6 +18,8 @@ export const createBiomassVendorSchema = z.object({
   bankName: z.string().optional(),
   accountNo: z.string().optional(),
   ifscCode: ifscField,
+  warehouse: z.string().optional(),
+  warehouseId: z.string().optional(),
 });
 
 export const updateBiomassVendorSchema = createBiomassVendorSchema.partial();
@@ -25,6 +27,7 @@ export const updateBiomassVendorSchema = createBiomassVendorSchema.partial();
 export const listBiomassVendorsQuerySchema = z.object({
   search: z.string().optional(),
   status: z.string().optional(),
+  warehouseId: z.string().optional(),
   page: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(100).optional(),
 });

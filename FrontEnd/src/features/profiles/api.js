@@ -81,3 +81,13 @@ export async function updateOwnProfile(payload) {
   const { data } = await apiClient.patch("/profiles/me", payload);
   return adaptProfile(data.data);
 }
+
+export async function deleteProfile(id) {
+  const { data } = await apiClient.delete(`/profiles/${id}`);
+  return data.data;
+}
+
+export async function deleteOwnProfile() {
+  const { data } = await apiClient.delete("/profiles/me");
+  return data.data;
+}

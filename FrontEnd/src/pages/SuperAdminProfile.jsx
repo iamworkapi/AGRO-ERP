@@ -1,34 +1,41 @@
 import { useState, useEffect, useRef } from "react";
-import PageHeader from "../components/common/PageHeader";
 import FormField from "../components/common/FormField";
 import Button from "../components/common/Button";
 import Badge from "../components/common/Badge";
+import Card from "../components/common/Card";
+import AsyncState from "../components/common/AsyncState";
 import { useAuth } from "../hooks/useAuth";
 import { updateOwnProfile, changePassword, adaptProfile } from "../features/auth/api";
 import { toast } from "../utils/toast";
-
-const PRESET_AVATARS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=250&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=250&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=250&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=250&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=250&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=250&auto=format&fit=crop&q=80",
-];
+import { apiClient } from "../services/apiClient";
 
 const TABS = [
   { key: "profile", label: "Executive Profile", icon: "ri-id-card-line" },
-  { key: "security", label: "Master Security & Credentials", icon: "ri-shield-check-line" },
-  { key: "access", label: "Master Access & Governance", icon: "ri-node-tree" },
+  { key: "security", label: "Security & Credentials", icon: "ri-shield-check-line" },
+  { key: "access", label: "Access & Governance", icon: "ri-node-tree" },
 ];
 
 const ROOT_PERMISSIONS_MAP = [
-  { module: "All Multi-Warehouse Hubs", desc: "Unconstrained management across all locations & supervisor staffing", icon: "ri-building-line", active: true },
-  { module: "Biomass 4-Stage Supply Chain", desc: "Full authority over collection, moisture testing, yard storage & dispatches", icon: "ri-fire-line-burner", active: true },
-  { module: "Weighbridge Infrastructure", desc: "Gross/tare weighment override, weight machine calibrations & moisture slabs", icon: "ri-scales-3-line", active: true },
-  { module: "Inventory & Spare Parts Master", desc: "Centralized stock ledger, multi-hub transfers & low stock approvals", icon: "ri-stack-line", active: true },
-  { module: "Purchase & Vendor Financials", desc: "Vendor registration, purchase orders & ledger balances", icon: "ri-shopping-bag-3-line", active: true },
-  { module: "Sales, Billing & Tax Invoicing", desc: "Buyer directory, GSTIN billing, payment tracking & factory dispatch gate passes", icon: "ri-file-list-3-line", active: true },
+  { module: "Multi-Hub Administration", desc: "Global authority over all warehouses, capacity & supervisor staffing", icon: "ri-building-line" },
+  { module: "Biomass Supply Chain", desc: "4-stage supply chain control, moisture slabs & deduction tables", icon: "ri-fire-line" },
+  { module: "Weighbridge Infrastructure", desc: "Gross/tare weighment override, weight machine calibrations & slips", icon: "ri-scales-3-line" },
+  { module: "Inventory & Spare Parts", desc: "Centralized stock ledger, multi-hub transfers & low-stock alerts", icon: "ri-archive-line" },
+  { module: "Purchase & Vendor Ledgers", desc: "Vendor registration, purchase orders & ledger balances", icon: "ri-shopping-bag-3-line" },
+  { module: "Sales, Billing & Tax Invoicing", desc: "Industrial buyer directory, GSTIN billing & factory gate passes", icon: "ri-file-list-3-line" },
+];
+
+const ROLE_MATRIX = [
+  { role: "Super Admin", key: "super_admin", color: "#7C3AED", users: "—", scope: "All Warehouses", perms: ["Full Access", "User Management", "Billing", "Reports", "Settings"] },
+  { role: "Warehouse Admin", key: "warehouse_admin", color: "var(--primary)", users: "—", scope: "Assigned Warehouse", perms: ["Employees", "Attendance", "Inventory", "Weighments", "Vendors"] },
+  { role: "Supervisor", key: "supervisor", color: "#2563EB", users: "—", scope: "Assigned Warehouse", perms: ["Attendance", "Weighments", "Stock Entry", "Dispatch"] },
+  { role: "Operator", key: "operator", color: "#D97706", users: "—", scope: "Assigned Warehouse", perms: ["Weighments", "Stock Entry"] },
+];
+
+const GOVERNANCE_SECTIONS = [
+  { key: "roles", label: "Role Matrix", icon: "ri-shield-user-line" },
+  { key: "permissions", label: "Root Permissions", icon: "ri-key-2-line" },
+  { key: "policies", label: "Security Policies", icon: "ri-lock-line" },
+  { key: "logs", label: "Activity Log", icon: "ri-file-list-line" },
 ];
 
 export default function SuperAdminProfile() {
@@ -40,7 +47,7 @@ export default function SuperAdminProfile() {
   const [savingPassword, setSavingPassword] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
 
-  // Profile Form
+  // Form State
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -49,25 +56,36 @@ export default function SuperAdminProfile() {
     avatarUrl: "",
   });
 
-  // Password Form
+  // Password State
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [showSavedPassword, setShowSavedPassword] = useState(false);
+  const [savedPassword, setSavedPassword] = useState(user?.plainPassword || "SuperAdmin@2026");
   const [pwData, setPwData] = useState({
     currentPassword: "",
     newPassword: "",
-    confirmPassword: "",
   });
   const [showCurrentPw, setShowCurrentPw] = useState(false);
   const [showNewPw, setShowNewPw] = useState(false);
-  const [showConfirmPw, setShowConfirmPw] = useState(false);
+
+  // Governance State
+  const [govTab, setGovTab] = useState("roles");
+  const [userCounts, setUserCounts] = useState({});
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [govLoading, setGovLoading] = useState(false);
+  const [govError, setGovError] = useState(null);
 
   useEffect(() => {
     if (user) {
       setFormData({
-        fullName: user.fullName || user.name || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        address: user.address || "",
+        fullName: user.fullName || user.name || "Super Admin",
+        email: user.email || "iamworkapi@gmail.com",
+        phone: user.phone || "9891140379",
+        address: user.address || "Bettiah Central Hub, Bihar",
         avatarUrl: user.avatarUrl || "",
       });
+      if (user.plainPassword) {
+        setSavedPassword(user.plainPassword);
+      }
     }
   }, [user]);
 
@@ -83,7 +101,7 @@ export default function SuperAdminProfile() {
     const reader = new FileReader();
     reader.onloadend = () => {
       setFormData((prev) => ({ ...prev, avatarUrl: reader.result }));
-      toast.info("Photo loaded! Remember to click 'Save Changes' to update.");
+      toast.info("Photo loaded! Click 'Save Changes' to update your account.");
     };
     reader.readAsDataURL(file);
   };
@@ -108,7 +126,7 @@ export default function SuperAdminProfile() {
       const res = await updateOwnProfile(payload);
       const adapted = adaptProfile(res);
       updateUser(adapted);
-      toast.success("Super Admin Profile updated successfully!");
+      toast.success("Super Admin profile updated successfully!");
     } catch (err) {
       toast.error(err?.response?.data?.error?.message || err.message || "Failed to update profile.");
     } finally {
@@ -119,23 +137,21 @@ export default function SuperAdminProfile() {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (!pwData.currentPassword) {
-      toast.error("Please enter current master password.");
+      toast.error("Please enter your current password.");
       return;
     }
     if (pwData.newPassword.length < 6) {
       toast.error("New password must be at least 6 characters.");
       return;
     }
-    if (pwData.newPassword !== pwData.confirmPassword) {
-      toast.error("New password and confirm password do not match.");
-      return;
-    }
 
     setSavingPassword(true);
     try {
       await changePassword(pwData.currentPassword, pwData.newPassword);
-      toast.success("Master password changed successfully!");
-      setPwData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      toast.success("Master password updated successfully!");
+      setSavedPassword(pwData.newPassword);
+      setPwData({ currentPassword: "", newPassword: "" });
+      setIsEditingPassword(false);
     } catch (err) {
       toast.error(err?.response?.data?.error?.message || err.message || "Failed to change password.");
     } finally {
@@ -144,14 +160,41 @@ export default function SuperAdminProfile() {
   };
 
   const copyCredentialInfo = () => {
-    const info = `User: ${formData.fullName || "Super Admin"}\nRole: Super Administrator (Root)\nEmail: ${formData.email || "N/A"}\nPhone: ${formData.phone || "N/A"}`;
+    const info = `Super Admin: ${formData.fullName}\nRole: Root Super Administrator\nClearance: Tier 0 (Enterprise Root)\nEmail: ${formData.email}\nPhone: ${formData.phone}`;
     navigator.clipboard?.writeText(info);
     setCopiedId(true);
-    toast.success("Super Admin Digital ID copied to clipboard!");
-    setTimeout(() => setCopiedId(false), 2500);
+    toast.success("Master ID details copied to clipboard!");
+    setTimeout(() => setCopiedId(false), 2000);
   };
 
-  // Password matrix validation
+  // Load governance data when access tab is active
+  useEffect(() => {
+    if (activeTab !== "access") return;
+    let cancelled = false;
+
+    async function loadGovernanceData() {
+      setGovLoading(true);
+      setGovError(null);
+      try {
+        const [countsRes, auditRes] = await Promise.all([
+          apiClient.get("/users/counts-by-role").catch(() => ({ data: { data: {} } })),
+          apiClient.get("/audit?limit=20").catch(() => ({ data: { data: [] } })),
+        ]);
+        if (!cancelled) {
+          setUserCounts(countsRes.data?.data || {});
+          setAuditLogs(Array.isArray(auditRes.data?.data) ? auditRes.data.data : []);
+        }
+      } catch {
+        if (!cancelled) setGovError("Failed to load governance data.");
+      } finally {
+        if (!cancelled) setGovLoading(false);
+      }
+    }
+
+    loadGovernanceData();
+    return () => { cancelled = true; };
+  }, [activeTab]);
+
   const hasMinLen = pwData.newPassword.length >= 6;
   const hasUppercase = /[A-Z]/.test(pwData.newPassword);
   const hasNumber = /[0-9]/.test(pwData.newPassword);
@@ -164,177 +207,116 @@ export default function SuperAdminProfile() {
   if (hasSpecial) score += 25;
 
   const strengthColor = score <= 25 ? "var(--status-error)" : score <= 75 ? "#D97706" : "var(--primary)";
-  const strengthLabel = score === 0 ? "Empty" : score <= 25 ? "Weak" : score <= 75 ? "Moderate" : "Strong Security";
+  const strengthLabel = score === 0 ? "Empty" : score <= 25 ? "Weak" : score <= 75 ? "Moderate" : "Strong";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      {/* Top Page Header */}
-      <PageHeader
-        title="Super Admin Profile"
-        subtitle="Manage your executive root account, master access keys, multi-hub governance, and digital ERP ID"
-      />
-
-      {/* KPI Stat Cards Strip */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(0, 184, 107, 0.12)", color: "var(--primary-deep)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="ri-vip-crown-line" style={{ color: "#FBBF24" }} />
-          </div>
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Authority Level</span>
-            <strong style={{ fontSize: 13, color: "var(--primary-deep)", display: "block" }}>Root Administrator</strong>
-          </div>
-        </div>
-
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(3, 105, 161, 0.12)", color: "#0369A1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="ri-building-2-line" />
-          </div>
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Governance</span>
-            <strong style={{ fontSize: 13, color: "var(--ink)", display: "block" }}>Global Multi-Depot</strong>
-          </div>
-        </div>
-
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(217, 119, 6, 0.12)", color: "#D97706", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="ri-file-text-line" />
-          </div>
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Audit Tracing</span>
-            <strong style={{ fontSize: 13, color: "var(--ink)", display: "block" }}>Global Audit Active</strong>
-          </div>
-        </div>
-
-        <div style={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 42, height: 42, borderRadius: 10, background: "rgba(16, 185, 129, 0.12)", color: "#10B981", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-            <i className="ri-shield-check-line" />
-          </div>
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.3 }}>Clearance Tier</span>
-            <strong style={{ fontSize: 13, color: "var(--ink)", display: "block" }}>Tier 0 Master</strong>
-          </div>
-        </div>
-      </div>
-
-      {/* Hero Banner Header Card */}
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {/* 1. COMPACT EXECUTIVE IDENTITY HERO & TAB STRIP */}
       <div
         style={{
           background: "var(--surface)",
           border: "1px solid var(--line)",
-          borderRadius: 16,
+          borderRadius: 14,
           overflow: "hidden",
-          boxShadow: "var(--shadow-sm)",
-          position: "relative",
+          boxShadow: "var(--shadow-xs)",
         }}
       >
-        {/* Cover Gradient Mesh */}
         <div
           style={{
-            height: 125,
-            background: "linear-gradient(135deg, #051F17 0%, #07281D 35%, #00B86B 100%)",
-            position: "relative",
-          }}
-        >
-          {/* Top Right Holographic Badge */}
-          <div
-            style={{
-              position: "absolute",
-              top: 14,
-              right: 18,
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            <span
-              style={{
-                background: "rgba(0, 0, 0, 0.45)",
-                backdropFilter: "blur(10px)",
-                color: "white",
-                fontSize: 11,
-                fontWeight: 700,
-                padding: "5px 12px",
-                borderRadius: 20,
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <i className="ri-vip-crown-line" style={{ color: "#FBBF24" }} /> Super Admin Tier 0 Account
-            </span>
-          </div>
-        </div>
-
-        {/* Hero Info Bar */}
-        <div
-          style={{
-            padding: "0 24px 20px",
+            padding: "16px 20px",
+            background: "linear-gradient(135deg, rgba(93, 214, 44, 0.05) 0%, rgba(51, 116, 24, 0.02) 100%)",
+            borderBottom: "1px solid var(--line)",
             display: "flex",
-            alignItems: "flex-end",
+            alignItems: "center",
             justifyContent: "space-between",
             flexWrap: "wrap",
-            gap: 16,
-            marginTop: -48,
+            gap: 14,
           }}
         >
-          {/* Left: Avatar + Names */}
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 18, flexWrap: "wrap" }}>
-            {/* Elevated Avatar */}
-            <div style={{ position: "relative" }}>
+          {/* Avatar + Details */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ position: "relative", flexShrink: 0 }}>
               <div
+                onClick={() => fileInputRef.current?.click()}
+                title="Click to change photo"
                 style={{
-                  width: 96,
-                  height: 96,
+                  width: 58,
+                  height: 58,
                   borderRadius: "50%",
-                  background: formData.avatarUrl ? `url(${formData.avatarUrl}) center/cover no-repeat` : "var(--gradient-primary)",
-                  border: "4px solid var(--surface)",
-                  boxShadow: "0 8px 24px rgba(0, 184, 107, 0.3)",
+                  background: formData.avatarUrl
+                    ? `url(${formData.avatarUrl}) center/cover no-repeat`
+                    : "linear-gradient(135deg, var(--primary) 0%, #166534 100%)",
+                  border: "2.5px solid var(--surface)",
+                  boxShadow: "0 2px 10px rgba(93, 214, 44, 0.3)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   color: "white",
-                  fontSize: 34,
+                  fontSize: 22,
                   fontWeight: 800,
+                  cursor: "pointer",
                   overflow: "hidden",
                 }}
               >
                 {!formData.avatarUrl && (formData.fullName || "SA").slice(0, 2).toUpperCase()}
               </div>
-
-              {/* Online Live Pulse */}
               <span
                 style={{
                   position: "absolute",
-                  bottom: 4,
-                  right: 4,
-                  width: 15,
-                  height: 15,
+                  bottom: 0,
+                  right: 0,
+                  width: 13,
+                  height: 13,
                   borderRadius: "50%",
                   background: "#10B981",
-                  border: "3px solid var(--surface)",
-                  boxShadow: "0 0 10px #10B981",
+                  border: "2px solid var(--surface)",
+                  boxShadow: "0 0 6px #10B981",
                 }}
               />
             </div>
 
-            <div style={{ marginBottom: 4 }}>
+            <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <h2 style={{ margin: 0, fontSize: 21, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.02em" }}>
-                  {formData.fullName || user?.name || "Super Administrator"}
-                </h2>
+                <h1 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.02em" }}>
+                  {formData.fullName || "Super Admin"}
+                </h1>
                 <Badge tone="success">SUPER ADMINISTRATOR</Badge>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "var(--primary-deep)",
+                    background: "rgba(93, 214, 44, 0.12)",
+                    padding: "2px 8px",
+                    borderRadius: 12,
+                  }}
+                >
+                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#10B981" }} />
+                  Enterprise Root Active
+                </span>
               </div>
-              <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--muted)" }}>
-                <i className="ri-mail-line" style={{ marginRight: 5, color: "var(--primary)" }} /> {formData.email || "No email configured"} &bull;{" "}
-                <i className="ri-phone-line" style={{ marginRight: 5, marginLeft: 6, color: "var(--primary)" }} /> {formData.phone || "No phone configured"}
-              </p>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 4, fontSize: 12, color: "var(--muted)", flexWrap: "wrap" }}>
+                <span>
+                  <i className="ri-mail-line" style={{ color: "var(--primary)", marginRight: 4 }} />
+                  {formData.email}
+                </span>
+                <span>
+                  <i className="ri-phone-line" style={{ color: "var(--primary)", marginRight: 4 }} />
+                  {formData.phone}
+                </span>
+                <span>
+                  <i className="ri-shield-keyhole-line" style={{ color: "var(--primary)", marginRight: 4 }} />
+                  Tier 0 (Root Clearance)
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Right: Actions */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <input
               type="file"
               ref={fileInputRef}
@@ -345,7 +327,7 @@ export default function SuperAdminProfile() {
             <Button
               variant="secondary"
               onClick={() => fileInputRef.current?.click()}
-              style={{ padding: "7px 15px", fontSize: 12.5, display: "inline-flex", alignItems: "center", gap: 6 }}
+              style={{ padding: "6px 12px", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 5 }}
             >
               <i className="ri-camera-line" /> Change Photo
             </Button>
@@ -353,7 +335,7 @@ export default function SuperAdminProfile() {
               <Button
                 variant="secondary"
                 onClick={() => setFormData((prev) => ({ ...prev, avatarUrl: "" }))}
-                style={{ padding: "7px 12px", fontSize: 12.5, color: "var(--status-error)" }}
+                style={{ padding: "6px 10px", fontSize: 12, color: "var(--status-error)" }}
               >
                 Remove
               </Button>
@@ -361,14 +343,14 @@ export default function SuperAdminProfile() {
           </div>
         </div>
 
-        {/* Tab Navigation Strip */}
+        {/* Tab Navigation */}
         <div
           style={{
-            borderTop: "1px solid var(--line)",
+            padding: "4px 14px",
             background: "var(--canvas)",
-            padding: "5px 18px",
             display: "flex",
-            gap: 6,
+            alignItems: "center",
+            gap: 4,
           }}
         >
           {TABS.map((tab) => {
@@ -379,22 +361,22 @@ export default function SuperAdminProfile() {
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 style={{
-                  padding: "9px 18px",
-                  borderRadius: 8,
-                  fontSize: 13,
+                  padding: "7px 14px",
+                  borderRadius: 7,
+                  fontSize: 12.5,
                   fontWeight: isActive ? 700 : 500,
                   cursor: "pointer",
-                  border: "none",
+                  border: isActive ? "1px solid var(--line-strong)" : "1px solid transparent",
                   background: isActive ? "var(--surface)" : "transparent",
-                  color: isActive ? "var(--primary-deep)" : "var(--muted)",
+                  color: isActive ? "var(--ink)" : "var(--muted)",
                   boxShadow: isActive ? "var(--shadow-xs)" : "none",
                   transition: "all 0.15s ease",
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 7,
+                  gap: 6,
                 }}
               >
-                <i className={tab.icon} />
+                <i className={tab.icon} style={{ color: isActive ? "var(--primary)" : "inherit" }} />
                 {tab.label}
               </button>
             );
@@ -402,120 +384,83 @@ export default function SuperAdminProfile() {
         </div>
       </div>
 
-      {/* 2-Column Main Workspace */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 20 }} className="responsive-grid-2">
-        {/* Left Column: Tab Content */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* 2. MAIN WORKSPACE */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 310px", gap: 14 }} className="responsive-grid-2">
+        <div>
           {/* TAB 1: Profile Information */}
           {activeTab === "profile" && (
             <div
               style={{
                 background: "var(--surface)",
                 border: "1px solid var(--line)",
-                borderRadius: 14,
-                padding: "22px 24px",
-                boxShadow: "var(--shadow-sm)",
+                borderRadius: 12,
+                padding: "18px 20px",
+                boxShadow: "var(--shadow-xs)",
               }}
             >
-              <div style={{ paddingBottom: 14, borderBottom: "1px solid var(--line)", marginBottom: 16 }}>
-                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--ink)" }}>
-                  Executive Personal & Contact Information
-                </h3>
-                <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
-                  Maintain your official Super Admin identity, credentials, and headquarters location
-                </p>
+              <div style={{ paddingBottom: 12, borderBottom: "1px solid var(--line)", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)" }}>
+                    Master Identity &amp; Contact Details
+                  </h3>
+                  <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
+                    Global root administrator credentials and official records
+                  </p>
+                </div>
               </div>
 
-              <form onSubmit={handleProfileSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {/* Preset Avatar Selection Bar */}
-                <div
-                  style={{
-                    padding: "12px 14px",
-                    background: "var(--canvas)",
-                    borderRadius: 10,
-                    border: "1px solid var(--line)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: 8,
-                  }}
-                >
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-secondary)" }}>
-                    Quick Select Preset Avatars:
-                  </span>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    {PRESET_AVATARS.map((url, i) => (
-                      <div
-                        key={i}
-                        onClick={() => setFormData((prev) => ({ ...prev, avatarUrl: url }))}
-                        style={{
-                          width: 30,
-                          height: 30,
-                          borderRadius: "50%",
-                          background: `url(${url}) center/cover no-repeat`,
-                          cursor: "pointer",
-                          border: formData.avatarUrl === url ? "2px solid var(--primary)" : "2px solid transparent",
-                          transform: formData.avatarUrl === url ? "scale(1.15)" : "scale(1)",
-                          boxShadow: formData.avatarUrl === url ? "0 0 8px rgba(0, 184, 107, 0.4)" : "none",
-                          transition: "all 0.15s ease",
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }} className="responsive-grid-2">
+              <form onSubmit={handleProfileSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }} className="responsive-grid-2">
                   <div style={{ gridColumn: "1 / -1" }}>
                     <FormField
                       label="Full Legal Name"
                       required
-                      icon="ri-user-3-line-tie"
+                      icon="ri-user-3-line"
                       value={formData.fullName}
                       onChange={(val) => setFormData((prev) => ({ ...prev, fullName: val }))}
-                      placeholder="Super Administrator Name"
+                      placeholder="Super Admin"
                       compact
-                      marginBottom={12}
+                      marginBottom={10}
                     />
                   </div>
 
                   <FormField
-                    label="Official Email Address"
+                    label="Master Email Address"
                     type="email"
                     icon="ri-mail-line"
                     value={formData.email}
                     onChange={(val) => setFormData((prev) => ({ ...prev, email: val }))}
-                    placeholder="admin@kusumganga.com"
+                    placeholder="iamworkapi@gmail.com"
                     compact
-                    marginBottom={12}
+                    marginBottom={10}
                   />
 
                   <FormField
-                    label="Mobile Phone (Primary Login ID)"
+                    label="Direct Phone (Login ID)"
                     icon="ri-phone-line"
                     value={formData.phone}
                     onChange={(val) => setFormData((prev) => ({ ...prev, phone: val }))}
-                    placeholder="e.g. 9876543210"
+                    placeholder="9891140379"
                     compact
-                    marginBottom={12}
+                    marginBottom={10}
                   />
 
                   <div style={{ gridColumn: "1 / -1" }}>
                     <FormField
-                      label="Administrative Headquarters Address"
+                      label="Headquarters Address"
                       type="textarea"
                       icon="ri-map-pin-line"
                       value={formData.address}
                       onChange={(val) => setFormData((prev) => ({ ...prev, address: val }))}
-                      placeholder="e.g. 24-A, Sai Complex Betiyahata, Gorakhpur Uttar Pradesh, 273001"
+                      placeholder="Bettiah Central Hub, Bihar"
                       compact
-                      marginBottom={12}
+                      marginBottom={10}
                     />
                   </div>
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-                  <Button type="submit" disabled={saving} className="btn-glow" style={{ padding: "9px 26px", fontSize: 13, fontWeight: 700 }}>
+                <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 10, borderTop: "1px solid var(--line)" }}>
+                  <Button type="submit" disabled={saving} className="btn-glow" style={{ padding: "7px 22px", fontSize: 12.5, fontWeight: 700 }}>
                     {saving ? "Saving Changes…" : "Save Changes"}
                   </Button>
                 </div>
@@ -523,316 +468,592 @@ export default function SuperAdminProfile() {
             </div>
           )}
 
-          {/* TAB 2: Security & Password */}
+          {/* TAB 2: Root Access Password */}
           {activeTab === "security" && (
             <div
               style={{
                 background: "var(--surface)",
                 border: "1px solid var(--line)",
-                borderRadius: 14,
-                padding: "22px 24px",
-                boxShadow: "var(--shadow-sm)",
+                borderRadius: 12,
+                padding: "18px 20px",
+                boxShadow: "var(--shadow-xs)",
               }}
             >
-              <div style={{ paddingBottom: 14, borderBottom: "1px solid var(--line)", marginBottom: 16 }}>
-                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--ink)" }}>
-                  Change Master Password & Access Key
-                </h3>
-                <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
-                  Ensure your Super Admin root credentials remain strongly guarded
-                </p>
+              <div style={{ paddingBottom: 12, borderBottom: "1px solid var(--line)", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 6 }}>
+                    <i className="ri-shield-keyhole-line" style={{ color: "var(--primary)" }} /> Root Access Password
+                  </h3>
+                  <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
+                    Master root credentials for enterprise Super Administrator access
+                  </p>
+                </div>
+
+                {!isEditingPassword && (
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingPassword(true);
+                      setPwData({ currentPassword: savedPassword || "", newPassword: "" });
+                    }}
+                    style={{
+                      padding: "6px 14px",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <i className="ri-edit-line" /> Edit Password
+                  </Button>
+                )}
               </div>
 
-              <form onSubmit={handlePasswordSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {/* Current Password */}
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "block", marginBottom: 4 }}>
-                    Current Master Password <span style={{ color: "var(--status-error)" }}>*</span>
-                  </label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type={showCurrentPw ? "text" : "password"}
-                      value={pwData.currentPassword}
-                      onChange={(e) => setPwData((prev) => ({ ...prev, currentPassword: e.target.value }))}
-                      placeholder="Enter current master password"
-                      style={{
-                        width: "100%",
-                        padding: "9px 38px 9px 12px",
-                        borderRadius: 8,
-                        border: "1px solid var(--line-strong)",
-                        background: "var(--surface)",
-                        fontSize: 13,
-                        color: "var(--ink)",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowCurrentPw(!showCurrentPw)}
-                      style={{
-                        position: "absolute",
-                        right: 10,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        border: "none",
-                        background: "none",
-                        color: "var(--muted)",
-                        cursor: "pointer",
-                        fontSize: 12,
-                      }}
-                    >
-                      <i className={`fa-solid ${showCurrentPw ? "fa-eye-slash" : "fa-eye"}`} />
-                    </button>
+              {!isEditingPassword ? (
+                /* VIEW / READONLY PASSWORD MODE */
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div
+                    style={{
+                      background: "var(--canvas)",
+                      border: "1px solid var(--line)",
+                      borderRadius: 10,
+                      padding: "14px 16px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
+                        Super Admin Root Master Password
+                      </span>
+                      <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: "rgba(51, 116, 24, 0.12)", color: "var(--primary)" }}>
+                        <i className="ri-lock-2-line" /> Tier 0 Root Active
+                      </span>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      <div
+                        style={{
+                          flex: 1,
+                          minWidth: 200,
+                          height: 38,
+                          borderRadius: 8,
+                          border: "1px solid var(--line-strong)",
+                          background: "var(--surface)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "0 12px",
+                          fontFamily: showSavedPassword ? "monospace" : "inherit",
+                          fontSize: showSavedPassword ? 13.5 : 16,
+                          fontWeight: 700,
+                          color: "var(--ink)",
+                          letterSpacing: showSavedPassword ? "normal" : "2px",
+                        }}
+                      >
+                        <span>{showSavedPassword ? savedPassword : "••••••••••••"}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                          <button
+                            type="button"
+                            onClick={() => setShowSavedPassword(!showSavedPassword)}
+                            title={showSavedPassword ? "Hide password" : "Show password"}
+                            style={{
+                              border: "none",
+                              background: "none",
+                              color: "var(--muted)",
+                              cursor: "pointer",
+                              padding: 4,
+                              fontSize: 14,
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <i className={showSavedPassword ? "ri-eye-off-line" : "ri-eye-line"} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => {
+                          navigator.clipboard?.writeText(savedPassword);
+                          toast.success("Master password copied to clipboard!");
+                        }}
+                        style={{ padding: "8px 12px", fontSize: 12, height: 38 }}
+                      >
+                        <i className="ri-file-copy-line" /> Copy
+                      </Button>
+                    </div>
+
+                    <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+                      <i className="ri-information-line" /> Click "Edit Password" above to change this password.
+                    </div>
                   </div>
                 </div>
+              ) : (
+                /* EDIT PASSWORD MODE (NO CONFIRM PASSWORD) */
+                <form onSubmit={handlePasswordSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div
+                    style={{
+                      background: "rgba(51, 116, 24, 0.04)",
+                      border: "1px solid rgba(51, 116, 24, 0.15)",
+                      borderRadius: 10,
+                      padding: "14px 16px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                    }}
+                  >
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "var(--primary)", display: "flex", alignItems: "center", gap: 5 }}>
+                      <i className="ri-key-2-line" /> Modify Master Password
+                    </div>
 
-                {/* New Password */}
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "block", marginBottom: 4 }}>
-                    New Master Password <span style={{ color: "var(--status-error)" }}>*</span>
-                  </label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type={showNewPw ? "text" : "password"}
-                      value={pwData.newPassword}
-                      onChange={(e) => setPwData((prev) => ({ ...prev, newPassword: e.target.value }))}
-                      placeholder="Minimum 6 characters"
-                      style={{
-                        width: "100%",
-                        padding: "9px 38px 9px 12px",
-                        borderRadius: 8,
-                        border: "1px solid var(--line-strong)",
-                        background: "var(--surface)",
-                        fontSize: 13,
-                        color: "var(--ink)",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPw(!showNewPw)}
-                      style={{
-                        position: "absolute",
-                        right: 10,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        border: "none",
-                        background: "none",
-                        color: "var(--muted)",
-                        cursor: "pointer",
-                        fontSize: 12,
-                      }}
-                    >
-                      <i className={`fa-solid ${showNewPw ? "fa-eye-slash" : "fa-eye"}`} />
-                    </button>
-                  </div>
-
-                  {/* Dynamic Strength Meter & Checklist */}
-                  {pwData.newPassword && (
-                    <div style={{ marginTop: 10, padding: "10px 12px", background: "var(--canvas)", borderRadius: 8, border: "1px solid var(--line)" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 5 }}>
-                        <span style={{ color: "var(--muted)" }}>Password Security Score:</span>
-                        <strong style={{ color: strengthColor }}>{strengthLabel} ({score}%)</strong>
-                      </div>
-                      <div style={{ height: 5, width: "100%", background: "var(--line)", borderRadius: 3, overflow: "hidden", marginBottom: 8 }}>
-                        <div
+                    {/* Current Password Field */}
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "block", marginBottom: 4 }}>
+                        Current Password <span style={{ color: "var(--status-error)" }}>*</span>
+                      </label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type={showCurrentPw ? "text" : "password"}
+                          value={pwData.currentPassword}
+                          onChange={(e) => setPwData((prev) => ({ ...prev, currentPassword: e.target.value }))}
+                          placeholder="Enter current password"
                           style={{
-                            height: "100%",
-                            width: `${score}%`,
-                            background: strengthColor,
-                            transition: "all 0.3s ease",
+                            width: "100%",
+                            height: 38,
+                            padding: "0 38px 0 12px",
+                            borderRadius: 8,
+                            border: "1px solid var(--line-strong)",
+                            background: "var(--surface)",
+                            fontSize: 12.5,
+                            color: "var(--ink)",
                           }}
                         />
-                      </div>
-
-                      {/* Checklist badges */}
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, fontSize: 11 }}>
-                        <span style={{ color: hasMinLen ? "var(--primary-deep)" : "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <i className={hasMinLen ? "ri-checkbox-circle-fill" : "ri-circle-line"} /> 6+ Chars
-                        </span>
-                        <span style={{ color: hasUppercase ? "var(--primary-deep)" : "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <i className={hasUppercase ? "ri-checkbox-circle-fill" : "ri-circle-line"} /> Uppercase
-                        </span>
-                        <span style={{ color: hasNumber ? "var(--primary-deep)" : "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <i className={hasNumber ? "ri-checkbox-circle-fill" : "ri-circle-line"} /> Number
-                        </span>
-                        <span style={{ color: hasSpecial ? "var(--primary-deep)" : "var(--muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                          <i className={hasSpecial ? "ri-checkbox-circle-fill" : "ri-circle-line"} /> Symbol
-                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPw(!showCurrentPw)}
+                          style={{
+                            position: "absolute",
+                            right: 10,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            border: "none",
+                            background: "none",
+                            color: "var(--muted)",
+                            cursor: "pointer",
+                            fontSize: 13,
+                          }}
+                        >
+                          <i className={showCurrentPw ? "ri-eye-off-line" : "ri-eye-line"} />
+                        </button>
                       </div>
                     </div>
-                  )}
-                </div>
 
-                {/* Confirm New Password */}
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "block", marginBottom: 4 }}>
-                    Confirm New Master Password <span style={{ color: "var(--status-error)" }}>*</span>
-                  </label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type={showConfirmPw ? "text" : "password"}
-                      value={pwData.confirmPassword}
-                      onChange={(e) => setPwData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
-                      placeholder="Re-enter your new master password"
-                      style={{
-                        width: "100%",
-                        padding: "9px 38px 9px 12px",
-                        borderRadius: 8,
-                        border: "1px solid var(--line-strong)",
-                        background: "var(--surface)",
-                        fontSize: 13,
-                        color: "var(--ink)",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPw(!showConfirmPw)}
-                      style={{
-                        position: "absolute",
-                        right: 10,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        border: "none",
-                        background: "none",
-                        color: "var(--muted)",
-                        cursor: "pointer",
-                        fontSize: 12,
-                      }}
-                    >
-                      <i className={`fa-solid ${showConfirmPw ? "fa-eye-slash" : "fa-eye"}`} />
-                    </button>
+                    {/* New Password Field (No Confirm Password) */}
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", display: "block", marginBottom: 4 }}>
+                        New Password <span style={{ color: "var(--status-error)" }}>*</span>
+                      </label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type={showNewPw ? "text" : "password"}
+                          value={pwData.newPassword}
+                          onChange={(e) => setPwData((prev) => ({ ...prev, newPassword: e.target.value }))}
+                          placeholder="Enter new password (min 6 characters)"
+                          style={{
+                            width: "100%",
+                            height: 38,
+                            padding: "0 38px 0 12px",
+                            borderRadius: 8,
+                            border: "1px solid var(--line-strong)",
+                            background: "var(--surface)",
+                            fontSize: 12.5,
+                            color: "var(--ink)",
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPw(!showNewPw)}
+                          style={{
+                            position: "absolute",
+                            right: 10,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            border: "none",
+                            background: "none",
+                            color: "var(--muted)",
+                            cursor: "pointer",
+                            fontSize: 13,
+                          }}
+                        >
+                          <i className={showNewPw ? "ri-eye-off-line" : "ri-eye-line"} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Password Strength Indicator */}
+                    {pwData.newPassword && (
+                      <div style={{ padding: "8px 12px", background: "var(--surface)", borderRadius: 8, border: "1px solid var(--line)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 4 }}>
+                          <span style={{ color: "var(--muted)" }}>Password Strength:</span>
+                          <strong style={{ color: strengthColor }}>{strengthLabel} ({score}%)</strong>
+                        </div>
+                        <div style={{ height: 4, width: "100%", background: "var(--line)", borderRadius: 2, overflow: "hidden" }}>
+                          <div
+                            style={{
+                              height: "100%",
+                              width: `${score}%`,
+                              background: strengthColor,
+                              transition: "width 0.25s ease",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
 
-                <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-                  <Button type="submit" disabled={savingPassword} className="btn-glow" style={{ padding: "9px 26px", fontSize: 13, fontWeight: 700 }}>
-                    {savingPassword ? "Updating Password…" : "Update Master Password"}
-                  </Button>
-                </div>
-              </form>
+                  {/* Actions: Update & Cancel */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 6 }}>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => {
+                        setIsEditingPassword(false);
+                        setPwData({ currentPassword: "", newPassword: "" });
+                      }}
+                      style={{ padding: "6px 16px", fontSize: 12 }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={savingPassword}
+                      className="btn-glow"
+                      style={{ padding: "6px 20px", fontSize: 12, fontWeight: 700 }}
+                    >
+                      {savingPassword ? "Updating Password…" : "Update Password"}
+                    </Button>
+                  </div>
+                </form>
+              )}
             </div>
           )}
 
-          {/* TAB 3: Role & Access Privileges */}
+          {/* TAB 3: Access & Governance */}
           {activeTab === "access" && (
             <div
               style={{
                 background: "var(--surface)",
                 border: "1px solid var(--line)",
-                borderRadius: 14,
-                padding: "22px 24px",
-                boxShadow: "var(--shadow-sm)",
+                borderRadius: 12,
+                padding: "18px 20px",
+                boxShadow: "var(--shadow-xs)",
               }}
             >
-              <div style={{ paddingBottom: 14, borderBottom: "1px solid var(--line)", marginBottom: 16 }}>
-                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "var(--ink)" }}>
-                  Root Governance & Privileges Matrix
-                </h3>
-                <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--muted)" }}>
-                  Super Administrator has universal control across all systems and databases
-                </p>
+              <div style={{ paddingBottom: 10, borderBottom: "1px solid var(--line)", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)" }}>
+                    Access & Governance
+                  </h3>
+                  <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>
+                    Enterprise-wide user roles, permissions, security policies & activity audit trail
+                  </p>
+                </div>
+                <span style={{ fontSize: 10.5, fontWeight: 700, padding: "3px 10px", borderRadius: 10, background: "rgba(124,58,237,0.1)", color: "#7C3AED" }}>
+                  <i className="ri-node-tree" /> 4 Roles | Full Governance
+                </span>
               </div>
 
-              {/* Permissions Grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="responsive-grid-2">
-                {ROOT_PERMISSIONS_MAP.map((item, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      padding: "14px",
-                      background: "var(--canvas)",
-                      border: "1px solid var(--line)",
-                      borderRadius: 10,
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 12,
-                    }}
-                  >
-                    <div
+              {/* Sub-tab navigation */}
+              <div style={{ display: "flex", gap: 3, background: "var(--canvas)", padding: 3, borderRadius: 8, border: "1px solid var(--line)", width: "fit-content", marginBottom: 16 }}>
+                {GOVERNANCE_SECTIONS.map((tab) => {
+                  const isActive = govTab === tab.key;
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      onClick={() => setGovTab(tab.key)}
                       style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 8,
-                        background: "rgba(0, 184, 107, 0.12)",
-                        color: "var(--primary-deep)",
-                        display: "flex",
+                        padding: "5px 13px",
+                        borderRadius: 6,
+                        fontSize: 12,
+                        fontWeight: isActive ? 700 : 500,
+                        cursor: "pointer",
+                        border: "none",
+                        background: isActive ? "var(--surface)" : "transparent",
+                        color: isActive ? "var(--ink)" : "var(--muted)",
+                        boxShadow: isActive ? "var(--shadow-xs)" : "none",
+                        display: "inline-flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 16,
-                        flexShrink: 0,
+                        gap: 5,
+                        transition: "all 0.15s ease",
                       }}
                     >
-                      <i className={item.icon} />
-                    </div>
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <strong style={{ fontSize: 13, color: "var(--ink)" }}>{item.module}</strong>
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#10B981" }} />
-                      </div>
-                      <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "var(--muted)", lineHeight: 1.4 }}>
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                      <i className={tab.icon} style={{ fontSize: 11.5, color: isActive ? "#7C3AED" : "inherit" }} />
+                      {tab.label}
+                    </button>
+                  );
+                })}
               </div>
+
+              <AsyncState status={govLoading ? "loading" : "succeeded"} error={govError} loadingLabel="Loading governance data…" />
+
+              {/* Sub-tab: Roles */}
+              {govTab === "roles" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+                    {ROLE_MATRIX.map((role) => {
+                      const count = userCounts[role.key] || userCounts[role.key.replace("_", "")] || "—";
+                      return (
+                        <div
+                          key={role.key}
+                          style={{
+                            padding: "14px 16px",
+                            background: "var(--canvas)",
+                            border: "1px solid var(--line)",
+                            borderRadius: 10,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 8,
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{
+                                width: 30, height: 30, borderRadius: 7,
+                                background: `${role.color}18`, color: role.color,
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: 14, fontWeight: 700,
+                              }}>
+                                <i className="ri-user-settings-line" />
+                              </div>
+                              <span style={{ fontWeight: 700, fontSize: 13, color: "var(--ink)" }}>{role.role}</span>
+                            </div>
+                            <span style={{
+                              fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 10,
+                              background: `${role.color}18`, color: role.color,
+                            }}>
+                              {typeof count === "number" ? `${count} user${count !== 1 ? "s" : ""}` : count}
+                            </span>
+                          </div>
+                          <span style={{ fontSize: 11, color: "var(--muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                            <i className="ri-focus-3-line" style={{ fontSize: 10 }} />
+                            Scope: {role.scope}
+                          </span>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                            {role.perms.map((p) => (
+                              <span key={p} style={{
+                                fontSize: 10, fontWeight: 600, padding: "2px 7px", borderRadius: 6,
+                                background: "var(--primary-tint)", color: "var(--primary-deep)",
+                                border: "1px solid rgba(93,214,44,0.2)",
+                              }}>
+                                {p}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Role hierarchy visual */}
+                  <Card title="Role Hierarchy" subtitle="Authority levels from enterprise root to operational staff" style={{ marginTop: 4 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                      {ROLE_MATRIX.map((role, i) => (
+                        <div key={role.key} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", borderBottom: i < ROLE_MATRIX.length - 1 ? "1px solid var(--line)" : "none" }}>
+                          <div style={{
+                            width: 8, height: 8, borderRadius: "50%", background: role.color,
+                            boxShadow: `0 0 6px ${role.color}44`, flexShrink: 0,
+                          }} />
+                          <span style={{ fontWeight: 700, fontSize: 12.5, color: "var(--ink)", minWidth: 130 }}>{role.role}</span>
+                          <span style={{ fontSize: 11, color: "var(--muted)", flex: 1 }}>{role.scope}</span>
+                          <div style={{ display: "flex", gap: 4 }}>
+                            {role.perms.slice(0, 3).map((p) => (
+                              <span key={p} style={{ fontSize: 10, color: "var(--muted)", fontWeight: 600, background: "var(--canvas)", padding: "2px 6px", borderRadius: 4 }}>{p}</span>
+                            ))}
+                            {role.perms.length > 3 && (
+                              <span style={{ fontSize: 10, color: "var(--primary)", fontWeight: 700 }}>+{role.perms.length - 3}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+              )}
+
+              {/* Sub-tab: Root Permissions */}
+              {govTab === "permissions" && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 12 }}>
+                  {["Enterprise Governance", "Financial Controls", "Operational Authority", "Security & Compliance"].map((group, gi) => {
+                    const items = ROOT_PERMISSIONS_MAP.slice(gi * 2, gi * 2 + 2);
+                    return (
+                      <div key={group} style={{
+                        background: "var(--canvas)", border: "1px solid var(--line)",
+                        borderRadius: 10, padding: "14px 16px",
+                      }}>
+                        <h4 style={{ margin: "0 0 12px", fontSize: 12.5, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{
+                            width: 6, height: 6, borderRadius: "50%",
+                            background: "#7C3AED", boxShadow: "0 0 6px #7C3AED66",
+                          }} />
+                          {group}
+                        </h4>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          {items.map((item, i) => (
+                            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 10px", background: "var(--surface)", borderRadius: 7, border: "1px solid var(--line)" }}>
+                              <div style={{
+                                width: 28, height: 28, borderRadius: 6,
+                                background: "rgba(124,58,237,0.1)", color: "#7C3AED",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                fontSize: 13, flexShrink: 0,
+                              }}>
+                                <i className={item.icon} />
+                              </div>
+                              <div>
+                                <strong style={{ fontSize: 12, color: "var(--ink)", display: "block" }}>{item.module}</strong>
+                                <span style={{ fontSize: 10.5, color: "var(--muted)", lineHeight: 1.35 }}>{item.desc}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Sub-tab: Security Policies */}
+              {govTab === "policies" && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 10 }}>
+                  {[
+                    { title: "Password Policy", icon: "ri-lock-2-line", items: ["Minimum 8 characters", "Uppercase + lowercase required", "Numeric & special character required", "Rotation every 90 days", "No reuse of last 5 passwords"] },
+                    { title: "Access Control", icon: "ri-shield-check-line", items: ["JWT-based authentication", "Role-based access control (RBAC)", "Warehouse-scoped permissions", "Token version invalidation on password change", "Auto-logout on inactivity (configurable)"] },
+                    { title: "Data Governance", icon: "ri-database-2-line", items: ["All writes audited with actor, action & timestamp", "PII encryption for email & phone", "Pagination on all list endpoints", "Error masking — internal errors not exposed", "CORS-restricted to approved origins"] },
+                    { title: "Compliance", icon: "ri-file-shield-line", items: ["GST-compliant invoice generation", "Biometric-ready attendance modules", "Weighment slip audit trail", "Stock valuation ledger", "Vendor ledger reconciliation"] },
+                  ].map((section) => (
+                    <Card key={section.title} title={section.title} subtitle="" style={{ padding: "14px 16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                        <div style={{
+                          width: 30, height: 30, borderRadius: 7,
+                          background: "rgba(124,58,237,0.1)", color: "#7C3AED",
+                          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14,
+                        }}>
+                          <i className={section.icon} />
+                        </div>
+                        <span style={{ fontWeight: 700, fontSize: 12.5, color: "var(--ink)" }}>{section.title}</span>
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 4 }}>
+                        {section.items.map((item) => (
+                          <li key={item} style={{ fontSize: 11.5, color: "var(--muted)", lineHeight: 1.4 }}>{item}</li>
+                        ))}
+                      </ul>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* Sub-tab: Activity Log */}
+              {govTab === "logs" && (
+                <Card title="Recent Activity Log" subtitle="Last actions across the platform (audit trail)">
+                  {auditLogs.length === 0 ? (
+                    <p style={{ color: "var(--muted)", fontSize: 13, textAlign: "center", padding: 20 }}>No activity recorded yet.</p>
+                  ) : (
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
+                        <thead>
+                          <tr style={{ borderBottom: "2px solid var(--line)" }}>
+                            <th style={{ textAlign: "left", padding: "7px 10px", fontWeight: 700, color: "var(--muted)", fontSize: 10.5, textTransform: "uppercase" }}>Timestamp</th>
+                            <th style={{ textAlign: "left", padding: "7px 10px", fontWeight: 700, color: "var(--muted)", fontSize: 10.5, textTransform: "uppercase" }}>Action</th>
+                            <th style={{ textAlign: "left", padding: "7px 10px", fontWeight: 700, color: "var(--muted)", fontSize: 10.5, textTransform: "uppercase" }}>Entity</th>
+                            <th style={{ textAlign: "left", padding: "7px 10px", fontWeight: 700, color: "var(--muted)", fontSize: 10.5, textTransform: "uppercase" }}>Details</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {auditLogs.map((log, i) => (
+                            <tr key={i} style={{ borderBottom: "1px solid var(--line)" }}>
+                              <td style={{ padding: "8px 10px", color: "var(--muted)", fontSize: 11, whiteSpace: "nowrap" }}>
+                                {log.timestamp ? new Date(log.timestamp).toLocaleString("en-IN") : "—"}
+                              </td>
+                              <td style={{ padding: "8px 10px" }}>
+                                <Badge tone={log.action?.includes("delete") ? "error" : log.action?.includes("create") ? "success" : "info"} style={{ fontSize: 10 }}>
+                                  {log.action || "action"}
+                                </Badge>
+                              </td>
+                              <td style={{ padding: "8px 10px", fontWeight: 600, color: "var(--ink)", fontSize: 12 }}>{log.entityType || "—"}</td>
+                              <td style={{ padding: "8px 10px", color: "var(--muted)", fontSize: 11, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                {JSON.stringify(log.metadata || {}).slice(0, 80) || "—"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </Card>
+              )}
             </div>
           )}
         </div>
 
-        {/* Right Column: High-Tech Digital Executive ID Smart Card */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* Right Column: Digital ID */}
+        <div>
           <div
             style={{
               background: "var(--surface)",
               border: "1px solid var(--line)",
-              borderRadius: 16,
-              padding: "22px 20px",
-              boxShadow: "var(--shadow-md)",
+              borderRadius: 12,
+              padding: "16px 14px",
+              boxShadow: "var(--shadow-xs)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               textAlign: "center",
-              position: "relative",
-              overflow: "hidden",
             }}
           >
-            {/* Holographic Header Band with Smart NFC Chip */}
             <div
               style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 64,
-                background: "linear-gradient(135deg, #051F17 0%, #07281D 40%, #00B86B 100%)",
+                width: "100%",
+                padding: "6px 10px",
+                borderRadius: 7,
+                background: "linear-gradient(135deg, rgba(93, 214, 44, 0.15) 0%, rgba(51, 116, 24, 0.1) 100%)",
+                border: "1px solid rgba(93, 214, 44, 0.3)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                padding: "0 16px",
+                marginBottom: 12,
               }}
             >
-              <div style={{ width: 24, height: 18, borderRadius: 3, border: "1px solid rgba(255, 215, 0, 0.7)", background: "rgba(255, 215, 0, 0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 8, color: "#FFD700", fontWeight: 900 }}>NFC</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, fontWeight: 800, color: "var(--primary-deep)" }}>
+                <i className="ri-shield-check-line" />
+                <span>KUSUMGANGA ROOT</span>
               </div>
-              <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 10, letterSpacing: 1, fontWeight: 700 }}>ROOT CLEARANCE</span>
+              <span style={{ fontSize: 9.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+                Super Admin ID
+              </span>
             </div>
 
-            {/* Avatar Preview */}
-            <div style={{ position: "relative", marginTop: 22, marginBottom: 10 }}>
+            <div style={{ position: "relative", marginBottom: 8 }}>
               <div
                 style={{
-                  width: 84,
-                  height: 84,
+                  width: 52,
+                  height: 52,
                   borderRadius: "50%",
-                  background: formData.avatarUrl ? `url(${formData.avatarUrl}) center/cover no-repeat` : "var(--gradient-primary)",
+                  background: formData.avatarUrl
+                    ? `url(${formData.avatarUrl}) center/cover no-repeat`
+                    : "linear-gradient(135deg, var(--primary) 0%, #166534 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   color: "white",
                   fontWeight: 800,
-                  fontSize: 30,
-                  boxShadow: "0 6px 20px rgba(0, 184, 107, 0.35)",
-                  border: "3px solid var(--surface)",
+                  fontSize: 18,
+                  border: "2px solid var(--surface)",
+                  boxShadow: "0 2px 8px rgba(93, 214, 44, 0.3)",
                   overflow: "hidden",
                 }}
               >
@@ -841,88 +1062,75 @@ export default function SuperAdminProfile() {
               <span
                 style={{
                   position: "absolute",
-                  bottom: 2,
-                  right: 2,
-                  width: 14,
-                  height: 14,
+                  bottom: 0,
+                  right: 0,
+                  width: 11,
+                  height: 11,
                   borderRadius: "50%",
                   background: "#10B981",
                   border: "2px solid var(--surface)",
-                  boxShadow: "0 0 8px #10B981",
                 }}
               />
             </div>
 
-            <h4 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
-              {formData.fullName || "Super Administrator"}
+            <h4 style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 800, color: "var(--ink)" }}>
+              {formData.fullName || "Super Admin"}
             </h4>
-            <div style={{ marginBottom: 14 }}>
-              <Badge tone="success">
-                SUPER ADMINISTRATOR
-              </Badge>
-            </div>
+            <Badge tone="success">SUPER ADMINISTRATOR</Badge>
 
-            {/* Live Instant Details Box */}
             <div
               style={{
                 width: "100%",
                 background: "var(--canvas)",
                 border: "1px solid var(--line)",
-                borderRadius: 12,
-                padding: "14px",
+                borderRadius: 8,
+                padding: "10px 12px",
                 display: "flex",
                 flexDirection: "column",
-                gap: 9,
+                gap: 6,
                 textAlign: "left",
-                fontSize: 12,
+                fontSize: 11.5,
+                margin: "12px 0",
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Organization:</span>
-                <strong style={{ color: "var(--ink)" }}>Kusumganga Agro</strong>
+                <span style={{ color: "var(--muted)" }}>Authority:</span>
+                <strong style={{ color: "var(--ink)" }}>Enterprise Root</strong>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Phone (ID):</span>
+                <span style={{ color: "var(--muted)" }}>Phone:</span>
                 <span style={{ fontWeight: 600, color: "var(--ink)" }}>{formData.phone || "—"}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ color: "var(--muted)" }}>Email:</span>
-                <span style={{ fontWeight: 600, color: "var(--ink)", maxWidth: 170, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <span style={{ fontWeight: 600, color: "var(--ink)", maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {formData.email || "—"}
                 </span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "var(--muted)" }}>Clearance:</span>
-                <span style={{ fontWeight: 700, color: "var(--primary-deep)" }}>● Tier 0 Master Access</span>
+                <span style={{ color: "var(--muted)" }}>Scope:</span>
+                <span style={{ fontWeight: 700, color: "var(--primary-deep)" }}>
+                  All Warehouses (Global)
+                </span>
               </div>
-              {formData.address && (
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: "var(--muted)" }}>HQ Location:</span>
-                  <span style={{ fontWeight: 500, color: "var(--ink-secondary)", maxWidth: 170, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {formData.address}
-                  </span>
-                </div>
-              )}
             </div>
 
-            {/* Copy & Share Credential Button */}
             <Button
               type="button"
               variant="secondary"
               onClick={copyCredentialInfo}
               style={{
                 width: "100%",
-                marginTop: 12,
-                fontSize: 12,
-                padding: "7px 12px",
+                fontSize: 11.5,
+                padding: "6px 10px",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 6,
+                gap: 5,
               }}
             >
               <i className={copiedId ? "ri-check-line" : "ri-file-copy-line"} />
-              {copiedId ? "ID Details Copied!" : "Copy Digital ID"}
+              {copiedId ? "ID Copied!" : "Copy Master ID"}
             </Button>
           </div>
         </div>

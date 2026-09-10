@@ -6,44 +6,19 @@ const FEATURES = [
 
 export default function AuthLayout({ children }) {
   return (
-    <div style={{ height: "100vh", maxHeight: "100vh", display: "flex", background: "linear-gradient(135deg, #03150C 0%, #0D3823 45%, #144B2E 85%, #082115 100%)", overflow: "hidden" }}>
-      {/* Left Hero Brand Panel (Always visible on Desktop/Laptop) */}
-      <div
-        className="auth-brand-panel auth-geometric-hero"
-        style={{
-          flex: "1 1 50%",
-          minWidth: 460,
-          height: "100vh",
-          position: "relative",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "32px 48px",
-          color: "white",
-          boxSizing: "border-box",
-        }}
-      >
-        {/* Layered Diagonal Ribbons & Organic Ambient Lighting */}
-        <div className="auth-ribbon-1" aria-hidden="true" />
-        <div className="auth-ribbon-2" aria-hidden="true" />
-        <div className="auth-ribbon-3" aria-hidden="true" />
+    <div className="auth-root-layout">
+      {/* Full-Screen Continuous Flowing Ribbons, Linings & Ambient Lighting Across Left to Right */}
+      <div className="auth-bg-layer" aria-hidden="true">
+        <div className="auth-ribbon-1" />
+        <div className="auth-ribbon-2" />
+        <div className="auth-ribbon-3" />
+        <div className="auth-bg-glow-1" />
+        <div className="auth-bg-glow-2" />
+        <div className="auth-bg-matrix" />
+      </div>
 
-        <div
-          className="animate-pulse-glow"
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            width: 480,
-            height: 480,
-            borderRadius: "50%",
-            top: -140,
-            right: -120,
-            background: "radial-gradient(circle, rgba(46, 139, 87, 0.38), transparent 70%)",
-            filter: "blur(35px)",
-            pointerEvents: "none",
-          }}
-        />
+      {/* Left Hero Brand Panel (Always visible on Desktop/Laptop, hidden on mobile/tablet) */}
+      <div className="auth-brand-panel">
 
         {/* Brand Header */}
         <div style={{ position: "relative", zIndex: 10 }}>
@@ -116,7 +91,7 @@ export default function AuthLayout({ children }) {
             <div className="agro-glass-badge" style={{ borderRadius: 12, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 800, color: "#FFFFFF" }}>
                 <i className="fa-solid fa-network-wired" style={{ color: "#9AE6B4", fontSize: 12 }} />
-                12 Live Hubs
+                Live Network Hubs
               </div>
               <span style={{ fontSize: 10.5, color: "rgba(255, 255, 255, 0.75)", lineHeight: 1.35 }}>
                 Real-time multi-warehouse stock sync & vehicle tracking
@@ -162,18 +137,10 @@ export default function AuthLayout({ children }) {
         </div>
       </div>
 
-      {/* Right Form Card Panel */}
-      <div style={{ flex: "1 1 50%", minWidth: 400, height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px 24px", background: "transparent", boxSizing: "border-box" }}>
-        <div className="animate-slide-up" style={{ width: 420, maxWidth: "100%", position: "relative" }}>
-          <div
-            className="agro-glass-card"
-            style={{
-              borderRadius: 28,
-              padding: "28px 32px 24px",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
+      {/* Right Form Card Panel (Only this panel will appear on mobile/tablet) */}
+      <div className="auth-form-panel">
+        <div className="auth-form-wrapper animate-slide-up">
+          <div className="agro-glass-card auth-card">
             {/* Top Glowing Gradient Accent Bar */}
             <div
               style={{

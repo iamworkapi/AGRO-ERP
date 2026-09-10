@@ -465,3 +465,87 @@ export async function getOutstandingReport(actor, warehouseId) {
     })),
   };
 }
+
+// ─── Warehouse Breakdown (org-wide per-warehouse metrics) ───────────────────
+// Super Admin sees all warehouses; scoped roles see only their own.
+
+export async function getWarehouseBreakdown(actor) {
+  let warehouseIds;
+  let isOrgWide = false;
+
+  if (actor.profile.role === ROLES.SUPER_ADMIN) {
+    const warehouses = await Warehouse.find({}).select("_id name address status commodity code contactPerson contactPhone");
+    warehouseIds = warehouses.map((w) => w._id);
+    isOrgWide = true;
+  } else {
+    const ownId = await getOwnWarehouseId(actor.profile);
+    if (!ownId) throw ApiError.forbidden("You are not currently assigned to a warehouse.");
+    warehouseIds = [new mongoose.Types.ObjectId(ownId)];
+    isOrgWide = false;
+  }
+
+  // Run all aggregates in parallel per warehouse
+  const [
+    warehouseDocs,
+    stockAgg,
+    weighmentAgg,
+    collectionAgg,
+    dispatchAgg,
+    employeeCounts,
+  ] = await Promise.all([
+    Warehouse.find({ _id: { $in: warehouseIds } }).select("_id name address status commodity code contactPerson contactPhone"),
+    StockEntry.aggregate([
+      { $match: { warehouse: { $in: warehouseIds }, status: "approved" } },
+      { $group: { _id: "$warehouse", totalKg: { $sum: "$netWeightKg" }, totalValue: { $sum: "$totalAmountRs" } } },
+    ]),
+    StockEntry.aggregate([
+      { $match: { warehouse: { $in: warehouseIds } } },
+      { $group: { _id: "$warehouse", count: { $sum: 1 }, approved: { $sum: { $cond: ["$status", 1, 0] } } } },
+    ]),
+    Collection.aggregate([
+      { $match: { warehouse: { $in: warehouseIds } } },
+      { $group: { _id: "$warehouse", totalMt: { $sum: "$actualNetWeightMt" }, totalValue: { $sum: "$totalAmountRs" }, count: { $sum: 1 } } },
+    ]),
+    Dispatch.aggregate([
+      { $match: { warehouse: { $in: warehouseIds } } },
+      { $group: { _id: "$warehouse", totalMt: { $sum: "$dispatchedTonnageMt" }, totalValue: { $sum: "$totalInvoiceAmount" }, count: { $sum: 1 } } },
+    ]),
+    Employee.aggregate([
+      { $match: { warehouse: { $in: warehouseIds }, employmentStatus: "active" } },
+      { $group: { _id: "$warehouse", count: { $sum: 1 } } },
+    ]),
+  ]);
+
+  const stockByWh = new Map(stockAgg.map((r) => [r._id.toString(), r]));
+  const weighmentByWh = new Map(weighmentAgg.map((r) => [r._id.toString(), r]));
+  const collectionByWh = new Map(collectionAgg.map((r) => [r._id.toString(), r]));
+  const dispatchByWh = new Map(dispatchAgg.map((r) => [r._id.toString(), r]));
+  const empByWh = new Map(employeeCounts.map((r) => [r._id.toString(), r.count]));
+
+  return {
+    isOrgWide,
+    warehouses: warehouseDocs.map((w) => {
+      const id = w._id.toString();
+      const s = stockByWh.get(id) || {};
+      const wm = weighmentByWh.get(id) || {};
+      const c = collectionByWh.get(id) || {};
+      const d = dispatchByWh.get(id) || {};
+      const e = empByWh.get(id) || 0;
+      return {
+        id,
+        name: w.name,
+        code: w.code,
+        address: w.address || "",
+        commodity: w.commodity || "",
+        status: w.status || "Active",
+        contactPerson: w.contactPerson || "",
+        contactPhone: w.contactPhone || "",
+        stock: { kg: s.totalKg || 0, value: s.totalValue || 0 },
+        weighments: { total: wm.count || 0, approved: wm.approved || 0, pending: (wm.count || 0) - (wm.approved || 0) },
+        collections: { mt: c.totalMt || 0, value: c.totalValue || 0, count: c.count || 0 },
+        dispatches: { mt: d.totalMt || 0, value: d.totalValue || 0, count: d.count || 0 },
+        employees: e,
+      };
+    }),
+  };
+}

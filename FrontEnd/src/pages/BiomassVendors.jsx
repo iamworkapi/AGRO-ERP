@@ -9,15 +9,23 @@ import FormField from "../components/common/FormField";
 import BiomassCollectionSlipModal from "../components/biomass/BiomassCollectionSlipModal";
 import { fetchVendors, updateVendor as apiUpdateVendor, deleteVendor as apiDeleteVendor } from "../features/biomass/api";
 import { getStoredCollections } from "../features/biomass/biomassService";
+import { useWarehouses } from "../features/warehouses/useWarehouses";
+import { useAuth } from "../hooks/useAuth";
 import { toast } from "../utils/toast";
 
 export default function BiomassVendors() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { warehouses = [] } = useWarehouses();
+  const role = String(user?.role || "").toLowerCase().replace(/[\s-]+/g, "_");
+  const isSuperAdmin = role === "super_admin";
+
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [collections] = useState(getStoredCollections);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState("ALL");
 
   const [editingVendor, setEditingVendor] = useState(null);
   const [selectedVendorForDetails, setSelectedVendorForDetails] = useState(null);
@@ -41,8 +49,13 @@ export default function BiomassVendors() {
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      setLoading(true);
       try {
-        const { vendors: list } = await fetchVendors({ limit: 200 });
+        const query = { limit: 200 };
+        if (selectedWarehouseId && selectedWarehouseId !== "ALL") {
+          query.warehouseId = selectedWarehouseId;
+        }
+        const { vendors: list } = await fetchVendors(query);
         if (!cancelled) setVendors(list);
       } catch (err) {
         if (!cancelled) toast.error("Failed to load vendors.");
@@ -52,7 +65,7 @@ export default function BiomassVendors() {
     }
     load();
     return () => { cancelled = true; };
-  }, []);
+  }, [selectedWarehouseId]);
 
   const vendorsWithStats = useMemo(() => {
     return vendors.map((v) => {
@@ -87,16 +100,24 @@ export default function BiomassVendors() {
         (v.representative && v.representative.toLowerCase().includes(term)) ||
         (v.contactNo && v.contactNo.includes(searchTerm)) ||
         (v.gstin && v.gstin.toLowerCase().includes(term)) ||
-        (v.sourcingArea && v.sourcingArea.toLowerCase().includes(term));
+        (v.sourcingArea && v.sourcingArea.toLowerCase().includes(term)) ||
+        (v.warehouseName && v.warehouseName.toLowerCase().includes(term)) ||
+        (v.warehouseCode && v.warehouseCode.toLowerCase().includes(term));
 
       const matchStatus = statusFilter === "ALL" || v.status === statusFilter;
-      return matchSearch && matchStatus;
-    });
-  }, [vendorsWithStats, searchTerm, statusFilter]);
+      const matchWarehouse =
+        selectedWarehouseId === "ALL" ||
+        v.warehouseId === selectedWarehouseId ||
+        v.warehouse?._id === selectedWarehouseId ||
+        v.warehouse?.id === selectedWarehouseId;
 
-  const totalContracted = useMemo(() => vendors.reduce((s, v) => s + (Number(v.contractedQtyMt) || 0), 0), [vendors]);
-  const totalFulfilled = useMemo(() => vendorsWithStats.reduce((s, v) => s + v.actualSourcedMt, 0), [vendorsWithStats]);
-  const totalSpend = useMemo(() => vendorsWithStats.reduce((s, v) => s + v.totalSpendRs, 0), [vendorsWithStats]);
+      return matchSearch && matchStatus && matchWarehouse;
+    });
+  }, [vendorsWithStats, searchTerm, statusFilter, selectedWarehouseId]);
+
+  const totalContracted = useMemo(() => filteredVendors.reduce((s, v) => s + (Number(v.contractedQtyMt) || 0), 0), [filteredVendors]);
+  const totalFulfilled = useMemo(() => filteredVendors.reduce((s, v) => s + v.actualSourcedMt, 0), [filteredVendors]);
+  const totalSpend = useMemo(() => filteredVendors.reduce((s, v) => s + v.totalSpendRs, 0), [filteredVendors]);
 
   async function handleDeleteVendor(id, name) {
     if (window.confirm(`Are you sure you want to remove vendor "${name}"?`)) {
@@ -161,9 +182,15 @@ export default function BiomassVendors() {
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <PageHeader
         title="Biomass Vendors & Suppliers"
-        subtitle="Master directory for biomass procurement partners, supply contractors, and farmer collectives"
+        subtitle={
+          isSuperAdmin
+            ? selectedWarehouseId === "ALL"
+              ? "Consolidated master directory of biomass procurement partners across all warehouse hubs"
+              : `Biomass procurement partners directory for ${warehouses.find(w => (w.id || w._id) === selectedWarehouseId)?.name || "selected warehouse"}`
+            : "Master directory for biomass procurement partners, supply contractors, and farmer collectives"
+        }
         icon="ri-store-2-line"
-        badge="VENDOR REPOSITORY"
+        badge={isSuperAdmin && selectedWarehouseId === "ALL" ? "CROSS-WAREHOUSE DIRECTORY" : "VENDOR REPOSITORY"}
       />
 
       {loading ? (
@@ -259,14 +286,40 @@ export default function BiomassVendors() {
 
           {/* DATA TABLE VIEW */}
           <DataTable
-            title="Biomass Vendor Directory"
+            title={
+              selectedWarehouseId === "ALL"
+                ? `Biomass Vendor Directory ${isSuperAdmin ? "(All Warehouses)" : ""}`
+                : `Vendor Directory — ${warehouses.find(w => (w.id || w._id) === selectedWarehouseId)?.name || "Warehouse"}`
+            }
             keyField="id"
             rows={filteredVendors}
             compact
             searchable
-            searchPlaceholder="Search vendor name, GSTIN, contact, belt..."
+            searchPlaceholder="Search vendor name, GSTIN, contact, belt, warehouse..."
             right={
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                {/* WAREHOUSE FILTER DROPDOWN */}
+                <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+                  <select
+                    value={selectedWarehouseId}
+                    onChange={(e) => setSelectedWarehouseId(e.target.value)}
+                    style={{
+                      height: 32, padding: "0 28px 0 10px", fontSize: 12, fontWeight: 600, borderRadius: 8,
+                      border: "1px solid var(--line-strong)", background: "var(--surface)", color: "var(--ink)",
+                      outline: "none", cursor: "pointer", appearance: "none", WebkitAppearance: "none", fontFamily: "inherit",
+                    }}
+                    title="Filter vendors by warehouse"
+                  >
+                    <option value="ALL">🏢 All Warehouses ({warehouses.length})</option>
+                    {warehouses.map((w) => (
+                      <option key={w.id || w._id} value={w.id || w._id}>
+                        {w.name} {w.code ? `(${w.code})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <i className="ri-arrow-down-s-line" style={{ position: "absolute", right: 8, pointerEvents: "none", fontSize: 14, color: "var(--muted)" }} />
+                </div>
+
                 <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
                   <select
                     value={statusFilter}
@@ -284,13 +337,15 @@ export default function BiomassVendors() {
                   <i className="ri-arrow-down-s-line" style={{ position: "absolute", right: 8, pointerEvents: "none", fontSize: 14, color: "var(--muted)" }} />
                 </div>
 
-                <Button
-                  size="sm" variant="primary" icon="ri-add-line"
-                  onClick={() => navigate("/biomass/vendors/create")}
-                  style={{ height: 32, fontSize: 12, padding: "0 12px", fontWeight: 700 }}
-                >
-                  Add Vendor
-                </Button>
+                {!isSuperAdmin && (
+                  <Button
+                    size="sm" variant="primary" icon="ri-add-line"
+                    onClick={() => navigate("/biomass/vendors/create")}
+                    style={{ height: 32, fontSize: 12, padding: "0 12px", fontWeight: 700 }}
+                  >
+                    Add Vendor
+                  </Button>
+                )}
               </div>
             }
             emptyMessage="No vendors match the search criteria."
@@ -317,6 +372,31 @@ export default function BiomassVendors() {
                         </span>
                       </div>
                     </div>
+                  </div>
+                ),
+              },
+              {
+                key: "warehouse", label: "Warehouse Hub",
+                render: (r) => (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    <span style={{ fontWeight: 650, color: "var(--ink)", fontSize: 12.5, whiteSpace: "nowrap" }}>
+                      {r.warehouseName || r.warehouse?.name || "All Warehouses"}
+                    </span>
+                    {(r.warehouseCode || r.warehouse?.code) ? (
+                      <span style={{
+                        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: "var(--primary-deep)",
+                        background: "var(--primary-tint)",
+                        padding: "1px 6px",
+                        borderRadius: 4,
+                        width: "fit-content",
+                        letterSpacing: "0.3px",
+                      }}>
+                        {r.warehouseCode || r.warehouse?.code}
+                      </span>
+                    ) : null}
                   </div>
                 ),
               },
@@ -405,12 +485,16 @@ export default function BiomassVendors() {
                     <button type="button" title="View Vendor Profile & History" onClick={() => setSelectedVendorForDetails(r)} style={{ height: 26, padding: "0 8px", border: "1px solid var(--line-strong)", background: "var(--surface)", color: "var(--ink)", fontSize: 11, fontWeight: 600, borderRadius: 6, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
                       <i className="ri-eye-line" style={{ fontSize: 11.5 }} /><span>View</span>
                     </button>
-                    <button type="button" title="Edit Vendor Details" onClick={() => handleOpenEdit(r)} style={{ height: 26, padding: "0 8px", border: "1px solid var(--line-strong)", background: "var(--surface)", color: "var(--ink)", fontSize: 11, fontWeight: 600, borderRadius: 6, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <i className="ri-edit-line" style={{ fontSize: 11.5 }} /><span>Edit</span>
-                    </button>
-                    <button type="button" title="Delete Vendor" onClick={() => handleDeleteVendor(r.id, r.companyName)} style={{ height: 26, width: 26, border: "1px solid rgba(220, 38, 38, 0.2)", background: "rgba(220, 38, 38, 0.05)", color: "#dc2626", fontSize: 11.5, borderRadius: 6, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                      <i className="ri-delete-bin-line" />
-                    </button>
+                    {!isSuperAdmin && (
+                      <>
+                        <button type="button" title="Edit Vendor Details" onClick={() => handleOpenEdit(r)} style={{ height: 26, padding: "0 8px", border: "1px solid var(--line-strong)", background: "var(--surface)", color: "var(--ink)", fontSize: 11, fontWeight: 600, borderRadius: 6, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                          <i className="ri-edit-line" style={{ fontSize: 11.5 }} /><span>Edit</span>
+                        </button>
+                        <button type="button" title="Delete Vendor" onClick={() => handleDeleteVendor(r.id, r.companyName)} style={{ height: 26, width: 26, border: "1px solid rgba(220, 38, 38, 0.2)", background: "rgba(220, 38, 38, 0.05)", color: "#dc2626", fontSize: 11.5, borderRadius: 6, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                          <i className="ri-delete-bin-line" />
+                        </button>
+                      </>
+                    )}
                   </div>
                 ),
               },

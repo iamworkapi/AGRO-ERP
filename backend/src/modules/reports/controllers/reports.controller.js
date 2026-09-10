@@ -39,3 +39,17 @@ export const purchaseVsSales = asyncHandler(async (req, res) => {
 export const outstandingReport = asyncHandler(async (req, res) => {
   sendSuccess(res, await reportsService.getOutstandingReport(req.user, req.query.warehouseId), 200);
 });
+
+export const warehouseBreakdown = asyncHandler(async (req, res) => {
+  sendSuccess(res, await reportsService.getWarehouseBreakdown(req.user), 200);
+});
+
+export const available = asyncHandler(async (_req, res) => {
+  sendSuccess(res, [
+    { name: "Warehouse-wise Stock Valuation", format: "PDF / Excel" },
+    { name: "Attendance Summary (Monthly)", format: "PDF / Excel" },
+    { name: "Moisture & Deduction Trend", format: "PDF / Excel" },
+    { name: "Purchase vs Sales Trend", format: "PDF / Excel" },
+    { name: "Vendor & Customer Outstanding", format: "PDF / Excel" },
+  ]);
+});

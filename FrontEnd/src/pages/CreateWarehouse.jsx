@@ -5,6 +5,7 @@ import FormField from "../components/common/FormField";
 import Button from "../components/common/Button";
 import { useWarehouses } from "../features/warehouses/useWarehouses";
 import { toast } from "../utils/toast";
+import { isValidPhone } from "../utils/phone";
 
 function emptyForm() {
   return {
@@ -31,14 +32,20 @@ export default function CreateWarehouse() {
 
   const handleGstinChange = (val) => {
     const sanitized = (val || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 15);
+    let autoPan = null;
+
     setForm((f) => {
       const updated = { ...f, gstin: sanitized };
       if (sanitized.length === 15 && (!f.pan || f.pan.length < 10)) {
-        updated.pan = sanitized.substring(2, 12);
-        toast.info(`Auto-detected PAN from GSTIN: ${sanitized.substring(2, 12)}`);
+        autoPan = sanitized.substring(2, 12);
+        updated.pan = autoPan;
       }
       return updated;
     });
+
+    if (autoPan) {
+      toast.info(`Auto-detected PAN from GSTIN: ${autoPan}`);
+    }
   };
 
   const handlePanChange = (val) => {
@@ -55,6 +62,14 @@ export default function CreateWarehouse() {
     }
     if (form.pan?.trim() && form.pan.trim().length !== 10) {
       toast.error("PAN must be exactly 10 alphanumeric characters (e.g. AALCK4355J).");
+      return;
+    }
+    if (form.contactPhone?.trim() && !isValidPhone(form.contactPhone)) {
+      toast.error("Contact Phone must be exactly a valid 10-digit number.");
+      return;
+    }
+    if (form.helpDeskPhone?.trim() && !isValidPhone(form.helpDeskPhone)) {
+      toast.error("Help Desk Phone must be exactly a valid 10-digit number.");
       return;
     }
 

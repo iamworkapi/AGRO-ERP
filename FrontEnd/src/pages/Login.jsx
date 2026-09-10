@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AuthLayout from "../layouts/AuthLayout";
 import FormField from "../components/common/FormField";
@@ -13,47 +13,33 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const WAREHOUSES = [
-    {
-      id: "wh_bettiah",
-      name: "Bettiah Hub — West Champaran, Bihar",
-      adminEmail: "admin@pralli.com",
-      supervisorEmail: "rambabu@pralli.com",
-      adminPass: "admin@123",
-      supervisorPass: "supervisor12",
-    },
-    {
-      id: "wh_1",
-      name: "Kusumganga Central Hub (Nashik)",
-      adminEmail: "admin@pralli.com",
-      supervisorEmail: "supervisor@pralli.com",
-      adminPass: "admin@123",
-      supervisorPass: "supervisor12",
-    },
-    {
-      id: "wh_2",
-      name: "Satara Grain Processing Hub",
-      adminEmail: "admin.satara@kusumganga.com",
-      supervisorEmail: "supervisor.satara@kusumganga.com",
-      adminPass: "admin@123",
-      supervisorPass: "supervisor12",
-    },
-    {
-      id: "wh_3",
-      name: "Sangli Agri Storage & Bio-Hub",
-      adminEmail: "admin.sangli@kusumganga.com",
-      supervisorEmail: "supervisor.sangli@kusumganga.com",
-      adminPass: "admin@123",
-      supervisorPass: "supervisor12",
-    },
-  ];
-
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState("wh_bettiah");
+  const [warehouses, setWarehouses] = useState([]);
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
   const [selectedRole, setSelectedRole] = useState("super_admin");
   const [form, setForm] = useState({ identifier: "iamworkapi@gmail.com", password: "admin12" });
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/v1/warehouses/public")
+      .then((res) => res.json())
+      .then((body) => {
+        if (!mounted) return;
+        const list = body?.data || [];
+        setWarehouses(list);
+        if (list.length > 0) {
+          setSelectedWarehouseId(list[0].id);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load warehouses from database:", err);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotStep, setForgotStep] = useState("request"); // "request" | "verify"
@@ -71,24 +57,20 @@ export default function Login() {
 
   const handleRoleSelect = (roleKey) => {
     setSelectedRole(roleKey);
-    const wh = WAREHOUSES.find((w) => w.id === selectedWarehouseId) || WAREHOUSES[0];
     if (roleKey === "super_admin") {
       setForm({ identifier: "iamworkapi@gmail.com", password: "admin12" });
-    } else if (roleKey === "admin") {
-      setForm({ identifier: wh.adminEmail, password: wh.adminPass });
-    } else if (roleKey === "supervisor") {
-      setForm({ identifier: wh.supervisorEmail, password: wh.supervisorPass });
+    } else {
+      // Admin and Supervisor accounts are created by Super Admin via UI.
+      // Clear the form so they can enter their own credentials.
+      setForm({ identifier: "", password: "" });
     }
   };
 
   const handleWarehouseChange = (whId) => {
     setSelectedWarehouseId(whId);
-    const wh = WAREHOUSES.find((w) => w.id === whId) || WAREHOUSES[0];
-    if (selectedRole === "admin") {
-      setForm({ identifier: wh.adminEmail, password: wh.adminPass });
-    } else if (selectedRole === "supervisor") {
-      setForm({ identifier: wh.supervisorEmail, password: wh.supervisorPass });
-    }
+    // Admin and Supervisor credentials are set by Super Admin via UI.
+    // Clear the form — user must type their own credentials.
+    setForm((f) => ({ ...f, identifier: "", password: "" }));
   };
 
   async function handleSubmit(e) {
@@ -189,6 +171,21 @@ export default function Login() {
 
   return (
     <AuthLayout>
+      {/* MOBILE BRAND LOGO (Displayed on mobile/tablet when hero panel is collapsed) */}
+      <div className="auth-mobile-logo" style={{ alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 16 }}>
+        <div style={{ background: "#FFFFFF", borderRadius: "50%", width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.12)", flexShrink: 0 }}>
+          <img src="/Agro-Logo.svg" alt="Kusumganga Logo" style={{ width: 28, height: 28, objectFit: "contain" }} />
+        </div>
+        <div style={{ textAlign: "left" }}>
+          <span style={{ fontWeight: 900, fontSize: 15, color: "#0D3823", display: "block", lineHeight: 1.15, letterSpacing: "-0.01em" }}>
+            KUSUMGANGA AGRO
+          </span>
+          <span style={{ fontSize: 9.5, color: "#1B5E3A", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+            ERP Portal
+          </span>
+        </div>
+      </div>
+
       {/* RIGHT SIDE HEADER */}
       <div style={{ textAlign: "center", marginBottom: 18 }}>
         <h2 style={{ fontSize: 24, fontWeight: 900, color: "#0D3823", margin: "0 0 4px", letterSpacing: "-0.02em" }}>
@@ -226,12 +223,14 @@ export default function Login() {
 
         {/* Selected Role Capability Notice */}
         <div style={{ marginTop: 8, textAlign: "center" }}>
-          <span style={{ fontSize: 10.5, color: "#0D3823", fontWeight: 700, background: "rgba(27, 94, 58, 0.1)", padding: "4px 14px", borderRadius: 20, border: "none", display: "inline-flex", alignItems: "center", gap: 6, boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
-            <i className="fa-solid fa-shield-halved" style={{ fontSize: 10, color: "#1B5E3A" }} />
-            {selectedRole === "super_admin" && "Super Admin — Full Multi-Hub Access & Audit Logs"}
-            {selectedRole === "admin" && "Admin — Warehouse Operations & Stock Ledger"}
-            {selectedRole === "supervisor" && "Supervisor — Floor Weighbridge & Moisture Deductions"}
-            {!selectedRole && "Select a role above to pre-fill credentials"}
+          <span style={{ fontSize: 10.5, color: "#0D3823", fontWeight: 700, background: "rgba(27, 94, 58, 0.1)", padding: "4px 12px", borderRadius: 20, border: "none", display: "inline-flex", alignItems: "center", gap: 6, boxShadow: "0 2px 6px rgba(0,0,0,0.03)", maxWidth: "100%", lineHeight: 1.35, textAlign: "center" }}>
+            <i className="fa-solid fa-shield-halved" style={{ fontSize: 10, color: "#1B5E3A", flexShrink: 0 }} />
+            <span>
+              {selectedRole === "super_admin" && "Super Admin — Full Multi-Hub Access & Audit Logs"}
+              {selectedRole === "admin" && "Admin — Warehouse Operations & Stock Ledger"}
+              {selectedRole === "supervisor" && "Supervisor — Floor Weighbridge & Moisture Deductions"}
+              {!selectedRole && "Select a role above to pre-fill credentials"}
+            </span>
           </span>
         </div>
 
@@ -264,11 +263,17 @@ export default function Login() {
                   paddingRight: 24,
                 }}
               >
-                {WAREHOUSES.map((wh) => (
-                  <option key={wh.id} value={wh.id} style={{ color: "#0D3823", fontWeight: 600 }}>
-                    {wh.name}
+                {warehouses.length === 0 ? (
+                  <option value="" style={{ color: "#0D3823" }}>
+                    Loading warehouses from database...
                   </option>
-                ))}
+                ) : (
+                  warehouses.map((wh) => (
+                    <option key={wh.id} value={wh.id} style={{ color: "#0D3823", fontWeight: 600 }}>
+                      {wh.name} {wh.address ? `— ${wh.address}` : ""}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
           </div>

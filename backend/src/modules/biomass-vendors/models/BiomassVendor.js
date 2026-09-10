@@ -23,6 +23,7 @@ const biomassVendorSchema = new mongoose.Schema(
     accountNo: { type: String, trim: true, default: "" },
     ifscCode: { type: String, trim: true, default: "" },
     status: { type: String, enum: ["ACTIVE", "INACTIVE", "COMPLETED"], default: "ACTIVE" },
+    warehouse: { type: mongoose.Schema.Types.ObjectId, ref: "Warehouse", index: true },
   },
   { timestamps: true }
 );

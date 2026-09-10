@@ -32,6 +32,7 @@ function adaptBuyer(b) {
 }
 
 function adaptVendor(v) {
+  const wh = v.warehouse && typeof v.warehouse === "object" ? v.warehouse : null;
   return {
     id: v._id || v.id,
     vendorCode: v.vendorCode || "",
@@ -52,6 +53,10 @@ function adaptVendor(v) {
     accountNo: v.accountNo || "",
     ifscCode: v.ifscCode || "",
     status: v.status || "ACTIVE",
+    warehouse: wh,
+    warehouseId: wh?._id || (typeof v.warehouse === "string" ? v.warehouse : "") || "",
+    warehouseName: wh?.name || "All Warehouses",
+    warehouseCode: wh?.code || "",
     createdAt: formatDate(v.createdAt),
     addedBy: v.addedBy || "",
   };
@@ -104,8 +109,9 @@ export async function deleteBuyer(id) {
 
 // ── Vendors ──────────────────────────────────────────────────
 
-export async function fetchVendors({ search, status, page = 1, limit = 100 } = {}) {
+export async function fetchVendors({ warehouseId, search, status, page = 1, limit = 100 } = {}) {
   const params = {};
+  if (warehouseId && warehouseId !== "ALL") params.warehouseId = warehouseId;
   if (search) params.search = search;
   if (status && status !== "ALL") params.status = status;
   if (page) params.page = page;
@@ -137,6 +143,7 @@ export async function createVendor(payload) {
     bankName: payload.bankName || "",
     accountNo: payload.accountNo || "",
     ifscCode: payload.ifscCode || "",
+    warehouseId: payload.warehouseId || payload.warehouse,
   });
   return adaptVendor(data.data);
 }
