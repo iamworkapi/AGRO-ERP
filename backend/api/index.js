@@ -1,14 +1,12 @@
 import "dotenv/config";
 import { app } from "../src/app.js";
 import { connectDB } from "../src/config/db.js";
-import { seedDefaultUsersIfNeeded } from "../scripts/seedDefaultUsers.js";
 
 let readyPromise = null;
 async function ensureReady() {
   if (!readyPromise) {
     readyPromise = (async () => {
       await connectDB();
-      await seedDefaultUsersIfNeeded().catch((e) => console.warn("Seed warning:", e.message));
     })();
   }
   return readyPromise;

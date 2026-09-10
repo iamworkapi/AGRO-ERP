@@ -264,6 +264,19 @@ export async function updateProfileById(actor, profileId, { fullName, email, pho
 
   await user.save();
 
+  // Sync denormalized staff fields on the linked warehouse document
+  // so the Admin Management page reflects updates without a second reload.
+  const isAdminRole = user.role === ROLES.WAREHOUSE_ADMIN;
+  const warehouseQuery = isAdminRole ? { admin: user._id } : { supervisor: user._id };
+  const warehousePatch = {
+    [isAdminRole ? "adminName" : "supervisorName"]: user.fullName,
+    [isAdminRole ? "adminPhone" : "supervisorPhone"]: user.phone || "",
+    [isAdminRole ? "adminEmail" : "supervisorEmail"]: user.email || "",
+    [isAdminRole ? "adminAddress" : "supervisorAddress"]: user.address || "",
+    [isAdminRole ? "adminAvatarUrl" : "supervisorAvatarUrl"]: user.avatarUrl || "",
+  };
+  await Warehouse.updateMany(warehouseQuery, { $set: warehousePatch });
+
   await recordAudit({
     actor,
     action: "profile.admin_update",

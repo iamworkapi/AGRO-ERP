@@ -60,7 +60,7 @@ export default function WarehouseAdminManagement() {
           fullName: wh.admin || "",
           phone: wh.adminPhone || "",
           email: wh.adminEmail || "",
-          password: wh.adminPassword || "Kusum@123",
+          password: "", // Password is stored hashed in User model — never shown/read back
           address: wh.adminAddress || "",
           avatarUrl: wh.adminAvatarUrl || "",
           role: "warehouse_admin",
@@ -74,7 +74,7 @@ export default function WarehouseAdminManagement() {
           fullName: wh.supervisor || "",
           phone: wh.supervisorPhone || "",
           email: wh.supervisorEmail || "",
-          password: wh.supervisorPassword || "Kusum@123",
+          password: "", // Password is stored hashed in User model — never shown/read back
           address: wh.supervisorAddress || "",
           avatarUrl: wh.supervisorAvatarUrl || "",
           role: "supervisor",
@@ -188,9 +188,14 @@ export default function WarehouseAdminManagement() {
       return;
     }
 
-    // Password is mandatory for all accounts
-    if (!form.password || form.password.length < 6) {
+    // Password is mandatory for new accounts, optional for updates
+    const passwordRequired = !isAssigned;
+    if (passwordRequired && (!form.password || form.password.length < 6)) {
       toast.error(`Password is mandatory and must be at least 6 characters.`);
+      return;
+    }
+    if (!passwordRequired && form.password && form.password.length < 6) {
+      toast.error(`Password must be at least 6 characters if you want to change it.`);
       return;
     }
 
