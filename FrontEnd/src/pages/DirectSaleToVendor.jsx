@@ -71,7 +71,14 @@ export default function DirectSaleToVendor() {
   // Pre-fill warehouse for scoped roles or default
   useEffect(() => {
     if (warehouses.length > 0 && !selectedWarehouseId) {
-      setSelectedWarehouseId(warehouses[0]._id || warehouses[0].id || "");
+      const match =
+        warehouses.find(
+          (w) =>
+            w.code?.includes("BTT") ||
+            w.name?.toLowerCase().includes("bettiah") ||
+            w.name?.toLowerCase().includes("gorakhpur")
+        ) || warehouses[0];
+      setSelectedWarehouseId(match._id || match.id || "");
     }
   }, [warehouses, selectedWarehouseId]);
 
@@ -311,23 +318,75 @@ export default function DirectSaleToVendor() {
                 />
               </div>
 
-              {/* Supplying Warehouse Hub */}
+              {/* Supplying Warehouse Hub (Frozen / Locked) */}
               <div>
-                <FormField
-                  label="Dispatch Warehouse"
-                  required
-                  compact
-                  layout="vertical"
-                  type="select"
-                  value={selectedWarehouseId}
-                  onChange={setSelectedWarehouseId}
-                  options={warehouses.map((w) => ({
-                    value: w._id || w.id,
-                    label: `${w.name} (${w.code || ""})`,
-                  }))}
-                />
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                  <label
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: "var(--muted)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    Dispatch Warehouse
+                  </label>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 800,
+                      color: "var(--primary-deep)",
+                      background: "var(--primary-tint)",
+                      padding: "1px 6px",
+                      borderRadius: 4,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 3,
+                    }}
+                  >
+                    <i className="ri-lock-fill" style={{ fontSize: 10 }} />
+                    Frozen
+                  </span>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    height: 34,
+                    padding: "0 10px",
+                    borderRadius: 7,
+                    border: "1px solid var(--line-strong)",
+                    background: "var(--canvas)",
+                    color: "var(--ink)",
+                    cursor: "not-allowed",
+                  }}
+                  title="Dispatch warehouse is frozen & locked to your assigned facility"
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                    <i className="ri-store-2-line" style={{ color: "var(--primary)", fontSize: 14 }} />
+                    <span
+                      style={{
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {selectedWarehouse?.name
+                        ? `${selectedWarehouse.name} (${selectedWarehouse.code || whPrefix})`
+                        : "Bettiah Hub (WH-BTT-01)"}
+                    </span>
+                  </div>
+                  <i className="ri-lock-line" style={{ color: "var(--muted)", fontSize: 13 }} />
+                </div>
                 <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 3 }}>
-                  Warehouse Prefix: <strong style={{ color: "var(--primary)" }}>{whPrefix}</strong>
+                  Facility Prefix: <strong style={{ color: "var(--primary)" }}>{whPrefix}</strong> (Locked)
                 </div>
               </div>
 
