@@ -3775,7 +3775,8 @@ input[type="number"] {
 }
 
 @media (max-width: 992px) {
-  .create-buyer-responsive-grid {
+  .create-buyer-responsive-grid,
+  .direct-sale-responsive-grid {
     grid-template-columns: 1fr !important;
   }
 }
