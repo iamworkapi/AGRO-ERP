@@ -27,13 +27,13 @@ export function adaptProfile(profile, warehouseId) {
   };
 }
 
-export async function loginUser({ identifier, password }) {
-  const { data } = await apiClient.post("/auth/login", { identifier, password });
-  const { accessToken, profile, warehouseId } = data.data;
+export async function loginUser({ identifier, password, warehouseId }) {
+  const { data } = await apiClient.post("/auth/login", { identifier, password, warehouseId });
+  const { accessToken, profile } = data.data;
 
   localStorage.setItem("accessToken", accessToken);
-
-  return adaptProfile(profile, warehouseId);
+  // warehouseId comes back from the backend - it knows the truth.
+  return adaptProfile(profile, data.data.warehouseId);
 }
 
 // Restores a session on app load: if a token is already in localStorage

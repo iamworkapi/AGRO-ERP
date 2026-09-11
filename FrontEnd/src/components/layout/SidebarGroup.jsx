@@ -163,20 +163,6 @@ export default function SidebarGroup({ group, collapsed, searchTerm, isOpen, onT
           >
             {group.label}
           </span>
-
-          {group.badge && (
-            <span
-              style={{
-                width: 5,
-                height: 5,
-                borderRadius: "50%",
-                background: "#5DD62C",
-                boxShadow: "0 0 5px #5DD62C",
-                flexShrink: 0,
-                marginLeft: "auto",
-              }}
-            />
-          )}
         </button>
 
         {isAccordionGroup && (
@@ -214,10 +200,15 @@ export default function SidebarGroup({ group, collapsed, searchTerm, isOpen, onT
           style={{
             display: "flex",
             flexDirection: "column",
-            marginTop: 2,
-            marginLeft: 20,
-            paddingLeft: 10,
-            borderLeft: "1px solid rgba(255,255,255,0.08)",
+            marginTop: 3,
+            marginBottom: 2,
+            marginLeft: 24,
+            paddingLeft: 12,
+            borderLeft: active
+              ? "1.5px solid rgba(93, 214, 44, 0.4)"
+              : "1.5px solid rgba(255, 255, 255, 0.12)",
+            gap: 2,
+            animation: "agroToastSlideIn 140ms ease",
           }}
         >
           {visibleSections.map(({ label, path }) => (

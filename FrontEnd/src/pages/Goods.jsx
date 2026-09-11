@@ -145,7 +145,7 @@ export default function Goods() {
       <DataTable
         title="Goods Register"
         subtitle="Click any row or click 'View / PDF' to inspect and print tax invoice"
-        compact={true}
+        icon="ri-file-list-3-line"
         keyField="_id"
         rows={filteredItems}
         onRowClick={(e) => setSelectedInvoice(e.data)}
@@ -173,33 +173,58 @@ export default function Goods() {
             key: "invoiceNo",
             label: "Invoice No.",
             emphasize: true,
-            width: "140px",
+            width: "155px",
             render: (r) => (
-              <span
+              <div
+                className="invoice-code-badge"
                 style={{
-                  fontWeight: 800,
-                  color: "var(--primary-deep)",
-                  cursor: "pointer",
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 6,
+                  padding: "4px 9px",
+                  borderRadius: 6,
+                  background: "var(--primary-tint)",
+                  color: "var(--primary-deep)",
+                  fontSize: 11.5,
+                  fontWeight: 800,
+                  fontFamily: "var(--font-mono, monospace)",
+                  border: "1px solid rgba(51, 116, 24, 0.18)",
+                  cursor: "pointer",
                 }}
                 title="Click to view tax invoice"
               >
                 <i className="ri-file-text-line" style={{ fontSize: 13, color: "var(--primary)" }} />
-                {r.invoiceNo || r.supplierInvoiceNo || "—"}
-              </span>
+                <span>{r.invoiceNo || r.supplierInvoiceNo || "—"}</span>
+              </div>
             ),
           },
           {
             key: "supplier",
             label: "Supplier",
             render: (r) => (
-              <div>
-                <div style={{ fontWeight: 700, color: "var(--ink)", fontSize: 12 }}>{r.supplier}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 3, maxWidth: 260 }}>
+                <span style={{ fontWeight: 700, color: "var(--ink)", fontSize: 12.5, lineHeight: 1.35 }}>
+                  {r.supplier || "—"}
+                </span>
                 {r.supplierGstin && (
-                  <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 1 }}>
-                    GSTIN: {r.supplierGstin}
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <span
+                      style={{
+                        fontSize: 9,
+                        fontWeight: 800,
+                        letterSpacing: "0.3px",
+                        padding: "1px 4px",
+                        borderRadius: 3,
+                        background: "var(--canvas)",
+                        color: "var(--muted)",
+                        border: "1px solid var(--line)",
+                      }}
+                    >
+                      GSTIN
+                    </span>
+                    <span style={{ fontSize: 11, color: "var(--muted)", fontFamily: "var(--font-mono, monospace)" }}>
+                      {r.supplierGstin}
+                    </span>
                   </div>
                 )}
               </div>
@@ -209,7 +234,7 @@ export default function Goods() {
             key: "consignee",
             label: "Consignee",
             render: (r) => (
-              <div style={{ fontSize: 12, color: "var(--ink)" }}>
+              <div style={{ fontSize: 12, color: "var(--ink-secondary)", fontWeight: 500, lineHeight: 1.35, maxWidth: 220 }}>
                 {r.consignee || "—"}
               </div>
             ),
@@ -217,9 +242,24 @@ export default function Goods() {
           {
             key: "warehouse",
             label: "Warehouse",
-            width: "130px",
+            width: "135px",
             render: (r) => (
-              <span style={{ fontSize: 11.5, color: "var(--ink-secondary)", fontWeight: 600 }}>
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  color: "var(--ink-secondary)",
+                  background: "var(--canvas)",
+                  padding: "3px 8px",
+                  borderRadius: 6,
+                  border: "1px solid var(--line)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <i className="ri-store-2-line" style={{ color: "var(--primary)", fontSize: 12 }} />
                 {r.warehouse || "—"}
               </span>
             ),
@@ -228,58 +268,119 @@ export default function Goods() {
             key: "grandTotal",
             label: "Grand Total (₹)",
             emphasize: true,
-            width: "135px",
+            width: "145px",
             align: "right",
             render: (r) => (
-              <span style={{ fontWeight: 800, fontSize: 12.5, color: "var(--ink)" }}>
-                ₹{Number(r.grandTotal || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
+              <div style={{ textAlign: "right" }}>
+                <span
+                  style={{
+                    fontWeight: 800,
+                    fontSize: 13,
+                    color: "var(--ink)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  ₹{Number(r.grandTotal || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
             ),
           },
           {
             key: "status",
             label: "Status",
-            width: "105px",
+            width: "115px",
             align: "center",
-            render: (r) => (
-              <Badge tone={STATUS_TONE[r.status] || "info"}>
-                {r.status}
-              </Badge>
-            ),
+            render: (r) => {
+              const tone = STATUS_TONE[r.status] || "info";
+              return (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    padding: "3px 9px",
+                    borderRadius: 12,
+                    fontSize: 11,
+                    fontWeight: 700,
+                    whiteSpace: "nowrap",
+                    background: `var(--status-${tone === "info" ? "info" : tone === "warning" ? "warning" : tone === "success" ? "success" : "error"}-tint)`,
+                    color: `var(--status-${tone === "info" ? "info" : tone === "warning" ? "warning" : tone === "success" ? "success" : "error"})`,
+                    border: `1px solid var(--status-${tone === "info" ? "info" : tone === "warning" ? "warning" : tone === "success" ? "success" : "error"}-tint)`,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: `var(--status-${tone === "info" ? "info" : tone === "warning" ? "warning" : tone === "success" ? "success" : "error"})`,
+                    }}
+                  />
+                  {r.status || "Purchased"}
+                </span>
+              );
+            },
           },
           {
             key: "items",
             label: "Items",
-            width: "85px",
+            width: "95px",
             align: "center",
             render: (r) => (
               <span
                 style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
                   fontSize: 11,
                   fontWeight: 700,
-                  background: "var(--surface-hover)",
-                  padding: "2px 7px",
+                  color: "var(--ink-secondary)",
+                  background: "var(--canvas)",
+                  padding: "3px 8px",
                   borderRadius: 6,
                   border: "1px solid var(--line)",
+                  whiteSpace: "nowrap",
                 }}
               >
-                {r.items?.length || 0} item{r.items?.length === 1 ? "" : "s"}
+                <i className="ri-box-3-line" style={{ color: "var(--muted)", fontSize: 12 }} />
+                {r.items?.length || 0} {r.items?.length === 1 ? "item" : "items"}
               </span>
             ),
           },
           {
             key: "invoiceDate",
             label: "Date",
-            width: "95px",
-            render: (r) =>
-              r.invoiceDate || r.supplierInvoiceDate
-                ? new Date(r.invoiceDate || r.supplierInvoiceDate).toLocaleDateString("en-IN")
-                : "—",
+            width: "115px",
+            align: "center",
+            render: (r) => {
+              const raw = r.invoiceDate || r.supplierInvoiceDate;
+              if (!raw) return "—";
+              const dateObj = new Date(raw);
+              const formatted = isNaN(dateObj.getTime())
+                ? String(raw)
+                : dateObj.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+              return (
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                    color: "var(--ink-secondary)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <i className="ri-calendar-line" style={{ color: "var(--muted)", fontSize: 12 }} />
+                  {formatted}
+                </span>
+              );
+            },
           },
           {
             key: "actions",
             label: "Actions",
-            width: "120px",
+            width: "125px",
             align: "center",
             render: (r) => (
               <button
@@ -290,27 +391,30 @@ export default function Goods() {
                 }}
                 title="View & Print Tax Invoice PDF"
                 style={{
-                  padding: "4px 10px",
+                  padding: "5px 12px",
                   fontSize: 11.5,
                   fontWeight: 700,
-                  borderRadius: 6,
-                  border: "1px solid var(--primary)",
-                  background: "var(--primary-tint)",
+                  borderRadius: 7,
+                  border: "1px solid var(--line-strong)",
+                  background: "var(--surface)",
                   color: "var(--primary-deep)",
                   cursor: "pointer",
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 5,
-                  transition: "all 120ms ease",
+                  transition: "all 140ms ease",
                   whiteSpace: "nowrap",
+                  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
                 }}
                 onMouseOver={(e) => {
                   e.currentTarget.style.background = "var(--primary)";
                   e.currentTarget.style.color = "#ffffff";
+                  e.currentTarget.style.borderColor = "var(--primary)";
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.background = "var(--primary-tint)";
+                  e.currentTarget.style.background = "var(--surface)";
                   e.currentTarget.style.color = "var(--primary-deep)";
+                  e.currentTarget.style.borderColor = "var(--line-strong)";
                 }}
               >
                 <i className="ri-printer-line" style={{ fontSize: 13 }} />

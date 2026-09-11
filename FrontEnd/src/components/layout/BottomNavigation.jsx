@@ -34,7 +34,7 @@ export default function BottomNavigation({ onOpenAppHub, isAppHubOpen = false })
     {
       id: "storage",
       label: "Storage",
-      path: "/biomass/storage",
+      path: "/warehouses/rooms",
       icon: "ri-archive-stack-line",
       activeIcon: "ri-archive-stack-fill",
     },

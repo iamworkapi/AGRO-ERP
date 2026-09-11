@@ -26,7 +26,16 @@ godownSchema.index({ warehouse: 1, name: 1 }, { unique: true });
 godownSchema.pre("save", async function generateGodownCode(next) {
   if (this.isNew && !this.code) {
     const seq = await nextSequence("godown_code");
-    this.code = `GOD-${String(seq).padStart(3, "0")}`;
+    let whPrefix = "WH";
+    try {
+      const wh = await mongoose.model("Warehouse").findById(this.warehouse).select("code name");
+      if (wh?.code) {
+        whPrefix = wh.code;
+      } else if (wh?.name) {
+        whPrefix = wh.name.replace(/[^A-Za-z0-9]/g, "").slice(0, 5).toUpperCase();
+      }
+    } catch {}
+    this.code = `${whPrefix}-GDW-${String(seq).padStart(3, "0")}`;
   }
   next();
 });

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import DataTable from "../components/common/DataTable";
 import Button from "../components/common/Button";
+import Loader from "../components/common/Loader";
 import NewBuyerModal from "../components/biomass/NewBuyerModal";
 import BiomassGatePassModal from "../components/biomass/BiomassGatePassModal";
 import { fetchBuyers, updateBuyer as apiUpdateBuyer, deleteBuyer as apiDeleteBuyer } from "../features/biomass/api";
@@ -160,8 +161,8 @@ export default function BiomassBuyers() {
       />
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: 40, color: "var(--muted)" }}>
-          <i className="ri-loader-4-line spin" style={{ fontSize: 28 }} /> Loading buyers...
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "64px 0" }}>
+          <Loader size={44} label="Loading buyer directory..." />
         </div>
       ) : (
         <>

@@ -12,6 +12,7 @@ router.use(authorize(ROLES.SUPER_ADMIN, ROLES.WAREHOUSE_ADMIN, ROLES.SUPERVISOR)
 router.get("/", ctrl.listSalesInvoices);
 router.get("/:id", ctrl.getSalesInvoice);
 router.post("/", ctrl.createSalesInvoice);
+router.post("/direct-sale", ctrl.directSaleToVendor);
 router.patch("/:id/status", ctrl.updateSalesInvoiceStatus);
 router.delete("/:id", ctrl.deleteSalesInvoice);
 export default router;

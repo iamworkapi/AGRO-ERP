@@ -1,10 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
-// Two layers, same as the backend: is there a session at all (isAuthenticated),
-// and if `roles` is given, does this session's role match (mirrors the
-// backend's authorize(...roles) gate so the UI doesn't offer actions the
-// API would reject anyway).
 export default function ProtectedRoute({ children, roles }) {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
@@ -15,6 +11,18 @@ export default function ProtectedRoute({ children, roles }) {
 
   if (roles && !roles.includes(user?.roleKey)) {
     return <AccessDenied />;
+  }
+
+  // Unassigned admin/supervisor can log in but are sent to a waiting
+  // screen — they can still use "My Profile" and change their password,
+  // but the dashboard and other scoped modules stay hidden until the
+  // Super Admin assigns them to a warehouse.
+  const isUnassignedScopedUser =
+    (user?.roleKey === "warehouse_admin" || user?.roleKey === "supervisor") &&
+    !user?.warehouseId;
+
+  if (isUnassignedScopedUser && location.pathname !== "/waiting-for-assignment" && location.pathname !== "/settings/my-profile") {
+    return <Navigate to="/waiting-for-assignment" replace />;
   }
 
   return children;

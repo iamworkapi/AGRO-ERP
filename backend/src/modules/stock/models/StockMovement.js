@@ -31,7 +31,16 @@ stockMovementSchema.pre("save", async function generateRefNo(next) {
     const seq = await nextSequence("stock_movement_ref");
     const date = new Date();
     const yymm = `${String(date.getFullYear()).slice(2)}${String(date.getMonth() + 1).padStart(2, "0")}`;
-    this.referenceNo = `SM-${yymm}-${String(seq).padStart(5, "0")}`;
+    let whPrefix = "WH";
+    try {
+      const wh = await mongoose.model("Warehouse").findById(this.warehouse).select("code name");
+      if (wh?.code) {
+        whPrefix = wh.code;
+      } else if (wh?.name) {
+        whPrefix = wh.name.replace(/[^A-Za-z0-9]/g, "").slice(0, 5).toUpperCase();
+      }
+    } catch {}
+    this.referenceNo = `${whPrefix}-SM-${yymm}-${String(seq).padStart(5, "0")}`;
   }
   next();
 });

@@ -34,14 +34,13 @@ export const NAV_GROUPS = [
     badge: true,
   },
   {
-    label: "Storage & Stacks",
-    path: "/biomass/storage",
+    label: "Storage Rooms",
+    path: "/warehouses/rooms",
     icon: "ri-archive-stack-line",
     roles: ["admin", "supervisor"],
     sections: [
-      { label: "Yard Stacks & Probes", path: "/biomass/storage" },
-      { label: "Storage Rooms", path: "/warehouses/rooms", roles: ["admin", "supervisor"] },
-      { label: "Allocate New Stack", path: "/biomass/storage/create", roles: ["admin", "supervisor"] },
+      { label: "All Storage Rooms", path: "/warehouses/rooms", roles: ["admin", "supervisor"] },
+      { label: "Add Room", path: "/warehouses/rooms/create", roles: ["admin", "supervisor"] },
       { label: "Warehouse Ops", path: "/warehouses/detail", roles: ["admin"] },
     ],
   },
@@ -61,12 +60,13 @@ export const NAV_GROUPS = [
     label: "Warehouses",
     path: "/warehouses",
     icon: "ri-building-line",
+    roles: ["admin", "super_admin"],
     sections: [
-      { label: "All Warehouses", path: "/warehouses" },
+      { label: "All Warehouses", path: "/warehouses", roles: ["admin", "super_admin"] },
       { label: "Add Warehouse", path: "/warehouses/create", roles: ["admin", "super_admin"] },
       { label: "Admin & Supervisor Management", path: "/warehouses/admin-management", roles: ["admin", "super_admin"] },
-      { label: "Warehouse Detail", path: "/warehouses/detail", roles: ["admin"] },
-      { label: "Storage Rooms", path: "/warehouses/rooms", roles: ["admin", "supervisor"] },
+      { label: "Warehouse Detail", path: "/warehouses/detail", roles: ["admin", "super_admin"] },
+      { label: "Storage Rooms", path: "/warehouses/rooms", roles: ["admin", "super_admin"] },
     ],
   },
   {
@@ -100,6 +100,7 @@ export const NAV_GROUPS = [
     roles: ["admin", "supervisor"],
     sections: [
       { label: "Invoices", path: "/sales" },
+      { label: "Direct Sale to Vendor", path: "/sales/direct-sale", roles: ["admin", "supervisor"] },
       { label: "Customer Master", path: "/sales/customer-master-ledger", roles: ["admin"] },
       { label: "Industrial Buyers", path: "/biomass/buyers", roles: ["admin"] },
       { label: "Add Buyer", path: "/biomass/buyers/create", roles: ["admin"] },

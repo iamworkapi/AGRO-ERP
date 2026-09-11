@@ -36,6 +36,7 @@ export default function Weighment() {
   const isScopedRole = user?.roleKey === "supervisor" || user?.roleKey === "warehouse_admin";
   const { warehouses } = useWarehouses();
   const myWarehouseName = isScopedRole ? warehouses[0]?.name : null;
+  const myWarehouseAddress = isScopedRole ? warehouses[0]?.address : null;
 
   const { entries, status, error, reload, deleteEntry } = useStockEntries();
 
@@ -673,7 +674,7 @@ export default function Weighment() {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {/* ================================================================== */}
       {/* 1. HERO COMMAND HEADER                                             */}
       {/* ================================================================== */}
@@ -685,109 +686,175 @@ export default function Weighment() {
         icon="ri-scales-3-line"
       />
 
-      <AsyncState status={status} error={error} loadingLabel="Loading weighment slips…" />
+      <AsyncState status={status} error={error} loadingLabel="Loading weighment slips…" minHeight="55vh" />
 
-      {/* ================================================================== */}
-      {/* 2. TOP METRIC STAT CARDS (4-UP GRID)                               */}
-      {/* ================================================================== */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
+      {status !== "loading" && (
+        <>
+          {/* ================================================================== */}
+          {/* 2. TOP METRIC STAT CARDS (4-UP COMPACT GRID)                       */}
+          {/* ================================================================== */}
+      <div className="stat-cards-grid-4">
         <div
+          className="stat-card-root"
           style={{
             background: "var(--surface)",
             border: "1px solid var(--line)",
-            borderRadius: 16,
-            padding: "16px 18px",
+            borderRadius: 12,
+            padding: "12px 14px 10px",
             boxShadow: "var(--shadow-sm)",
             display: "flex",
-            alignItems: "center",
+            flexDirection: "column",
             justifyContent: "space-between",
+            gap: 8,
+            minHeight: 84,
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.02em" }}>
-              {filteredEntries.length} Slips
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2.5, background: "#16A34A", opacity: 0.9 }} />
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#16A34A" }} />
+                <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.3px" }}>
+                  Total Slips Logged
+                </span>
+              </div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.025em", marginTop: 4 }}>
+                {filteredEntries.length} Slips
+              </div>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
-              Total Slips Logged
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(22, 163, 74, 0.12)", color: "#16A34A", border: "1px solid rgba(22, 163, 74, 0.24)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
+              <i className="ri-file-list-3-line" />
             </div>
           </div>
-          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(93, 214, 44, 0.15)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="ri-file-list-3-line" />
+          <div style={{ display: "flex", alignItems: "center", gap: 4, paddingTop: 6, borderTop: "1px solid var(--line)", fontSize: 10 }}>
+            <span style={{ padding: "1px 6px", borderRadius: 4, background: "rgba(16, 185, 129, 0.1)", color: "#059669", fontWeight: 700 }}>
+              Active Stream
+            </span>
           </div>
         </div>
 
         <div
+          className="stat-card-root"
           style={{
             background: "var(--surface)",
             border: "1px solid var(--line)",
-            borderRadius: 16,
-            padding: "16px 18px",
+            borderRadius: 12,
+            padding: "12px 14px 10px",
             boxShadow: "var(--shadow-sm)",
             display: "flex",
-            alignItems: "center",
+            flexDirection: "column",
             justifyContent: "space-between",
+            gap: 8,
+            minHeight: 84,
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.02em" }}>
-              {approvedCount} Slips
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2.5, background: "#00D2FF", opacity: 0.9 }} />
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#00D2FF" }} />
+                <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.3px" }}>
+                  Approved QC Passes
+                </span>
+              </div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.025em", marginTop: 4 }}>
+                {approvedCount} Slips
+              </div>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
-              Approved QC Passes
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(0, 210, 255, 0.12)", color: "#00D2FF", border: "1px solid rgba(0, 210, 255, 0.24)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
+              <i className="ri-checkbox-circle-line" />
             </div>
           </div>
-          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(0, 210, 255, 0.15)", color: "#00D2FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="ri-checkbox-circle-line" />
+          <div style={{ display: "flex", alignItems: "center", gap: 4, paddingTop: 6, borderTop: "1px solid var(--line)", fontSize: 10 }}>
+            <span style={{ padding: "1px 6px", borderRadius: 4, background: "rgba(0, 210, 255, 0.1)", color: "#0099C6", fontWeight: 700 }}>
+              Quality Verified
+            </span>
           </div>
         </div>
 
         <div
+          className="stat-card-root"
           style={{
             background: "var(--surface)",
             border: "1px solid var(--line)",
-            borderRadius: 16,
-            padding: "16px 18px",
+            borderRadius: 12,
+            padding: "12px 14px 10px",
             boxShadow: "var(--shadow-sm)",
             display: "flex",
-            alignItems: "center",
+            flexDirection: "column",
             justifyContent: "space-between",
+            gap: 8,
+            minHeight: 84,
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "var(--primary)", letterSpacing: "-0.02em" }}>
-              {totalNetMt.toFixed(2)} MT
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2.5, background: "#D97706", opacity: 0.9 }} />
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#D97706" }} />
+                <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.3px" }}>
+                  Actual Net Biomass
+                </span>
+              </div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.025em", marginTop: 4 }}>
+                {totalNetMt.toFixed(2)} MT
+              </div>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
-              Actual Net Biomass
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(217, 119, 6, 0.12)", color: "#D97706", border: "1px solid rgba(217, 119, 6, 0.24)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
+              <i className="ri-scales-3-line" />
             </div>
           </div>
-          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(255, 184, 0, 0.15)", color: "#FFB800", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="ri-scales-3-line" />
+          <div style={{ display: "flex", alignItems: "center", gap: 4, paddingTop: 6, borderTop: "1px solid var(--line)", fontSize: 10 }}>
+            <span style={{ padding: "1px 6px", borderRadius: 4, background: "rgba(217, 119, 6, 0.1)", color: "#D97706", fontWeight: 700 }}>
+              Deduction: {totalDeductionSum.toFixed(2)} MT
+            </span>
           </div>
         </div>
 
         <div
+          className="stat-card-root"
           style={{
             background: "var(--surface)",
             border: "1px solid var(--line)",
-            borderRadius: 16,
-            padding: "16px 18px",
+            borderRadius: 12,
+            padding: "12px 14px 10px",
             boxShadow: "var(--shadow-sm)",
             display: "flex",
-            alignItems: "center",
+            flexDirection: "column",
             justifyContent: "space-between",
+            gap: 8,
+            minHeight: 84,
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.02em" }}>
-              ₹{totalAmountSum.toLocaleString("en-IN")}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2.5, background: "#8B5CF6", opacity: 0.9 }} />
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#8B5CF6" }} />
+                <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.3px" }}>
+                  Total Purchase Value
+                </span>
+              </div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--ink)", letterSpacing: "-0.025em", marginTop: 4 }}>
+                ₹{totalAmountSum.toLocaleString("en-IN")}
+              </div>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
-              Total Purchase Value
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(139, 92, 246, 0.12)", color: "#8B5CF6", border: "1px solid rgba(139, 92, 246, 0.24)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15 }}>
+              <i className="ri-money-rupee-circle-line" />
             </div>
           </div>
-          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(168, 85, 247, 0.15)", color: "#A855F7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="ri-money-rupee-circle-line" />
+          <div style={{ display: "flex", alignItems: "center", gap: 4, paddingTop: 6, borderTop: "1px solid var(--line)", fontSize: 10 }}>
+            <span style={{ padding: "1px 6px", borderRadius: 4, background: "rgba(139, 92, 246, 0.1)", color: "#7C3AED", fontWeight: 700 }}>
+              Purchase Register
+            </span>
           </div>
         </div>
       </div>
@@ -1103,6 +1170,8 @@ export default function Weighment() {
             },
           ]}
         />
+      )}
+        </>
       )}
 
       {/* Printable Receipt Modal */}

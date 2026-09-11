@@ -124,206 +124,227 @@ export default function Dashboard() {
 
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {/* ================================================================== */}
-      {/* 1. HERO COMMAND STRIP & SCOPE SELECTOR (PATTERNED & ANIMATED)       */}
+      {/* 1. HERO COMMAND STRIP & TELEMETRY BAR (SLEEK & COMPACT)            */}
       {/* ================================================================== */}
       {!isSuperAdmin && (
         <div
           className="app-card dashboard-hub-banner"
-        style={{
-          background: "linear-gradient(135deg, var(--surface) 0%, var(--canvas) 100%)",
-          border: "1px solid var(--line)",
-          borderRadius: 22,
-          padding: "24px 28px",
-          boxShadow: "var(--shadow-md)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 16,
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Animated Background Geometric Matrix & Light Glows */}
-        <div
           style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `radial-gradient(var(--primary) 1.2px, transparent 1.2px)`,
-            backgroundSize: "24px 24px",
-            opacity: 0.12,
-            pointerEvents: "none",
+            background: "linear-gradient(135deg, var(--surface) 0%, var(--canvas) 100%)",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            padding: "10px 16px",
+            boxShadow: "var(--shadow-sm)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 10,
+            position: "relative",
+            overflow: "hidden",
           }}
-        />
-
-        {/* Ambient Animated Corner Glow Flares */}
-        <div
-          style={{
-            position: "absolute",
-            right: -60,
-            top: -60,
-            width: 220,
-            height: 220,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(93, 214, 44, 0.22) 0%, transparent 70%)",
-            filter: "blur(20px)",
-            pointerEvents: "none",
-            animation: "pulse 4s ease-in-out infinite alternate",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            left: "30%",
-            bottom: -50,
-            width: 180,
-            height: 180,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(0, 210, 255, 0.15) 0%, transparent 70%)",
-            filter: "blur(25px)",
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* Left Side: Warehouse Details */}
-        <div style={{ display: "flex", alignItems: "center", gap: 16, position: "relative", zIndex: 1 }}>
-          {/* Animated Warehouse Icon Badge with Pulse Ring */}
+        >
+          {/* Animated Background Geometric Matrix */}
           <div
             style={{
-              width: 52,
-              height: 52,
-              borderRadius: 16,
-              background: "linear-gradient(135deg, rgba(93, 214, 44, 0.2) 0%, rgba(51, 116, 24, 0.15) 100%)",
-              color: "var(--primary)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 26,
-              flexShrink: 0,
-              border: "1.5px solid rgba(93, 214, 44, 0.4)",
-              boxShadow: "0 0 20px rgba(93, 214, 44, 0.25)",
-              position: "relative",
+              position: "absolute",
+              inset: 0,
+              backgroundImage: `radial-gradient(var(--primary) 1.2px, transparent 1.2px)`,
+              backgroundSize: "20px 20px",
+              opacity: 0.08,
+              pointerEvents: "none",
             }}
-          >
-            <i className="ri-building-4-line" />
-            <span
-              style={{
-                position: "absolute",
-                bottom: -2,
-                right: -2,
-                width: 12,
-                height: 12,
-                borderRadius: "50%",
-                background: "#5DD62C",
-                border: "2px solid var(--surface)",
-                boxShadow: "0 0 8px #5DD62C",
-              }}
-            />
-          </div>
+          />
 
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.03em" }}>
-                {activeWarehouseName}
-              </h1>
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "4px 12px",
-                  borderRadius: 20,
-                  fontSize: 11,
-                  fontWeight: 800,
-                  background: "rgba(93, 214, 44, 0.15)",
-                  color: "var(--primary)",
-                  border: "1px solid rgba(93, 214, 44, 0.35)",
-                  boxShadow: "0 0 12px rgba(93, 214, 44, 0.2)",
-                }}
-              >
-                <span
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    background: "#5DD62C",
-                    boxShadow: "0 0 8px #5DD62C",
-                  }}
-                />
-                LIVE TELEMETRY ACTIVE
-              </span>
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  padding: "3px 10px",
-                  borderRadius: 8,
-                  background: "var(--canvas)",
-                  color: "var(--muted)",
-                  border: "1px solid var(--line-strong)",
-                  letterSpacing: 0.3,
-                }}
-              >
-                Node: {activeWarehouseCode}
-              </span>
-            </div>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--muted)", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              <i className="ri-map-pin-2-line" style={{ color: "var(--primary)", fontSize: 14 }} />
-              <span style={{ fontWeight: 600 }}>{activeWarehouseAddress}</span>
-              <span style={{ opacity: 0.4 }}>•</span>
-              <span>Central Biomass Weighbridge, Procurement &amp; Offtake Hub</span>
-            </p>
-          </div>
-        </div>
+          {/* Ambient Glow */}
+          <div
+            style={{
+              position: "absolute",
+              right: -40,
+              top: -40,
+              width: 140,
+              height: 140,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(93, 214, 44, 0.18) 0%, transparent 70%)",
+              filter: "blur(18px)",
+              pointerEvents: "none",
+            }}
+          />
 
-        {/* Right Side: Warehouse Node Selector Only (Buttons removed per user request) */}
-        {isSuperAdmin && allWarehouses.length > 0 && (
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <select
-              value={selectedWarehouseFilter}
-              onChange={(e) => setSelectedWarehouseFilter(e.target.value)}
+          {/* Left Side: Warehouse Details */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, position: "relative", zIndex: 1, minWidth: 0 }}>
+            {/* Compact Warehouse Icon Badge */}
+            <div
               style={{
-                height: 42,
-                padding: "0 36px 0 16px",
-                borderRadius: 12,
-                border: "1px solid var(--line-strong)",
-                background: "var(--surface)",
-                color: "var(--ink)",
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: "pointer",
-                outline: "none",
-                appearance: "none",
-                boxShadow: "var(--shadow-sm)",
+                width: 38,
+                height: 38,
+                borderRadius: 10,
+                background: "linear-gradient(135deg, rgba(93, 214, 44, 0.2) 0%, rgba(51, 116, 24, 0.15) 100%)",
+                color: "var(--primary)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 20,
+                flexShrink: 0,
+                border: "1px solid rgba(93, 214, 44, 0.4)",
+                boxShadow: "0 0 12px rgba(93, 214, 44, 0.2)",
+                position: "relative",
               }}
             >
-              {allWarehouses.map((w) => (
-                <option key={w.id} value={w.id}>
-                  🏢 {w.name}
-                </option>
-              ))}
-            </select>
+              <i className="ri-building-4-line" />
+              <span
+                style={{
+                  position: "absolute",
+                  bottom: -1,
+                  right: -1,
+                  width: 9,
+                  height: 9,
+                  borderRadius: "50%",
+                  background: "#5DD62C",
+                  border: "2px solid var(--surface)",
+                  boxShadow: "0 0 6px #5DD62C",
+                }}
+              />
+            </div>
 
-            <i
-              className="ri-arrow-down-s-line"
-              style={{
-                position: "absolute",
-                right: 12,
-                top: "50%",
-                transform: "translateY(-50%)",
-                pointerEvents: "none",
-                color: "var(--muted)",
-                fontSize: 16,
-              }}
-            />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <h1 style={{ margin: 0, fontSize: 17, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.02em" }}>
+                  {activeWarehouseName}
+                </h1>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    padding: "2px 8px",
+                    borderRadius: 14,
+                    fontSize: 10,
+                    fontWeight: 800,
+                    background: "rgba(93, 214, 44, 0.14)",
+                    color: "var(--primary)",
+                    border: "1px solid rgba(93, 214, 44, 0.3)",
+                    letterSpacing: 0.2,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: "50%",
+                      background: "#5DD62C",
+                      boxShadow: "0 0 6px #5DD62C",
+                    }}
+                  />
+                  LIVE TELEMETRY
+                </span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: "2px 7px",
+                    borderRadius: 6,
+                    background: "var(--canvas)",
+                    color: "var(--muted)",
+                    border: "1px solid var(--line)",
+                    letterSpacing: 0.2,
+                  }}
+                >
+                  {activeWarehouseCode}
+                </span>
+              </div>
+              <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)", display: "flex", alignItems: "center", gap: 5, flexWrap: "wrap" }}>
+                <i className="ri-map-pin-2-line" style={{ color: "var(--primary)", fontSize: 12 }} />
+                <span style={{ fontWeight: 600 }}>{activeWarehouseAddress}</span>
+                <span style={{ opacity: 0.4 }}>•</span>
+                <span>Weighbridge &amp; Biomass Offtake Hub</span>
+              </p>
+            </div>
           </div>
-        )}
-      </div>
+
+          {/* Right Side: Quick Telemetry Pills */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, position: "relative", zIndex: 1, flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "4px 10px",
+                borderRadius: 8,
+                background: "var(--canvas)",
+                border: "1px solid var(--line)",
+                fontSize: 11,
+                fontWeight: 600,
+                color: "var(--ink-secondary)",
+              }}
+            >
+              <i className="ri-drop-line" style={{ color: "#10B981", fontSize: 13 }} />
+              <span>Moisture: <strong style={{ color: "var(--ink)" }}>{kpis.avgMoisture || 13.8}%</strong></span>
+            </div>
+
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "4px 10px",
+                borderRadius: 8,
+                background: "var(--canvas)",
+                border: "1px solid var(--line)",
+                fontSize: 11,
+                fontWeight: 600,
+                color: "var(--ink-secondary)",
+              }}
+            >
+              <i className="ri-shield-check-line" style={{ color: "var(--primary)", fontSize: 13 }} />
+              <span>Shift: <strong style={{ color: "var(--ink)" }}>{kpis.attendanceRate || 94}%</strong></span>
+            </div>
+
+            {isSuperAdmin && allWarehouses.length > 0 && (
+              <div style={{ position: "relative" }}>
+                <select
+                  value={selectedWarehouseFilter}
+                  onChange={(e) => setSelectedWarehouseFilter(e.target.value)}
+                  style={{
+                    height: 32,
+                    padding: "0 28px 0 10px",
+                    borderRadius: 8,
+                    border: "1px solid var(--line-strong)",
+                    background: "var(--surface)",
+                    color: "var(--ink)",
+                    fontWeight: 700,
+                    fontSize: 11.5,
+                    cursor: "pointer",
+                    outline: "none",
+                    appearance: "none",
+                  }}
+                >
+                  {allWarehouses.map((w) => (
+                    <option key={w.id} value={w.id}>
+                      🏢 {w.name}
+                    </option>
+                  ))}
+                </select>
+
+                <i
+                  className="ri-arrow-down-s-line"
+                  style={{
+                    position: "absolute",
+                    right: 8,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    pointerEvents: "none",
+                    color: "var(--muted)",
+                    fontSize: 13,
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
       )}
-
-
 
       {/* ================================================================== */}
       {/* 2. TOP METRIC STAT CARDS - ROW 1: PRIMARY OPERATIONS                */}
@@ -423,55 +444,55 @@ export default function Dashboard() {
         />
       </div>
 
-
       {/* ================================================================== */}
-      {/* 4. VISUAL CHARTS & ANALYTICS INTELLIGENCE (2X2 GRID)                */}
+      {/* 4. VISUAL CHARTS & ANALYTICS INTELLIGENCE (2X2 COMPACT GRID)        */}
       {/* ================================================================== */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 18 }} className="responsive-grid-2">
+      <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 12 }} className="responsive-grid-2">
         {/* CHART 1: 7-DAY INBOUND VS OUTBOUND STREAM */}
         <Card
           title="7-Day Inbound Inflow vs Outbound Offtake (MT)"
           subtitle="Real-time procurement vs factory delivery stream"
           icon="ri-line-chart-line"
           right={
-            <div style={{ display: "flex", gap: 12, fontSize: 11, fontWeight: 800 }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "var(--primary)" }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#5DD62C" }} /> Inbound MT
+            <div style={{ display: "flex", gap: 10, fontSize: 10.5, fontWeight: 800 }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--primary)" }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#5DD62C" }} /> Inbound MT
               </span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "#00D2FF" }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#00D2FF" }} /> Outbound MT
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#00D2FF" }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#00D2FF" }} /> Outbound MT
               </span>
             </div>
           }
         >
-          <div style={{ width: "100%", height: 260 }}>
+          <div style={{ width: "100%", height: 210 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartInflowData}>
+              <AreaChart data={chartInflowData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
                 <defs>
                   <linearGradient id="bioInflow" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#5DD62C" stopOpacity={0.45} />
+                    <stop offset="5%" stopColor="#5DD62C" stopOpacity={0.4} />
                     <stop offset="95%" stopColor="#5DD62C" stopOpacity={0.0} />
                   </linearGradient>
                   <linearGradient id="bioOutflow" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00D2FF" stopOpacity={0.45} />
+                    <stop offset="5%" stopColor="#00D2FF" stopOpacity={0.4} />
                     <stop offset="95%" stopColor="#00D2FF" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" vertical={false} />
-                <XAxis dataKey="day" stroke="var(--muted)" fontSize={11} tickLine={false} />
-                <YAxis stroke="var(--muted)" fontSize={11} tickLine={false} unit=" MT" />
+                <XAxis dataKey="day" stroke="var(--muted)" fontSize={10.5} tickLine={false} />
+                <YAxis stroke="var(--muted)" fontSize={10.5} tickLine={false} unit=" MT" />
                 <Tooltip
                   contentStyle={{
                     background: "var(--surface)",
                     border: "1px solid var(--line-strong)",
-                    borderRadius: 10,
-                    fontSize: 12,
+                    borderRadius: 8,
+                    fontSize: 11,
                     color: "var(--ink)",
                     boxShadow: "var(--shadow-md)",
+                    padding: "6px 10px",
                   }}
                 />
-                <Area type="monotone" dataKey="inflowMt" name="Inbound Inflow (MT)" stroke="#5DD62C" strokeWidth={2.5} fillOpacity={1} fill="url(#bioInflow)" />
-                <Area type="monotone" dataKey="outflowMt" name="Outbound Dispatch (MT)" stroke="#00D2FF" strokeWidth={2.5} fillOpacity={1} fill="url(#bioOutflow)" />
+                <Area type="monotone" dataKey="inflowMt" name="Inbound Inflow (MT)" stroke="#5DD62C" strokeWidth={2} fillOpacity={1} fill="url(#bioInflow)" />
+                <Area type="monotone" dataKey="outflowMt" name="Outbound Dispatch (MT)" stroke="#00D2FF" strokeWidth={2} fillOpacity={1} fill="url(#bioOutflow)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -480,20 +501,20 @@ export default function Dashboard() {
         {/* CHART 2: COMMODITY PROCUREMENT BREAKDOWN (DONUT) */}
         <Card
           title="Commodity Procurement Share"
-          subtitle="Biomass feedstock distribution across all stacks"
+          subtitle="Biomass feedstock distribution across stacks"
           icon="ri-pie-chart-line"
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 260 }}>
-            <div style={{ width: "55%", height: "100%" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 210 }}>
+            <div style={{ width: "50%", height: "100%" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={chartCommodityData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={55}
-                    outerRadius={85}
-                    paddingAngle={4}
+                    innerRadius={46}
+                    outerRadius={72}
+                    paddingAngle={3}
                     dataKey="value"
                   >
                     {chartCommodityData.map((entry, index) => (
@@ -504,8 +525,9 @@ export default function Dashboard() {
                     contentStyle={{
                       background: "var(--surface)",
                       border: "1px solid var(--line)",
-                      borderRadius: 10,
-                      fontSize: 12,
+                      borderRadius: 8,
+                      fontSize: 11,
+                      padding: "6px 10px",
                     }}
                   />
                 </PieChart>
@@ -513,16 +535,16 @@ export default function Dashboard() {
             </div>
 
             {/* Legend & Details */}
-            <div style={{ width: "45%", display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ width: "50%", display: "flex", flexDirection: "column", gap: 7, paddingLeft: 6 }}>
               {chartCommodityData.map((item) => (
-                <div key={item.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, overflow: "hidden" }}>
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: item.color, flexShrink: 0 }} />
-                    <span style={{ color: "var(--ink)", fontWeight: 700, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
+                <div key={item.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 11 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 5, overflow: "hidden" }}>
+                    <span style={{ width: 7, height: 7, borderRadius: "50%", background: item.color, flexShrink: 0 }} />
+                    <span style={{ color: "var(--ink)", fontWeight: 600, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>
                       {item.name}
                     </span>
                   </div>
-                  <strong style={{ color: "var(--muted)", marginLeft: 6 }}>{item.value} MT</strong>
+                  <strong style={{ color: "var(--muted)", marginLeft: 6, fontSize: 11 }}>{item.value} MT</strong>
                 </div>
               ))}
             </div>
@@ -531,30 +553,31 @@ export default function Dashboard() {
       </div>
 
       {/* CHARTS ROW 2: MOISTURE QUALITY & NODE CAPACITY */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }} className="responsive-grid-2">
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="responsive-grid-2">
         {/* CHART 3: MOISTURE VARIANCE TREND */}
         <Card
           title="Moisture Quality & QC Deduction Index"
           subtitle="Daily moisture % vs target 14.0% safety benchmark"
           icon="ri-drop-line"
           right={
-            <span style={{ fontSize: 11, background: "rgba(93,214,44,0.15)", color: "var(--primary)", padding: "2px 8px", borderRadius: 10, fontWeight: 800 }}>
+            <span style={{ fontSize: 10, background: "rgba(93,214,44,0.14)", color: "var(--primary)", padding: "2px 7px", borderRadius: 8, fontWeight: 800 }}>
               TARGET: &le; 14%
             </span>
           }
         >
-          <div style={{ width: "100%", height: 230 }}>
+          <div style={{ width: "100%", height: 185 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartInflowData}>
+              <LineChart data={chartInflowData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" vertical={false} />
-                <XAxis dataKey="day" stroke="var(--muted)" fontSize={11} tickLine={false} />
-                <YAxis stroke="var(--muted)" fontSize={11} tickLine={false} unit="%" domain={[12, 16]} />
+                <XAxis dataKey="day" stroke="var(--muted)" fontSize={10.5} tickLine={false} />
+                <YAxis stroke="var(--muted)" fontSize={10.5} tickLine={false} unit="%" domain={[12, 16]} />
                 <Tooltip
                   contentStyle={{
                     background: "var(--surface)",
                     border: "1px solid var(--line-strong)",
-                    borderRadius: 10,
-                    fontSize: 12,
+                    borderRadius: 8,
+                    fontSize: 11,
+                    padding: "6px 10px",
                   }}
                 />
                 <Line
@@ -562,9 +585,9 @@ export default function Dashboard() {
                   dataKey="moisture"
                   name="Avg Moisture (%)"
                   stroke="#FFB800"
-                  strokeWidth={3}
-                  dot={{ r: 4, fill: "#FFB800" }}
-                  activeDot={{ r: 6, fill: "#5DD62C" }}
+                  strokeWidth={2.5}
+                  dot={{ r: 3.5, fill: "#FFB800" }}
+                  activeDot={{ r: 5, fill: "#5DD62C" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -577,21 +600,22 @@ export default function Dashboard() {
           subtitle="Current stored tonnage vs total yard capacity"
           icon="ri-building-line"
         >
-          <div style={{ width: "100%", height: 230 }}>
+          <div style={{ width: "100%", height: 185 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartNodeCapacityData} layout="vertical" margin={{ left: 20 }}>
+              <BarChart data={chartNodeCapacityData} layout="vertical" margin={{ left: 10, right: 10, top: 5, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" horizontal={false} />
-                <XAxis type="number" stroke="var(--muted)" fontSize={11} unit=" MT" tickLine={false} />
-                <YAxis dataKey="name" type="category" stroke="var(--ink)" fontSize={12} fontWeight={700} tickLine={false} />
+                <XAxis type="number" stroke="var(--muted)" fontSize={10.5} unit=" MT" tickLine={false} />
+                <YAxis dataKey="name" type="category" stroke="var(--ink)" fontSize={11} fontWeight={700} tickLine={false} width={75} />
                 <Tooltip
                   contentStyle={{
                     background: "var(--surface)",
                     border: "1px solid var(--line-strong)",
-                    borderRadius: 10,
-                    fontSize: 12,
+                    borderRadius: 8,
+                    fontSize: 11,
+                    padding: "6px 10px",
                   }}
                 />
-                <Bar dataKey="stored" name="Stored (MT)" fill="#5DD62C" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="stored" name="Stored (MT)" fill="#5DD62C" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

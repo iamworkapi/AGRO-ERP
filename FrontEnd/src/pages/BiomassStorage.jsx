@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import Button from "../components/common/Button";
-import Badge from "../components/common/Badge";
 import Modal from "../components/common/Modal";
 import FormField from "../components/common/FormField";
 import {
@@ -14,667 +13,1043 @@ import {
 } from "../features/biomass/biomassService";
 import { toast } from "../utils/toast";
 
+const ZONE_OPTIONS = [
+  { value: "ALL", label: "All Storage Zones (सभी ज़ोन)" },
+  { value: "Zone A", label: "Zone A — Covered Shed 1 (शेड 1)" },
+  { value: "Zone B", label: "Zone B — Covered Shed 2 (शेड 2)" },
+  { value: "Zone C", label: "Zone C — Open Yard North (खुला यार्ड उत्तर)" },
+  { value: "Zone D", label: "Zone D — Open Yard South (खुला यार्ड दक्षिण)" },
+];
+
+const CROP_OPTIONS = [
+  { value: "ALL", label: "All Commodities (सभी फसलें)", color: "#16a34a", bg: "rgba(22, 163, 74, 0.12)" },
+  { value: "Paddy Straw", label: "Paddy Straw (धान की पराली)", color: "#15803d", bg: "#dcfce7" },
+  { value: "Wheat Straw", label: "Wheat Straw (गेहूं का भूसा)", color: "#0284c7", bg: "#e0f2fe" },
+  { value: "Maize Stem", label: "Maize Stem (मक्का डंठल)", color: "#b45309", bg: "#fef3c7" },
+  { value: "Mustard Husk", label: "Mustard Husk (सरसों तूड़ी)", color: "#7e22ce", bg: "#f3e8ff" },
+];
+
 export default function BiomassStorage() {
   const navigate = useNavigate();
   const [stacks, setStacks] = useState(getStoredStacks);
-  const [selectedCropFilter, setSelectedCropFilter] = useState("ALL");
-  const [selectedZoneFilter, setSelectedZoneFilter] = useState("ALL");
 
-  // Modals
-  const [isAddStackModalOpen, setIsAddStackModalOpen] = useState(false);
-  const [selectedStackForAudit, setSelectedStackForAudit] = useState(null);
-  const [probeTempInput, setProbeTempInput] = useState("");
+  // Search & Filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedZone, setSelectedZone] = useState("ALL");
+  const [selectedCrop, setSelectedCrop] = useState("ALL");
 
-  // New Stack Form
-  const [newStackCode, setNewStackCode] = useState("");
-  const [newZone, setNewZone] = useState("Zone A");
-  const [newCrop, setNewCrop] = useState("Paddy Straw");
-  const [newTonnage, setNewTonnage] = useState("1000");
-  const [newBales, setNewBales] = useState("3300");
-  const [newProbeTemp, setNewProbeTemp] = useState("28");
+  // Modals State
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [tempAuditStack, setTempAuditStack] = useState(null);
+  const [tempInput, setTempInput] = useState("");
+  const [editingStack, setEditingStack] = useState(null);
 
-  // Filtered Stacks
+  // New Stack Form State
+  const [newForm, setNewForm] = useState({
+    stackCode: "",
+    zone: "Zone A",
+    cropName: "Paddy Straw",
+    tonnageMt: "1200",
+    baleCount: "3600",
+    probeTempC: "27",
+    humidityPct: "15.0",
+    notes: "",
+  });
+
+  // Aggregates
+  const totalWeightMt = useMemo(
+    () => stacks.reduce((sum, s) => sum + (Number(s.tonnageMt) || 0), 0),
+    [stacks]
+  );
+  const totalBales = useMemo(
+    () => stacks.reduce((sum, s) => sum + (Number(s.baleCount) || 0), 0),
+    [stacks]
+  );
+  const totalCapacityMt = DEFAULT_WAREHOUSE_TCC.totalCapacityMt || 15000;
+  const usedPercent = Math.min(100, Math.round((totalWeightMt / totalCapacityMt) * 100));
+
+  // High Temperature / Alert Count
+  const warningCount = useMemo(
+    () => stacks.filter((s) => (Number(s.probeTempC) || 0) > 35).length,
+    [stacks]
+  );
+
+  // Filtered Stacks List
   const filteredStacks = useMemo(() => {
-    return stacks.filter((s) => {
+    return stacks.filter((st) => {
+      const matchZone = selectedZone === "ALL" || st.zone === selectedZone;
       const matchCrop =
-        selectedCropFilter === "ALL" ||
-        s.cropName?.toLowerCase().includes(selectedCropFilter.toLowerCase()) ||
-        s.cropId === selectedCropFilter;
-      const matchZone = selectedZoneFilter === "ALL" || s.zone === selectedZoneFilter;
-      return matchCrop && matchZone;
+        selectedCrop === "ALL" ||
+        (st.cropName || "").toLowerCase().includes(selectedCrop.toLowerCase());
+      const query = searchQuery.trim().toLowerCase();
+      const matchSearch =
+        !query ||
+        (st.stackCode || "").toLowerCase().includes(query) ||
+        (st.zone || "").toLowerCase().includes(query) ||
+        (st.cropName || "").toLowerCase().includes(query);
+
+      return matchZone && matchCrop && matchSearch;
     });
-  }, [stacks, selectedCropFilter, selectedZoneFilter]);
+  }, [stacks, selectedZone, selectedCrop, searchQuery]);
 
-  // Aggregate Metrics
-  const totalYardStockMt = useMemo(() => stacks.reduce((s, st) => s + (Number(st.tonnageMt) || 0), 0), [stacks]);
-  const totalYardBales = useMemo(() => stacks.reduce((s, st) => s + (Number(st.baleCount) || 0), 0), [stacks]);
-  const totalCapacityMt = DEFAULT_WAREHOUSE_TCC.totalCapacityMt || 10000;
-  const yardUtilizationPct = Math.min(100, Math.round((totalYardStockMt / totalCapacityMt) * 100));
+  // Open Add Modal with smart defaults
+  function handleOpenAddModal() {
+    const defaultZone = selectedZone !== "ALL" ? selectedZone : "Zone A";
+    const letter = defaultZone.replace("Zone ", "").trim() || "A";
+    setNewForm({
+      stackCode: `STACK-${letter}-${Math.floor(100 + Math.random() * 900)}`,
+      zone: defaultZone,
+      cropName: selectedCrop !== "ALL" ? selectedCrop : "Paddy Straw",
+      tonnageMt: "1000",
+      baleCount: "3000",
+      probeTempC: "27",
+      humidityPct: "15.0",
+      notes: "",
+    });
+    setIsAddModalOpen(true);
+  }
 
-  function handleCreateStack(e) {
+  function handleSaveNewStack(e) {
     e.preventDefault();
-    const cropBadges = {
-      "Paddy Straw": { bg: "rgba(93,214,44,0.15)", color: "#5DD62C" },
-      "Maize Stem": { bg: "rgba(255,184,0,0.15)", color: "#FFB800" },
-      "Wheat Straw": { bg: "rgba(0,210,255,0.15)", color: "#00D2FF" },
-      "Mustard Husk": { bg: "rgba(168,85,247,0.15)", color: "#A855F7" },
-    };
+    const cropDef = CROP_OPTIONS.find((c) => c.value === newForm.cropName) || CROP_OPTIONS[1];
+    const tempNum = parseFloat(newForm.probeTempC) || 28;
 
-    const badgeInfo = cropBadges[newCrop] || { bg: "rgba(93,214,44,0.15)", color: "#5DD62C" };
-
-    const newObj = {
-      stackCode: newStackCode || `STACK-${newZone.replace(" ", "")}-${Math.floor(100 + Math.random() * 900)}`,
-      zone: newZone,
-      cropName: newCrop,
-      cropBadge: newCrop,
-      cropBadgeBg: badgeInfo.bg,
-      cropBadgeColor: badgeInfo.color,
-      tonnageMt: parseFloat(newTonnage) || 1000,
-      baleCount: parseInt(newBales, 10) || 3000,
-      probeTempC: parseInt(newProbeTemp, 10) || 28,
-      tempStatus: parseInt(newProbeTemp, 10) > 35 ? "Warning" : parseInt(newProbeTemp, 10) > 30 ? "Monitored" : "Normal",
-      fireSafetyScore: parseInt(newProbeTemp, 10) > 35 ? "92.0% (Action Required)" : "98.5% (Safe)",
-      humidityPct: 15.5,
+    const newStackObj = {
+      stackCode: newForm.stackCode.trim().toUpperCase(),
+      zone: newForm.zone,
+      cropName: newForm.cropName,
+      cropBadge: newForm.cropName,
+      cropBadgeBg: cropDef.bg,
+      cropBadgeColor: cropDef.color,
+      tonnageMt: parseFloat(newForm.tonnageMt) || 0,
+      baleCount: parseInt(newForm.baleCount, 10) || 0,
+      probeTempC: tempNum,
+      tempStatus: tempNum > 35 ? "Warning" : tempNum > 30 ? "Monitored" : "Normal",
+      fireSafetyScore: tempNum > 35 ? "90.0% (Action Required)" : "99.0% (Safe)",
+      humidityPct: parseFloat(newForm.humidityPct) || 15.0,
       stackDate: new Date().toISOString().slice(0, 10),
+      notes: newForm.notes,
       warehouseCode: DEFAULT_WAREHOUSE_TCC.code,
     };
 
-    const updated = saveNewStack(newObj);
+    const updated = saveNewStack(newStackObj);
     setStacks(updated);
-    setIsAddStackModalOpen(false);
-    toast.success(`New Stack "${newObj.stackCode}" allocated in ${newZone}!`);
-    setNewStackCode("");
+    setIsAddModalOpen(false);
+    toast.success(`Stack "${newStackObj.stackCode}" added successfully!`);
   }
 
-  function handleOpenAudit(st) {
-    setSelectedStackForAudit(st);
-    setProbeTempInput(String(st.probeTempC || 28));
+  // Handle Temp Update Modal
+  function handleOpenTempAudit(stack) {
+    setTempAuditStack(stack);
+    setTempInput(String(stack.probeTempC || 28));
   }
 
-  function handleUpdateTempSubmit(e) {
+  function handleSaveTempAudit(e) {
     e.preventDefault();
-    if (!selectedStackForAudit) return;
-
-    const tempNum = Number(probeTempInput);
+    if (!tempAuditStack) return;
+    const tempNum = parseFloat(tempInput) || 28;
     const tempStatus = tempNum > 35 ? "Warning" : tempNum > 30 ? "Monitored" : "Normal";
-    const fireSafetyScore = tempNum > 35 ? "92.0% (Action Required)" : "98.5% (Safe)";
+    const fireSafetyScore = tempNum > 35 ? "90.0% (High Heat - Inspect)" : "99.0% (Safe)";
 
-    const updated = updateStack(selectedStackForAudit.id, {
+    const updated = updateStack(tempAuditStack.id, {
       probeTempC: tempNum,
       tempStatus,
       fireSafetyScore,
     });
     setStacks(updated);
-    setSelectedStackForAudit(null);
-    toast.success(`Probe temperature updated to ${tempNum}°C for ${selectedStackForAudit.stackCode}`);
+    setTempAuditStack(null);
+    toast.success(`Temperature updated to ${tempNum}°C for ${tempAuditStack.stackCode}`);
   }
 
-  function handleDeleteStack(id, code) {
-    if (window.confirm(`Are you sure you want to de-allocate Stack ${code}?`)) {
-      const updated = deleteStack(id);
+  // Handle Edit Stack
+  function handleOpenEdit(stack) {
+    setEditingStack({
+      ...stack,
+      tonnageMt: String(stack.tonnageMt || ""),
+      baleCount: String(stack.baleCount || ""),
+      probeTempC: String(stack.probeTempC || ""),
+    });
+  }
+
+  function handleSaveEdit(e) {
+    e.preventDefault();
+    if (!editingStack) return;
+    const tempNum = parseFloat(editingStack.probeTempC) || 28;
+    const cropDef = CROP_OPTIONS.find((c) => c.value === editingStack.cropName) || CROP_OPTIONS[1];
+
+    const updated = updateStack(editingStack.id, {
+      stackCode: editingStack.stackCode,
+      zone: editingStack.zone,
+      cropName: editingStack.cropName,
+      cropBadgeBg: cropDef.bg,
+      cropBadgeColor: cropDef.color,
+      tonnageMt: parseFloat(editingStack.tonnageMt) || 0,
+      baleCount: parseInt(editingStack.baleCount, 10) || 0,
+      probeTempC: tempNum,
+      tempStatus: tempNum > 35 ? "Warning" : tempNum > 30 ? "Monitored" : "Normal",
+    });
+    setStacks(updated);
+    setEditingStack(null);
+    toast.success(`Stack "${editingStack.stackCode}" updated!`);
+  }
+
+  // Handle Delete Stack
+  function handleDelete(stack) {
+    if (window.confirm(`Are you sure you want to remove Stack "${stack.stackCode}"?`)) {
+      const updated = deleteStack(stack.id);
       setStacks(updated);
-      toast.success(`Stack ${code} de-allocated successfully.`);
+      toast.success(`Stack "${stack.stackCode}" removed from yard.`);
     }
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18, position: "relative" }}>
-      {/* PAGE HEADER */}
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, position: "relative" }}>
+      {/* 1. CLEAN PAGE HEADER (BUTTONS REMOVED AS REQUESTED) */}
       <PageHeader
         title="Storage & Yard Stacking"
-        subtitle="Transit Collection Centre (TCC) • Multi-Zone Yard Stacks, Voxel Grid & Combustion Telemetry"
-        icon="ri-stack-line"
-        badge="TCC YARD NODE WB-01"
       />
 
-      {/* TOP SPATIAL KPI METRICS STRIP */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
-        {/* Metric 1: Total Yard Stock */}
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--line)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: "var(--shadow-sm)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "var(--primary)", letterSpacing: "-0.02em" }}>
-              {totalYardStockMt.toLocaleString("en-IN")} MT
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
-              Total Yard Biomass
-            </div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
-              Capacity: {totalCapacityMt.toLocaleString("en-IN")} MT ({yardUtilizationPct}%)
-            </div>
-          </div>
-          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(93, 214, 44, 0.15)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="ri-stack-line" />
-          </div>
-        </div>
-
-        {/* Metric 2: Total Stored Bales */}
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--line)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: "var(--shadow-sm)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "#00D2FF", letterSpacing: "-0.02em" }}>
-              {totalYardBales.toLocaleString("en-IN")} Bales
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
-              Stored Bale Volume
-            </div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
-              High-density square &amp; round bales
-            </div>
-          </div>
-          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(0, 210, 255, 0.15)", color: "#00D2FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="ri-archive-line" />
-          </div>
-        </div>
-
-        {/* Metric 3: Fire Safety & Thermal Probes */}
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--line)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: "var(--shadow-sm)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "#FFB800", letterSpacing: "-0.02em" }}>
-              98.5% (Safe)
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
-              Combustion Risk Score
-            </div>
-            <div style={{ fontSize: 11, color: "var(--primary)", fontWeight: 700, marginTop: 4 }}>
-              IoT Probes Sub-Threshold
-            </div>
-          </div>
-          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(255, 184, 0, 0.15)", color: "#FFB800", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="ri-shield-check-line" />
-          </div>
-        </div>
-
-        {/* Metric 4: Active Yard Stacks */}
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--line)",
-            borderRadius: 16,
-            padding: "16px 18px",
-            boxShadow: "var(--shadow-sm)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.02em" }}>
-              {stacks.length} Stacks
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", marginTop: 2 }}>
-              Monitored Stack Zones
-            </div>
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 4 }}>
-              Active across Zone A, B, C &amp; D
-            </div>
-          </div>
-          <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(168, 85, 247, 0.15)", color: "#A855F7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-            <i className="ri-map-pin-2-line" />
-          </div>
-        </div>
-      </div>
-
-      {/* FILTER CONTROLS & ALLOCATION TOOLBAR */}
+      {/* 2. NEW DEDICATED NAVIGATION & ACTION HEADER (TO MOVE ON THIS) */}
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
+          justifyContent: "space-between",
           background: "var(--surface)",
           border: "1px solid var(--line)",
           borderRadius: 14,
-          padding: "10px 16px",
-          gap: 12,
+          padding: "12px 18px",
+          boxShadow: "var(--shadow-sm)",
           flexWrap: "wrap",
+          gap: 12,
         }}
       >
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          {/* Crop Filter */}
-          <select
-            value={selectedCropFilter}
-            onChange={(e) => setSelectedCropFilter(e.target.value)}
+        {/* Navigation Switch to Move Between Yard Stacks & Storage Rooms */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "var(--canvas)", padding: 4, borderRadius: 10, border: "1px solid var(--line)" }}>
+          <button
+            type="button"
             style={{
-              height: 34,
-              padding: "0 10px",
-              fontSize: 12,
-              fontWeight: 700,
+              border: "none",
+              background: "var(--primary)",
+              color: "#ffffff",
+              padding: "8px 16px",
               borderRadius: 8,
-              border: "1px solid var(--line-strong)",
-              background: "var(--canvas)",
-              color: "var(--ink)",
-              outline: "none",
-              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 800,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              boxShadow: "0 2px 6px rgba(51, 116, 24, 0.25)",
+              cursor: "default",
             }}
           >
-            <option value="ALL">All Stored Commodities</option>
-            <option value="paddy">Paddy Straw (Bales)</option>
-            <option value="maize">Maize Stem / Stalks</option>
-            <option value="wheat">Wheat Straw</option>
-            <option value="mustard">Mustard Husk</option>
-          </select>
-
-          {/* Zone Filter */}
-          <select
-            value={selectedZoneFilter}
-            onChange={(e) => setSelectedZoneFilter(e.target.value)}
+            <i className="ri-stack-line" /> Storage & Yard Stacking
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/warehouses/rooms")}
             style={{
-              height: 34,
-              padding: "0 10px",
-              fontSize: 12,
-              fontWeight: 700,
-              borderRadius: 8,
-              border: "1px solid var(--line-strong)",
-              background: "var(--canvas)",
+              border: "none",
+              background: "transparent",
               color: "var(--ink)",
-              outline: "none",
+              padding: "8px 16px",
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 700,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
               cursor: "pointer",
+              transition: "all 140ms ease",
             }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--surface)";
+              e.currentTarget.style.color = "var(--primary-deep)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.color = "var(--ink)";
+            }}
+            title="Move to Storage Rooms"
           >
-            <option value="ALL">All Yard Zones (A, B, C, D)</option>
-            <option value="Zone A">Zone A (Covered Shed 1)</option>
-            <option value="Zone B">Zone B (Covered Shed 2)</option>
-            <option value="Zone C">Zone C (Open Yard North)</option>
-            <option value="Zone D">Zone D (Open Yard South)</option>
-          </select>
+            <i className="ri-door-open-line" style={{ color: "var(--primary)" }} /> Storage Rooms &rarr;
+          </button>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 12, color: "var(--muted)", fontWeight: 700 }}>
-            Showing: <strong style={{ color: "var(--ink)" }}>{filteredStacks.length}</strong> active stacks
-          </span>
-
-          <Button
-            size="sm"
-            variant="primary"
-            icon="ri-add-line"
-            onClick={() => setIsAddStackModalOpen(true)}
-            style={{ height: 34, fontSize: 12, padding: "0 12px" }}
-          >
-            Allocate New Stack
-          </Button>
-        </div>
+        {/* Action Button: + Add New Stack */}
+        <Button
+          variant="primary"
+          icon="ri-add-circle-fill"
+          onClick={handleOpenAddModal}
+          style={{ fontSize: 13, height: 40, padding: "0 18px", fontWeight: 800 }}
+        >
+          + Add New Stack
+        </Button>
       </div>
 
-      {/* MAIN 2-COLUMN YARD COMMAND SECTION */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.1fr 2fr", gap: 16 }} className="responsive-grid-1">
-        {/* LEFT PANEL: WAREHOUSE & TCC SPECIFICATIONS */}
+      {/* 3. TOP 4 OVERVIEW STAT CARDS */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
+        {/* Stat 1: Total Stored Stock */}
         <div
-          className="app-card"
           style={{
             background: "var(--surface)",
             border: "1px solid var(--line)",
-            borderRadius: 18,
-            padding: "18px 20px",
+            borderRadius: 14,
+            padding: "16px 18px",
             boxShadow: "var(--shadow-sm)",
             display: "flex",
-            flexDirection: "column",
-            gap: 14,
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid var(--line)", paddingBottom: 10 }}>
-            <span style={{ fontSize: 12.5, fontWeight: 800, textTransform: "uppercase", color: "var(--ink)", letterSpacing: 0.3 }}>
-              Facility &amp; Yard Telemetry
-            </span>
-            <Badge tone="success">LIVE LOAD CELLS</Badge>
-          </div>
-
-          {/* Center Name Card */}
-          <div style={{ background: "rgba(93, 214, 44, 0.08)", border: "1px solid rgba(93, 214, 44, 0.25)", borderRadius: 12, padding: "12px 14px" }}>
-            <div style={{ fontSize: 14.5, fontWeight: 800, color: "var(--ink)", lineHeight: 1.3 }}>
-              {DEFAULT_WAREHOUSE_TCC.name}
-            </div>
-            <div style={{ fontSize: 11.5, fontWeight: 800, color: "var(--primary)", marginTop: 4 }}>
-              Node Identifier: {DEFAULT_WAREHOUSE_TCC.code}
-            </div>
-          </div>
-
-          {/* Capacity Utilization Progress Bar */}
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, marginBottom: 5 }}>
-              <span style={{ color: "var(--muted)", fontWeight: 600 }}>Yard Storage Occupancy:</span>
-              <strong style={{ color: "var(--ink)" }}>{yardUtilizationPct}% Full</strong>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+              Total Stock in Yard
             </div>
-            <div style={{ width: "100%", height: 8, background: "var(--line)", borderRadius: 4, overflow: "hidden" }}>
-              <div style={{ width: `${yardUtilizationPct}%`, height: "100%", background: "var(--primary)", borderRadius: 4 }} />
+            <div style={{ fontSize: 24, fontWeight: 900, color: "var(--ink)", marginTop: 4 }}>
+              {totalWeightMt.toLocaleString("en-IN")} <span style={{ fontSize: 14, fontWeight: 700 }}>MT</span>
+            </div>
+            <div style={{ fontSize: 11.5, color: "var(--primary-deep)", fontWeight: 700, marginTop: 4 }}>
+              {usedPercent}% of {totalCapacityMt.toLocaleString("en-IN")} MT Capacity
             </div>
           </div>
-
-          {/* Sourcing Area & Storage Capacity Grid */}
           <div
             style={{
-              background: "var(--canvas)",
-              border: "1px solid var(--line)",
+              width: 44,
+              height: 44,
               borderRadius: 12,
-              padding: "12px 14px",
-              display: "grid",
-              gridTemplateColumns: "1.2fr 1fr",
-              gap: 10,
-              fontSize: 11.5,
+              background: "var(--primary-tint)",
+              color: "var(--primary-deep)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 22,
             }}
           >
-            <div>
-              <span style={{ color: "var(--muted)", display: "block", fontSize: 10.5 }}>Sourcing Radius:</span>
-              <strong style={{ color: "var(--ink)" }}>{DEFAULT_WAREHOUSE_TCC.sourcingArea}</strong>
-            </div>
-
-            <div>
-              <span style={{ color: "var(--muted)", display: "block", fontSize: 10.5 }}>Max Yard Capacity:</span>
-              <strong style={{ color: "var(--ink)" }}>{DEFAULT_WAREHOUSE_TCC.totalCapacityMt.toLocaleString("en-IN")} MT</strong>
-            </div>
-
-            <div style={{ borderTop: "1px dashed var(--line)", paddingTop: 6 }}>
-              <span style={{ color: "var(--muted)", display: "block", fontSize: 10.5 }}>Current Stored Stock:</span>
-              <strong style={{ color: "var(--primary)", fontSize: 12.5 }}>{totalYardStockMt.toLocaleString("en-IN")} MT</strong>
-            </div>
-
-            <div style={{ borderTop: "1px dashed var(--line)", paddingTop: 6 }}>
-              <span style={{ color: "var(--muted)", display: "block", fontSize: 10.5 }}>Total Bales Count:</span>
-              <strong style={{ color: "var(--ink)", fontSize: 12.5 }}>{totalYardBales.toLocaleString("en-IN")} Bales</strong>
-            </div>
+            <i className="ri-scales-3-line" />
           </div>
-
-          {/* Fire Safety Audit Probes Box */}
-          <div style={{ background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.25)", borderRadius: 12, padding: "12px 14px" }}>
-            <div style={{ fontSize: 11.5, fontWeight: 800, color: "#059669", display: "flex", alignItems: "center", gap: 6 }}>
-              <i className="ri-shield-check-line" /> Fire Safety Audit Status:
-            </div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: "#059669", marginTop: 2 }}>
-              {DEFAULT_WAREHOUSE_TCC.fireSafetyScore}
-            </div>
-            <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 2 }}>
-              Automated thermal decay and moisture probe network active
-            </div>
-          </div>
-
-          {/* Assigned Personnel Details */}
-          <div style={{ borderTop: "1px solid var(--line)", paddingTop: 10, display: "flex", flexDirection: "column", gap: 5, fontSize: 11.5 }}>
-            <div>
-              👨‍💼 Supervisor: <strong style={{ color: "var(--ink)" }}>{DEFAULT_WAREHOUSE_TCC.supervisorName}</strong>
-            </div>
-            <div>
-              📞 Contact: <strong style={{ color: "var(--ink)" }}>{DEFAULT_WAREHOUSE_TCC.supervisorPhone}</strong>
-            </div>
-            <div>
-              📧 Email: <strong style={{ color: "var(--ink)" }}>{DEFAULT_WAREHOUSE_TCC.officialEmail}</strong>
-            </div>
-          </div>
-
-          {/* Full Warehouse Detail Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/warehouses/detail")}
-            style={{ width: "100%", height: 34, fontSize: 11.5 }}
-          >
-            View Warehouse Infrastructure &rarr;
-          </Button>
         </div>
 
-        {/* RIGHT SECTION: INTERACTIVE STACKING YARD GRID */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h3 style={{ margin: 0, fontSize: 14, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 6 }}>
-              <i className="ri-layout-grid-line" style={{ color: "var(--primary)" }} /> Yard Stacking &amp; Volume Telemetry
-            </h3>
-            <span style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 700 }}>
-              {filteredStacks.length} Stacks Monitored
-            </span>
+        {/* Stat 2: Total Bales */}
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            padding: "16px 18px",
+            boxShadow: "var(--shadow-sm)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+              Total Stored Bales
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: "var(--ink)", marginTop: 4 }}>
+              {totalBales.toLocaleString("en-IN")} <span style={{ fontSize: 14, fontWeight: 700 }}>Bales</span>
+            </div>
+            <div style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, marginTop: 4 }}>
+              High-density tied bales
+            </div>
           </div>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: "rgba(2, 132, 199, 0.12)",
+              color: "#0284c7",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 22,
+            }}
+          >
+            <i className="ri-archive-stack-line" />
+          </div>
+        </div>
 
-          {/* STACK CARDS GRID */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
-            {filteredStacks.map((st) => {
-              const isWarning = st.tempStatus === "Warning" || (st.probeTempC && st.probeTempC > 35);
-              const isMonitored = st.tempStatus === "Monitored" || (st.probeTempC && st.probeTempC > 30);
+        {/* Stat 3: Active Stacks */}
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            padding: "16px 18px",
+            boxShadow: "var(--shadow-sm)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+              Active Yard Stacks
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: "var(--ink)", marginTop: 4 }}>
+              {stacks.length} <span style={{ fontSize: 14, fontWeight: 700 }}>Stacks</span>
+            </div>
+            <div style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, marginTop: 4 }}>
+              Across storage zones
+            </div>
+          </div>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: "rgba(126, 34, 206, 0.12)",
+              color: "#7e22ce",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 22,
+            }}
+          >
+            <i className="ri-grid-fill" />
+          </div>
+        </div>
 
-              return (
-                <div
-                  key={st.id}
-                  className="app-card"
-                  style={{
-                    background: "var(--surface)",
-                    border: `1px solid ${isWarning ? "#FF3B56" : isMonitored ? "#FFB800" : "var(--line)"}`,
-                    borderRadius: 14,
-                    padding: "14px 16px",
-                    boxShadow: "var(--shadow-sm)",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 10,
-                    position: "relative",
-                  }}
-                >
-                  {/* Stack Header & Crop Badge */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: "var(--ink)" }}>
-                        {st.stackCode}
-                      </span>
-                      <span style={{ fontSize: 10.5, color: "var(--muted)", background: "var(--canvas)", padding: "1px 6px", borderRadius: 6, border: "1px solid var(--line)", fontWeight: 700 }}>
-                        {st.zone}
-                      </span>
-                    </div>
-
-                    <span
-                      style={{
-                        fontSize: 10.5,
-                        fontWeight: 800,
-                        padding: "2px 8px",
-                        borderRadius: 12,
-                        background: st.cropBadgeBg || "rgba(93,214,44,0.12)",
-                        color: st.cropBadgeColor || "var(--primary)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                      }}
-                    >
-                      {st.cropName}
-                    </span>
-                  </div>
-
-                  {/* Tonnage & Bale Breakdown */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", background: "var(--canvas)", padding: "8px 12px", borderRadius: 8, border: "1px solid var(--line)" }}>
-                    <div>
-                      <div style={{ fontSize: 16, fontWeight: 900, color: "var(--ink)" }}>
-                        {st.tonnageMt.toLocaleString("en-IN")} MT
-                      </div>
-                      <span style={{ fontSize: 10, color: "var(--muted)" }}>Gross Weight</span>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: "var(--primary)" }}>
-                        {st.baleCount.toLocaleString("en-IN")} Bales
-                      </div>
-                      <span style={{ fontSize: 10, color: "var(--muted)" }}>Bale Count</span>
-                    </div>
-                  </div>
-
-                  {/* Thermal Probe & Fire Safety Indicator */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 11 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                      <span>🌡️ Probe Temp:</span>
-                      <strong style={{ color: isWarning ? "#FF3B56" : isMonitored ? "#FFB800" : "var(--primary)", fontSize: 12 }}>
-                        {st.probeTempC || 28}°C
-                      </strong>
-                    </div>
-
-                    <Badge tone={isWarning ? "error" : isMonitored ? "warning" : "success"}>
-                      {st.tempStatus?.toUpperCase() || "NORMAL"}
-                    </Badge>
-                  </div>
-
-                  {/* Humidity & Stack Date */}
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, color: "var(--muted)", borderTop: "1px solid var(--line)", paddingTop: 6 }}>
-                    <span>💧 Humidity: <strong>{st.humidityPct || 15.5}%</strong></span>
-                    <span>Stacked: <strong>{st.stackDate || "Recent"}</strong></span>
-                  </div>
-
-                  {/* Action Shortcuts */}
-                  <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleOpenAudit(st)}
-                      style={{ flex: 1, height: 26, fontSize: 11, padding: "0 8px" }}
-                    >
-                      <i className="ri-temp-hot-line" style={{ marginRight: 3 }} /> Audit Probe
-                    </Button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteStack(st.id, st.stackCode)}
-                      title="De-allocate Stack"
-                      style={{
-                        width: 26,
-                        height: 26,
-                        borderRadius: 6,
-                        border: "1px solid rgba(255,59,86,0.3)",
-                        background: "rgba(255,59,86,0.08)",
-                        color: "#FF3B56",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 12,
-                      }}
-                    >
-                      <i className="ri-delete-bin-line" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-
-            {filteredStacks.length === 0 && (
-              <div style={{ gridColumn: "1 / -1", padding: 28, textAlign: "center", background: "var(--surface)", borderRadius: 14, border: "1px solid var(--line)" }}>
-                <i className="ri-stack-line" style={{ fontSize: 32, color: "var(--muted)", marginBottom: 8, display: "block", opacity: 0.5 }} />
-                <h3 style={{ margin: "0 0 4px", color: "var(--ink)", fontSize: 14 }}>No Stacks Found in this Filter</h3>
-                <p style={{ margin: 0, fontSize: 12, color: "var(--muted)" }}>Try selecting "All Commodities" or "All Zones".</p>
-              </div>
-            )}
+        {/* Stat 4: Yard Condition / Safety */}
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px solid var(--line)",
+            borderRadius: 14,
+            padding: "16px 18px",
+            boxShadow: "var(--shadow-sm)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+              Yard Temperature Status
+            </div>
+            <div
+              style={{
+                fontSize: 20,
+                fontWeight: 900,
+                color: warningCount > 0 ? "#dc2626" : "#15803d",
+                marginTop: 4,
+              }}
+            >
+              {warningCount > 0 ? `⚠️ ${warningCount} Need Check` : "✓ All Safe & Cool"}
+            </div>
+            <div style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, marginTop: 4 }}>
+              {warningCount > 0 ? "Inspect hot stacks immediately" : "All temperatures below 30°C"}
+            </div>
+          </div>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: warningCount > 0 ? "rgba(220, 38, 38, 0.12)" : "rgba(21, 128, 61, 0.12)",
+              color: warningCount > 0 ? "#dc2626" : "#15803d",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 22,
+            }}
+          >
+            <i className={warningCount > 0 ? "ri-temp-hot-line" : "ri-shield-check-line"} />
           </div>
         </div>
       </div>
 
-      {/* MODAL 1: ADD NEW STACK ALLOCATION */}
-      <Modal open={isAddStackModalOpen} title="Allocate New Biomass Yard Stack" onClose={() => setIsAddStackModalOpen(false)}>
-        <form onSubmit={handleCreateStack} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <FormField
-            label="Stack Identifier Code"
-            value={newStackCode}
-            onChange={(val) => setNewStackCode(val)}
-            placeholder="e.g. STACK-A-101 (leave empty for auto-generated)"
-          />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }}>
-            <FormField
-              label="Yard Zone Location"
-              type="select"
-              required
-              value={newZone}
-              onChange={(val) => setNewZone(val)}
-              options={[
-                { value: "Zone A", label: "Zone A (Covered Shed 1)" },
-                { value: "Zone B", label: "Zone B (Covered Shed 2)" },
-                { value: "Zone C", label: "Zone C (Open Yard North)" },
-                { value: "Zone D", label: "Zone D (Open Yard South)" },
-              ]}
+      {/* 4. SEARCH & FILTER TOOLBAR (TABS & TABLE TOGGLE COMPLETELY REMOVED) */}
+      <div
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--line)",
+          borderRadius: 14,
+          padding: "12px 16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 12,
+          boxShadow: "var(--shadow-sm)",
+        }}
+      >
+        {/* Left: Search Box & Dropdowns */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 260, flexWrap: "wrap" }}>
+          <div style={{ position: "relative", minWidth: 240, flex: 1, maxWidth: 360 }}>
+            <i
+              className="ri-search-line"
+              style={{
+                position: "absolute",
+                left: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--muted)",
+                fontSize: 16,
+              }}
             />
+            <input
+              type="text"
+              placeholder="Search by Stack code, crop, or zone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: "100%",
+                height: 38,
+                padding: "0 12px 0 36px",
+                fontSize: 13,
+                fontWeight: 600,
+                borderRadius: 9,
+                border: "1px solid var(--line-strong)",
+                background: "var(--canvas)",
+                color: "var(--ink)",
+                outline: "none",
+              }}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                style={{
+                  position: "absolute",
+                  right: 10,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "var(--muted)",
+                  cursor: "pointer",
+                  fontSize: 16,
+                }}
+              >
+                <i className="ri-close-line" />
+              </button>
+            )}
+          </div>
+
+          {/* Zone Filter Dropdown */}
+          <select
+            value={selectedZone}
+            onChange={(e) => setSelectedZone(e.target.value)}
+            style={{
+              height: 38,
+              padding: "0 12px",
+              fontSize: 12.5,
+              fontWeight: 700,
+              borderRadius: 9,
+              border: "1px solid var(--line-strong)",
+              background: "var(--canvas)",
+              color: "var(--ink)",
+              outline: "none",
+              cursor: "pointer",
+            }}
+          >
+            {ZONE_OPTIONS.map((z) => (
+              <option key={z.value} value={z.value}>
+                {z.label}
+              </option>
+            ))}
+          </select>
+
+          {/* Crop Filter Dropdown */}
+          <select
+            value={selectedCrop}
+            onChange={(e) => setSelectedCrop(e.target.value)}
+            style={{
+              height: 38,
+              padding: "0 12px",
+              fontSize: 12.5,
+              fontWeight: 700,
+              borderRadius: 9,
+              border: "1px solid var(--line-strong)",
+              background: "var(--canvas)",
+              color: "var(--ink)",
+              outline: "none",
+              cursor: "pointer",
+            }}
+          >
+            {CROP_OPTIONS.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Right: Showing Count */}
+        <span style={{ fontSize: 12.5, color: "var(--muted)", fontWeight: 600 }}>
+          Showing: <strong style={{ color: "var(--ink)" }}>{filteredStacks.length}</strong> active stacks
+        </span>
+      </div>
+
+      {/* 5. ONLY CLEAN CARDS VIEW (TABLE REMOVED) */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+          gap: 16,
+        }}
+      >
+        {filteredStacks.map((st) => {
+          const isWarning = (st.probeTempC && Number(st.probeTempC) > 35) || st.tempStatus === "Warning";
+          const isMonitored = (st.probeTempC && Number(st.probeTempC) > 30) || st.tempStatus === "Monitored";
+
+          return (
+            <div
+              key={st.id}
+              style={{
+                background: "var(--surface)",
+                border: isWarning
+                  ? "1.5px solid #ef4444"
+                  : isMonitored
+                  ? "1.5px solid #f59e0b"
+                  : "1px solid var(--line)",
+                borderRadius: 14,
+                padding: "16px",
+                boxShadow: "var(--shadow-sm)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+                position: "relative",
+                transition: "transform 140ms ease, box-shadow 140ms ease",
+              }}
+            >
+              {/* Header: Code & Zone */}
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: 15, fontWeight: 900, color: "var(--ink)", letterSpacing: "0.2px" }}>
+                      {st.stackCode}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600, marginTop: 2 }}>
+                    <i className="ri-map-pin-line" style={{ marginRight: 3, color: "var(--primary)" }} />
+                    {st.zone}
+                  </div>
+                </div>
+
+                {/* Crop Badge */}
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 800,
+                    padding: "3px 9px",
+                    borderRadius: 12,
+                    background: st.cropBadgeBg || "var(--primary-tint)",
+                    color: st.cropBadgeColor || "var(--primary-deep)",
+                    border: "1px solid rgba(0, 0, 0, 0.05)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {st.cropName}
+                </span>
+              </div>
+
+              {/* Main Numbers: Weight & Bales */}
+              <div
+                style={{
+                  background: "var(--canvas)",
+                  borderRadius: 10,
+                  padding: "12px 14px",
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 8,
+                  border: "1px solid var(--line)",
+                }}
+              >
+                <div>
+                  <span style={{ fontSize: 10.5, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase" }}>
+                    Total Weight
+                  </span>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "var(--ink)", marginTop: 2 }}>
+                    {Number(st.tonnageMt || 0).toLocaleString("en-IN")}{" "}
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)" }}>MT</span>
+                  </div>
+                </div>
+
+                <div style={{ borderLeft: "1px solid var(--line)", paddingLeft: 12 }}>
+                  <span style={{ fontSize: 10.5, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase" }}>
+                    Bale Count
+                  </span>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "var(--primary-deep)", marginTop: 2 }}>
+                    {Number(st.baleCount || 0).toLocaleString("en-IN")}{" "}
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)" }}>Bales</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Health: Temperature & Safety Status */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "6px 10px",
+                  borderRadius: 8,
+                  background: isWarning ? "#fee2e2" : isMonitored ? "#fef3c7" : "rgba(22, 163, 74, 0.08)",
+                  border: isWarning ? "1px solid #fca5a5" : isMonitored ? "1px solid #fde68a" : "1px solid rgba(22, 163, 74, 0.2)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <i
+                    className={isWarning ? "ri-fire-line" : "ri-temp-hot-line"}
+                    style={{ color: isWarning ? "#dc2626" : isMonitored ? "#d97706" : "#15803d", fontSize: 15 }}
+                  />
+                  <span style={{ fontSize: 12, fontWeight: 800, color: isWarning ? "#dc2626" : isMonitored ? "#b45309" : "#15803d" }}>
+                    {st.probeTempC || 28}°C Temp
+                  </span>
+                </div>
+
+                <span
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 800,
+                    padding: "2px 6px",
+                    borderRadius: 4,
+                    background: isWarning ? "#dc2626" : isMonitored ? "#d97706" : "#15803d",
+                    color: "#ffffff",
+                  }}
+                >
+                  {isWarning ? "ACTION REQUIRED" : isMonitored ? "MONITORED" : "SAFE / NORMAL"}
+                </span>
+              </div>
+
+              {/* Date & Moisture */}
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--muted)" }}>
+                <span>💧 Moisture: {st.humidityPct || 15}%</span>
+                <span>Stacked: {st.stackDate || "Recent"}</span>
+              </div>
+
+              {/* Actions Toolbar */}
+              <div style={{ display: "flex", gap: 6, paddingTop: 4, borderTop: "1px solid var(--line)" }}>
+                <button
+                  type="button"
+                  onClick={() => handleOpenTempAudit(st)}
+                  style={{
+                    flex: 1,
+                    height: 32,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    borderRadius: 8,
+                    border: "1px solid var(--line-strong)",
+                    background: "var(--surface)",
+                    color: "var(--ink)",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 4,
+                  }}
+                  title="Check and update temperature reading"
+                >
+                  <i className="ri-temp-hot-line" style={{ color: "var(--primary)" }} /> Check Temp
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleOpenEdit(st)}
+                  style={{
+                    height: 32,
+                    padding: "0 10px",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    borderRadius: 8,
+                    border: "1px solid var(--line-strong)",
+                    background: "var(--surface)",
+                    color: "var(--ink)",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 4,
+                  }}
+                  title="Edit weight or bales"
+                >
+                  <i className="ri-edit-line" /> Edit
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDelete(st)}
+                  style={{
+                    height: 32,
+                    width: 32,
+                    borderRadius: 8,
+                    border: "1px solid rgba(239, 68, 68, 0.3)",
+                    background: "#fef2f2",
+                    color: "#dc2626",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 14,
+                  }}
+                  title="Delete or de-allocate stack"
+                >
+                  <i className="ri-delete-bin-line" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* EMPTY STATE */}
+      {filteredStacks.length === 0 && (
+        <div
+          style={{
+            background: "var(--surface)",
+            border: "1px dashed var(--line-strong)",
+            borderRadius: 16,
+            padding: "40px 20px",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              background: "var(--canvas)",
+              color: "var(--muted)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 28,
+              marginBottom: 12,
+            }}
+          >
+            <i className="ri-stack-line" />
+          </div>
+          <h3 style={{ margin: "0 0 6px", fontSize: 16, fontWeight: 800, color: "var(--ink)" }}>
+            No Stacks Found
+          </h3>
+          <p style={{ margin: "0 0 16px", fontSize: 13, color: "var(--muted)" }}>
+            {searchQuery
+              ? `No stacks matching "${searchQuery}". Clear your search or filter.`
+              : "There are no stacks registered in this zone yet."}
+          </p>
+          <Button variant="primary" icon="ri-add-line" onClick={handleOpenAddModal}>
+            + Create First Stack in this Zone
+          </Button>
+        </div>
+      )}
+
+      {/* MODAL 1: ADD NEW STACK (EASY & SIMPLE) */}
+      <Modal open={isAddModalOpen} title="Add New Storage Stack (नया स्टैक जोड़ें)" onClose={() => setIsAddModalOpen(false)}>
+        <form onSubmit={handleSaveNewStack} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <p style={{ margin: 0, fontSize: 12.5, color: "var(--muted)" }}>
+            Enter stack details to track stored biomass in the warehouse yard.
+          </p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
             <FormField
-              label="Commodity / Crop"
-              type="select"
+              label="Stack Number / Code *"
+              value={newForm.stackCode}
+              onChange={(val) => setNewForm((prev) => ({ ...prev, stackCode: val }))}
+              placeholder="e.g. STACK-A-101"
               required
-              value={newCrop}
-              onChange={(val) => setNewCrop(val)}
-              options={[
-                { value: "Paddy Straw", label: "Paddy Straw (Bales)" },
-                { value: "Maize Stem", label: "Maize Stem / Stalks" },
-                { value: "Wheat Straw", label: "Wheat Straw" },
-                { value: "Mustard Husk", label: "Mustard Husk" },
-              ]}
+            />
+
+            <FormField
+              label="Storage Zone / Shed *"
+              type="select"
+              value={newForm.zone}
+              onChange={(val) => setNewForm((prev) => ({ ...prev, zone: val }))}
+              options={ZONE_OPTIONS.filter((z) => z.value !== "ALL")}
+              required
             />
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }}>
+
+          <FormField
+            label="Commodity / Crop Name *"
+            type="select"
+            value={newForm.cropName}
+            onChange={(val) => setNewForm((prev) => ({ ...prev, cropName: val }))}
+            options={CROP_OPTIONS.filter((c) => c.value !== "ALL")}
+            required
+          />
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <FormField
-              label="Stack Weight (Tons / MT)"
+              label="Total Weight (Tons / MT) *"
               type="number"
-              required
-              value={newTonnage}
-              onChange={(val) => setNewTonnage(val)}
+              value={newForm.tonnageMt}
+              onChange={(val) => setNewForm((prev) => ({ ...prev, tonnageMt: val }))}
               placeholder="1000"
-            />
-            <FormField
-              label="Total Bale Count"
-              type="number"
               required
-              value={newBales}
-              onChange={(val) => setNewBales(val)}
-              placeholder="3300"
+            />
+
+            <FormField
+              label="Total Bale Count *"
+              type="number"
+              value={newForm.baleCount}
+              onChange={(val) => setNewForm((prev) => ({ ...prev, baleCount: val }))}
+              placeholder="3000"
+              required
             />
           </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <FormField
+              label="Current Temperature (°C)"
+              type="number"
+              value={newForm.probeTempC}
+              onChange={(val) => setNewForm((prev) => ({ ...prev, probeTempC: val }))}
+              placeholder="27"
+              help="Default is 27°C (Normal)"
+            />
+
+            <FormField
+              label="Moisture Level (%)"
+              type="number"
+              value={newForm.humidityPct}
+              onChange={(val) => setNewForm((prev) => ({ ...prev, humidityPct: val }))}
+              placeholder="15.0"
+              help="Standard is ~15%"
+            />
+          </div>
+
           <FormField
-            label="Initial Thermal Probe Reading (°C)"
-            type="number"
-            value={newProbeTemp}
-            onChange={(val) => setNewProbeTemp(val)}
-            placeholder="28"
+            label="Notes / Remarks (Optional)"
+            value={newForm.notes}
+            onChange={(val) => setNewForm((prev) => ({ ...prev, notes: val }))}
+            placeholder="e.g. Covered with waterproof tarpaulin"
           />
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8 }}>
-            <Button variant="secondary" type="button" onClick={() => setIsAddStackModalOpen(false)}>Cancel</Button>
-            <Button type="submit">Allocate Stack &rarr;</Button>
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
+            <Button variant="secondary" type="button" onClick={() => setIsAddModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit" icon="ri-check-line">
+              Save Stack to Yard
+            </Button>
           </div>
         </form>
       </Modal>
 
-      {/* MODAL 2: THERMAL PROBE AUDIT */}
-      <Modal open={Boolean(selectedStackForAudit)} title={`Audit Thermal Probe: ${selectedStackForAudit?.stackCode || ""}`} onClose={() => setSelectedStackForAudit(null)}>
-        <form onSubmit={handleUpdateTempSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <p style={{ margin: 0, fontSize: 12.5, color: "var(--muted)" }}>
-            Enter the latest sensor reading from the thermal probe inserted into {selectedStackForAudit?.stackCode}.
-          </p>
-          <FormField
-            label="Probe Temperature (°C)"
-            type="number"
-            required
-            value={probeTempInput}
-            onChange={(val) => setProbeTempInput(val)}
-            placeholder="e.g. 29"
-          />
-          <div style={{ fontSize: 11.5, color: "var(--muted)", margin: "-4px 0 6px" }}>
-            Thresholds: &lt;30°C Normal | 31-35°C Monitored | &gt;35°C Combustion Alert
+      {/* MODAL 2: QUICK TEMPERATURE UPDATE */}
+      <Modal
+        open={Boolean(tempAuditStack)}
+        title={`Check & Update Temperature: ${tempAuditStack?.stackCode || ""}`}
+        onClose={() => setTempAuditStack(null)}
+      >
+        <form onSubmit={handleSaveTempAudit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ background: "var(--canvas)", padding: "12px 14px", borderRadius: 10, border: "1px solid var(--line)" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)" }}>
+              {tempAuditStack?.stackCode} — {tempAuditStack?.zone}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
+              Crop: {tempAuditStack?.cropName} • Stored: {tempAuditStack?.tonnageMt} MT ({tempAuditStack?.baleCount} Bales)
+            </div>
           </div>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-            <Button variant="secondary" type="button" onClick={() => setSelectedStackForAudit(null)}>Cancel</Button>
-            <Button type="submit">Save Probe Reading</Button>
+
+          <FormField
+            label="Current Temperature Reading (°C) *"
+            type="number"
+            value={tempInput}
+            onChange={(val) => setTempInput(val)}
+            placeholder="e.g. 28"
+            required
+            autoFocus
+          />
+
+          {/* Simple Safety Threshold Guide */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#15803d" }}>
+              <i className="ri-checkbox-circle-fill" /> Below 30°C: Safe & Normal (सुरक्षित)
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#d97706" }}>
+              <i className="ri-alert-fill" /> 31°C - 35°C: Monitored (निगरानी रखें)
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#dc2626" }}>
+              <i className="ri-error-warning-fill" /> Above 35°C: Hot / Action Required (तुरंत ठंडा करें)
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
+            <Button variant="secondary" type="button" onClick={() => setTempAuditStack(null)}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit" icon="ri-save-line">
+              Save Reading
+            </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* MODAL 3: EDIT STACK DETAILS */}
+      <Modal
+        open={Boolean(editingStack)}
+        title={`Edit Stack: ${editingStack?.stackCode || ""}`}
+        onClose={() => setEditingStack(null)}
+      >
+        {editingStack && (
+          <form onSubmit={handleSaveEdit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 12 }}>
+              <FormField
+                label="Stack Code"
+                value={editingStack.stackCode}
+                onChange={(val) => setEditingStack((prev) => ({ ...prev, stackCode: val }))}
+                required
+              />
+
+              <FormField
+                label="Zone / Shed"
+                type="select"
+                value={editingStack.zone}
+                onChange={(val) => setEditingStack((prev) => ({ ...prev, zone: val }))}
+                options={ZONE_OPTIONS.filter((z) => z.value !== "ALL")}
+                required
+              />
+            </div>
+
+            <FormField
+              label="Commodity / Crop"
+              type="select"
+              value={editingStack.cropName}
+              onChange={(val) => setEditingStack((prev) => ({ ...prev, cropName: val }))}
+              options={CROP_OPTIONS.filter((c) => c.value !== "ALL")}
+              required
+            />
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <FormField
+                label="Weight (Tons / MT)"
+                type="number"
+                value={editingStack.tonnageMt}
+                onChange={(val) => setEditingStack((prev) => ({ ...prev, tonnageMt: val }))}
+                required
+              />
+
+              <FormField
+                label="Bale Count"
+                type="number"
+                value={editingStack.baleCount}
+                onChange={(val) => setEditingStack((prev) => ({ ...prev, baleCount: val }))}
+                required
+              />
+            </div>
+
+            <FormField
+              label="Temperature (°C)"
+              type="number"
+              value={editingStack.probeTempC}
+              onChange={(val) => setEditingStack((prev) => ({ ...prev, probeTempC: val }))}
+            />
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 10 }}>
+              <Button variant="secondary" type="button" onClick={() => setEditingStack(null)}>
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit" icon="ri-check-line">
+                Update Stack
+              </Button>
+            </div>
+          </form>
+        )}
       </Modal>
     </div>
   );

@@ -17,7 +17,7 @@ export const listGoods = asyncHandler(async (req, res) => {
 });
 
 export const getNextSupplierInvoiceNo = asyncHandler(async (req, res) => {
-  res.json({ success: true, data: await service.getNextSupplierInvoiceNo() });
+  res.json({ success: true, data: await service.getNextSupplierInvoiceNo(req.query.warehouseId) });
 });
 
 export const getGoods = asyncHandler(async (req, res) => {

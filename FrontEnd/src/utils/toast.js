@@ -9,19 +9,28 @@ function notify() {
   for (const listener of listeners) listener(toasts);
 }
 
-function push(type, message, { duration = 5000 } = {}) {
+function push(type, message, { duration = 4500, title } = {}) {
   if (!message) return;
   const recent = toasts.find((t) => t.message === message && t.type === type);
   if (recent) return recent.id;
   const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  toasts = [...toasts, { id, type, message, duration }];
+  toasts = [...toasts, { id, type, message, title, duration, createdAt: Date.now() }];
   notify();
-  if (duration) setTimeout(() => dismiss(id), duration);
+  // Fallback cleanup in case component unmounts
+  if (duration) {
+    setTimeout(() => {
+      dismiss(id);
+    }, duration + 1000);
+  }
   return id;
 }
 
 function dismiss(id) {
-  toasts = toasts.filter((t) => t.id !== id);
+  if (!id) {
+    toasts = [];
+  } else {
+    toasts = toasts.filter((t) => t.id !== id);
+  }
   notify();
 }
 
@@ -38,3 +47,4 @@ export function subscribeToasts(listener) {
   listener(toasts);
   return () => listeners.delete(listener);
 }
+

@@ -55,9 +55,9 @@ export default function MobileAppHubModal({ isOpen, onClose }) {
                   bg: "rgba(51, 116, 24, 0.12)",
                 },
                 {
-                  label: "Storage & Stacks",
-                  desc: "Yard stacks, probes & godowns",
-                  path: "/biomass/storage",
+                  label: "Storage Rooms",
+                  desc: "Custom rooms, godowns & silos",
+                  path: "/warehouses/rooms",
                   icon: "ri-archive-stack-line",
                   color: "#00B894",
                   bg: "rgba(0, 184, 148, 0.12)",

@@ -46,7 +46,16 @@ collectionSchema.pre("save", async function generateSlipNo(next) {
     const date = new Date();
     const yy = String(date.getFullYear()).slice(2);
     const mm = String(date.getMonth() + 1).padStart(2, "0");
-    this.slipNo = `COL-${yy}${mm}-${String(seq).padStart(5, "0")}`;
+    let whPrefix = "WH";
+    try {
+      const wh = await mongoose.model("Warehouse").findById(this.warehouse).select("code name");
+      if (wh?.code) {
+        whPrefix = wh.code;
+      } else if (wh?.name) {
+        whPrefix = wh.name.replace(/[^A-Za-z0-9]/g, "").slice(0, 5).toUpperCase();
+      }
+    } catch {}
+    this.slipNo = `${whPrefix}-COL-${yy}${mm}-${String(seq).padStart(5, "0")}`;
   }
   next();
 });

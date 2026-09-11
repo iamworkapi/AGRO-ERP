@@ -93,21 +93,14 @@ export default function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={loading}
+            loading={loading}
             style={{
               background: palette.btn,
               color: "white",
               fontWeight: 700,
-              opacity: loading ? 0.7 : 1,
             }}
           >
-            {loading ? (
-              <>
-                <i className="ri-loader-4-line ri-spin" style={{ marginRight: 6 }} />
-                Processing…
-              </>
-            ) : (
-              confirmLabel
-            )}
+            {loading ? "Processing…" : confirmLabel}
           </Button>
         </div>
       </div>

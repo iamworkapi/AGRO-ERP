@@ -36,7 +36,16 @@ dispatchSchema.pre("save", async function generateGatePassNo(next) {
     const seq = await nextSequence("dispatch_gate_pass_no");
     const date = new Date();
     const yymm = `${String(date.getFullYear()).slice(2)}${String(date.getMonth() + 1).padStart(2, "0")}`;
-    this.gatePassNo = `GP-${yymm}-${String(seq).padStart(5, "0")}`;
+    let whPrefix = "WH";
+    try {
+      const wh = await mongoose.model("Warehouse").findById(this.warehouse).select("code name");
+      if (wh?.code) {
+        whPrefix = wh.code;
+      } else if (wh?.name) {
+        whPrefix = wh.name.replace(/[^A-Za-z0-9]/g, "").slice(0, 5).toUpperCase();
+      }
+    } catch {}
+    this.gatePassNo = `${whPrefix}-GP-${yymm}-${String(seq).padStart(5, "0")}`;
   }
   next();
 });

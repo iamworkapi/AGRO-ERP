@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { DataTable as PrimeDataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import Loader from "./Loader";
 
 export default function DataTable({
   columns = [],
@@ -10,6 +11,7 @@ export default function DataTable({
   emptyMessage = "No records found.",
   title,
   subtitle,
+  icon,
   leftHeader,
   right,
   searchable = true,
@@ -76,7 +78,7 @@ export default function DataTable({
       style={{
         background: "var(--surface)",
         border: "1px solid var(--line)",
-        borderRadius: 18,
+        borderRadius: 14,
         boxShadow: "var(--shadow-sm)",
         overflow: "hidden",
         position: "relative",
@@ -92,9 +94,9 @@ export default function DataTable({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: compact ? "10px 14px" : "12px 18px",
+            padding: compact ? "8px 12px" : "10px 16px",
             borderBottom: "1px solid var(--line)",
-            gap: 12,
+            gap: 10,
             flexWrap: "wrap",
             background: "linear-gradient(180deg, var(--surface-hover) 0%, var(--surface) 100%)",
           }}
@@ -102,30 +104,50 @@ export default function DataTable({
           <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
             {leftHeader}
             {title && !leftHeader && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--ink)", margin: 0, letterSpacing: 0.1 }}>
-                    {title}
-                  </h3>
-                  {rows.length > 0 && (
-                    <span
-                      style={{
-                        fontSize: 10.5,
-                        fontWeight: 800,
-                        color: "var(--primary)",
-                        background: "var(--primary-tint)",
-                        padding: "2px 8px",
-                        borderRadius: 10,
-                        lineHeight: "16px",
-                      }}
-                    >
-                      {globalFilter ? `${filteredRows.length} / ${rows.length}` : rows.length}
-                    </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                {icon && (
+                  <div
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 8,
+                      background: "var(--primary-tint)",
+                      color: "var(--primary)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 16,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <i className={icon} />
+                  </div>
+                )}
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--ink)", margin: 0, letterSpacing: 0.1 }}>
+                      {title}
+                    </h3>
+                    {rows.length > 0 && (
+                      <span
+                        style={{
+                          fontSize: 10.5,
+                          fontWeight: 800,
+                          color: "var(--primary-deep)",
+                          background: "var(--primary-tint)",
+                          padding: "2px 8px",
+                          borderRadius: 10,
+                          lineHeight: "16px",
+                        }}
+                      >
+                        {globalFilter ? `${filteredRows.length} / ${rows.length}` : rows.length}
+                      </span>
+                    )}
+                  </div>
+                  {subtitle && (
+                    <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>{subtitle}</p>
                   )}
                 </div>
-                {subtitle && (
-                  <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)" }}>{subtitle}</p>
-                )}
               </div>
             )}
           </div>
@@ -155,8 +177,8 @@ export default function DataTable({
                   style={{
                     width: "clamp(220px, 24vw, 320px)",
                     minWidth: 220,
-                    height: 32,
-                    padding: "0 28px 0 30px",
+                    height: 34,
+                    padding: "0 28px 0 32px",
                     fontSize: 12,
                     borderRadius: 8,
                     border: globalFilter ? "1.5px solid var(--primary)" : "1px solid var(--line-strong)",
@@ -248,37 +270,7 @@ export default function DataTable({
 
       {/* Table */}
       <div className="table-responsive" style={{ position: "relative" }}>
-        {loading && (
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "rgba(255, 255, 255, 0.7)",
-              backdropFilter: "blur(2px)",
-              zIndex: 10,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "column",
-              gap: 10,
-            }}
-          >
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                border: "3px solid var(--primary-tint)",
-                borderTopColor: "var(--primary)",
-                borderRadius: "50%",
-                animation: "spin 0.8s linear infinite",
-              }}
-            />
-            <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)" }}>Loading data...</span>
-          </div>
-        )}
+        {loading && <Loader size={40} label="Loading data..." overlay />}
 
         <PrimeDataTable
           value={filteredRows}

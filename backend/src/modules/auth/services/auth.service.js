@@ -6,6 +6,7 @@ import { ApiError } from "../../common/utils/ApiError.js";
 import { signAccessToken } from "../../common/utils/jwt.js";
 import { getOwnWarehouseId } from "../../warehouses/services/warehouseScope.service.js";
 import { recordAudit } from "../../audit/services/audit.service.js";
+import { ROLES } from "../../common/constants/roles.js";
 
 function isEmail(identifier) {
   return identifier.includes("@");
@@ -69,7 +70,7 @@ function getRequestMeta(req) {
   return { ip: req?.ip || req?.headers?.["x-forwarded-for"] || "unknown", userAgent: req?.get?.("user-agent") || "unknown" };
 }
 
-export async function login({ identifier, password }, req) {
+export async function login({ identifier, password, warehouseId }, req) {
   const meta = getRequestMeta(req);
 
   await assertNotLockedOut(identifier);
@@ -82,7 +83,7 @@ export async function login({ identifier, password }, req) {
       actor: buildAuditActor(null),
       action: "auth.login_failed",
       entityType: "auth",
-      metadata: { identifier, ...meta },
+      metadata: { identifier, warehouseId, ...meta },
     });
     throw ApiError.unauthorized("Invalid login credentials - please check your phone/email and password.");
   }
@@ -96,14 +97,49 @@ export async function login({ identifier, password }, req) {
     );
   }
 
+  // Super Admin: allow direct login with no warehouse selection.
+  // Admin/Supervisor: if they ARE assigned to a warehouse, they must
+  // select their exact warehouse hub — this prevents logging in with
+  // a different warehouse's credentials. If they are NOT yet assigned
+  // to any warehouse, they can still log in (frontend shows a waiting
+  // screen) so they can update their profile/password.
+  if (user.role !== ROLES.SUPER_ADMIN) {
+    const assignedWarehouse = await Warehouse.findOne({
+      $or: [
+        { admin: user._id },
+        { supervisor: user._id },
+      ],
+    }).select("_id name");
+
+    if (assignedWarehouse) {
+      // User has an assignment — they MUST select the correct warehouse.
+      if (!warehouseId) {
+        await recordAttempt(identifier, meta.ip, false);
+        throw ApiError.badRequest("Please select your warehouse hub to continue.");
+      }
+      if (String(assignedWarehouse._id) !== String(warehouseId)) {
+        await recordAttempt(identifier, meta.ip, false);
+        await recordAudit({
+          actor: buildAuditActor(user),
+          action: "auth.login_failed_wrong_warehouse",
+          entityType: "auth",
+          entityId: user._id,
+          metadata: { identifier, attemptedWarehouseId: warehouseId, actualWarehouseId: assignedWarehouse._id, ...meta },
+        });
+        throw ApiError.forbidden("These credentials do not match the selected warehouse hub. Please select your assigned hub or contact your Super Administrator.");
+      }
+    }
+    // If no assignment exists yet, allow login — frontend shows waiting screen.
+  }
+
   // Reset any prior failures for this account - successful login clears the slate.
   await recordAttempt(identifier, meta.ip, true);
   await clearFailedAttempts(identifier);
 
-  const warehouseId = await getOwnWarehouseId(user);
+  const ownWarehouseId = await getOwnWarehouseId(user);
   let warehouse = null;
-  if (warehouseId) {
-    warehouse = await Warehouse.findById(warehouseId).select("name code address commodity status");
+  if (ownWarehouseId) {
+    warehouse = await Warehouse.findById(ownWarehouseId).select("name code address commodity status");
   }
 
   await recordAudit({
@@ -116,8 +152,8 @@ export async function login({ identifier, password }, req) {
 
   return {
     accessToken: signAccessToken(user),
-    profile: { ...user.toJSON(), warehouseId, warehouse },
-    warehouseId,
+    profile: { ...user.toJSON(), warehouseId: ownWarehouseId, warehouse },
+    warehouseId: ownWarehouseId,
     warehouse,
   };
 }

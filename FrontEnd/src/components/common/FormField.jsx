@@ -277,7 +277,7 @@ export default function FormField({
             error={isInvalid}
             filter={filter}
             showClear={showClear}
-            style={{ border: "none" }}
+            style={{ borderWidth: 0 }}
             onFocus={handleFocus}
             onBlur={handleBlur}
           />

@@ -7,6 +7,7 @@ import { useAuth } from "../hooks/useAuth";
 import {
   DEFAULT_WAREHOUSE_TCC,
   saveNewStack,
+  getWarehouseCodePrefix,
 } from "../features/biomass/biomassService";
 import { toast } from "../utils/toast";
 
@@ -17,10 +18,13 @@ export default function CreateStorageStack() {
   const { warehouses } = useWarehouses();
   const myWarehouse = isScopedRole ? warehouses[0] : null;
 
+  const initialWh = myWarehouse || warehouses[0] || DEFAULT_WAREHOUSE_TCC;
+  const initialWhPrefix = getWarehouseCodePrefix(initialWh?.code || initialWh?.id, initialWh?.name);
+
   // Form State
-  const [warehouseId, setWarehouseId] = useState(() => myWarehouse?.id || DEFAULT_WAREHOUSE_TCC.code);
+  const [warehouseId, setWarehouseId] = useState(() => initialWh?.id || initialWh?.code || DEFAULT_WAREHOUSE_TCC.code);
   const [zone, setZone] = useState("Zone A (Covered Shed 1)");
-  const [stackCode, setStackCode] = useState(`STACK-A-${Math.floor(100 + Math.random() * 900)}`);
+  const [stackCode, setStackCode] = useState(`${initialWhPrefix}-STK-A-${Math.floor(100 + Math.random() * 900)}`);
   
   // Commodity & Volume
   const [cropName, setCropName] = useState("Paddy Straw");
@@ -44,7 +48,9 @@ export default function CreateStorageStack() {
 
   function handleAutoGenerateCode() {
     const zoneLetter = zone.includes("Zone B") ? "B" : zone.includes("Zone C") ? "C" : zone.includes("Zone D") ? "D" : "A";
-    setStackCode(`STACK-${zoneLetter}-${Math.floor(100 + Math.random() * 900)}`);
+    const selectedWh = warehouses.find((w) => w.id === warehouseId || w.code === warehouseId) || myWarehouse;
+    const whPrefix = getWarehouseCodePrefix(selectedWh?.code || selectedWh?.id, selectedWh?.name);
+    setStackCode(`${whPrefix}-STK-${zoneLetter}-${Math.floor(100 + Math.random() * 900)}`);
   }
 
   function handleSubmit(e) {
@@ -157,7 +163,14 @@ export default function CreateStorageStack() {
                 <select
                   disabled={isScopedRole}
                   value={warehouseId}
-                  onChange={(e) => setWarehouseId(e.target.value)}
+                  onChange={(e) => {
+                    const newWhId = e.target.value;
+                    setWarehouseId(newWhId);
+                    const selectedWh = warehouses.find((w) => w.id === newWhId || w.code === newWhId);
+                    const whPrefix = getWarehouseCodePrefix(selectedWh?.code || selectedWh?.id, selectedWh?.name);
+                    const zoneLetter = zone.includes("Zone B") ? "B" : zone.includes("Zone C") ? "C" : zone.includes("Zone D") ? "D" : "A";
+                    setStackCode(`${whPrefix}-STK-${zoneLetter}-${Math.floor(100 + Math.random() * 900)}`);
+                  }}
                   style={{
                     width: "100%",
                     height: 34,

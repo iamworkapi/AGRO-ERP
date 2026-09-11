@@ -4,6 +4,7 @@ import { ROLES } from "../../common/constants/roles.js";
 export const loginSchema = z.object({
   identifier: z.string().min(3, "Email or phone is required."),
   password: z.string().min(1, "Password is required."),
+  warehouseId: z.string().min(1, "Please select your warehouse hub.").optional(),
 });
 
 // Applies only at registration - login just checks the password on file

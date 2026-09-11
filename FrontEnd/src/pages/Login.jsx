@@ -1,24 +1,27 @@
 import { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate, Link } from "react-router-dom";
 import AuthLayout from "../layouts/AuthLayout";
 import FormField from "../components/common/FormField";
 import Button from "../components/common/Button";
 import { useAuth } from "../hooks/useAuth";
+import { loginThunk, setUser } from "../features/auth/authSlice";
 import { loginSchema, forgotPasswordSchema, resetPasswordSchema } from "../validators/authValidators";
 import { validateOrToast } from "../utils/validate";
 import { toast } from "../utils/toast";
-import { requestPasswordReset, resetPassword } from "../features/auth/api";
+import { requestPasswordReset, resetPassword, adaptProfile } from "../features/auth/api";
 
 export default function Login() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { login } = useAuth();
 
   const [warehouses, setWarehouses] = useState([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
-  const [selectedRole, setSelectedRole] = useState("super_admin");
+  const [selectedRole, setSelectedRole] = useState("");
   const [warehouseDropdownOpen, setWarehouseDropdownOpen] = useState(false);
   const [warehouseSearchQuery, setWarehouseSearchQuery] = useState("");
-  const [form, setForm] = useState({ identifier: "iamworkapi@gmail.com", password: "" });
+  const [form, setForm] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -74,11 +77,8 @@ export default function Login() {
   const handleRoleSelect = (roleKey) => {
     setSelectedRole(roleKey);
     setWarehouseDropdownOpen(false);
-    if (roleKey === "super_admin") {
-      setForm({ identifier: "iamworkapi@gmail.com", password: "" });
-    } else {
-      setForm({ identifier: "", password: "" });
-    }
+    // Never pre-fill credentials — every user types their own unique password
+    setForm({ identifier: "", password: "" });
   };
 
   const handleWarehouseChange = (whId) => {
@@ -86,7 +86,7 @@ export default function Login() {
     setForm((f) => ({ ...f, identifier: "", password: "" }));
   };
 
-  const selectedWh = warehouses.find((w) => w.id === selectedWarehouseId) || warehouses[0];
+  const selectedWh = selectedWarehouseId ? warehouses.find((w) => w.id === selectedWarehouseId) : null;
   const filteredWarehouses = warehouses.filter((w) =>
     (w.name || "").toLowerCase().includes(warehouseSearchQuery.toLowerCase()) ||
     (w.address || "").toLowerCase().includes(warehouseSearchQuery.toLowerCase())
@@ -94,14 +94,46 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const parsed = validateOrToast(loginSchema, form);
-    if (!parsed) return;
+    // Super Admin: no warehouse needed. Admin/Supervisor: must send selected warehouse.
+    const loginPayload =
+      selectedRole === "super_admin"
+        ? { identifier: form.identifier, password: form.password }
+        : { identifier: form.identifier, password: form.password, warehouseId: selectedWarehouseId };
+
+    console.log("[Login] submitting:", { ...loginPayload, password: "***", selectedWarehouseId });
+
+    const parsed = validateOrToast(loginSchema, loginPayload);
+    if (!parsed) {
+      console.log("[Login] validation failed");
+      return;
+    }
 
     setIsLoading(true);
     try {
-      await login(parsed).unwrap();
+      console.log("[Login] payload:", loginPayload);
+      const resp = await fetch("/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginPayload),
+        credentials: "include",
+      });
+      const rawText = await resp.text();
+      console.log("[Login] status:", resp.status, "ok:", resp.ok, "raw:", rawText?.slice(0, 300));
+      let body;
+      try { body = JSON.parse(rawText); } catch { body = { raw: rawText }; }
+      if (!resp.ok || !body?.success) {
+        const msg = body?.error?.message || body?.message || `HTTP ${resp.status}`;
+        throw new Error(msg);
+      }
+      const { accessToken, profile, warehouseId: retWarehouseId } = body.data || {};
+      console.log("[Login] login success, token:", !!accessToken, "profile:", !!profile);
+      localStorage.setItem("accessToken", accessToken);
+      const user = adaptProfile(profile, retWarehouseId);
+      // Update Redux store so ProtectedRoute sees isAuthenticated = true
+      dispatch(setUser(user));
       navigate("/");
     } catch (err) {
+      console.error("[Login] error:", err?.message);
       toast.error(err?.message || "Invalid login credentials — please check your phone/email and password.");
     } finally {
       setIsLoading(false);

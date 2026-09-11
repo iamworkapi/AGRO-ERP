@@ -7,6 +7,7 @@ import Badge from "../components/common/Badge";
 import Modal from "../components/common/Modal";
 import FormField from "../components/common/FormField";
 import BiomassCollectionSlipModal from "../components/biomass/BiomassCollectionSlipModal";
+import Loader from "../components/common/Loader";
 import { fetchVendors, updateVendor as apiUpdateVendor, deleteVendor as apiDeleteVendor } from "../features/biomass/api";
 import { getStoredCollections } from "../features/biomass/biomassService";
 import { useWarehouses } from "../features/warehouses/useWarehouses";
@@ -30,6 +31,19 @@ export default function BiomassVendors() {
   const [editingVendor, setEditingVendor] = useState(null);
   const [selectedVendorForDetails, setSelectedVendorForDetails] = useState(null);
   const [selectedSlipForPrint, setSelectedSlipForPrint] = useState(null);
+  const [copiedGstin, setCopiedGstin] = useState(false);
+
+  const handleCopyGstin = (text) => {
+    if (!text) return;
+    try {
+      navigator.clipboard?.writeText(text);
+      setCopiedGstin(true);
+      toast.success("GSTIN copied to clipboard");
+      setTimeout(() => setCopiedGstin(false), 2000);
+    } catch {
+      // Fallback if clipboard API not permitted
+    }
+  };
 
   const [editForm, setEditForm] = useState({
     companyName: "",
@@ -194,8 +208,8 @@ export default function BiomassVendors() {
       />
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: 40, color: "var(--muted)" }}>
-          <i className="ri-loader-4-line spin" style={{ fontSize: 28 }} /> Loading vendors...
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "64px 0" }}>
+          <Loader size={44} label="Loading vendor directory..." />
         </div>
       ) : (
         <>
@@ -353,50 +367,20 @@ export default function BiomassVendors() {
               {
                 key: "companyName", label: "Buyer / Contractor", emphasize: true,
                 render: (r) => (
-                  <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, rgba(93, 214, 44, 0.2) 0%, rgba(51, 116, 24, 0.1) 100%)", color: "var(--primary-deep)", fontSize: 11.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1px solid rgba(93, 214, 44, 0.25)", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-                      {(r.companyName || "V").slice(0, 2).toUpperCase()}
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-                      <span style={{ fontWeight: 650, color: "var(--ink)", fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 220 }} title={r.companyName}>
-                        {r.companyName}
-                      </span>
-                      <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, color: "var(--muted)", marginTop: 1 }}>
-                        <span style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", fontWeight: 700, color: "var(--primary-deep)", background: "var(--primary-tint)", padding: "1px 5px", borderRadius: 4, letterSpacing: "0.2px" }}>
-                          {r.vendorCode}
-                        </span>
-                        <span>•</span>
-                        <span style={{ display: "inline-flex", alignItems: "center", gap: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 140 }} title={r.sourcingArea || "General Belt"}>
-                          <i className="ri-map-pin-2-line" style={{ fontSize: 10.5, color: "var(--muted)" }} />
-                          {r.sourcingArea || "General Belt"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ),
-              },
-              {
-                key: "warehouse", label: "Warehouse Hub",
-                render: (r) => (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                    <span style={{ fontWeight: 650, color: "var(--ink)", fontSize: 12.5, whiteSpace: "nowrap" }}>
-                      {r.warehouseName || r.warehouse?.name || "All Warehouses"}
+                  <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                    <span style={{ fontWeight: 650, color: "var(--ink)", fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 260 }} title={r.companyName}>
+                      {r.companyName}
                     </span>
-                    {(r.warehouseCode || r.warehouse?.code) ? (
-                      <span style={{
-                        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                        fontSize: 10,
-                        fontWeight: 700,
-                        color: "var(--primary-deep)",
-                        background: "var(--primary-tint)",
-                        padding: "1px 6px",
-                        borderRadius: 4,
-                        width: "fit-content",
-                        letterSpacing: "0.3px",
-                      }}>
-                        {r.warehouseCode || r.warehouse?.code}
+                    <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, color: "var(--muted)", marginTop: 1 }}>
+                      <span style={{ fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", fontWeight: 700, color: "var(--primary-deep)", background: "var(--primary-tint)", padding: "1px 5px", borderRadius: 4, letterSpacing: "0.2px" }}>
+                        {r.vendorCode}
                       </span>
-                    ) : null}
+                      <span>•</span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 180 }} title={r.sourcingArea || "General Belt"}>
+                        <i className="ri-map-pin-2-line" style={{ fontSize: 10.5, color: "var(--muted)" }} />
+                        {r.sourcingArea || "General Belt"}
+                      </span>
+                    </div>
                   </div>
                 ),
               },
@@ -503,7 +487,15 @@ export default function BiomassVendors() {
 
           {/* EDIT BUYER MODAL */}
           {editingVendor && (
-            <Modal isOpen={true} onClose={() => setEditingVendor(null)} title="Edit Buyer Details">
+            <Modal
+              open={Boolean(editingVendor)}
+              onClose={() => setEditingVendor(null)}
+              title={`Edit Buyer: ${editingVendor.companyName}`}
+              subtitle="Update contracted quotas, GSTIN, contacts and procurement rates"
+              icon="ri-edit-circle-line"
+              badge="PARTNER SETTINGS"
+              width={560}
+            >
               <form onSubmit={handleSaveEdit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 12px" }}>
                   <div style={{ gridColumn: "1 / -1" }}>
@@ -537,53 +529,474 @@ export default function BiomassVendors() {
 
           {/* DETAILS DRAWER MODAL */}
           {selectedVendorForDetails && (
-            <Modal isOpen={true} onClose={() => setSelectedVendorForDetails(null)} title={`Buyer Details: ${selectedVendorForDetails.companyName}`}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, background: "var(--canvas)", padding: 12, borderRadius: 10, border: "1px solid var(--line)" }}>
-                  <div>
-                    <span style={{ fontSize: 10.5, color: "var(--muted)", textTransform: "uppercase", fontWeight: 700 }}>Contracted Volume</span>
-                    <strong style={{ fontSize: 14, color: "var(--ink)", display: "block" }}>{selectedVendorForDetails.contractedQtyMt} MT</strong>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: 10.5, color: "var(--muted)", textTransform: "uppercase", fontWeight: 700 }}>Fulfilled to Date</span>
-                    <strong style={{ fontSize: 14, color: "#059669", display: "block" }}>{selectedVendorForDetails.actualSourcedMt.toFixed(2)} MT</strong>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: 10.5, color: "var(--muted)", textTransform: "uppercase", fontWeight: 700 }}>Agreed Rate</span>
-                    <strong style={{ fontSize: 14, color: "var(--primary-deep)", display: "block" }}>₹{selectedVendorForDetails.agreedPricePerMt || 1400} / MT</strong>
-                  </div>
-                </div>
+            <Modal
+              open={Boolean(selectedVendorForDetails)}
+              onClose={() => setSelectedVendorForDetails(null)}
+              title={selectedVendorForDetails.companyName}
+              subtitle={
+                selectedVendorForDetails.vendorCode
+                  ? `Partner Code: ${selectedVendorForDetails.vendorCode} • ${selectedVendorForDetails.warehouseName || "Biomass Hub"}`
+                  : "Buyer Profile & Sourcing Record"
+              }
+              icon="ri-building-4-line"
+              badge={selectedVendorForDetails.status === "ACTIVE" ? "Active Buyer" : (selectedVendorForDetails.status || "Contractor")}
+              width={580}
+              headerActions={
+                !isSuperAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const v = selectedVendorForDetails;
+                      setSelectedVendorForDetails(null);
+                      handleOpenEdit(v);
+                    }}
+                    title="Edit Partner Record"
+                    style={{
+                      height: 32,
+                      padding: "0 10px",
+                      borderRadius: 8,
+                      border: "1px solid var(--line-strong)",
+                      background: "var(--surface)",
+                      color: "var(--ink)",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 5,
+                      transition: "all 0.18s ease",
+                    }}
+                  >
+                    <i className="ri-edit-line" style={{ color: "var(--primary)" }} />
+                    <span>Edit</span>
+                  </button>
+                )
+              }
+            >
+              {(() => {
+                const contracted = Number(selectedVendorForDetails.contractedQtyMt) || 0;
+                const sourced = Number(selectedVendorForDetails.actualSourcedMt) || 0;
+                const rate = Number(selectedVendorForDetails.agreedPricePerMt) || 1400;
+                const pct = contracted > 0 ? Math.min(100, Math.round((sourced / contracted) * 100)) : 0;
+                const totalVal = Math.round(sourced * rate);
+                const remaining = Math.max(0, contracted - sourced);
+                const slips = selectedVendorForDetails.collectionsList || [];
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: 12 }}>
-                  <div><span style={{ color: "var(--muted)" }}>GSTIN:</span><strong style={{ marginLeft: 6, color: "var(--ink)", fontFamily: "monospace" }}>{selectedVendorForDetails.gstin}</strong></div>
-                  <div><span style={{ color: "var(--muted)" }}>PO Reference:</span><strong style={{ marginLeft: 6, color: "var(--ink)" }}>{selectedVendorForDetails.poNo}</strong></div>
-                  <div><span style={{ color: "var(--muted)" }}>Representative:</span><strong style={{ marginLeft: 6, color: "var(--ink)" }}>{selectedVendorForDetails.representative}</strong></div>
-                  <div><span style={{ color: "var(--muted)" }}>Contact:</span><strong style={{ marginLeft: 6, color: "var(--ink)" }}>{selectedVendorForDetails.contactNo}</strong></div>
-                  <div><span style={{ color: "var(--muted)" }}>Sourcing Belt:</span><span style={{ marginLeft: 6, color: "var(--ink-secondary)" }}>{selectedVendorForDetails.sourcingArea || "General Region"}</span></div>
-                  <div><span style={{ color: "var(--muted)" }}>Tenure:</span><span style={{ marginLeft: 6, color: "var(--ink-secondary)" }}>{selectedVendorForDetails.tenure || "Active Season"}</span></div>
-                </div>
-
-                <div style={{ borderTop: "1px solid var(--line)", paddingTop: 10 }}>
-                  <h4 style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 800, color: "var(--ink)" }}>
-                    Collection Inflow History ({selectedVendorForDetails.collectionsList?.length || 0} Entries)
-                  </h4>
-                  {selectedVendorForDetails.collectionsList?.length > 0 ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 180, overflowY: "auto" }}>
-                      {selectedVendorForDetails.collectionsList.map((slip) => (
-                        <div key={slip.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", borderRadius: 6, background: "var(--canvas)", border: "1px solid var(--line)", fontSize: 11.5 }}>
-                          <div><strong>{slip.slipNo}</strong> • {slip.villageName || "Hub Entry"} ({slip.cropResidueType})</div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ fontWeight: 700, color: "var(--primary-deep)" }}>{slip.invoiceWeightMt} MT</span>
-                            <Button variant="secondary" onClick={() => setSelectedSlipForPrint(slip)} style={{ padding: "2px 6px", fontSize: 10 }}>Slip</Button>
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {/* Hero Identity Ribbon */}
+                    <div
+                      style={{
+                        padding: "12px 14px",
+                        background: "linear-gradient(135deg, rgba(51, 116, 24, 0.08) 0%, rgba(16, 185, 129, 0.04) 100%)",
+                        border: "1px solid rgba(51, 116, 24, 0.18)",
+                        borderRadius: 12,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: 10,
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div
+                          style={{
+                            width: 38,
+                            height: 38,
+                            borderRadius: 10,
+                            background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-deep) 100%)",
+                            color: "#ffffff",
+                            fontSize: 18,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            boxShadow: "0 2px 8px rgba(51, 116, 24, 0.25)",
+                            flexShrink: 0,
+                          }}
+                        >
+                          <i className="ri-building-4-line" />
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: 14, color: "var(--ink)" }}>
+                            {selectedVendorForDetails.companyName}
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--muted)", marginTop: 2 }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                              <i className="ri-map-pin-2-line" style={{ color: "var(--primary)" }} />
+                              {selectedVendorForDetails.sourcingArea || "General Belt"}
+                            </span>
+                            <span>•</span>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                              <i className="ri-calendar-line" style={{ color: "var(--muted)" }} />
+                              {selectedVendorForDetails.tenure || "Active Season"}
+                            </span>
                           </div>
                         </div>
-                      ))}
+                      </div>
+
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 5,
+                          padding: "3px 10px",
+                          borderRadius: 20,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          background: selectedVendorForDetails.status === "ACTIVE" ? "rgba(16, 185, 129, 0.12)" : "rgba(245, 158, 11, 0.12)",
+                          color: selectedVendorForDetails.status === "ACTIVE" ? "#047857" : "#b45309",
+                          border: `1px solid ${selectedVendorForDetails.status === "ACTIVE" ? "rgba(16, 185, 129, 0.25)" : "rgba(245, 158, 11, 0.25)"}`,
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: 6,
+                            height: 6,
+                            borderRadius: "50%",
+                            background: selectedVendorForDetails.status === "ACTIVE" ? "#10B981" : "#F59E0B",
+                            boxShadow: selectedVendorForDetails.status === "ACTIVE" ? "0 0 0 2px rgba(16, 185, 129, 0.2)" : "none",
+                          }}
+                        />
+                        {selectedVendorForDetails.status === "ACTIVE" ? "Verified Partner" : (selectedVendorForDetails.status || "Active")}
+                      </span>
                     </div>
-                  ) : (
-                    <p style={{ margin: 0, fontSize: 11.5, color: "var(--muted)", fontStyle: "italic" }}>No recorded weighment slips for this partner yet.</p>
-                  )}
-                </div>
-              </div>
+
+                    {/* 3 High-Impact KPI Stat Cards */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                      {/* Contracted Card */}
+                      <div className="drawer-stat-card" style={{ borderTop: "3px solid #B45309" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                          <span style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", fontWeight: 800, letterSpacing: "0.5px" }}>
+                            Contracted Quota
+                          </span>
+                          <i className="ri-pie-chart-2-line" style={{ fontSize: 14, color: "#B45309" }} />
+                        </div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: "var(--ink)", letterSpacing: "-0.02em" }}>
+                          {contracted.toLocaleString("en-IN")} <span style={{ fontSize: 11, fontWeight: 600 }}>MT</span>
+                        </div>
+                        <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4 }}>
+                          Term Sheet Target
+                        </div>
+                      </div>
+
+                      {/* Fulfilled Card with Progress */}
+                      <div className="drawer-stat-card" style={{ borderTop: "3px solid #059669" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                          <span style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", fontWeight: 800, letterSpacing: "0.5px" }}>
+                            Fulfilled Inflow
+                          </span>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 800,
+                              padding: "1px 6px",
+                              borderRadius: 10,
+                              background: pct >= 100 ? "rgba(16, 185, 129, 0.15)" : "rgba(5, 150, 105, 0.1)",
+                              color: "#059669",
+                            }}
+                          >
+                            {pct}%
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: "#059669", letterSpacing: "-0.02em" }}>
+                          {sourced.toFixed(2)} <span style={{ fontSize: 11, fontWeight: 600 }}>MT</span>
+                        </div>
+                        {/* Animated Visual Progress Bar */}
+                        <div style={{ height: 4, width: "100%", background: "var(--line)", borderRadius: 2, overflow: "hidden", margin: "6px 0 4px" }}>
+                          <div
+                            style={{
+                              height: "100%",
+                              width: `${pct}%`,
+                              background: "linear-gradient(90deg, #10B981, #059669)",
+                              borderRadius: 2,
+                              transition: "width 0.4s ease",
+                            }}
+                          />
+                        </div>
+                        <div style={{ fontSize: 10, color: "var(--muted)" }}>
+                          {remaining > 0 ? `${remaining.toFixed(1)} MT remaining` : "Target Achieved"}
+                        </div>
+                      </div>
+
+                      {/* Agreed Rate Card */}
+                      <div className="drawer-stat-card" style={{ borderTop: "3px solid #7C3AED" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                          <span style={{ fontSize: 10, color: "var(--muted)", textTransform: "uppercase", fontWeight: 800, letterSpacing: "0.5px" }}>
+                            Agreed Rate
+                          </span>
+                          <i className="ri-money-rupee-circle-line" style={{ fontSize: 14, color: "#7C3AED" }} />
+                        </div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: "#7C3AED", letterSpacing: "-0.02em" }}>
+                          ₹{rate.toLocaleString("en-IN")} <span style={{ fontSize: 10, fontWeight: 600, color: "var(--muted)" }}>/ MT</span>
+                        </div>
+                        <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4 }}>
+                          Total: ₹{totalVal.toLocaleString("en-IN")}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Procurement & Contact Info Grid */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 12 }}>
+                      {/* GSTIN Tile with Copy to Clipboard */}
+                      <div className="drawer-info-tile">
+                        <div style={{ minWidth: 0 }}>
+                          <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", display: "block" }}>
+                            GSTIN Number
+                          </span>
+                          <strong style={{ fontSize: 11.5, color: "var(--ink)", fontFamily: "monospace", letterSpacing: "0.4px" }}>
+                            {selectedVendorForDetails.gstin || "N/A"}
+                          </strong>
+                        </div>
+                        {selectedVendorForDetails.gstin && (
+                          <button
+                            type="button"
+                            onClick={() => handleCopyGstin(selectedVendorForDetails.gstin)}
+                            title="Copy GSTIN"
+                            style={{
+                              padding: "3px 6px",
+                              borderRadius: 6,
+                              border: "1px solid var(--line-strong)",
+                              background: copiedGstin ? "rgba(16, 185, 129, 0.12)" : "var(--surface)",
+                              color: copiedGstin ? "#059669" : "var(--muted)",
+                              cursor: "pointer",
+                              fontSize: 10.5,
+                              fontWeight: 700,
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 3,
+                              flexShrink: 0,
+                            }}
+                          >
+                            <i className={copiedGstin ? "ri-check-line" : "ri-file-copy-line"} />
+                            <span>{copiedGstin ? "Copied" : "Copy"}</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* PO Reference Tile */}
+                      <div className="drawer-info-tile">
+                        <div style={{ minWidth: 0 }}>
+                          <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", display: "block" }}>
+                            PO Reference
+                          </span>
+                          <strong style={{ fontSize: 12, color: "var(--ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {selectedVendorForDetails.poNo || "PO-PENDING"}
+                          </strong>
+                        </div>
+                        <i className="ri-file-list-3-line" style={{ color: "var(--muted)", fontSize: 16 }} />
+                      </div>
+
+                      {/* Representative Tile */}
+                      <div className="drawer-info-tile">
+                        <div style={{ minWidth: 0 }}>
+                          <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", display: "block" }}>
+                            Representative
+                          </span>
+                          <strong style={{ fontSize: 12, color: "var(--ink)" }}>
+                            {selectedVendorForDetails.representative || "Authorized Officer"}
+                          </strong>
+                        </div>
+                        <i className="ri-user-smile-line" style={{ color: "var(--muted)", fontSize: 16 }} />
+                      </div>
+
+                      {/* Contact Tile with Direct Click to Call */}
+                      <div className="drawer-info-tile">
+                        <div style={{ minWidth: 0 }}>
+                          <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", display: "block" }}>
+                            Direct Contact
+                          </span>
+                          <strong style={{ fontSize: 12, color: "var(--ink)" }}>
+                            {selectedVendorForDetails.contactNo || "N/A"}
+                          </strong>
+                        </div>
+                        {selectedVendorForDetails.contactNo && (
+                          <a
+                            href={`tel:${selectedVendorForDetails.contactNo}`}
+                            title="Call Contact"
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: 6,
+                              background: "rgba(51, 116, 24, 0.1)",
+                              color: "var(--primary-deep)",
+                              fontSize: 11,
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 4,
+                              textDecoration: "none",
+                              fontWeight: 700,
+                            }}
+                          >
+                            <i className="ri-phone-line" />
+                            <span>Call</span>
+                          </a>
+                        )}
+                      </div>
+
+                      {/* Sourcing Belt Tile */}
+                      <div className="drawer-info-tile">
+                        <div style={{ minWidth: 0 }}>
+                          <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", display: "block" }}>
+                            Sourcing Belt
+                          </span>
+                          <span style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600 }}>
+                            {selectedVendorForDetails.sourcingArea || "Regional Belt"}
+                          </span>
+                        </div>
+                        <i className="ri-road-map-line" style={{ color: "var(--muted)", fontSize: 16 }} />
+                      </div>
+
+                      {/* Tenure Tile */}
+                      <div className="drawer-info-tile">
+                        <div style={{ minWidth: 0 }}>
+                          <span style={{ fontSize: 10, color: "var(--muted)", fontWeight: 700, textTransform: "uppercase", display: "block" }}>
+                            Contract Tenure
+                          </span>
+                          <span style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600 }}>
+                            {selectedVendorForDetails.tenure || "Active Season 2026"}
+                          </span>
+                        </div>
+                        <i className="ri-time-line" style={{ color: "var(--muted)", fontSize: 16 }} />
+                      </div>
+                    </div>
+
+                    {/* Collection Inflow History */}
+                    <div style={{ borderTop: "1px solid var(--line)", paddingTop: 14 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <h4 style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "var(--ink)", display: "flex", alignItems: "center", gap: 6 }}>
+                            <i className="ri-history-line" style={{ color: "var(--primary)" }} />
+                            <span>Collection Inflow History</span>
+                          </h4>
+                          <span
+                            style={{
+                              fontSize: 10.5,
+                              fontWeight: 800,
+                              padding: "1px 7px",
+                              borderRadius: 10,
+                              background: "var(--primary-tint)",
+                              color: "var(--primary-deep)",
+                              border: "1px solid rgba(51, 116, 24, 0.18)",
+                            }}
+                          >
+                            {slips.length} {slips.length === 1 ? "Slip" : "Slips"}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)" }}>
+                          Total: <strong style={{ color: "#059669" }}>{sourced.toFixed(2)} MT</strong>
+                        </span>
+                      </div>
+
+                      {slips.length > 0 ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto", paddingRight: 4 }}>
+                          {slips.map((slip) => (
+                            <div
+                              key={slip.id}
+                              className="drawer-activity-item"
+                            >
+                              <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flex: 1 }}>
+                                <div
+                                  style={{
+                                    width: 28,
+                                    height: 28,
+                                    borderRadius: 6,
+                                    background: "rgba(51, 116, 24, 0.08)",
+                                    color: "var(--primary-deep)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: 13,
+                                    flexShrink: 0,
+                                  }}
+                                >
+                                  <i className="ri-ticket-line" />
+                                </div>
+                                <div style={{ minWidth: 0 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                                    <strong style={{ fontFamily: "monospace", fontSize: 11.5, color: "var(--ink)" }}>
+                                      {slip.slipNo || "WEIGH-SLIP"}
+                                    </strong>
+                                    {slip.cropResidueType && (
+                                      <span
+                                        style={{
+                                          fontSize: 10,
+                                          fontWeight: 650,
+                                          padding: "1px 6px",
+                                          borderRadius: 4,
+                                          background: "rgba(100, 116, 139, 0.08)",
+                                          color: "var(--ink-secondary)",
+                                        }}
+                                      >
+                                        {slip.cropResidueType}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 2 }}>
+                                    {slip.villageName ? `📍 ${slip.villageName}` : "Biomass Central Intake"}
+                                    {slip.date ? ` • ${new Date(slip.date).toLocaleDateString("en-IN")}` : ""}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                                <span
+                                  style={{
+                                    fontWeight: 800,
+                                    fontSize: 12.5,
+                                    color: "#059669",
+                                    fontFamily: "monospace",
+                                    background: "rgba(16, 185, 129, 0.08)",
+                                    padding: "2px 8px",
+                                    borderRadius: 6,
+                                    border: "1px solid rgba(16, 185, 129, 0.2)",
+                                  }}
+                                >
+                                  {Number(slip.invoiceWeightMt || 0).toFixed(2)} MT
+                                </span>
+                                <Button
+                                  variant="secondary"
+                                  onClick={() => setSelectedSlipForPrint(slip)}
+                                  style={{
+                                    height: 26,
+                                    padding: "0 8px",
+                                    fontSize: 10.5,
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 4,
+                                    fontWeight: 700,
+                                  }}
+                                  title="View Weighment Slip"
+                                >
+                                  <i className="ri-printer-line" />
+                                  <span>Slip</span>
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            padding: "24px 16px",
+                            borderRadius: 10,
+                            border: "1px dashed var(--line)",
+                            background: "var(--canvas)",
+                            textAlign: "center",
+                            color: "var(--muted)",
+                          }}
+                        >
+                          <i className="ri-inbox-archive-line" style={{ fontSize: 26, display: "block", marginBottom: 6, opacity: 0.6 }} />
+                          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--ink-secondary)" }}>
+                            No Recorded Weighment Slips
+                          </div>
+                          <div style={{ fontSize: 11, marginTop: 2 }}>
+                            Direct collections for this partner will appear here in real-time.
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </Modal>
           )}
 

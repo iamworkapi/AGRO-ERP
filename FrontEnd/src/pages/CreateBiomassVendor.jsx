@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import Button from "../components/common/Button";
@@ -7,6 +7,19 @@ import FormField from "../components/common/FormField";
 import { saveNewVendor, getStoredVendors, getStoredBuyers } from "../features/biomass/biomassService";
 import { createVendor } from "../features/biomass/api";
 import { toast } from "../utils/toast";
+
+const COMMODITY_OPTIONS = [
+  "Biomass / Mustard Husk / PRALLI",
+  "PRALLI (Baled)",
+  "PRALLI (Loose)",
+  "Mustard Husk",
+  "Paddy Straw",
+  "Wood Chips",
+  "Sugarcane Bagasse",
+  "Cotton Stalk",
+  "Groundnut Shell",
+  "Sawdust / Briquettes",
+];
 
 function generateNextPoNo() {
   try {
@@ -59,7 +72,51 @@ export default function CreateBiomassVendor() {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [sourcingArea, setSourcingArea] = useState("");
-  const [commodity, setCommodity] = useState("Biomass / Mustard Husk / PRALLI");
+  const [selectedCommodities, setSelectedCommodities] = useState(["PRALLI (Loose)"]);
+  const [commodityDropdownOpen, setCommodityDropdownOpen] = useState(false);
+  const [commoditySearch, setCommoditySearch] = useState("");
+  const commodityDropdownRef = useRef(null);
+
+  const commodity = useMemo(() => {
+    return selectedCommodities.length > 0
+      ? selectedCommodities.join(", ")
+      : "Biomass / Mustard Husk / PRALLI";
+  }, [selectedCommodities]);
+
+  const filteredCommodities = useMemo(() => {
+    if (!commoditySearch.trim()) return COMMODITY_OPTIONS;
+    const q = commoditySearch.toLowerCase().trim();
+    return COMMODITY_OPTIONS.filter((opt) => opt.toLowerCase().includes(q));
+  }, [commoditySearch]);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (commodityDropdownRef.current && !commodityDropdownRef.current.contains(e.target)) {
+        setCommodityDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleCommodity = (opt) => {
+    setSelectedCommodities((prev) => {
+      if (prev.includes(opt)) {
+        const next = prev.filter((item) => item !== opt);
+        return next.length > 0 ? next : [opt]; // Keep at least one
+      } else {
+        return [...prev, opt];
+      }
+    });
+  };
+
+  const selectAllCommodities = () => {
+    setSelectedCommodities([...COMMODITY_OPTIONS]);
+  };
+
+  const clearCommodities = () => {
+    setSelectedCommodities([COMMODITY_OPTIONS[0]]);
+  };
 
   // Commercial Agreement & Purchase Order Term Sheet (Sequential Order)
   const [poNo, setPoNo] = useState(() => generateNextPoNo());
@@ -373,23 +430,326 @@ export default function CreateBiomassVendor() {
               </div>
             </div>
 
-            <FormField
-              label="Primary Raw Material Commodity"
-              type="select"
-              value={commodity}
-              onChange={setCommodity}
-              options={[
-                "Biomass / Mustard Husk / PRALLI",
-                "PRALLI (Baled)",
-                "PRALLI (Loose)",
-                "Mustard Husk",
-                "Paddy Straw",
-                "Wood Chips",
-              ]}
-              layout="vertical"
-              marginBottom={0}
-              inputStyle={{ borderBottom: "1.5px dashed var(--line-strong)", borderRadius: 0, background: "transparent" }}
-            />
+            {/* Multi-Select Commodity Checklist Picker (Matched baseline & typography) */}
+            <div ref={commodityDropdownRef} style={{ position: "relative" }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
+                Primary Raw Material Commodity <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+
+              {/* Trigger Input Box */}
+              <div
+                onClick={() => setCommodityDropdownOpen((prev) => !prev)}
+                style={{
+                  ...DASHED_INPUT_STYLE,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  minHeight: 38,
+                  padding: "7px 0",
+                  userSelect: "none",
+                  borderBottom: commodityDropdownOpen ? "1.5px solid var(--primary)" : "1.5px dashed var(--line-strong)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", flex: 1, minWidth: 0, paddingRight: 6 }}>
+                  {selectedCommodities.length === 0 ? (
+                    <span style={{ color: "var(--muted)", fontSize: 13 }}>Select commodities...</span>
+                  ) : selectedCommodities.length <= 2 ? (
+                    selectedCommodities.map((item) => (
+                      <span
+                        key={item}
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: "var(--primary-deep)",
+                          background: "var(--primary-tint)",
+                          padding: "2px 7px",
+                          borderRadius: 4,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          border: "1px solid rgba(93, 214, 44, 0.3)",
+                        }}
+                      >
+                        {item}
+                      </span>
+                    ))
+                  ) : (
+                    <>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: "var(--primary-deep)",
+                          background: "var(--primary-tint)",
+                          padding: "2px 7px",
+                          borderRadius: 4,
+                          border: "1px solid rgba(93, 214, 44, 0.3)",
+                        }}
+                      >
+                        {selectedCommodities[0]}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 10.5,
+                          fontWeight: 800,
+                          color: "var(--primary-deep)",
+                          background: "var(--canvas)",
+                          border: "1px solid var(--line-strong)",
+                          padding: "2px 7px",
+                          borderRadius: 4,
+                        }}
+                      >
+                        +{selectedCommodities.length - 1} more
+                      </span>
+                    </>
+                  )}
+                </div>
+                <i
+                  className={commodityDropdownOpen ? "ri-arrow-up-s-line" : "ri-arrow-down-s-line"}
+                  style={{ color: "var(--muted)", fontSize: 16, flexShrink: 0 }}
+                />
+              </div>
+
+              {/* Aligned Subtext Row */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+                <span style={{ fontSize: 10.5, color: "var(--muted)" }}>
+                  [Multi-select]
+                </span>
+                <span
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 700,
+                    color: selectedCommodities.length > 0 ? "#16a34a" : "var(--muted)",
+                    background: selectedCommodities.length > 0 ? "#f0fdf4" : "transparent",
+                    padding: "1px 6px",
+                    borderRadius: 4,
+                  }}
+                >
+                  [{selectedCommodities.length}/{COMMODITY_OPTIONS.length} selected]
+                </span>
+              </div>
+
+              {/* Floating Multi-Select Checklist Menu */}
+              {commodityDropdownOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 6px)",
+                    left: 0,
+                    right: 0,
+                    minWidth: 260,
+                    zIndex: 1000,
+                    background: "var(--surface)",
+                    border: "1px solid var(--line)",
+                    borderRadius: 12,
+                    boxShadow: "0 12px 32px rgba(0, 0, 0, 0.16), 0 4px 12px rgba(0, 0, 0, 0.08)",
+                    padding: "8px 0",
+                    animation: "agroToastSlideIn 150ms cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                >
+                  {/* Search Bar */}
+                  <div style={{ padding: "4px 10px 8px 10px", borderBottom: "1px solid var(--line)" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        background: "var(--canvas)",
+                        border: "1px solid var(--line)",
+                        borderRadius: 6,
+                        padding: "4px 8px",
+                      }}
+                    >
+                      <i className="ri-search-line" style={{ color: "var(--muted)", fontSize: 13 }} />
+                      <input
+                        type="text"
+                        value={commoditySearch}
+                        onChange={(e) => setCommoditySearch(e.target.value)}
+                        placeholder="Search commodities..."
+                        autoFocus
+                        style={{
+                          border: "none",
+                          background: "transparent",
+                          outline: "none",
+                          fontSize: 12,
+                          color: "var(--ink)",
+                          width: "100%",
+                        }}
+                      />
+                      {commoditySearch && (
+                        <i
+                          className="ri-close-line"
+                          onClick={() => setCommoditySearch("")}
+                          style={{ cursor: "pointer", color: "var(--muted)", fontSize: 14 }}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Quick Action Header */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "6px 12px",
+                      borderBottom: "1px solid var(--line)",
+                      background: "var(--surface-hover)",
+                    }}
+                  >
+                    <span style={{ fontSize: 10.5, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.3px" }}>
+                      Check items ({selectedCommodities.length}/{COMMODITY_OPTIONS.length})
+                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          selectAllCommodities();
+                        }}
+                        style={{
+                          border: "none",
+                          background: "transparent",
+                          color: "var(--primary)",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          padding: 0,
+                        }}
+                      >
+                        Select All
+                      </button>
+                      <span style={{ color: "var(--line)" }}>|</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearCommodities();
+                        }}
+                        style={{
+                          border: "none",
+                          background: "transparent",
+                          color: "var(--muted)",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          padding: 0,
+                        }}
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Checklist Options */}
+                  <div style={{ maxHeight: 220, overflowY: "auto", padding: "4px 6px" }}>
+                    {filteredCommodities.length === 0 ? (
+                      <div style={{ padding: "14px 10px", textAlign: "center", fontSize: 12, color: "var(--muted)" }}>
+                        No commodities found matching "{commoditySearch}"
+                      </div>
+                    ) : (
+                      filteredCommodities.map((opt) => {
+                        const isChecked = selectedCommodities.includes(opt);
+                        return (
+                          <div
+                            key={opt}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleCommodity(opt);
+                            }}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 10,
+                              padding: "7px 10px",
+                              borderRadius: 6,
+                              cursor: "pointer",
+                              background: isChecked ? "var(--primary-tint)" : "transparent",
+                              transition: "background 120ms ease",
+                              userSelect: "none",
+                              marginBottom: 2,
+                            }}
+                            onMouseOver={(e) => {
+                              if (!isChecked) e.currentTarget.style.background = "var(--surface-hover)";
+                            }}
+                            onMouseOut={(e) => {
+                              if (!isChecked) e.currentTarget.style.background = "transparent";
+                            }}
+                          >
+                            {/* Stylized Checkbox */}
+                            <div
+                              style={{
+                                width: 17,
+                                height: 17,
+                                borderRadius: 4,
+                                background: isChecked ? "var(--primary)" : "var(--canvas)",
+                                border: isChecked ? "1px solid var(--primary)" : "1.5px solid var(--line-strong)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                color: "#fff",
+                                fontSize: 12,
+                                flexShrink: 0,
+                                transition: "all 120ms ease",
+                              }}
+                            >
+                              {isChecked && <i className="ri-check-line" />}
+                            </div>
+
+                            <span
+                              style={{
+                                fontSize: 12.5,
+                                fontWeight: isChecked ? 700 : 500,
+                                color: isChecked ? "var(--primary-deep)" : "var(--ink)",
+                                lineHeight: 1.3,
+                              }}
+                            >
+                              {opt}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Bottom Apply Bar */}
+                  <div
+                    style={{
+                      padding: "8px 12px 2px 12px",
+                      borderTop: "1px solid var(--line)",
+                      marginTop: 4,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600 }}>
+                      {selectedCommodities.length} items checked
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCommodityDropdownOpen(false);
+                      }}
+                      style={{
+                        padding: "5px 14px",
+                        fontSize: 11.5,
+                        fontWeight: 700,
+                        borderRadius: 6,
+                        border: "none",
+                        background: "var(--gradient-primary)",
+                        color: "#fff",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Row 2: Sourcing Belt & Full Address (2 Columns) */}
@@ -536,7 +896,8 @@ export default function CreateBiomassVendor() {
             boxShadow: "var(--shadow-sm)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid var(--line)" }}>
+          {/* Section Header */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, paddingBottom: 10, borderBottom: "1px solid var(--line)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span
                 style={{
@@ -561,42 +922,91 @@ export default function CreateBiomassVendor() {
             <Badge tone="success">ACTIVE TERM SHEET</Badge>
           </div>
 
-          {/* 4 Commercial Columns with Dashed Border Bottom (Agreement Tenure has wider column for dual dates) */}
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(180px, 1fr) minmax(340px, 1.8fr) minmax(180px, 1fr) minmax(180px, 1fr)", gap: "14px 20px", marginBottom: 14 }}>
-            <div>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
-                PO Reference Number
-              </label>
-              <input
-                type="text"
-                value={poNo}
-                onChange={(e) => setPoNo(e.target.value)}
-                placeholder="PO-2026-1001"
-                style={DASHED_INPUT_STYLE}
-                onFocus={handleDashedFocus}
-                onBlur={handleDashedBlur}
-              />
-              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
-                Auto-assigned sequential order PO identifier
-              </span>
+          {/* 4 Commercial Columns with Identical Heights, Baselines and Spacing */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(170px, 1fr) minmax(310px, 1.4fr) minmax(170px, 1fr) minmax(170px, 1fr)",
+              gap: "16px",
+              marginBottom: 16,
+              alignItems: "start",
+            }}
+          >
+            {/* Column 1: PO Reference Number */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ height: 24, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
+                  PO Reference Number
+                </label>
+                <span
+                  style={{
+                    fontSize: 9.5,
+                    fontWeight: 700,
+                    color: "var(--muted)",
+                    background: "var(--canvas)",
+                    padding: "2px 6px",
+                    borderRadius: 4,
+                    border: "1px solid var(--line)",
+                  }}
+                >
+                  AUTO
+                </span>
+              </div>
+              <div
+                style={{
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid var(--line)",
+                  borderRadius: 8,
+                  background: "var(--canvas)",
+                  padding: "0 10px",
+                  gap: 8,
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <i className="ri-hashtag" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <input
+                  type="text"
+                  value={poNo}
+                  onChange={(e) => setPoNo(e.target.value)}
+                  placeholder="PO-2026-1001"
+                  style={{
+                    flex: 1,
+                    border: "none",
+                    background: "transparent",
+                    color: "var(--ink)",
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    outline: "none",
+                    width: "100%",
+                  }}
+                />
+              </div>
+              <div style={{ height: 18, display: "flex", alignItems: "center", marginTop: 6 }}>
+                <span style={{ fontSize: 10.5, color: "var(--muted)", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  Auto-assigned sequential PO identifier
+                </span>
+              </div>
             </div>
 
-            <div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
+            {/* Column 2: Agreement Tenure & Dates */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ height: 24, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
                   Agreement Tenure
                 </label>
                 <select
                   value={tenurePreset}
                   onChange={handleTenurePresetChange}
                   style={{
-                    fontSize: 10.5,
-                    fontWeight: 600,
+                    fontSize: 10,
+                    fontWeight: 700,
                     color: "var(--primary-deep)",
                     background: "var(--primary-tint)",
-                    border: "1px solid var(--primary-light)",
-                    borderRadius: 4,
-                    padding: "1px 6px",
+                    border: "1px solid rgba(93, 214, 44, 0.4)",
+                    borderRadius: 6,
+                    padding: "2px 6px",
                     outline: "none",
                     cursor: "pointer",
                   }}
@@ -611,12 +1021,21 @@ export default function CreateBiomassVendor() {
                 </select>
               </div>
 
-              {/* Start and End Date dropdown calendar pickers */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <span style={{ fontSize: 9.5, color: "var(--muted)", textTransform: "uppercase", fontWeight: 700, display: "block" }}>
-                    Start Date
-                  </span>
+              {/* Dual Date Range in exact same 40px height container */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, height: 40 }}>
+                <div
+                  style={{
+                    height: 40,
+                    display: "flex",
+                    alignItems: "center",
+                    border: "1px solid var(--line)",
+                    borderRadius: 8,
+                    background: "var(--canvas)",
+                    padding: "0 8px",
+                    gap: 4,
+                  }}
+                >
+                  <span style={{ fontSize: 9, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase" }}>FROM:</span>
                   <input
                     type="date"
                     value={tenureStartDate}
@@ -625,20 +1044,32 @@ export default function CreateBiomassVendor() {
                       setTenurePreset("custom");
                     }}
                     style={{
-                      ...DASHED_INPUT_STYLE,
-                      fontSize: 13,
-                      padding: "5px 0",
+                      flex: 1,
+                      border: "none",
+                      background: "transparent",
+                      color: "var(--ink)",
+                      fontSize: 11.5,
+                      fontWeight: 600,
+                      outline: "none",
                       cursor: "pointer",
+                      padding: 0,
                     }}
-                    onFocus={handleDashedFocus}
-                    onBlur={handleDashedBlur}
                   />
                 </div>
 
-                <div>
-                  <span style={{ fontSize: 9.5, color: "var(--muted)", textTransform: "uppercase", fontWeight: 700, display: "block" }}>
-                    End Date
-                  </span>
+                <div
+                  style={{
+                    height: 40,
+                    display: "flex",
+                    alignItems: "center",
+                    border: "1px solid var(--line)",
+                    borderRadius: 8,
+                    background: "var(--canvas)",
+                    padding: "0 8px",
+                    gap: 4,
+                  }}
+                >
+                  <span style={{ fontSize: 9, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase" }}>TO:</span>
                   <input
                     type="date"
                     value={tenureEndDate}
@@ -648,18 +1079,21 @@ export default function CreateBiomassVendor() {
                       setTenurePreset("custom");
                     }}
                     style={{
-                      ...DASHED_INPUT_STYLE,
-                      fontSize: 13,
-                      padding: "5px 0",
+                      flex: 1,
+                      border: "none",
+                      background: "transparent",
+                      color: "var(--ink)",
+                      fontSize: 11.5,
+                      fontWeight: 600,
+                      outline: "none",
                       cursor: "pointer",
+                      padding: 0,
                     }}
-                    onFocus={handleDashedFocus}
-                    onBlur={handleDashedBlur}
                   />
                 </div>
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+              <div style={{ height: 18, display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 6 }}>
                 <span style={{ fontSize: 10.5, color: "var(--muted)" }}>
                   Validity window
                 </span>
@@ -669,51 +1103,115 @@ export default function CreateBiomassVendor() {
               </div>
             </div>
 
-            <div>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
-                Contracted Volume (MT)
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="any"
-                value={contractedQtyMt}
-                onChange={(e) => setContractedQtyMt(e.target.value)}
-                placeholder="1000"
-                style={DASHED_INPUT_STYLE}
-                onFocus={handleDashedFocus}
-                onBlur={handleDashedBlur}
-              />
-              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
-                Tonnage committed under agreement
-              </span>
+            {/* Column 3: Contracted Volume */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ height: 24, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
+                  Contracted Volume
+                </label>
+                <span style={{ fontSize: 9.5, fontWeight: 800, color: "var(--primary-deep)", background: "var(--primary-tint)", padding: "2px 6px", borderRadius: 4 }}>
+                  METRIC TONS
+                </span>
+              </div>
+              <div
+                style={{
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid var(--line)",
+                  borderRadius: 8,
+                  background: "var(--canvas)",
+                  padding: "0 10px",
+                  gap: 8,
+                }}
+              >
+                <i className="ri-scales-3-line" style={{ color: "var(--primary)", fontSize: 14 }} />
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  value={contractedQtyMt}
+                  onChange={(e) => setContractedQtyMt(e.target.value)}
+                  placeholder="1000"
+                  style={{
+                    flex: 1,
+                    border: "none",
+                    background: "transparent",
+                    color: "var(--ink)",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    outline: "none",
+                    width: "100%",
+                  }}
+                />
+                <span style={{ fontSize: 10.5, fontWeight: 800, color: "var(--primary-deep)", background: "var(--primary-tint)", padding: "2px 6px", borderRadius: 4 }}>
+                  MT
+                </span>
+              </div>
+              <div style={{ height: 18, display: "flex", alignItems: "center", marginTop: 6 }}>
+                <span style={{ fontSize: 10.5, color: "var(--muted)", lineHeight: 1.2 }}>
+                  Tonnage committed under agreement
+                </span>
+              </div>
             </div>
 
-            <div>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
-                Agreed Sourcing Rate (₹/MT)
-              </label>
-              <input
-                type="number"
-                min="0"
-                step="any"
-                value={agreedPricePerMt}
-                onChange={(e) => setAgreedPricePerMt(e.target.value)}
-                placeholder="1400"
-                style={DASHED_INPUT_STYLE}
-                onFocus={handleDashedFocus}
-                onBlur={handleDashedBlur}
-              />
-              <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
-                Per Metric Ton contracted rate
-              </span>
+            {/* Column 4: Agreed Sourcing Rate */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ height: 24, display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--ink)", margin: 0 }}>
+                  Agreed Sourcing Rate
+                </label>
+                <span style={{ fontSize: 9.5, fontWeight: 800, color: "var(--muted)", background: "var(--canvas)", padding: "2px 6px", borderRadius: 4, border: "1px solid var(--line)" }}>
+                  ₹ / MT
+                </span>
+              </div>
+              <div
+                style={{
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid var(--line)",
+                  borderRadius: 8,
+                  background: "var(--canvas)",
+                  padding: "0 10px",
+                  gap: 8,
+                }}
+              >
+                <span style={{ fontSize: 13, fontWeight: 800, color: "var(--primary-deep)" }}>₹</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  value={agreedPricePerMt}
+                  onChange={(e) => setAgreedPricePerMt(e.target.value)}
+                  placeholder="1400"
+                  style={{
+                    flex: 1,
+                    border: "none",
+                    background: "transparent",
+                    color: "var(--ink)",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    outline: "none",
+                    width: "100%",
+                  }}
+                />
+                <span style={{ fontSize: 10, fontWeight: 800, color: "var(--muted)", background: "var(--surface)", padding: "2px 6px", borderRadius: 4, border: "1px solid var(--line)" }}>
+                  / MT
+                </span>
+              </div>
+              <div style={{ height: 18, display: "flex", alignItems: "center", marginTop: 6 }}>
+                <span style={{ fontSize: 10.5, color: "var(--muted)", lineHeight: 1.2 }}>
+                  Per Metric Ton contracted rate
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Live Order Calculation Banner (Wide & Understandable) */}
+          {/* Live Order Calculation Banner (Aligned & Beautiful) */}
           <div
             style={{
-              background: "var(--canvas)",
+              background: "linear-gradient(135deg, var(--canvas) 0%, var(--surface-hover) 100%)",
               border: "1px solid var(--line)",
               borderRadius: 10,
               padding: "12px 18px",
@@ -722,7 +1220,6 @@ export default function CreateBiomassVendor() {
               justifyContent: "space-between",
               flexWrap: "wrap",
               gap: 12,
-              marginTop: 6,
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -730,32 +1227,33 @@ export default function CreateBiomassVendor() {
                 style={{
                   width: 36,
                   height: 36,
-                  borderRadius: 10,
+                  borderRadius: 8,
                   background: "var(--primary-tint)",
                   color: "var(--primary-deep)",
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontSize: 18,
+                  border: "1px solid rgba(93, 214, 44, 0.25)",
                 }}
               >
                 <i className="ri-calculator-line" />
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.4px" }}>
                   Contract Value Calculation
                 </div>
-                <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink)", marginTop: 2 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--ink)", marginTop: 2 }}>
                   {contractedQtyMt || "0"} MT × ₹{agreedPricePerMt || "0"}/MT
                 </div>
               </div>
             </div>
 
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+              <div style={{ fontSize: 10.5, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.4px" }}>
                 Total Order Value
               </div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: "var(--primary-deep)", marginTop: 2 }}>
+              <div style={{ fontSize: 20, fontWeight: 900, color: "var(--primary-deep)", marginTop: 2, letterSpacing: "-0.02em" }}>
                 ₹ {totalContractValue.toLocaleString("en-IN")}
               </div>
             </div>

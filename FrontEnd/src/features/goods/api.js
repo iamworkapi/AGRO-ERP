@@ -5,8 +5,10 @@ export async function fetchGoods() {
   return data.data;
 }
 
-export async function fetchNextSupplierInvoiceNo() {
-  const { data } = await apiClient.get("/goods/next-invoice-no");
+export async function fetchNextSupplierInvoiceNo(warehouseId) {
+  const { data } = await apiClient.get("/goods/next-invoice-no", {
+    params: warehouseId ? { warehouseId } : {},
+  });
   return data.data;
 }
 

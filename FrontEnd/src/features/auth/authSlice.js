@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { loginUser, logoutUser, fetchCurrentUser } from "./api";
 import { toast } from "../../utils/toast";
+import { setLoggingOut } from "../../services/apiClient";
 
 export const loginThunk = createAsyncThunk("auth/login", loginUser);
 
@@ -9,11 +10,16 @@ export const loginThunk = createAsyncThunk("auth/login", loginUser);
 // server call to revoke it succeeds, so a flaky connection shouldn't be
 // able to strand the UI in a logged-in-looking state.
 export const logoutThunk = createAsyncThunk("auth/logout", async () => {
+  setLoggingOut(true);
   try {
     await logoutUser();
   } catch {
     // best-effort server-side revoke; client-side logout still proceeds
   }
+  // Keep 401 suppression active long enough for any in-flight requests
+  // that race the token removal to fail and get swallowed silently.
+  await new Promise((r) => setTimeout(r, 2200));
+  setLoggingOut(false);
   toast.success("You've been logged out.");
 });
 
@@ -47,6 +53,11 @@ const authSlice = createSlice({
   reducers: {
     updateUser: (state, action) => {
       state.user = { ...state.user, ...action.payload };
+    },
+    setUser: (state, action) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+      state.status = "succeeded";
     },
   },
   extraReducers: (builder) => {
@@ -84,6 +95,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { updateUser } = authSlice.actions;
+export const { updateUser, setUser } = authSlice.actions;
 
 export default authSlice.reducer;

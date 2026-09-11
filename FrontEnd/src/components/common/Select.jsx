@@ -29,17 +29,19 @@ export default function Select({
   };
 
   const mergedInputStyle = {
-    border: "none",
-    borderBottom: "none",
+    borderWidth: 0,
     boxShadow: "none",
     background: "transparent",
     outline: "none",
     ...inputStyle,
   };
 
+  const effectiveValue = value === "" || value === undefined ? null : value;
+  const canShowClear = Boolean(showClear && effectiveValue !== null && !disabled);
+
   return (
     <Dropdown
-      value={value ?? null}
+      value={effectiveValue}
       options={normalized}
       optionLabel="label"
       optionValue="value"
@@ -49,10 +51,10 @@ export default function Select({
       placeholder={placeholder}
       disabled={disabled}
       filter={filter || normalized.length > 8}
-      showClear={showClear}
+      showClear={canShowClear}
       appendTo={typeof window !== "undefined" ? document.body : "self"}
       style={mergedStyle}
-      className={`app-select-dropdown ${hasLeftIcon ? "has-left-icon" : ""} ${isInvalid ? "p-invalid has-error" : ""} ${className}`}
+      className={`app-select-dropdown ${canShowClear ? "p-dropdown-clearable" : ""} ${hasLeftIcon ? "has-left-icon" : ""} ${isInvalid ? "p-invalid has-error" : ""} ${className}`}
     />
   );
 }

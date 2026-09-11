@@ -12,7 +12,7 @@ import { useAuth } from "../hooks/useAuth";
 import { createStockEntrySchema } from "../validators/stockEntryValidators";
 import { validateOrToast } from "../utils/validate";
 import { toast } from "../utils/toast";
-import { getStoredVendors } from "../features/biomass/biomassService";
+import { getStoredVendors, getWarehouseCodePrefix } from "../features/biomass/biomassService";
 import { useProducts } from "../features/products/useProducts";
 
 const COMMODITY_DEFAULTS = {
@@ -88,19 +88,19 @@ function useMoistureCalc(form) {
   }, [form]);
 }
 
-const DASHED_INPUT_STYLE = {
+const MODERN_INPUT_STYLE = {
   width: "100%",
   fontSize: 13.5,
-  fontWeight: 400,
+  fontWeight: 600,
   color: "var(--ink)",
-  background: "transparent",
-  border: "none",
-  borderBottom: "1.5px dashed var(--line-strong)",
-  borderRadius: 0,
+  background: "var(--surface)",
+  border: "1px solid var(--line-strong)",
+  borderRadius: 9,
   outline: "none",
-  padding: "7px 0",
-  transition: "all 180ms ease",
+  padding: "9px 12px",
+  transition: "all 160ms cubic-bezier(0.16, 1, 0.3, 1)",
   fontFamily: "inherit",
+  boxSizing: "border-box",
 };
 
 export default function CreateWeighmentSlip() {
@@ -347,25 +347,27 @@ export default function CreateWeighmentSlip() {
     setForm((f) => (f.weightMachineId && activeMachines.some((m) => m.id === f.weightMachineId) ? f : { ...f, weightMachineId: "" }));
   }, [activeMachines]);
 
-  // Automatic order list sequence calculation
+  // Automatic order list sequence calculation incorporating Warehouse Unique Code
   const nextSeqSlipNo = useMemo(() => {
-    if (!entries || entries.length === 0) return "RST-18001";
+    const selectedWh = warehouses.find((w) => w.id === form.warehouseId || w.code === form.warehouseId) || myWarehouse;
+    const whPrefix = getWarehouseCodePrefix(selectedWh?.code || selectedWh?.id, selectedWh?.name);
+    if (!entries || entries.length === 0) return `${whPrefix}-RST-18001`;
     let maxNum = 18000;
     entries.forEach((e) => {
-      const match = String(e.slipNo || "").match(/(\d+)/);
+      const match = String(e.slipNo || "").match(/(\d+)/g);
       if (match) {
-        const num = parseInt(match[1], 10);
-        if (!isNaN(num) && num > maxNum) maxNum = num;
+        const lastNum = parseInt(match[match.length - 1], 10);
+        if (!isNaN(lastNum) && lastNum > maxNum) maxNum = lastNum;
       }
     });
-    return `RST-${maxNum + 1}`;
-  }, [entries]);
+    return `${whPrefix}-RST-${maxNum + 1}`;
+  }, [entries, form.warehouseId, warehouses, myWarehouse]);
 
   // Automatically update to next sequential order slip number
   useEffect(() => {
     if (nextSeqSlipNo) {
       setForm((f) => {
-        if (!f.slipNo || f.slipNo === "RST-18001" || f.slipNo.startsWith("RST-")) {
+        if (!f.slipNo || f.slipNo.includes("RST-")) {
           return { ...f, slipNo: nextSeqSlipNo };
         }
         return f;
@@ -376,6 +378,13 @@ export default function CreateWeighmentSlip() {
   const set = (key) => (val) => {
     setForm((f) => {
       const updated = { ...f, [key]: val };
+      if (key === "warehouseId") {
+        const selectedWh = warehouses.find((w) => w.id === val || w.code === val);
+        const whPrefix = getWarehouseCodePrefix(selectedWh?.code || selectedWh?.id, selectedWh?.name);
+        const match = String(f.slipNo || "").match(/(\d+)/g);
+        const num = match ? match[match.length - 1] : "18001";
+        updated.slipNo = `${whPrefix}-RST-${num}`;
+      }
       if (key === "commodity" && COMMODITY_DEFAULTS[val]) {
         updated.allowedMoisture = COMMODITY_DEFAULTS[val].allowedMoisture;
         updated.rate = COMMODITY_DEFAULTS[val].rate;
@@ -389,15 +398,18 @@ export default function CreateWeighmentSlip() {
     toast.info(`Auto-assigned next ordered Slip No: ${nextSeqSlipNo}`);
   }
 
-  const handleDashedFocus = (e) => {
-    e.target.style.borderBottom = "1.5px dashed var(--primary)";
-    e.target.style.boxShadow = "0 3px 8px rgba(0, 184, 107, 0.12)";
+  const handleInputFocus = (e) => {
+    e.target.style.borderColor = "var(--primary)";
+    e.target.style.boxShadow = "0 0 0 3px rgba(51, 116, 24, 0.15)";
   };
 
-  const handleDashedBlur = (e) => {
-    e.target.style.borderBottom = "1.5px dashed var(--line-strong)";
+  const handleInputBlur = (e) => {
+    e.target.style.borderColor = "var(--line-strong)";
     e.target.style.boxShadow = "none";
   };
+
+  const handleDashedFocus = handleInputFocus;
+  const handleDashedBlur = handleInputBlur;
 
   const noActiveMachine = form.warehouseId && machinesStatus === "succeeded" && activeMachines.length === 0;
 
@@ -498,7 +510,7 @@ export default function CreateWeighmentSlip() {
 
       <PageHeader
         title={isEditMode ? "Edit Weighment Slip" : "Create Weighment Slip"}
-        subtitle={isEditMode ? "Editing existing entry — changes will be saved immediately" : "Full-width weighbridge station with automatic order list sequencing, live moisture cut evaluation, and dashed input design"}
+        subtitle={isEditMode ? "Editing existing entry — changes will be saved immediately" : "High-precision weighbridge console with automatic order sequencing, live moisture cut computation, and instant billing settlement"}
         badge={isEditMode ? "EDIT MODE" : "WEIGHMENT SLIP"}
       />
 
@@ -592,12 +604,14 @@ export default function CreateWeighmentSlip() {
                 placeholder="e.g. RST-18001"
                 required
                 style={{
-                  ...DASHED_INPUT_STYLE,
+                  ...MODERN_INPUT_STYLE,
                   fontSize: 14,
+                  fontWeight: 700,
                   color: "var(--primary-deep)",
+                  letterSpacing: "0.3px",
                 }}
-                onFocus={handleDashedFocus}
-                onBlur={handleDashedBlur}
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
               />
               <span style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 4, display: "block" }}>
                 Auto-assigned next ordered slip in register
@@ -615,7 +629,7 @@ export default function CreateWeighmentSlip() {
               options={warehouses.map((w) => ({ value: w.id, label: w.name }))}
               layout="vertical"
               marginBottom={0}
-              inputStyle={{ borderBottom: "1.5px dashed var(--line-strong)", borderRadius: 0, background: "transparent" }}
+              inputStyle={{ borderRadius: 9, background: "var(--surface)", border: "1px solid var(--line-strong)" }}
             />
 
             {/* Position #3: Weight Machine / Scale */}
@@ -629,7 +643,7 @@ export default function CreateWeighmentSlip() {
               placeholder={form.warehouseId ? "Select weight machine" : "Select a centre first"}
               layout="vertical"
               marginBottom={0}
-              inputStyle={{ borderBottom: "1.5px dashed var(--line-strong)", borderRadius: 0, background: "transparent" }}
+              inputStyle={{ borderRadius: 9, background: "var(--surface)", border: "1px solid var(--line-strong)" }}
             />
 
             {/* Position #4: Entry Type */}
@@ -645,7 +659,7 @@ export default function CreateWeighmentSlip() {
               ]}
               layout="vertical"
               marginBottom={0}
-              inputStyle={{ borderBottom: "1.5px dashed var(--line-strong)", borderRadius: 0, background: "transparent" }}
+              inputStyle={{ borderRadius: 9, background: "var(--surface)", border: "1px solid var(--line-strong)" }}
             />
           </div>
 
@@ -661,9 +675,9 @@ export default function CreateWeighmentSlip() {
                 value={form.party}
                 onChange={(e) => set("party")(e.target.value)}
                 placeholder="e.g. Ramesh Singh / Kusumganga Supplier"
-                style={DASHED_INPUT_STYLE}
-                onFocus={handleDashedFocus}
-                onBlur={handleDashedBlur}
+                style={MODERN_INPUT_STYLE}
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
               />
               <datalist id="vendor-party-suggestions">
                 {registeredVendors.map((v) => (
@@ -684,12 +698,12 @@ export default function CreateWeighmentSlip() {
                 onChange={(e) => set("vehicleNo")(e.target.value.toUpperCase())}
                 placeholder="e.g. UP 27 AF 2860"
                 style={{
-                  ...DASHED_INPUT_STYLE,
+                  ...MODERN_INPUT_STYLE,
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
                 }}
-                onFocus={handleDashedFocus}
-                onBlur={handleDashedBlur}
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
               />
             </div>
 
@@ -716,17 +730,17 @@ export default function CreateWeighmentSlip() {
                 )}
               </div>
 
-              {/* Trigger Input Area with Dashed Underline */}
+              {/* Trigger Input Area with Modern Border */}
               <div
                 onClick={() => setIsCommodityDropdownOpen((prev) => !prev)}
                 style={{
-                  ...DASHED_INPUT_STYLE,
+                  ...MODERN_INPUT_STYLE,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  minHeight: 34,
-                  padding: "5px 0",
+                  minHeight: 38,
+                  padding: "5px 10px",
                   gap: 6,
                 }}
                 title="Click to open commodity checklist"
@@ -1234,22 +1248,19 @@ export default function CreateWeighmentSlip() {
             <div style={{ marginTop: 16, borderTop: "1px dashed var(--line)", paddingTop: 14 }}>
               {/* Product Selection Input Row */}
               <div
+                className="weighment-product-grid"
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "2.3fr 0.9fr 0.7fr 1.1fr 1.2fr auto",
-                  gap: "10px 12px",
-                  alignItems: "flex-end",
                   background: "var(--canvas)",
-                  padding: "12px 14px",
-                  borderRadius: 10,
+                  padding: "14px 16px",
+                  borderRadius: 12,
                   border: "1px solid var(--line)",
                 }}
               >
                 {/* Product Dropdown (Only In-Stock Products Shown) */}
-                <div>
+                <div className="weighment-product-col-product">
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: "var(--ink)" }}>
-                      In-Stock Product <span style={{ color: "#ef4444" }}>*</span>
+                      In-Stock Product <span style={{ color: "var(--status-error)" }}>*</span>
                     </label>
                     <span style={{ fontSize: 10, fontWeight: 700, color: "var(--primary-deep)" }}>
                       {inStockProducts.length} In-Stock
@@ -1263,11 +1274,11 @@ export default function CreateWeighmentSlip() {
                       height: 36,
                       fontSize: 12.5,
                       fontWeight: 600,
-                      borderRadius: 6,
+                      borderRadius: 7,
                       border: "1px solid var(--line-strong)",
                       background: "var(--surface)",
                       color: "var(--ink)",
-                      padding: "0 8px",
+                      padding: "0 10px",
                       outline: "none",
                     }}
                   >
@@ -1287,7 +1298,7 @@ export default function CreateWeighmentSlip() {
                 {/* Quantity */}
                 <div>
                   <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--ink)", marginBottom: 4 }}>
-                    Qty (PCS) <span style={{ color: "#ef4444" }}>*</span>
+                    Qty (PCS) <span style={{ color: "var(--status-error)" }}>*</span>
                   </label>
                   <input
                     type="number"
@@ -1301,11 +1312,11 @@ export default function CreateWeighmentSlip() {
                       height: 36,
                       fontSize: 13,
                       fontWeight: 700,
-                      borderRadius: 6,
+                      borderRadius: 7,
                       border: "1px solid var(--line-strong)",
                       background: "var(--surface)",
                       color: "var(--ink)",
-                      padding: "0 8px",
+                      padding: "0 10px",
                       outline: "none",
                     }}
                   />
@@ -1325,7 +1336,7 @@ export default function CreateWeighmentSlip() {
                       height: 36,
                       fontSize: 12,
                       fontWeight: 800,
-                      borderRadius: 6,
+                      borderRadius: 7,
                       border: "1px solid var(--line)",
                       background: "var(--canvas)",
                       color: "var(--primary-deep)",
@@ -1355,11 +1366,11 @@ export default function CreateWeighmentSlip() {
                       height: 36,
                       fontSize: 12.5,
                       fontWeight: 800,
-                      borderRadius: 6,
+                      borderRadius: 7,
                       border: "1px solid var(--line)",
                       background: "var(--canvas)",
                       color: "var(--ink)",
-                      padding: "0 8px",
+                      padding: "0 10px",
                       cursor: "not-allowed",
                     }}
                   />
@@ -1379,7 +1390,7 @@ export default function CreateWeighmentSlip() {
                       padding: "0 10px",
                       background: "var(--primary-tint)",
                       border: "1px solid var(--primary-tint)",
-                      borderRadius: 6,
+                      borderRadius: 7,
                       fontSize: 13,
                       fontWeight: 900,
                       color: "var(--primary-deep)",
@@ -1390,27 +1401,33 @@ export default function CreateWeighmentSlip() {
                 </div>
 
                 {/* Add Item Button */}
-                <button
-                  type="button"
-                  onClick={handleAddProductItem}
-                  style={{
-                    height: 36,
-                    padding: "0 16px",
-                    borderRadius: 6,
-                    border: "none",
-                    background: "var(--primary)",
-                    color: "#ffffff",
-                    fontSize: 12,
-                    fontWeight: 800,
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 5,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  <i className="ri-add-line" style={{ fontSize: 14 }} /> + Add Item
-                </button>
+                <div className="weighment-product-col-btn">
+                  <button
+                    type="button"
+                    onClick={handleAddProductItem}
+                    style={{
+                      height: 36,
+                      padding: "0 18px",
+                      borderRadius: 7,
+                      border: "none",
+                      background: "var(--primary)",
+                      color: "#ffffff",
+                      fontSize: 12.5,
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      whiteSpace: "nowrap",
+                      transition: "all 140ms ease",
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.opacity = "0.92")}
+                    onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
+                  >
+                    <i className="ri-add-line" style={{ fontSize: 14 }} />
+                    <span>+ Add Item</span>
+                  </button>
+                </div>
               </div>
 
               {/* Added Products Table */}

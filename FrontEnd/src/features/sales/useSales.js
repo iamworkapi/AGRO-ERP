@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchInvoicesThunk, createInvoiceThunk } from "./salesSlice";
+import { fetchInvoicesThunk, createInvoiceThunk, directSaleThunk } from "./salesSlice";
 
 export function useSales() {
   const dispatch = useDispatch();
@@ -17,5 +17,6 @@ export function useSales() {
     status: state.status,
     error: state.error,
     addInvoice: (payload) => dispatch(createInvoiceThunk(payload)),
+    directSaleToVendor: (payload) => dispatch(directSaleThunk(payload)).unwrap(),
   };
 }

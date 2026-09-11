@@ -1,20 +1,16 @@
-// Mock-backed for now - resolves from mockData.js with a fake delay instead
-// of calling apiClient. Swapping in the real backend later means restoring
-// the apiClient.get/post calls here only.
-import { invoices } from "./mockData";
+import { apiClient } from "../../services/apiClient";
 
-const resolveAfter = (value, ms = 300) => new Promise((resolve) => setTimeout(() => resolve(value), ms));
-
-export function fetchInvoices() {
-  return resolveAfter([...invoices]);
+export async function fetchInvoices() {
+  const { data } = await apiClient.get("/sales-invoices");
+  return data.data;
 }
 
-export function createInvoice(payload) {
-  const record = {
-    invoiceNo: `INV-${3304 + invoices.length}`,
-    status: "Pending",
-    ...payload,
-  };
-  invoices.unshift(record); // mock "write" - becomes a real POST later
-  return resolveAfter(record);
+export async function createInvoice(payload) {
+  const { data } = await apiClient.post("/sales-invoices", payload);
+  return data.data;
+}
+
+export async function directSaleToVendor(payload) {
+  const { data } = await apiClient.post("/sales-invoices/direct-sale", payload);
+  return data.data;
 }

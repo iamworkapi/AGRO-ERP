@@ -9,7 +9,7 @@ const LOCAL_STORAGE_KEY_ROOMS = "agro_storage_rooms_v1";
 export const DEFAULT_STORAGE_ROOMS = [
   {
     id: "ROOM-GDW-01",
-    roomCode: "GDW-01",
+    roomCode: "TCC-UNNAO-GDW-01",
     name: "Godown 01 - High Density Baler Bay",
     roomType: "Covered Steel Godown",
     warehouseCode: "TCC-UNNAO-MAIN",
@@ -29,7 +29,7 @@ export const DEFAULT_STORAGE_ROOMS = [
   },
   {
     id: "ROOM-GDW-02",
-    roomCode: "GDW-02",
+    roomCode: "TCC-UNNAO-GDW-02",
     name: "Godown 02 - Standard Bale Storage Shed",
     roomType: "Covered Steel Godown",
     warehouseCode: "TCC-UNNAO-MAIN",
@@ -49,7 +49,7 @@ export const DEFAULT_STORAGE_ROOMS = [
   },
   {
     id: "ROOM-CHM-101",
-    roomCode: "CHM-101",
+    roomCode: "TCC-UNNAO-CHM-101",
     name: "Room A-101 - Controlled Atmosphere Chamber",
     roomType: "Controlled Atmosphere Cold Chamber",
     warehouseCode: "TCC-UNNAO-MAIN",
@@ -69,7 +69,7 @@ export const DEFAULT_STORAGE_ROOMS = [
   },
   {
     id: "ROOM-SILO-01",
-    roomCode: "SILO-01",
+    roomCode: "TCC-UNNAO-SILO-01",
     name: "Grain Silo Complex North",
     roomType: "Corrugated Metal Silo Tower",
     warehouseCode: "TCC-UNNAO-MAIN",
@@ -604,7 +604,7 @@ export function getVendorById(id) {
 export const INITIAL_COLLECTIONS = [
   {
     id: "COL-801",
-    slipNo: "RST-2026-801",
+    slipNo: "WH-BTT-01-RST-2026-801",
     date: "2026-08-14",
     time: "09:30 AM",
     villageName: "Kanujia Village (कनौजिया)",
@@ -634,7 +634,7 @@ export const INITIAL_COLLECTIONS = [
   },
   {
     id: "COL-802",
-    slipNo: "RST-2026-802",
+    slipNo: "WH-BTT-01-RST-2026-802",
     date: "2026-08-14",
     time: "11:15 AM",
     villageName: "Sahjanwa (सहजनवा)",
@@ -664,7 +664,7 @@ export const INITIAL_COLLECTIONS = [
   },
   {
     id: "COL-803",
-    slipNo: "RST-2026-803",
+    slipNo: "TCC-UNNAO-RST-2026-803",
     date: "2026-08-13",
     time: "02:40 PM",
     villageName: "Bansgaon (बांसगांव)",
@@ -694,7 +694,7 @@ export const INITIAL_COLLECTIONS = [
   },
   {
     id: "COL-804",
-    slipNo: "RST-2026-804",
+    slipNo: "WH-BTT-01-RST-2026-804",
     date: "2026-08-13",
     time: "04:10 PM",
     villageName: "Rampur Grant (रामपुर ग्रांट)",
@@ -728,7 +728,7 @@ export const INITIAL_COLLECTIONS = [
 export const INITIAL_DISPATCHES = [
   {
     id: "DISP-901",
-    gatePassNo: "GP-2026-901",
+    gatePassNo: "TCC-UNNAO-GP-2026-901",
     date: "2026-08-14",
     buyerId: "BUYER-RELIANCE-01",
     buyerName: "RELIANCE INDUSTRIES LIMITED",
@@ -749,7 +749,7 @@ export const INITIAL_DISPATCHES = [
   },
   {
     id: "DISP-902",
-    gatePassNo: "GP-2026-902",
+    gatePassNo: "WH-BTT-01-GP-2026-902",
     date: "2026-08-13",
     buyerId: "BUYER-BALRAMPUR-02",
     buyerName: "BALRAMPUR CHINI MILLS LTD.",
@@ -773,16 +773,69 @@ export const INITIAL_DISPATCHES = [
 export function getStoredCollections() {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY_COLLECTIONS);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((c) => {
+          const whPrefix = getWarehouseCodePrefix(c.warehouseCode, c.warehouseName || c.villageName);
+          if (c.slipNo && !c.slipNo.includes(whPrefix) && !c.slipNo.includes("WH-") && !c.slipNo.includes("TCC-")) {
+            return { ...c, slipNo: `${whPrefix}-${c.slipNo}` };
+          }
+          return c;
+        });
+      }
+    }
   } catch {}
   return INITIAL_COLLECTIONS;
 }
 
+// WAREHOUSE IDENTIFIER PREFIX & CODE GENERATOR HELPERS
+export function getWarehouseCodePrefix(warehouseCodeOrId, warehouseName) {
+  if (warehouseCodeOrId && typeof warehouseCodeOrId === "string") {
+    const cleaned = warehouseCodeOrId.trim().toUpperCase().replace(/[^A-Z0-9-]/g, "");
+    if (cleaned && cleaned.length >= 2 && cleaned.length <= 16 && !/^[0-9a-f]{24}$/i.test(cleaned)) {
+      return cleaned;
+    }
+  }
+  if (warehouseName && typeof warehouseName === "string") {
+    const match = warehouseName.match(/\(([^)]+)\)/);
+    if (match && match[1]) {
+      const codeInParen = match[1].trim().toUpperCase().replace(/[^A-Z0-9-]/g, "");
+      if (codeInParen) return codeInParen;
+    }
+    const cleanName = warehouseName.replace(/hub|warehouse|center|centre|yard|transit|collection/gi, "").trim();
+    const firstWord = cleanName.split(/\s+/)[0];
+    if (firstWord && firstWord.length >= 3) {
+      return firstWord.slice(0, 5).toUpperCase();
+    }
+  }
+  if (warehouseCodeOrId && typeof warehouseCodeOrId === "string" && warehouseCodeOrId.length >= 4) {
+    return `WH-${warehouseCodeOrId.slice(-4).toUpperCase()}`;
+  }
+  return "WH-01";
+}
+
+export function generateWarehouseRoomCode(warehouseCodeOrId, warehouseName, roomType) {
+  const whPrefix = getWarehouseCodePrefix(warehouseCodeOrId, warehouseName);
+  const typePrefix = roomType?.includes("Cold")
+    ? "CHM"
+    : roomType?.includes("Silo")
+    ? "SILO"
+    : roomType?.includes("Yard")
+    ? "YARD"
+    : roomType?.includes("Seed")
+    ? "SEED"
+    : "GDW";
+  const randomNum = Math.floor(10 + Math.random() * 90);
+  return `${whPrefix}-${typePrefix}-${randomNum}`;
+}
+
 export function saveNewCollection(entry) {
   const collections = getStoredCollections();
+  const whPrefix = getWarehouseCodePrefix(entry.warehouseCode, entry.warehouseName);
   const newObj = {
     id: `COL-${Date.now()}`,
-    slipNo: `RST-2026-${Math.floor(800 + Math.random() * 900)}`,
+    slipNo: entry.slipNo || `${whPrefix}-RST-2026-${Math.floor(800 + Math.random() * 900)}`,
     date: new Date().toISOString().slice(0, 10),
     time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     status: "PROCESSED & BALED",
@@ -804,16 +857,28 @@ export function deleteCollection(id) {
 export function getStoredDispatches() {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY_DISPATCHES);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((d) => {
+          const whPrefix = getWarehouseCodePrefix(d.warehouseCode || d.sourceHub, d.warehouseName);
+          if (d.gatePassNo && !d.gatePassNo.includes(whPrefix) && !d.gatePassNo.includes("WH-") && !d.gatePassNo.includes("TCC-")) {
+            return { ...d, gatePassNo: `${whPrefix}-${d.gatePassNo}` };
+          }
+          return d;
+        });
+      }
+    }
   } catch {}
   return INITIAL_DISPATCHES;
 }
 
 export function saveNewDispatch(dispatch) {
   const dispatches = getStoredDispatches();
+  const whPrefix = getWarehouseCodePrefix(dispatch.warehouseCode || dispatch.sourceHub, dispatch.warehouseName);
   const newObj = {
     id: `DISP-${Date.now()}`,
-    gatePassNo: `GP-2026-${Math.floor(900 + Math.random() * 900)}`,
+    gatePassNo: dispatch.gatePassNo || `${whPrefix}-GP-2026-${Math.floor(900 + Math.random() * 900)}`,
     date: new Date().toISOString().slice(0, 10),
     status: "IN TRANSIT TO SITE",
     ...dispatch,
@@ -827,16 +892,31 @@ export function saveNewDispatch(dispatch) {
 export function getStoredStorageRooms() {
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY_ROOMS);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((r) => {
+          const whPrefix = getWarehouseCodePrefix(r.warehouseCode, r.warehouseName);
+          if (r.roomCode && !r.roomCode.toUpperCase().includes(whPrefix)) {
+            return { ...r, roomCode: `${whPrefix}-${r.roomCode}` };
+          }
+          return r;
+        });
+      }
+    }
   } catch {}
   return DEFAULT_STORAGE_ROOMS;
 }
 
 export function saveNewStorageRoom(room) {
   const rooms = getStoredStorageRooms();
+  const finalRoomCode = room.roomCode && room.roomCode.trim()
+    ? room.roomCode.trim().toUpperCase()
+    : generateWarehouseRoomCode(room.warehouseCode, room.warehouseName, room.roomType);
+
   const newObj = {
     id: `ROOM-${Date.now()}`,
-    roomCode: room.roomCode || `RM-${Math.floor(100 + Math.random() * 900)}`,
+    roomCode: finalRoomCode,
     status: "ACTIVE / OPERATIONAL",
     currentStockMt: 0,
     ...room,

@@ -37,28 +37,29 @@ export default function Modal({
   closeOnBackdrop = true,
   closeOnEsc = true,
 }) {
-  const visible = open ?? isOpen ?? false;
-  const [mounted, setMounted] = useState(false);
+  const visible = Boolean(open ?? isOpen);
+  const [mounted, setMounted] = useState(visible);
   const [isClosing, setIsClosing] = useState(false);
   const closeTimeoutRef = useRef(null);
 
+  // Sync mounted state when visible prop changes
   useEffect(() => {
     if (visible) {
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
       setMounted(true);
       setIsClosing(false);
-    } else if (mounted && !isClosing) {
-      // Trigger exit animation
+    } else if (mounted) {
       setIsClosing(true);
       closeTimeoutRef.current = setTimeout(() => {
         setMounted(false);
         setIsClosing(false);
-      }, 220);
+      }, 200);
     }
 
     return () => {
       if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
     };
-  }, [visible, mounted, isClosing]);
+  }, [visible]);
 
   // Handle ESC key press
   useEffect(() => {
@@ -66,7 +67,7 @@ export default function Modal({
 
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        handleTriggerClose();
+        handleTriggerClose(e);
       }
     };
 
@@ -76,23 +77,31 @@ export default function Modal({
 
   // Lock body scroll when drawer is visible
   useEffect(() => {
-    if (mounted) {
+    if (mounted && !isClosing) {
       const originalOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = originalOverflow;
       };
     }
-  }, [mounted]);
+  }, [mounted, isClosing]);
 
-  const handleTriggerClose = () => {
+  const handleTriggerClose = (e) => {
+    if (e) {
+      e.preventDefault?.();
+      e.stopPropagation?.();
+    }
     if (isClosing) return;
+
+    // 1. Immediately invoke onClose so parent state clears (crucial for conditionally-rendered modals)
+    onClose?.();
+
+    // 2. Play exit animation in case parent does not unmount immediately
     setIsClosing(true);
     closeTimeoutRef.current = setTimeout(() => {
       setMounted(false);
       setIsClosing(false);
-      onClose?.();
-    }, 220);
+    }, 200);
   };
 
   if (!mounted) return null;
@@ -134,31 +143,45 @@ export default function Modal({
                 maxWidth: "96vw",
                 maxHeight: "92vh",
                 height: "auto",
-                borderRadius: 16,
+                borderRadius: 18,
                 border: "1px solid var(--line)",
-                animation: isClosing ? "drawerBackdropFadeOut 200ms ease forwards" : "drawerBackdropFadeIn 240ms ease forwards",
+                boxShadow: "0 24px 72px rgba(0, 0, 0, 0.28), 0 4px 16px rgba(0, 0, 0, 0.1)",
+                animation: isClosing
+                  ? "modalScaleOutCenter 200ms cubic-bezier(0.4, 0, 1, 1) forwards"
+                  : "modalScaleInCenter 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards",
               }
             : {
                 width: resolvedWidth,
               }
         }
       >
+        {/* Top Accent Gradient Bar */}
+        <div
+          style={{
+            height: 3,
+            width: "100%",
+            background: "linear-gradient(90deg, var(--primary) 0%, #34d399 50%, var(--primary-deep) 100%)",
+            flexShrink: 0,
+          }}
+        />
+
         {/* Header */}
         <div className="slide-drawer-header">
           <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
             {icon && (
               <div
                 style={{
-                  width: 36,
-                  height: 36,
+                  width: 38,
+                  height: 38,
                   borderRadius: 10,
-                  background: "rgba(51, 116, 24, 0.12)",
+                  background: "var(--primary-tint)",
                   color: "var(--primary)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 18,
+                  fontSize: 19,
                   flexShrink: 0,
+                  boxShadow: "0 2px 6px rgba(51, 116, 24, 0.12)",
                 }}
               >
                 <i className={icon} />
@@ -169,8 +192,8 @@ export default function Modal({
                 <h3
                   style={{
                     margin: 0,
-                    fontSize: 16,
-                    fontWeight: 700,
+                    fontSize: 15.5,
+                    fontWeight: 800,
                     color: "var(--ink)",
                     letterSpacing: "-0.01em",
                     whiteSpace: "nowrap",
@@ -183,13 +206,14 @@ export default function Modal({
                 {badge && (
                   <span
                     style={{
-                      fontSize: 11,
-                      fontWeight: 700,
+                      fontSize: 10.5,
+                      fontWeight: 800,
                       padding: "2px 8px",
                       borderRadius: 12,
-                      background: "rgba(51, 116, 24, 0.12)",
-                      color: "var(--primary)",
-                      letterSpacing: 0.2,
+                      background: "var(--primary-tint)",
+                      color: "var(--primary-deep)",
+                      letterSpacing: "0.2px",
+                      border: "1px solid rgba(51, 116, 24, 0.18)",
                     }}
                   >
                     {badge}
@@ -200,7 +224,7 @@ export default function Modal({
                 <div
                   style={{
                     fontSize: 12,
-                    fontWeight: 400,
+                    fontWeight: 500,
                     color: "var(--muted)",
                     marginTop: 2,
                     lineHeight: 1.3,
@@ -213,37 +237,14 @@ export default function Modal({
           </div>
 
           {/* Header Action Buttons & Close Icon */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {headerActions}
             <button
               type="button"
               onClick={handleTriggerClose}
-              aria-label="Close popup"
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                border: "1px solid var(--line)",
-                background: "var(--surface)",
-                color: "var(--muted)",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 17,
-                transition: "all 150ms ease",
-                padding: 0,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--ink)";
-                e.currentTarget.style.borderColor = "var(--line-strong)";
-                e.currentTarget.style.background = "var(--canvas)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--muted)";
-                e.currentTarget.style.borderColor = "var(--line)";
-                e.currentTarget.style.background = "var(--surface)";
-              }}
+              aria-label="Close (ESC)"
+              title="Close (ESC)"
+              className="slide-drawer-close-btn"
             >
               <i className="ri-close-line" />
             </button>

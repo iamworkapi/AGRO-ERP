@@ -9,6 +9,20 @@ import {
   listSalesInvoicesQuerySchema,
 } from "../validators/sales.validator.js";
 import { ROLES } from "../../common/constants/roles.js";
+import { z } from "zod";
+
+const directSaleSchema = z.object({
+  vendorId: z.string().min(1, "Vendor is required."),
+  warehouseId: z.string().min(1, "Warehouse is required."),
+  customer: z.string().min(1, "Customer name is required."),
+  lineItems: z.array(z.object({
+    productId: z.string().min(1, "Product is required."),
+    productName: z.string().min(1, "Product name is required."),
+    quantity: z.coerce.number().positive("Quantity must be positive."),
+    unitPrice: z.coerce.number().min(0, "Price cannot be negative."),
+  })).min(1, "At least one product is required."),
+  notes: z.string().optional(),
+});
 
 export const listSalesInvoices = asyncHandler(async (req, res) => {
   const q = listSalesInvoicesQuerySchema.parse(req.query);
@@ -23,6 +37,12 @@ export const getSalesInvoice = asyncHandler(async (req, res) => {
 export const createSalesInvoice = asyncHandler(async (req, res) => {
   const payload = createSalesInvoiceSchema.parse(req.body);
   res.status(201).json({ success: true, data: await service.createSalesInvoice(req.user, payload) });
+});
+
+export const directSaleToVendor = asyncHandler(async (req, res) => {
+  const payload = directSaleSchema.parse(req.body);
+  const result = await service.directSaleToVendor(req.user, payload);
+  res.status(201).json({ success: true, data: result });
 });
 
 export const updateSalesInvoiceStatus = asyncHandler(async (req, res) => {

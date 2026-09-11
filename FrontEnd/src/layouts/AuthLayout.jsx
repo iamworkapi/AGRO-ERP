@@ -131,9 +131,6 @@ export default function AuthLayout({ children }) {
           <p style={{ fontSize: 11.5, color: "rgba(255, 255, 255, 0.7)", margin: 0 }}>
             &copy; {new Date().getFullYear()} Kusumganga Agro Solutions Pvt Ltd. All rights reserved.
           </p>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", fontWeight: 600, display: "flex", alignItems: "center", gap: 5 }}>
-            <i className="fa-solid fa-shield-halved" style={{ color: "#9AE6B4", fontSize: 11 }} /> AES-256 Encrypted
-          </span>
         </div>
       </div>
 

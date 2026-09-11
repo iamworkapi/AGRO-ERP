@@ -125,6 +125,7 @@ export const NAV_ICONS = {
   "/biomass/collection": Stage1Icon,
   "/biomass/processing": Stage2Icon,
   "/biomass/storage": StorageIcon,
+  "/warehouses/rooms": StorageIcon,
   "/biomass/dispatch": DispatchIcon,
   "/inventory": InventoryIcon,
   "/purchase": PurchaseIcon,

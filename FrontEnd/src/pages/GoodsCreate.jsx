@@ -8,6 +8,7 @@ import { useGoods } from "../features/goods/useGoods";
 import { useWarehouses } from "../features/warehouses/useWarehouses";
 import { useProducts } from "../features/products/useProducts";
 import { fetchNextSupplierInvoiceNo } from "../features/goods/api";
+import { getWarehouseCodePrefix } from "../features/biomass/biomassService";
 import { toast } from "../utils/toast";
 import { parseRateValue, numberToWordsINR } from "../utils/formatters";
 
@@ -62,13 +63,6 @@ export default function GoodsCreate() {
 
   useEffect(() => {
     loadProducts();
-    fetchNextSupplierInvoiceNo()
-      .then((seqNo) => {
-        if (seqNo) setForm((f) => ({ ...f, supplierInvoiceNo: seqNo }));
-      })
-      .catch((err) => {
-        console.warn("Could not fetch next supplier invoice number:", err);
-      });
   }, [loadProducts]);
 
   useEffect(() => {
@@ -81,10 +75,28 @@ export default function GoodsCreate() {
             w.name?.toLowerCase().includes("betia")
         ) || warehouses[0];
       if (match) {
+        const whId = match._id || match.id;
+        const whPrefix = getWarehouseCodePrefix(match.code || match.id || match._id, match.name);
+        const year = new Date().getFullYear();
+
         setForm((f) => ({
           ...f,
-          warehouse: match._id || match.id || f.warehouse,
+          warehouse: whId || f.warehouse,
+          supplierInvoiceNo:
+            !f.supplierInvoiceNo ||
+            f.supplierInvoiceNo.startsWith("GINV-") ||
+            f.supplierInvoiceNo === `GINV-${year}-0001`
+              ? `${whPrefix}-GINV-${year}-0001`
+              : f.supplierInvoiceNo,
         }));
+
+        fetchNextSupplierInvoiceNo(whId)
+          .then((seqNo) => {
+            if (seqNo) setForm((f) => ({ ...f, supplierInvoiceNo: seqNo }));
+          })
+          .catch((err) => {
+            console.warn("Could not fetch next supplier invoice number:", err);
+          });
       }
     }
   }, [warehouses]);
@@ -712,8 +724,8 @@ export default function GoodsCreate() {
               onClick={addLineItem}
               style={{
                 background: "var(--primary-tint)",
-                border: "1px dashed var(--primary)",
-                borderRadius: 9,
+                border: "1px solid var(--primary)",
+                borderRadius: 8,
                 padding: "6px 14px",
                 color: "var(--primary-deep)",
                 fontWeight: 700,
@@ -723,6 +735,7 @@ export default function GoodsCreate() {
                 alignItems: "center",
                 gap: 5,
                 transition: "all 150ms ease",
+                boxShadow: "0 1px 2px rgba(51, 116, 24, 0.08)",
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.background = "var(--primary)";
@@ -738,91 +751,121 @@ export default function GoodsCreate() {
             </button>
           }
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {lineItems.map((it, idx) => {
               const qty = parseFloat(String(it.quantity).replace(/,/g, ".")) || 0;
               const rate = parseRateValue(it.rate);
               const disc = parseFloat(String(it.discountPct).replace(/,/g, ".")) || 0;
               const lineAmount = qty * rate;
               const rowTotal = lineAmount * (1 - disc / 100);
+              const selectedProduct = (products || []).find(
+                (p) => (p.id || p._id) === it.productId || p.name === it.productId
+              );
 
               return (
-                <div
-                  key={idx}
-                  style={{
-                    background: "var(--canvas)",
-                    border: "1px dashed var(--line-strong)",
-                    borderRadius: 12,
-                    padding: "12px 14px",
-                    position: "relative",
-                    transition: "border-color 150ms ease",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: 8,
-                      borderBottom: "1px dashed var(--line)",
-                      paddingBottom: 6,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 800,
-                        color: "var(--muted)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.5px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                      }}
-                    >
+                <div key={idx} className="goods-product-card">
+                  {/* Card Header: Item Sequence, Selected Product Preview, Subtotal & Delete Action */}
+                  <div className="goods-product-card-header">
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                       <span
                         style={{
-                          width: 18,
-                          height: 18,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          padding: "2px 8px",
                           borderRadius: 6,
                           background: "var(--primary-tint)",
                           color: "var(--primary-deep)",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 10,
-                          fontWeight: 900,
+                          fontSize: 11,
+                          fontWeight: 800,
+                          letterSpacing: "0.4px",
                         }}
                       >
-                        {idx + 1}
+                        #{idx + 1}
                       </span>
-                      Product Entry
-                    </span>
+                      <span
+                        style={{
+                          fontSize: 12.5,
+                          fontWeight: 700,
+                          color: it.description || selectedProduct?.name ? "var(--ink)" : "var(--muted)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        {it.description || selectedProduct?.name || "Product Entry"}
+                        {it.unit && (
+                          <span
+                            style={{
+                              fontSize: 10.5,
+                              color: "var(--muted)",
+                              fontWeight: 600,
+                              background: "var(--canvas)",
+                              padding: "1px 6px",
+                              borderRadius: 4,
+                              border: "1px solid var(--line)",
+                            }}
+                          >
+                            {it.unit}
+                          </span>
+                        )}
+                      </span>
+                    </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ fontSize: 11.5, color: "var(--muted)", fontWeight: 600 }}>
-                        Amount:{" "}
-                        <strong style={{ color: "var(--ink)", fontWeight: 800 }}>
-                          ₹{(lineAmount || 0).toFixed(2)}
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div
+                        style={{
+                          fontSize: 11.5,
+                          color: "var(--muted)",
+                          fontWeight: 600,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 5,
+                        }}
+                      >
+                        <span>Subtotal:</span>
+                        <strong
+                          style={{
+                            color: "var(--primary-deep)",
+                            fontWeight: 800,
+                            fontSize: 12.5,
+                          }}
+                        >
+                          ₹{(disc > 0 ? rowTotal : lineAmount || 0).toFixed(2)}
                         </strong>
-                      </span>
+                        {disc > 0 && (
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 800,
+                              color: "var(--primary-deep)",
+                              background: "var(--primary-tint)",
+                              padding: "1px 5px",
+                              borderRadius: 4,
+                            }}
+                            title={`Discount: ${disc}% (Original: ₹${(lineAmount || 0).toFixed(2)})`}
+                          >
+                            -{disc}%
+                          </span>
+                        )}
+                      </div>
 
                       <button
                         type="button"
                         onClick={() => removeLineItem(idx)}
                         style={{
                           background: "rgba(239, 68, 68, 0.08)",
-                          border: "none",
+                          border: "1px solid rgba(239, 68, 68, 0.2)",
                           borderRadius: 6,
                           color: "var(--status-error)",
                           cursor: "pointer",
                           fontSize: 11.5,
                           fontWeight: 700,
-                          padding: "3px 8px",
+                          padding: "4px 8px",
                           display: "inline-flex",
                           alignItems: "center",
-                          gap: 3,
-                          transition: "all 150ms ease",
+                          gap: 4,
+                          transition: "all 140ms ease",
                         }}
                         onMouseOver={(e) => {
                           e.currentTarget.style.background = "var(--status-error)";
@@ -832,23 +875,18 @@ export default function GoodsCreate() {
                           e.currentTarget.style.background = "rgba(239, 68, 68, 0.08)";
                           e.currentTarget.style.color = "var(--status-error)";
                         }}
-                        title="Delete product entry"
+                        title="Delete this product entry"
                       >
-                        <i className="ri-delete-bin-line" />
+                        <i className="ri-delete-bin-line" style={{ fontSize: 13 }} />
                         <span>Delete</span>
                       </button>
                     </div>
                   </div>
 
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "2fr 0.9fr 0.9fr 0.9fr 0.8fr 1.1fr",
-                      gap: 12,
-                      alignItems: "start",
-                    }}
-                  >
-                    <div>
+                  {/* Responsive Form Grid */}
+                  <div className="goods-product-grid">
+                    {/* 1. Product Dropdown */}
+                    <div className="goods-product-col-product">
                       <label
                         style={{
                           display: "block",
@@ -867,7 +905,7 @@ export default function GoodsCreate() {
                         value={it.productId || ""}
                         onChange={(v) => handleProductSelect(idx, v)}
                         options={productOptions}
-                        placeholder="Product Name"
+                        placeholder="Select Product..."
                         filter
                         showClear
                         compact
@@ -875,7 +913,8 @@ export default function GoodsCreate() {
                       />
                     </div>
 
-                    <div>
+                    {/* 2. HSN / SAC */}
+                    <div className="goods-product-col-hsn">
                       <label
                         style={{
                           display: "block",
@@ -898,7 +937,8 @@ export default function GoodsCreate() {
                       />
                     </div>
 
-                    <div>
+                    {/* 3. Quantity */}
+                    <div className="goods-product-col-qty">
                       <label
                         style={{
                           display: "block",
@@ -926,7 +966,8 @@ export default function GoodsCreate() {
                       />
                     </div>
 
-                    <div>
+                    {/* 4. Rate */}
+                    <div className="goods-product-col-rate">
                       <label
                         style={{
                           display: "block",
@@ -954,7 +995,8 @@ export default function GoodsCreate() {
                       />
                     </div>
 
-                    <div>
+                    {/* 5. Discount */}
+                    <div className="goods-product-col-discount">
                       <label
                         style={{
                           display: "block",
@@ -981,7 +1023,8 @@ export default function GoodsCreate() {
                       />
                     </div>
 
-                    <div>
+                    {/* 6. Row Amount */}
+                    <div className="goods-product-col-amount">
                       <label
                         style={{
                           display: "block",
@@ -1002,8 +1045,9 @@ export default function GoodsCreate() {
                         compact
                         marginBottom={0}
                         inputStyle={{
-                          fontWeight: 700,
-                          color: "var(--ink)",
+                          fontWeight: 800,
+                          color: "var(--primary-deep)",
+                          background: "var(--canvas)",
                           cursor: "default",
                         }}
                       />
@@ -1012,6 +1056,40 @@ export default function GoodsCreate() {
                 </div>
               );
             })}
+
+            {/* Bottom Add Product Shortcut when multiple items are present */}
+            {lineItems.length > 0 && (
+              <button
+                type="button"
+                onClick={addLineItem}
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: 10,
+                  border: "1.5px dashed var(--line-strong)",
+                  background: "var(--surface)",
+                  color: "var(--primary-deep)",
+                  fontSize: 12.5,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                  transition: "all 140ms ease",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = "var(--primary)";
+                  e.currentTarget.style.background = "var(--primary-tint)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = "var(--line-strong)";
+                  e.currentTarget.style.background = "var(--surface)";
+                }}
+              >
+                <i className="ri-add-circle-line" style={{ fontSize: 16 }} />
+                <span>+ Add Another Product Item</span>
+              </button>
+            )}
           </div>
         </Card>
 

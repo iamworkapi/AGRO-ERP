@@ -22,7 +22,7 @@ export default function Card({
       style={{
         background: isYellow ? "rgba(242, 201, 0, 0.5)" : "var(--surface)",
         border: isYellow ? "1px solid rgba(242, 201, 0, 0.6)" : "1px solid var(--line)",
-        borderRadius: 18,
+        borderRadius: 14,
         boxShadow: isYellow ? "0 4px 14px rgba(242, 201, 0, 0.15)" : "var(--shadow-sm)",
         position: "relative",
         overflow: "hidden",
@@ -30,7 +30,7 @@ export default function Card({
         flexDirection: "column",
         width: "100%",
         boxSizing: "border-box",
-        ...(accent ? { borderTop: `3px solid ${accent}` } : {}),
+        ...(accent ? { borderTop: `2.5px solid ${accent}` } : {}),
         ...style,
       }}
     >
@@ -40,26 +40,26 @@ export default function Card({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "16px 20px 14px",
+            padding: "11px 16px 9px",
             borderBottom: isYellow ? "1px dashed rgba(0, 0, 0, 0.15)" : "1px solid var(--line)",
-            gap: 12,
+            gap: 10,
             flexWrap: "wrap",
             ...headerStyle,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             {icon && (
               <div
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 10,
+                  width: 26,
+                  height: 26,
+                  borderRadius: 7,
                   background: isYellow ? "#FFFFFF" : "var(--primary-tint)",
                   color: isYellow ? "#0F0F0F" : "var(--primary)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 16,
+                  fontSize: 14,
                   flexShrink: 0,
                   boxShadow: isYellow ? "0 2px 6px rgba(0, 0, 0, 0.08)" : "none",
                 }}
@@ -72,28 +72,28 @@ export default function Card({
                 <h3
                   style={{
                     margin: 0,
-                    fontSize: 14.5,
+                    fontSize: 13.5,
                     fontWeight: 800,
                     color: isYellow ? "#0F0F0F" : "var(--ink)",
-                    letterSpacing: 0.1,
+                    letterSpacing: "-0.01em",
                   }}
                 >
                   {title}
                 </h3>
               )}
               {subtitle && (
-                <p style={{ margin: "2px 0 0", fontSize: 12, color: isYellow ? "rgba(15, 15, 15, 0.75)" : "var(--muted)", lineHeight: 1.3 }}>
+                <p style={{ margin: "1px 0 0", fontSize: 11, color: isYellow ? "rgba(15, 15, 15, 0.75)" : "var(--muted)", lineHeight: 1.25 }}>
                   {subtitle}
                 </p>
               )}
             </div>
           </div>
-          {right && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>{right}</div>}
+          {right && <div style={{ display: "flex", alignItems: "center", gap: 6 }}>{right}</div>}
         </div>
       )}
 
       {/* Card Body */}
-      <div style={{ padding: "18px 20px", flex: 1, ...bodyStyle }}>
+      <div style={{ padding: "12px 16px", flex: 1, ...bodyStyle }}>
         {children}
       </div>
 
@@ -101,12 +101,13 @@ export default function Card({
       {footer && (
         <div
           style={{
-            padding: "12px 20px",
+            padding: "9px 16px",
             borderTop: "1px solid var(--line)",
             background: "var(--canvas)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
+            fontSize: 11.5,
           }}
         >
           {footer}

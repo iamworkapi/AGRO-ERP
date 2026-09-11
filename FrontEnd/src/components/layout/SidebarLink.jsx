@@ -9,14 +9,15 @@ export default function SidebarLink({ to, label, active }) {
         display: "flex",
         alignItems: "center",
         gap: 8,
-        padding: "4px 8px",
-        margin: "1px 6px 1px 0",
-        borderRadius: 6,
+        padding: "6px 10px 6px 8px",
+        margin: "1px 0",
+        borderRadius: 7,
         textDecoration: "none",
         fontSize: 12,
         fontWeight: active ? 700 : 500,
-        color: active ? "#FFFFFF" : "rgba(248, 248, 248, 0.7)",
-        background: active ? "rgba(93, 214, 44, 0.18)" : "transparent",
+        color: active ? "#FFFFFF" : "rgba(255, 255, 255, 0.68)",
+        background: active ? "rgba(93, 214, 44, 0.14)" : "transparent",
+        border: active ? "1px solid rgba(93, 214, 44, 0.28)" : "1px solid transparent",
         whiteSpace: "nowrap",
         overflow: "hidden",
         textOverflow: "ellipsis",
@@ -25,38 +26,44 @@ export default function SidebarLink({ to, label, active }) {
       }}
       onMouseOver={(e) => {
         e.currentTarget.style.color = "#FFFFFF";
-        if (!active) e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)";
+        if (!active) {
+          e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)";
+        }
       }}
       onMouseOut={(e) => {
-        e.currentTarget.style.color = active ? "#FFFFFF" : "rgba(248, 248, 248, 0.7)";
-        e.currentTarget.style.background = active ? "rgba(93, 214, 44, 0.18)" : "transparent";
+        e.currentTarget.style.color = active ? "#FFFFFF" : "rgba(255, 255, 255, 0.68)";
+        e.currentTarget.style.background = active ? "rgba(93, 214, 44, 0.14)" : "transparent";
       }}
     >
+      {/* Horizontal branch line connecting vertical tree rail directly to the circle */}
       <span
         style={{
-          width: 5,
-          height: 5,
-          borderRadius: "50%",
-          background: active ? "#5DD62C" : "rgba(248, 248, 248, 0.2)",
-          flexShrink: 0,
-          boxShadow: active ? "0 0 6px #5DD62C" : "none",
-          transition: "all var(--transition-fast)",
+          position: "absolute",
+          left: -12,
+          top: "50%",
+          width: 12,
+          height: 1.5,
+          background: active ? "#5DD62C" : "rgba(255, 255, 255, 0.14)",
+          transform: "translateY(-50%)",
+          transition: "background var(--transition-fast)",
+          pointerEvents: "none",
         }}
       />
-      <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{label}</span>
-      {active && (
-        <span
-          style={{
-            marginLeft: "auto",
-            width: 4,
-            height: 4,
-            borderRadius: "50%",
-            background: "#5DD62C",
-            boxShadow: "0 0 5px #5DD62C",
-            flexShrink: 0,
-          }}
-        />
-      )}
+
+      {/* Connected Circle / Dot */}
+      <span
+        style={{
+          width: active ? 7 : 5,
+          height: active ? 7 : 5,
+          borderRadius: "50%",
+          background: active ? "#5DD62C" : "rgba(255, 255, 255, 0.35)",
+          flexShrink: 0,
+          boxShadow: active ? "0 0 8px rgba(93, 214, 44, 0.9)" : "none",
+          transition: "all var(--transition-fast)",
+          zIndex: 1,
+        }}
+      />
+      <span style={{ overflow: "hidden", textOverflow: "ellipsis", letterSpacing: "0.01em" }}>{label}</span>
     </Link>
   );
 }

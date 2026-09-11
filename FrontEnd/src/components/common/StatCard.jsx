@@ -1,7 +1,7 @@
 import { memo } from "react";
 
 function StatCard({
-  variant = "elevated", // "elevated" | "accent" | "solid" | "compact"
+  variant = "elevated",
   label,
   value,
   sub,
@@ -12,7 +12,7 @@ function StatCard({
   color = "#337418",
   bg,
   viewAllLink,
-  linkText = "View All",
+  linkText = "View",
   onClick,
   style = {},
   className = "",
@@ -26,9 +26,9 @@ function StatCard({
     (trend && (trend.includes("+") || trend.toLowerCase().includes("up") || trend.toLowerCase().includes("profit")));
 
   const trendBg = isDown
-    ? "rgba(220, 38, 38, 0.1)"
+    ? "rgba(220, 38, 38, 0.08)"
     : isUp
-    ? "rgba(16, 185, 129, 0.12)"
+    ? "rgba(16, 185, 129, 0.1)"
     : "var(--canvas)";
   const trendTextColor = isDown
     ? "#DC2626"
@@ -43,18 +43,18 @@ function StatCard({
       style={{
         background: "var(--surface)",
         border: "1px solid var(--line)",
-        borderRadius: 14,
-        padding: "16px 18px",
+        borderRadius: 12,
+        padding: "12px 14px 10px",
         boxShadow: "var(--shadow-sm)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        gap: 12,
+        gap: 8,
         cursor: onClick ? "pointer" : "default",
-        transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+        transition: "all 0.18s cubic-bezier(0.16, 1, 0.3, 1)",
         position: "relative",
         overflow: "hidden",
-        minHeight: 110,
+        minHeight: 88,
         ...style,
       }}
       onMouseEnter={(e) => {
@@ -68,42 +68,57 @@ function StatCard({
         e.currentTarget.style.borderColor = "var(--line)";
       }}
     >
-      {/* Top Subtle Color Accent Bar */}
+      {/* Top Subtle Color Accent Glow */}
       <div
         style={{
           position: "absolute",
           top: 0,
           left: 0,
           right: 0,
-          height: 3,
+          height: 2.5,
           background: activeColor,
-          opacity: 0.85,
+          opacity: 0.9,
         }}
       />
 
-      {/* Main Header: Label & Icon */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+      {/* Main Header: Label, Icon & Value */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <span
-            style={{
-              fontSize: 11.5,
-              fontWeight: 700,
-              color: "var(--muted)",
-              letterSpacing: "0.2px",
-              textTransform: "uppercase",
-              display: "block",
-              lineHeight: 1.35,
-            }}
-          >
-            {label}
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <span
+              style={{
+                width: 5,
+                height: 5,
+                borderRadius: "50%",
+                background: activeColor,
+                flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontSize: 10.5,
+                fontWeight: 700,
+                color: "var(--muted)",
+                letterSpacing: "0.3px",
+                textTransform: "uppercase",
+                display: "block",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                lineHeight: 1.2,
+              }}
+            >
+              {label}
+            </span>
+          </div>
+
           <div
             style={{
-              fontSize: "clamp(1.2rem, 1.4vw, 1.45rem)",
+              fontSize: "clamp(1.15rem, 1.3vw, 1.35rem)",
               fontWeight: 800,
               color: "var(--ink)",
-              letterSpacing: "-0.02em",
-              marginTop: 6,
+              letterSpacing: "-0.025em",
+              marginTop: 4,
               lineHeight: 1.15,
               wordBreak: "break-word",
             }}
@@ -111,26 +126,26 @@ function StatCard({
             {value}
           </div>
           {sub && (
-            <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2, fontWeight: 500 }}>
+            <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 1, fontWeight: 500 }}>
               {sub}
             </div>
           )}
         </div>
 
-        {/* Sober Pastel Icon Pill */}
+        {/* Compact Icon Pill */}
         {icon && (
           <div
             style={{
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              background: bg || `${activeColor}15`,
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              background: bg || `${activeColor}12`,
               color: activeColor,
-              border: `1px solid ${activeColor}2A`,
+              border: `1px solid ${activeColor}24`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 18,
+              fontSize: 15,
               flexShrink: 0,
             }}
           >
@@ -139,17 +154,17 @@ function StatCard({
         )}
       </div>
 
-      {/* Bottom Footer: Trend Pill & Optional Action Link */}
+      {/* Bottom Footer: Compact Trend Pill & Optional Action Link */}
       {(trend || viewAllLink || onClick) && (
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: 8,
-            paddingTop: 8,
+            gap: 6,
+            paddingTop: 6,
             borderTop: "1px solid var(--line)",
-            fontSize: 11,
+            fontSize: 10.5,
             marginTop: "auto",
           }}
         >
@@ -158,18 +173,18 @@ function StatCard({
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 4,
-                padding: "2px 7px",
-                borderRadius: 6,
+                gap: 3,
+                padding: "1px 6px",
+                borderRadius: 4,
                 background: trendBg,
                 color: trendTextColor,
                 fontWeight: 700,
-                fontSize: 10.5,
+                fontSize: 10,
               }}
             >
-              {isUp && <i className="ri-arrow-up-line" style={{ fontSize: 10 }} />}
-              {isDown && <i className="ri-arrow-down-line" style={{ fontSize: 10 }} />}
-              {!isUp && !isDown && <i className="ri-information-line" style={{ fontSize: 10 }} />}
+              {isUp && <i className="ri-arrow-up-line" style={{ fontSize: 9 }} />}
+              {isDown && <i className="ri-arrow-down-line" style={{ fontSize: 9 }} />}
+              {!isUp && !isDown && <i className="ri-information-line" style={{ fontSize: 9 }} />}
               <span>{trend}</span>
             </span>
           ) : (
@@ -184,11 +199,11 @@ function StatCard({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 2,
-                fontSize: 11,
+                fontSize: 10.5,
               }}
             >
               {linkText}
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 12 }} />
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 11 }} />
             </span>
           )}
         </div>

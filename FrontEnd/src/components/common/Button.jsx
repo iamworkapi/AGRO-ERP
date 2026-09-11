@@ -1,4 +1,5 @@
 import { memo } from "react";
+import Loader from "./Loader";
 
 export default function Button({
   children,
@@ -85,6 +86,9 @@ export default function Button({
     ...style,
   };
 
+  const loaderVariant = variant === "secondary" || variant === "outline" || variant === "ghost" ? "primary" : "white";
+  const loaderSize = size === "lg" ? 18 : size === "sm" ? 13 : 15;
+
   return (
     <button
       type={type}
@@ -95,7 +99,7 @@ export default function Button({
       className={`app-btn btn-${variant} ${className}`}
     >
       {loading ? (
-        <i className="ri-loader-4-line ri-spin" style={{ fontSize: size === "lg" ? 18 : 15 }} />
+        <Loader size={loaderSize} variant={loaderVariant} />
       ) : (
         <>
           {icon && iconPosition === "left" && (

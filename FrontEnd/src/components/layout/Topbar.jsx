@@ -38,8 +38,9 @@ export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
   // "Manimau Centre Hub" / "12 Procurement Hubs" placeholder.
   const isScopedRole = user?.roleKey === "supervisor" || user?.roleKey === "warehouse_admin";
   const { warehouses } = useWarehouses();
+  const assignedWarehouse = isScopedRole ? warehouses[0] : null;
   const hubStatusLabel = isScopedRole
-    ? warehouses[0]?.name || "No warehouse assigned"
+    ? assignedWarehouse?.name || "Contact Super Admin — no warehouse assigned"
     : `${warehouses.length} Procurement ${warehouses.length === 1 ? "Hub" : "Hubs"}`;
 
   const todayStr = new Date().toLocaleDateString("en-US", {
@@ -56,12 +57,12 @@ export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
     <header
       className="topbar-header"
       style={{
-        height: 64,
+        height: 52,
         background: "var(--surface)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 32px",
+        padding: "0 20px",
         flexShrink: 0,
         position: "sticky",
         top: 0,
@@ -78,15 +79,15 @@ export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
           title="Open App Hub"
           style={{
             display: "none",
-            width: 38,
-            height: 38,
-            borderRadius: 10,
+            width: 34,
+            height: 34,
+            borderRadius: 8,
             border: "1px solid var(--line)",
             background: "var(--canvas)",
             color: "var(--ink)",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: 19,
+            fontSize: 17,
             cursor: "pointer",
             flexShrink: 0,
           }}
@@ -94,10 +95,24 @@ export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
           <i className="ri-apps-2-line" />
         </button>
 
-        <div>
-          <h2 className="topbar-greeting" style={{ fontSize: 16, fontWeight: 800, color: "var(--ink)", margin: 0, letterSpacing: "-0.02em" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <h2 className="topbar-greeting" style={{ fontSize: 14.5, fontWeight: 800, color: "var(--ink)", margin: 0, letterSpacing: "-0.02em" }}>
             Hello, {userName}
           </h2>
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              padding: "2px 7px",
+              borderRadius: 12,
+              background: "var(--primary-tint)",
+              color: "var(--primary)",
+              border: "1px solid var(--primary)33",
+              textTransform: "capitalize",
+            }}
+          >
+            {userRole}
+          </span>
           <div className="topbar-mobile-sub" style={{ display: "none", fontSize: 11, color: "var(--muted)", alignItems: "center", gap: 5 }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary)" }} />
             <span style={{ fontWeight: 600 }}>{hubStatusLabel}</span>
@@ -106,29 +121,29 @@ export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
       </div>
 
       {/* Right: Live Status Pill, Theme Toggle, Notifications & Account Menu */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <div
           className="topbar-status-pill"
           style={{
-            fontSize: 12,
+            fontSize: 11.5,
             fontWeight: 500,
             color: "var(--ink-secondary)",
             background: "var(--canvas)",
             border: "1px solid var(--line)",
-            borderRadius: 20,
-            padding: "5px 14px",
+            borderRadius: 16,
+            padding: "4px 10px",
             display: "flex",
             alignItems: "center",
-            gap: 8,
+            gap: 6,
           }}
         >
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--primary)" }} />
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 6px var(--primary)" }} />
           <span>
-            <i className="ri-building-line" style={{ fontSize: 13, color: "var(--primary)", marginRight: 4, verticalAlign: "-1px" }} />
+            <i className="ri-building-line" style={{ fontSize: 12, color: "var(--primary)", marginRight: 3, verticalAlign: "-1px" }} />
             {hubStatusLabel}
           </span>
           <span style={{ color: "var(--faint)" }}>|</span>
-          <span style={{ color: "var(--muted)" }}><i className="ri-calendar-line" style={{ fontSize: 12, marginRight: 4, verticalAlign: "-1px" }} />{todayStr}</span>
+          <span style={{ color: "var(--muted)" }}><i className="ri-calendar-line" style={{ fontSize: 11, marginRight: 3, verticalAlign: "-1px" }} />{todayStr}</span>
         </div>
 
         {/* Theme Toggle Button */}
@@ -137,9 +152,9 @@ export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
           aria-label="Toggle Light / Dark Mode"
           title={isDark ? "Switch to Light Mode" : "Switch to Spatial Dark Mode"}
           style={{
-            width: 36,
-            height: 36,
-            borderRadius: "50%",
+            width: 32,
+            height: 32,
+            borderRadius: 8,
             border: "1px solid var(--line)",
             background: "var(--surface)",
             color: isDark ? "#5DD62C" : "#337418",
@@ -147,7 +162,7 @@ export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
-            fontSize: 17,
+            fontSize: 15,
             transition: "all var(--transition-fast)",
             boxShadow: "var(--shadow-sm)",
           }}
@@ -162,7 +177,7 @@ export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
             aria-label="Notifications"
             style={{
               position: "relative",
-              width: 36, height: 36, borderRadius: "50%",
+              width: 32, height: 32, borderRadius: 8,
               border: "1px solid var(--line)", background: openMenu === "bell" ? "var(--canvas)" : "var(--surface)",
               color: "var(--ink-secondary)", display: "flex", alignItems: "center", justifyContent: "center",
               cursor: "pointer", transition: "background var(--transition-fast)",
@@ -172,7 +187,7 @@ export default function Topbar({ onToggleMobileSidebar, onOpenAppHub }) {
             {openExceptions.length > 0 && (
               <span
                 style={{
-                  position: "absolute", top: 5, right: 6, width: 8, height: 8, borderRadius: "50%",
+                  position: "absolute", top: 4, right: 4, width: 7, height: 7, borderRadius: "50%",
                   background: "var(--status-error)", border: "2px solid var(--surface)",
                 }}
               />

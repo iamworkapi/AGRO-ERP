@@ -58,9 +58,9 @@ export default function PageHeader({
       style={{
         background: "linear-gradient(160deg, var(--surface) 0%, var(--canvas) 100%)",
         border: "1px solid var(--line)",
-        borderRadius: compact ? 12 : 20,
+        borderRadius: 14,
         padding: 0,
-        boxShadow: compact ? "var(--shadow-xs)" : "var(--shadow-md)",
+        boxShadow: "var(--shadow-sm)",
         position: "relative",
         overflow: "hidden",
         ...style,
@@ -69,7 +69,7 @@ export default function PageHeader({
       {/* Top accent bar */}
       <div
         style={{
-          position: "absolute", top: 0, left: 0, right: 0, height: compact ? 2 : 3,
+          position: "absolute", top: 0, left: 0, right: 0, height: 2.5,
           background: "linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 60%, transparent 100%)",
         }}
       />
@@ -90,36 +90,35 @@ export default function PageHeader({
       <div
         style={{
           position: "absolute", right: -20, top: -20,
-          width: 160, height: 160, borderRadius: "50%",
+          width: 140, height: 140, borderRadius: "50%",
           background: "radial-gradient(circle, rgba(93, 214, 44, 0.14) 0%, transparent 70%)",
-          filter: "blur(20px)",
+          filter: "blur(18px)",
           pointerEvents: "none",
         }}
       />
 
-      <div style={{ position: "relative", zIndex: 2, padding: compact ? "10px 16px" : "18px 22px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+      <div style={{ position: "relative", zIndex: 2, padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
 
         {/* Left: Icon + Text */}
-        <div style={{ display: "flex", alignItems: "center", gap: compact ? 10 : 14, minWidth: 0, flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0, flex: 1 }}>
           {/* Animated icon tile */}
           <div
             style={{
-              width: compact ? 34 : 48, height: compact ? 34 : 48, borderRadius: compact ? 9 : 14, flexShrink: 0,
+              width: 38, height: 38, borderRadius: 10, flexShrink: 0,
               background: "linear-gradient(135deg, rgba(93, 214, 44, 0.2) 0%, rgba(51, 116, 24, 0.12) 100%)",
               color: "var(--primary)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: compact ? 16 : 22,
+              fontSize: 19,
               border: "1px solid rgba(93, 214, 44, 0.35)",
-              boxShadow: compact ? "0 0 10px rgba(93, 214, 44, 0.12)" : "0 0 20px rgba(93, 214, 44, 0.15), 0 0 0 6px rgba(93, 214, 44, 0.04)",
+              boxShadow: "0 0 12px rgba(93, 214, 44, 0.15)",
               position: "relative",
-              animation: "iconPulse 3s ease-in-out infinite",
             }}
           >
             <i className={resolvedIcon} style={{ position: "relative", zIndex: 1 }} />
             <span
               style={{
-                position: "absolute", bottom: -2, right: -2,
-                width: compact ? 7 : 10, height: compact ? 7 : 10, borderRadius: "50%",
+                position: "absolute", bottom: -1, right: -1,
+                width: 8, height: 8, borderRadius: "50%",
                 background: "#5DD62C", border: "2px solid var(--surface)",
                 boxShadow: "0 0 6px #5DD62C",
               }}
@@ -130,10 +129,13 @@ export default function PageHeader({
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
               <h1
                 style={{
-                  margin: 0, fontSize: compact ? 15 : 19, fontWeight: 900,
-                  background: "linear-gradient(135deg, var(--ink) 0%, var(--ink-secondary) 100%)",
-                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-                  letterSpacing: "-0.02em", lineHeight: 1.2,
+                  margin: 0,
+                  fontSize: 16,
+                  fontWeight: 900,
+                  color: "var(--ink)",
+                  letterSpacing: "-0.02em",
+                  lineHeight: 1.2,
+                  whiteSpace: "nowrap",
                 }}
               >
                 {title}
@@ -143,13 +145,13 @@ export default function PageHeader({
                 <span
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 5,
-                    padding: "3px 10px", borderRadius: 20,
+                    padding: "2px 8px", borderRadius: 14,
                     fontSize: 9.5, fontWeight: 800,
                     background: "var(--primary-tint)",
                     color: "var(--primary-deep)",
                     border: "1px solid rgba(93, 214, 44, 0.25)",
-                    letterSpacing: "0.04em", textTransform: "uppercase",
-                    boxShadow: "0 0 8px rgba(93, 214, 44, 0.1)",
+                    letterSpacing: "0.03em", textTransform: "uppercase",
+                    boxShadow: "0 0 6px rgba(93, 214, 44, 0.1)",
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -160,8 +162,8 @@ export default function PageHeader({
             </div>
 
             {subtitle && (
-              <p style={{ margin: "3px 0 0", fontSize: 12, color: "var(--muted)", display: "flex", alignItems: "center", gap: 5, lineHeight: 1.3 }}>
-                <i className="ri-information-line" style={{ fontSize: 12, opacity: 0.7 }} />
+              <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted)", display: "flex", alignItems: "center", gap: 5, lineHeight: 1.3 }}>
+                <i className="ri-information-line" style={{ fontSize: 11.5, opacity: 0.7 }} />
                 {subtitle}
               </p>
             )}
@@ -169,10 +171,10 @@ export default function PageHeader({
         </div>
 
         {/* Right: Breadcrumb + Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
           {trail && <Breadcrumb items={trail} />}
           {actionContent && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               {actionContent}
             </div>
           )}
