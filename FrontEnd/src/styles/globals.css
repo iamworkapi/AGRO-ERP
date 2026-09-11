@@ -2654,6 +2654,9 @@ input[type="number"] {
   padding: 0 4px !important;
   display: flex !important;
   align-items: center !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
 }
 
 /* Explicitly dashed form fields only */
@@ -2708,6 +2711,10 @@ input[type="number"] {
   font-size: 13px !important;
   font-weight: 600 !important;
   color: var(--ink) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  min-width: 0 !important;
 }
 
 .p-dropdown.p-dropdown-clearable .p-dropdown-label,
@@ -3774,9 +3781,30 @@ input[type="number"] {
   }
 }
 
-@media (max-width: 992px) {
-  .create-buyer-responsive-grid,
+@media (max-width: 1060px) {
   .direct-sale-responsive-grid {
     grid-template-columns: 1fr !important;
   }
+}
+
+@media (max-width: 992px) {
+  .create-buyer-responsive-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.direct-sale-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.direct-sale-table-scroll::-webkit-scrollbar {
+  height: 5px;
+}
+
+.direct-sale-table-scroll::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 4px;
 }

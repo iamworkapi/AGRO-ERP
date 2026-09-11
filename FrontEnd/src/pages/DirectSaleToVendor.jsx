@@ -277,7 +277,7 @@ export default function DirectSaleToVendor() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(0, 1fr) 350px",
+          gridTemplateColumns: "minmax(0, 1fr) 330px",
           gap: 16,
           alignItems: "start",
         }}
@@ -294,33 +294,34 @@ export default function DirectSaleToVendor() {
             headerStyle={{ padding: "10px 16px" }}
             bodyStyle={{ padding: "14px 16px" }}
           >
-            <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1.2fr 1.1fr", gap: "10px 14px" }}>
-              {/* Registered Vendor */}
-              <div>
-                <FormField
-                  label="Registered Vendor"
-                  required
-                  compact
-                  layout="vertical"
-                  type="select"
-                  value={selectedVendorId}
-                  onChange={setSelectedVendorId}
-                  placeholder="Select vendor..."
-                  filter
-                  options={
-                    vendors.length > 0
-                      ? vendors.map((v) => ({
-                          value: v._id || v.id,
-                          label: `${v.companyName || v.name} ${v.contactNo ? `(${v.contactNo})` : ""}`,
-                        }))
-                      : [{ value: "", label: "No vendors available" }]
-                  }
-                />
-              </div>
+            {/* Top Row: Registered Vendor Selector (Full Width, Zero Squeeze) */}
+            <div style={{ marginBottom: 12 }}>
+              <FormField
+                label="Registered Vendor"
+                required
+                compact
+                layout="vertical"
+                type="select"
+                value={selectedVendorId}
+                onChange={setSelectedVendorId}
+                placeholder="Select registered vendor to bill..."
+                filter
+                options={
+                  vendors.length > 0
+                    ? vendors.map((v) => ({
+                        value: v._id || v.id,
+                        label: `${v.companyName || v.name}${v.contactNo ? ` • 📞 ${v.contactNo}` : ""}`,
+                      }))
+                    : [{ value: "", label: "No vendors available" }]
+                }
+              />
+            </div>
 
+            {/* Sub-row: Dispatch Warehouse (Frozen) & Auto Invoice Sequence (Balanced 50% / 50% split) */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "12px 14px" }}>
               {/* Supplying Warehouse Hub (Frozen / Locked) */}
               <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 5 }}>
                   <label
                     style={{
                       fontSize: 11,
@@ -341,11 +342,11 @@ export default function DirectSaleToVendor() {
                       fontWeight: 800,
                       color: "var(--primary-deep)",
                       background: "var(--primary-tint)",
-                      padding: "1px 6px",
+                      padding: "1px 7px",
                       borderRadius: 4,
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 3,
+                      gap: 3.5,
                     }}
                   >
                     <i className="ri-lock-fill" style={{ fontSize: 10 }} />
@@ -357,7 +358,7 @@ export default function DirectSaleToVendor() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    height: 34,
+                    height: 36,
                     padding: "0 10px",
                     borderRadius: 7,
                     border: "1px solid var(--line-strong)",
@@ -367,8 +368,8 @@ export default function DirectSaleToVendor() {
                   }}
                   title="Dispatch warehouse is frozen & locked to your assigned facility"
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-                    <i className="ri-store-2-line" style={{ color: "var(--primary)", fontSize: 14 }} />
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0, overflow: "hidden" }}>
+                    <i className="ri-store-2-line" style={{ color: "var(--primary)", fontSize: 15, flexShrink: 0 }} />
                     <span
                       style={{
                         fontSize: 12.5,
@@ -383,7 +384,7 @@ export default function DirectSaleToVendor() {
                         : "Bettiah Hub (WH-BTT-01)"}
                     </span>
                   </div>
-                  <i className="ri-lock-line" style={{ color: "var(--muted)", fontSize: 13 }} />
+                  <i className="ri-lock-line" style={{ color: "var(--muted)", fontSize: 13, flexShrink: 0 }} />
                 </div>
                 <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 3 }}>
                   Facility Prefix: <strong style={{ color: "var(--primary)" }}>{whPrefix}</strong> (Locked)
@@ -392,7 +393,7 @@ export default function DirectSaleToVendor() {
 
               {/* Direct Sale Ref / Invoice No */}
               <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 5 }}>
                   <label
                     style={{
                       fontSize: 11,
@@ -413,12 +414,16 @@ export default function DirectSaleToVendor() {
                       color: "var(--primary-deep)",
                       fontSize: 10,
                       fontWeight: 800,
-                      padding: "1px 6px",
+                      padding: "1px 7px",
                       borderRadius: 4,
                       cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 3,
                     }}
                     title="Generate new invoice number"
                   >
+                    <i className="ri-refresh-line" style={{ fontSize: 10 }} />
                     Auto
                   </button>
                 </div>
@@ -431,7 +436,7 @@ export default function DirectSaleToVendor() {
                     border: "1px solid var(--line-strong)",
                     background: "var(--canvas)",
                     overflow: "hidden",
-                    height: 34,
+                    height: 36,
                   }}
                 >
                   <input
@@ -468,6 +473,9 @@ export default function DirectSaleToVendor() {
                   >
                     <i className={copiedInvoice ? "ri-check-line" : "ri-file-copy-line"} style={{ fontSize: 13 }} />
                   </button>
+                </div>
+                <div style={{ fontSize: 10.5, color: "var(--muted)", marginTop: 3 }}>
+                  Auto-sequenced direct sale billing code
                 </div>
               </div>
             </div>
@@ -598,257 +606,265 @@ export default function DirectSaleToVendor() {
               </span>
             }
           >
-            {/* Table Header Bar */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "36px minmax(200px, 2.2fr) 110px 110px 110px 110px 38px",
-                gap: "0 10px",
-                padding: "8px 10px",
-                background: "var(--canvas)",
-                borderRadius: "8px 8px 0 0",
-                borderBottom: "1px solid var(--line-strong)",
-                fontSize: 11,
-                fontWeight: 800,
-                color: "var(--muted)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                alignItems: "center",
-              }}
-            >
-              <div style={{ textAlign: "center" }}>#</div>
-              <div>Product Item</div>
-              <div style={{ textAlign: "center" }}>Available Stock</div>
-              <div>Quantity</div>
-              <div>Rate (₹)</div>
-              <div style={{ textAlign: "right", paddingRight: 4 }}>Subtotal</div>
-              <div style={{ textAlign: "center" }}>Del</div>
-            </div>
+            {/* Scrollable Products Table Container */}
+            <div className="direct-sale-table-scroll">
+              <div style={{ minWidth: 620 }}>
+                {/* Table Header Bar */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "28px minmax(170px, 2fr) 90px 90px 90px 100px 32px",
+                    gap: "0 8px",
+                    padding: "8px 10px",
+                    background: "var(--canvas)",
+                    borderRadius: "8px 8px 0 0",
+                    borderBottom: "1px solid var(--line-strong)",
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: "var(--muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ textAlign: "center" }}>#</div>
+                  <div>Product Item</div>
+                  <div style={{ textAlign: "center" }}>Available Stock</div>
+                  <div>Quantity</div>
+                  <div>Rate (₹)</div>
+                  <div style={{ textAlign: "right", paddingRight: 4 }}>Subtotal</div>
+                  <div style={{ textAlign: "center" }}>Del</div>
+                </div>
 
-            {/* Line Item Rows */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6 }}>
-              {lineItems.map((li, index) => {
-                const currentProduct = products.find((p) => (p._id || p.id) === li.productId);
-                const stock = currentProduct?.stockQty ?? 0;
-                const unit = currentProduct?.unit || "PCS";
-                const qtyNum = parseFloat(li.quantity) || 0;
-                const rateNum = parseFloat(li.unitPrice) || 0;
-                const subtotal = Math.round(qtyNum * rateNum * 100) / 100;
-                const isOverStock = currentProduct && qtyNum > stock;
+                {/* Line Item Rows */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6 }}>
+                  {lineItems.map((li, index) => {
+                    const currentProduct = products.find((p) => (p._id || p.id) === li.productId);
+                    const stock = currentProduct?.stockQty ?? 0;
+                    const unit = currentProduct?.unit || "PCS";
+                    const qtyNum = parseFloat(li.quantity) || 0;
+                    const rateNum = parseFloat(li.unitPrice) || 0;
+                    const subtotal = Math.round(qtyNum * rateNum * 100) / 100;
+                    const isOverStock = currentProduct && qtyNum > stock;
 
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "36px minmax(200px, 2.2fr) 110px 110px 110px 110px 38px",
-                      gap: "0 10px",
-                      alignItems: "center",
-                      padding: "8px 10px",
-                      borderRadius: 8,
-                      background: index % 2 === 0 ? "var(--surface)" : "rgba(0,0,0,0.015)",
-                      border: "1px solid var(--line)",
-                      transition: "all 150ms ease",
-                    }}
-                  >
-                    {/* Index Pill */}
-                    <div style={{ textAlign: "center" }}>
-                      <span
+                    return (
+                      <div
+                        key={index}
                         style={{
-                          display: "inline-flex",
+                          display: "grid",
+                          gridTemplateColumns: "28px minmax(170px, 2fr) 90px 90px 90px 100px 32px",
+                          gap: "0 8px",
                           alignItems: "center",
-                          justifyContent: "center",
-                          width: 22,
-                          height: 22,
-                          borderRadius: 6,
-                          background: "var(--canvas)",
-                          fontSize: 10.5,
-                          fontWeight: 800,
-                          color: "var(--muted)",
+                          padding: "7px 10px",
+                          borderRadius: 8,
+                          background: index % 2 === 0 ? "var(--surface)" : "rgba(0,0,0,0.015)",
                           border: "1px solid var(--line)",
-                        }}
-                      >
-                        {index + 1}
-                      </span>
-                    </div>
-
-                    {/* Product Selection */}
-                    <div>
-                      <select
-                        value={li.productId}
-                        onChange={(e) => updateLineItem(index, "productId", e.target.value)}
-                        style={{
-                          width: "100%",
-                          height: 34,
-                          padding: "0 8px",
-                          fontSize: 12.5,
-                          fontWeight: 600,
-                          borderRadius: 7,
-                          border: "1px solid var(--line-strong)",
-                          background: "var(--surface)",
-                          color: "var(--ink)",
-                          outline: "none",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <option value="">Select product to sell...</option>
-                        {products.map((p) => (
-                          <option key={p._id || p.id} value={p._id || p.id}>
-                            {p.name} {p.category ? `[${p.category}]` : ""} — (Stock: {p.stockQty || 0} {p.unit || "PCS"})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Available Stock Tag */}
-                    <div style={{ textAlign: "center" }}>
-                      {currentProduct ? (
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 4,
-                            padding: "3px 8px",
-                            borderRadius: 6,
-                            fontSize: 11,
-                            fontWeight: 800,
-                            background: stock > 0 ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)",
-                            color: stock > 0 ? "#059669" : "#DC2626",
-                            border: `1px solid ${stock > 0 ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)"}`,
-                          }}
-                        >
-                          <i className={stock > 0 ? "ri-checkbox-circle-fill" : "ri-alert-fill"} style={{ fontSize: 11 }} />
-                          {stock} {unit}
-                        </span>
-                      ) : (
-                        <span style={{ fontSize: 11, color: "var(--muted)" }}>—</span>
-                      )}
-                    </div>
-
-                    {/* Quantity Input */}
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          height: 34,
-                          borderRadius: 7,
-                          border: `1px solid ${isOverStock ? "var(--status-error)" : "var(--line-strong)"}`,
-                          background: "var(--surface)",
-                          overflow: "hidden",
-                        }}
-                      >
-                        <input
-                          type="number"
-                          min="0.01"
-                          step="any"
-                          value={li.quantity}
-                          onChange={(e) => updateLineItem(index, "quantity", e.target.value)}
-                          placeholder="0"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            fontSize: 12.5,
-                            fontWeight: 700,
-                            color: isOverStock ? "var(--status-error)" : "var(--ink)",
-                            background: "transparent",
-                            border: "none",
-                            outline: "none",
-                            padding: "0 6px 0 8px",
-                          }}
-                        />
-                        <span
-                          style={{
-                            fontSize: 10,
-                            fontWeight: 700,
-                            color: "var(--muted)",
-                            paddingRight: 6,
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          {unit}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Rate Input */}
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          height: 34,
-                          borderRadius: 7,
-                          border: "1px solid var(--line-strong)",
-                          background: "var(--surface)",
-                          overflow: "hidden",
-                        }}
-                      >
-                        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", paddingLeft: 8 }}>
-                          ₹
-                        </span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="any"
-                          value={li.unitPrice}
-                          onChange={(e) => updateLineItem(index, "unitPrice", e.target.value)}
-                          placeholder="0"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            fontSize: 12.5,
-                            fontWeight: 700,
-                            color: "var(--ink)",
-                            background: "transparent",
-                            border: "none",
-                            outline: "none",
-                            padding: "0 8px 0 4px",
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Subtotal Display */}
-                    <div style={{ textAlign: "right", paddingRight: 4 }}>
-                      <span
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 800,
-                          color: subtotal > 0 ? "var(--primary-deep)" : "var(--muted)",
-                        }}
-                      >
-                        ₹{subtotal.toLocaleString("en-IN")}
-                      </span>
-                    </div>
-
-                    {/* Delete Action */}
-                    <div style={{ textAlign: "center" }}>
-                      <button
-                        type="button"
-                        onClick={() => removeLineItem(index)}
-                        disabled={lineItems.length <= 1}
-                        style={{
-                          width: 28,
-                          height: 28,
-                          borderRadius: 6,
-                          border: "1px solid rgba(239, 68, 68, 0.2)",
-                          background: lineItems.length <= 1 ? "transparent" : "rgba(239, 68, 68, 0.08)",
-                          color: lineItems.length <= 1 ? "var(--faint)" : "var(--status-error)",
-                          cursor: lineItems.length <= 1 ? "not-allowed" : "pointer",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
                           transition: "all 150ms ease",
                         }}
-                        title="Remove product item"
                       >
-                        <i className="ri-delete-bin-line" style={{ fontSize: 13 }} />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+                        {/* Index Pill */}
+                        <div style={{ textAlign: "center" }}>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: 22,
+                              height: 22,
+                              borderRadius: 6,
+                              background: "var(--canvas)",
+                              fontSize: 10.5,
+                              fontWeight: 800,
+                              color: "var(--muted)",
+                              border: "1px solid var(--line)",
+                            }}
+                          >
+                            {index + 1}
+                          </span>
+                        </div>
+
+                        {/* Product Selection */}
+                        <div style={{ minWidth: 0 }}>
+                          <select
+                            value={li.productId}
+                            onChange={(e) => updateLineItem(index, "productId", e.target.value)}
+                            style={{
+                              width: "100%",
+                              height: 34,
+                              padding: "0 8px",
+                              fontSize: 12.5,
+                              fontWeight: 600,
+                              borderRadius: 7,
+                              border: "1px solid var(--line-strong)",
+                              background: "var(--surface)",
+                              color: "var(--ink)",
+                              outline: "none",
+                              cursor: "pointer",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            <option value="">Select product to sell...</option>
+                            {products.map((p) => (
+                              <option key={p._id || p.id} value={p._id || p.id}>
+                                {p.name} {p.category ? `[${p.category}]` : ""} — (Stock: {p.stockQty || 0} {p.unit || "PCS"})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Available Stock Tag */}
+                        <div style={{ textAlign: "center" }}>
+                          {currentProduct ? (
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                padding: "3px 7px",
+                                borderRadius: 6,
+                                fontSize: 10.5,
+                                fontWeight: 800,
+                                background: stock > 0 ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)",
+                                color: stock > 0 ? "#059669" : "#DC2626",
+                                border: `1px solid ${stock > 0 ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)"}`,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <i className={stock > 0 ? "ri-checkbox-circle-fill" : "ri-alert-fill"} style={{ fontSize: 10.5 }} />
+                              {stock} {unit}
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: 11, color: "var(--muted)" }}>—</span>
+                          )}
+                        </div>
+
+                        {/* Quantity Input */}
+                        <div>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              height: 34,
+                              borderRadius: 7,
+                              border: `1px solid ${isOverStock ? "var(--status-error)" : "var(--line-strong)"}`,
+                              background: "var(--surface)",
+                              overflow: "hidden",
+                            }}
+                          >
+                            <input
+                              type="number"
+                              min="0.01"
+                              step="any"
+                              value={li.quantity}
+                              onChange={(e) => updateLineItem(index, "quantity", e.target.value)}
+                              placeholder="0"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                fontSize: 12.5,
+                                fontWeight: 700,
+                                color: isOverStock ? "var(--status-error)" : "var(--ink)",
+                                background: "transparent",
+                                border: "none",
+                                outline: "none",
+                                padding: "0 4px 0 8px",
+                              }}
+                            />
+                            <span
+                              style={{
+                                fontSize: 9.5,
+                                fontWeight: 700,
+                                color: "var(--muted)",
+                                paddingRight: 6,
+                                textTransform: "uppercase",
+                              }}
+                            >
+                              {unit}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Rate Input */}
+                        <div>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              height: 34,
+                              borderRadius: 7,
+                              border: "1px solid var(--line-strong)",
+                              background: "var(--surface)",
+                              overflow: "hidden",
+                            }}
+                          >
+                            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", paddingLeft: 6 }}>
+                              ₹
+                            </span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="any"
+                              value={li.unitPrice}
+                              onChange={(e) => updateLineItem(index, "unitPrice", e.target.value)}
+                              placeholder="0"
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                fontSize: 12.5,
+                                fontWeight: 700,
+                                color: "var(--ink)",
+                                background: "transparent",
+                                border: "none",
+                                outline: "none",
+                                padding: "0 6px 0 3px",
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Subtotal Display */}
+                        <div style={{ textAlign: "right", paddingRight: 4 }}>
+                          <span
+                            style={{
+                              fontSize: 12.5,
+                              fontWeight: 800,
+                              color: subtotal > 0 ? "var(--primary-deep)" : "var(--muted)",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            ₹{subtotal.toLocaleString("en-IN")}
+                          </span>
+                        </div>
+
+                        {/* Delete Action */}
+                        <div style={{ textAlign: "center" }}>
+                          <button
+                            type="button"
+                            onClick={() => removeLineItem(index)}
+                            disabled={lineItems.length <= 1}
+                            style={{
+                              width: 28,
+                              height: 28,
+                              borderRadius: 6,
+                              border: "1px solid rgba(239, 68, 68, 0.2)",
+                              background: lineItems.length <= 1 ? "transparent" : "rgba(239, 68, 68, 0.08)",
+                              color: lineItems.length <= 1 ? "var(--faint)" : "var(--status-error)",
+                              cursor: lineItems.length <= 1 ? "not-allowed" : "pointer",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              transition: "all 150ms ease",
+                            }}
+                            title="Remove product item"
+                          >
+                            <i className="ri-delete-bin-line" style={{ fontSize: 13 }} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* Bottom Row: Add Item Button & Counter */}
@@ -904,7 +920,7 @@ export default function DirectSaleToVendor() {
             headerStyle={{ padding: "10px 16px" }}
             bodyStyle={{ padding: "14px 16px" }}
           >
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1.2fr", gap: "10px 14px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "12px 14px" }}>
               <FormField
                 label="Payment Settlement Status"
                 type="select"
@@ -943,16 +959,14 @@ export default function DirectSaleToVendor() {
                 onChange={setVehicleNo}
                 placeholder="e.g. UP 53 DT 3311 / EWB-12948"
               />
-            </div>
 
-            <div style={{ marginTop: 10 }}>
               <FormField
                 label="Sale Notes &amp; Dispatch Remarks"
                 compact
                 layout="vertical"
                 value={notes}
                 onChange={setNotes}
-                placeholder="Any special remarks, delivery acknowledgement or barter details..."
+                placeholder="Special remarks, delivery acknowledgement or barter details..."
               />
             </div>
           </Card>
